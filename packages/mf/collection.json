@@ -1,0 +1,12 @@
+{
+  "$schema": "../../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "name": "mf",
+  "version": "0.0.1",
+  "schematics": {
+    "mf": {
+      "factory": "./src/schematics/mf/schematic",
+      "schema": "./src/schematics/mf/schema.json",
+      "description": "mf schematic"
+    }
+  }
+}
