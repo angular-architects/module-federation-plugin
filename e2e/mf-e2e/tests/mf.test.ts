@@ -1,46 +1,26 @@
 import {
-  checkFilesExist,
   ensureNxProject,
-  readJson,
   runNxCommandAsync,
-  uniq,
 } from '@nrwl/nx-plugin/testing';
+
+import * as fs from 'fs';
+import { angularJson } from './test-files';
+
 describe('mf e2e', () => {
   it('should create mf', async (done) => {
-    const plugin = uniq('mf');
-    ensureNxProject('@angular-architects/mf', 'dist/packages/mf');
-    await runNxCommandAsync(`generate @angular-architects/mf:mf ${plugin}`);
+    ensureNxProject('@angular-architects/module-federation', 'dist/packages/mf');
+    
+    fs.unlinkSync('tmp/nx-e2e/proj/workspace.json');
+    fs.writeFileSync('tmp/nx-e2e/proj/angular.json', angularJson);
+    fs.mkdirSync('tmp/nx-e2e/proj/apps/shell');
 
-    const result = await runNxCommandAsync(`build ${plugin}`);
-    expect(result.stdout).toContain('Builder ran');
+    await runNxCommandAsync(`generate @angular-architects/module-federation:init shell 5000`);
+
+    expect(fs.existsSync('tmp/nx-e2e/proj/apps/shell/webpack.config.js')).toBeTruthy();
+    expect(fs.existsSync('tmp/nx-e2e/proj/apps/shell/webpack.prod.config.js')).toBeTruthy();
 
     done();
-  });
+  }, 90000);
 
-  describe('--directory', () => {
-    it('should create src in the specified directory', async (done) => {
-      const plugin = uniq('mf');
-      ensureNxProject('@angular-architects/mf', 'dist/packages/mf');
-      await runNxCommandAsync(
-        `generate @angular-architects/mf:mf ${plugin} --directory subdir`
-      );
-      expect(() =>
-        checkFilesExist(`libs/subdir/${plugin}/src/index.ts`)
-      ).not.toThrow();
-      done();
-    });
-  });
-
-  describe('--tags', () => {
-    it('should add tags to nx.json', async (done) => {
-      const plugin = uniq('mf');
-      ensureNxProject('@angular-architects/mf', 'dist/packages/mf');
-      await runNxCommandAsync(
-        `generate @angular-architects/mf:mf ${plugin} --tags e2etag,e2ePackage`
-      );
-      const nxJson = readJson('nx.json');
-      expect(nxJson.projects[plugin].tags).toEqual(['e2etag', 'e2ePackage']);
-      done();
-    });
-  });
+ 
 });

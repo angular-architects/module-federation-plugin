@@ -1,12 +1,17 @@
 {
   "$schema": "../../node_modules/@angular-devkit/schematics/collection-schema.json",
-  "name": "mf",
+  "name": "module-federation",
   "version": "0.0.1",
   "schematics": {
-    "mf": {
+    "ng-add": {
+      "factory": "./src/schematics/mf/schematic#add",
+      "schema": "./src/schematics/mf/schema.json",
+      "description": "Initialize an angular project for webpack module federation"
+    },
+    "config": {
       "factory": "./src/schematics/mf/schematic",
       "schema": "./src/schematics/mf/schema.json",
-      "description": "mf schematic"
+      "description": "Initialize an angular project for webpack module federation"
     }
   }
 }

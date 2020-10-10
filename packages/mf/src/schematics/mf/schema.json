@@ -4,25 +4,24 @@
   "title": "",
   "type": "object",
   "properties": {
-    "name": {
+    "project": {
       "type": "string",
-      "description": "",
+      "description": "The project to add module federation",
       "$default": {
         "$source": "argv",
         "index": 0
       },
-      "x-prompt": "What name would you like to use?"
+      "x-prompt": "Project name (press enter for default project)"
     },
-    "tags": {
+    "port": {
       "type": "string",
-      "description": "Add tags to the project (used for linting)",
-      "alias": "t"
-    },
-    "directory": {
-      "type": "string",
-      "description": "A directory where the project is placed",
-      "alias": "d"
+      "description": "The port to use for the federated module (remote, micro frontend, etc.)",
+      "x-prompt": "Port to use",
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      }
     }
   },
-  "required": ["name"]
+  "required": ["port"]
 }

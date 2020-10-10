@@ -1,5 +1,4 @@
 export interface MfSchematicSchema {
-  name: string;
-  tags?: string;
-  directory?: string;
+  project: string;
+  port: string;
 }

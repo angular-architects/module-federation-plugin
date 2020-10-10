@@ -1,7 +1,11 @@
 {
-  "name": "@angular-architects/mf",
-  "version": "0.0.1",
+  "name": "@angular-architects/module-federation",
+  "version": "0.0.3",
   "main": "src/index.js",
   "schematics": "./collection.json",
-  "builders": "./builders.json"
+  "builders": "./builders.json",
+  "dependencies": {
+    "@nrwl/workspace": "^10.3.0",
+    "ngx-build-plus": "^10.0.0"
+  }
 }
