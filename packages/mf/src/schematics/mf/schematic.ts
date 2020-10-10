@@ -87,26 +87,26 @@ export default function config (options: MfSchematicSchema): Rule {
     tree.create(configPath, webpackConfig);
     tree.create(configProdPath, prodConfig);
 
-    // const useYarn = (workspace.cli?.packageManager === 'yarn');
+    projectConfig.architect.build.options.extraWebpackConfig = configPath;
+    projectConfig.architect.build.configurations.production.extraWebpackConfig = configProdPath;
+    projectConfig.architect.serve.options.extraWebpackConfig = configPath;
+    projectConfig.architect.serve.options.port = port;
+    projectConfig.architect.serve.configurations.production.extraWebpackConfig = configProdPath;
+    projectConfig.architect.test.options.extraWebpackConfig = configPath;
 
-    // if (useYarn) {
-    //   await yarnAdd('ngx-build-plus');
-    // }
-    // else {
-    //   await npmInstall('ngx-build-plus');
-    // }
+    tree.overwrite('angular.json', JSON.stringify(workspace, null, '\t'));
 
     return chain([
       externalSchematic('ngx-build-plus', 'ng-add', { project: options.project }),
-      updateWorkspace((workspace) => {
-        const proj = workspace.projects.get(options.project);
-        proj.targets.get('build').options.extraWebpackConfig = configPath;
-        proj.targets.get('build').configurations.production.extraWebpackConfig = configProdPath;
-        proj.targets.get('serve').options.extraWebpackConfig = configPath;
-        proj.targets.get('serve').options.port = options.port;
-        proj.targets.get('serve').configurations.production.extraWebpackConfig = configProdPath;
-        proj.targets.get('test').options.extraWebpackConfig = configPath;
-      })
+      // updateWorkspace((workspace) => {
+      //   const proj = workspace.projects.get(options.project);
+      //   proj.targets.get('build').options.extraWebpackConfig = configPath;
+      //   proj.targets.get('build').configurations.production.extraWebpackConfig = configProdPath;
+      //   proj.targets.get('serve').options.extraWebpackConfig = configPath;
+      //   proj.targets.get('serve').options.port = port;
+      //   proj.targets.get('serve').configurations.production.extraWebpackConfig = configProdPath;
+      //   proj.targets.get('test').options.extraWebpackConfig = configPath;
+      // })
     ]);
 
   }

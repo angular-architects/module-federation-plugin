@@ -13,6 +13,7 @@ export function createConfig(projectName: string, root: string, port: number): s
       },
       plugins: [
         new ModuleFederationPlugin({
+          
             // For remotes (please adjust)
             /*
             name: "${projectName}",

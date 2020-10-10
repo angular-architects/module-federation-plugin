@@ -35,6 +35,10 @@ Big thanks to the following people who helped to make this possible:
 
 - Run **yarn** to install all packages
 
+## Example
+
+See https://github.com/manfredsteyer/module-federation-plugin-example
+
 ## More Details
 
 Have a look at this [article series about Module Federation](https://www.angulararchitects.io/aktuelles/the-microfrontend-revolution-part-2-module-federation-with-angular/)

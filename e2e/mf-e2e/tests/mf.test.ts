@@ -14,7 +14,7 @@ describe('mf e2e', () => {
     fs.writeFileSync('tmp/nx-e2e/proj/angular.json', angularJson);
     fs.mkdirSync('tmp/nx-e2e/proj/apps/shell');
 
-    await runNxCommandAsync(`generate @angular-architects/module-federation:init shell 5000`);
+    await runNxCommandAsync(`generate @angular-architects/module-federation:config shell 5000`);
 
     expect(fs.existsSync('tmp/nx-e2e/proj/apps/shell/webpack.config.js')).toBeTruthy();
     expect(fs.existsSync('tmp/nx-e2e/proj/apps/shell/webpack.prod.config.js')).toBeTruthy();

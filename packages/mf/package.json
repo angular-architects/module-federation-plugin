@@ -1,6 +1,16 @@
 {
   "name": "@angular-architects/module-federation",
-  "version": "0.9.0",
+  "version": "0.9.3",
+  "access": "public",
+  "repository": {
+    "type": "GitHub",
+    "url": "https://github.com/angular-architects/module-federation-plugin"
+  },
+  "author": {
+    "name": "Manfred Steyer",
+    "email": "manfred.steyer@gmx.net",
+    "url": "https://www.angulararchitects.io"
+  },
   "main": "src/index.js",
   "schematics": "./collection.json",
   "builders": "./builders.json",
