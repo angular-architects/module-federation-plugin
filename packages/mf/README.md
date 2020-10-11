@@ -25,11 +25,11 @@ Big thanks to the following people who helped to make this possible:
     - Existing Projects: ``ng config -g cli.packageManager yarn``
     - New Projects: ``ng new workspace-name --packageManager yarn``
 
-- Add this to your ``package.json`` (e. g. before the ``dependencies`` section ) to force the CLI into webpack 5:
+- Add this to your ``package.json`` (e. g. before the ``dependencies`` section) to force the CLI into webpack 5:
 
     ```json
     "resolutions": {
-        "webpack": "5.0.0-rc.6"
+        "webpack": "5.0.0"
     },
     ```
 
