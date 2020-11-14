@@ -2,7 +2,7 @@
 
 This tutorial shows how to use Webpack Module Federation together with the Angular CLI and the ``@angular-architects/module-federation`` plugin. The goal is to make a shell capable of **loading a separately compiled and deployed microfrontend**:
 
-![Microfrontend Loaded into Shell](./result.png)
+![Microfrontend Loaded into Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/packages/mf/tutorial/result.png)
 
 
 ## Part 1: Clone and Inspect the Starterkit
@@ -68,7 +68,6 @@ Now, let's activate and configure module federation:
 
     module.exports = {
         output: {
-            publicPath: "http://localhost:3000/",
             uniqueName: "mfe1"
         },
         optimization: {
@@ -80,14 +79,16 @@ Now, let's activate and configure module federation:
 
                 // For remotes (please adjust)
                 name: "mfe1",
-                library: { type: "var", name: "mfe1" },
                 filename: "remoteEntry.js",
                 
                 exposes: {
                     './Module': './projects/mfe1/src/app/flights/flights.module.ts',
                 },        
-
-                shared: ["@angular/core", "@angular/common", "@angular/router"]
+                shared: {
+                    "@angular/core": { singleton: true, strictVersion: true }, 
+                    "@angular/common": { singleton: true, strictVersion: true }, 
+                    "@angular/router": { singleton: true, strictVersion: true }
+                }
             })
         ],
     };
@@ -102,7 +103,6 @@ Now, let's activate and configure module federation:
 
     module.exports = {
         output: {
-            publicPath: "http://localhost:5000/",
             uniqueName: "shell"
         },
         optimization: {
@@ -114,7 +114,11 @@ Now, let's activate and configure module federation:
                 remotes: {
                     'mfe1': "mfe1@http://localhost:3000/remoteEntry.js" 
                 },
-                shared: ["@angular/core", "@angular/common", "@angular/router"]
+                shared: {
+                    "@angular/core": { singleton: true, strictVersion: true }, 
+                    "@angular/common": { singleton: true, strictVersion: true }, 
+                    "@angular/router": { singleton: true, strictVersion: true }
+                }
             })
         ],
     };
@@ -154,11 +158,11 @@ Now, let's try it out!
 
 2. After a browser window with the shell opened (``http://localhost:5000``), click on ``Flights``. This should load the microfrontend into the shell:
 
-    ![Shell](shell.png)
+    ![Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/packages/mf/tutorial/shell.png)
 
 3. Also, ensure yourself that the microfrontend also runs in standalone mode at http://localhost:3000:
 
-    ![Microfrontend](mfe1.png)
+    ![Microfrontend](https://github.com/angular-architects/module-federation-plugin/raw/main/packages/mf/tutorial/mfe1.png)
    
 
 Congratulations! You've implemented your first Module Federation project with Angular!

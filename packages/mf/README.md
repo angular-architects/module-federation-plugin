@@ -33,7 +33,7 @@ The module federation config is a **partial** webpack configuration. It only con
 2. Adjust the generated ``webpack.config.js`` file
 3. Repeat this for further projects in your workspace (if needed)
 
-## Notes for CLI 11 BETA (next.XY) 🧐
+## Opting in into webpack 5 with CLI 11 🧐
 
 - You need to use **yarn** b/c it allows to override dependencies
     - Existing Projects: ``ng config -g cli.packageManager yarn``
@@ -43,31 +43,31 @@ The module federation config is a **partial** webpack configuration. It only con
 
     ```json
     "resolutions": {
-        "webpack": "5.0.0"
+        "webpack": "^5.0.0"
     },
     ```
 
 - Run **yarn** to install all packages
 
-Please note that the current CLI **beta** lacks some features when using it with webpack 5, e. g. **reloading an application in debug mode** (when using ng serve). Hence, you have to restart ng serve after a change. This is just a temporal limitation and will be solved with one of the upcoming versions.
+Please that the CLI's webpack 5 support is current experimental. 
 
 ## Example 📽️
 
 This [example](https://github.com/manfredsteyer/module-federation-plugin-example)
  loads a microfrontend into a shell:
 
-![Microfrontend Loaded into Shell](./tutorial/result.png)
+![Microfrontend Loaded into Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/packages/mf/tutorial/result.png)
 
 Please have a look into the example's **readme**. It points you to the important aspects of using Module Federation.
 
 
 ## Tutorial 🧪
 
-Please find here a [tutorial](./tutorial/tutorial.md) that shows step by step how to introduce Module Federation into the above mentioned example.
+Please find here a [tutorial](https://github.com/angular-architects/module-federation-plugin/blob/main/packages/mf/tutorial/tutorial.md) that shows step by step how to introduce Module Federation into the above mentioned example.
 
-![Microfrontend Loaded into Shell](./tutorial/result.png)
+![Microfrontend Loaded into Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/packages/mf/tutorial/result.png)
 
-[>> Start Tutorial](./tutorial/tutorial.md)
+[>> Start Tutorial](https://github.com/angular-architects/module-federation-plugin/blob/main/packages/mf/tutorial/tutorial.md)
 
 
 ## More Details on Module Federation 📰

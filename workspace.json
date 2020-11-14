@@ -28,6 +28,11 @@
             "packageJson": "packages/mf/package.json",
             "main": "packages/mf/src/index.ts",
             "assets": [
+              {
+                "input": "./packages/mf/tutorial",
+                "glob": "**/*",
+                "output": "tutorial"
+              },
               "packages/mf/*.md",
               {
                 "input": "./packages/mf/src",
