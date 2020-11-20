@@ -27,7 +27,8 @@
   },
   "private": true,
   "dependencies": {
-    "cross-spawn": "^7.0.3"
+    "cross-spawn": "^7.0.3",
+    "json5": "^2.1.3"
   },
   "devDependencies": {
     "@angular/cli": "^10.1.6",

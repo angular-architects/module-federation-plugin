@@ -1,6 +1,11 @@
-export function createConfig(projectName: string, root: string, port: number): string {
+export function createConfig(projectName: string, tsConfigName: string, root: string, port: number): string {
 
     return `const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+const mf = require("@angular-architects/module-federation/webpack");
+const path = require("path");
+
+const sharedMappings = new mf.SharedMappings();
+sharedMappings.register(path.join(__dirname, '${tsConfigName}'));
 
 module.exports = {
   output: {
@@ -28,10 +33,15 @@ module.exports = {
         shared: {
           "@angular/core": { singleton: true, strictVersion: true }, 
           "@angular/common": { singleton: true, strictVersion: true }, 
-          "@angular/router": { singleton: true, strictVersion: true }
+          "@angular/router": { singleton: true, strictVersion: true },
+
+          // Uncomment for sharing lib of an Angular CLI or Nx workspace
+          // ...sharedMappings.getDescriptors()
         }
         
-    })
+    }),
+    // Uncomment for sharing lib of an Angular CLI or Nx workspace
+    // sharedMappings.getPlugin(),
   ],
 };
 `;

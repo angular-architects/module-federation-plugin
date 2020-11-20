@@ -11,7 +11,7 @@ Big thanks to the following people who helped to make this possible:
 
 ## Prequisites
 
-- Angular CLI 11 (currently BETA)
+- Angular CLI 11 
 
 ## Motivation 💥
 

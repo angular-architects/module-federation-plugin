@@ -3,14 +3,11 @@ import {
   Rule,
   externalSchematic,
 } from '@angular-devkit/schematics';
-import {
-  updateWorkspace,
-} from '@nrwl/workspace';
 
 import { spawn } from 'cross-spawn';
 import * as path from 'path';
 
-import { createConfig } from '../../create-config';
+import { createConfig } from '../../utils/create-config';
 import { prodConfig } from './prod-config';
 import { MfSchematicSchema } from './schema';
 
@@ -50,6 +47,25 @@ export function add(options: MfSchematicSchema): Rule {
   return config(options);
 }
 
+
+function makeMainAsync(main: string): Rule {
+  return async function (tree, context) {
+
+    const mainPath = path.dirname(main);
+    const bootstrapName = path.join(mainPath, 'bootstrap.ts');
+
+    if (tree.exists(bootstrapName)) {
+      console.info(`${bootstrapName} already exists.`);
+      return;
+    }
+
+    const mainContent = tree.read(main);
+    tree.create(bootstrapName, mainContent);
+    tree.overwrite(main, "import('./bootstrap');")
+
+  }
+}
+
 export default function config (options: MfSchematicSchema): Rule {
 
   return async function (tree) {
@@ -77,12 +93,21 @@ export default function config (options: MfSchematicSchema): Rule {
     const configPath = path.join(projectRoot, 'webpack.config.js').replace(/\\/g, '/');
     const configProdPath = path.join(projectRoot, 'webpack.prod.config.js').replace(/\\/g, '/');
     const port = parseInt(options.port);
+    const main = projectConfig.architect.build.options.main;
+
+    const relWorkspaceRoot = path.relative(projectRoot, '');
+    const tsConfigName = tree.exists('tsconfig.base.json') ? 
+      'tsconfig.base.json' : 'tsconfig.json'; 
+
+    const relTsConfigPath = path
+      .join(relWorkspaceRoot, tsConfigName)
+      .replace(/\\/g, '/');
 
     if (isNaN(port)) {
       throw new Error(`Port must be a number!`);
     }
 
-    const webpackConfig = createConfig(projectName, projectRoot, port);
+    const webpackConfig = createConfig(projectName, relTsConfigPath, projectRoot, port);
 
     tree.create(configPath, webpackConfig);
     tree.create(configProdPath, prodConfig);
@@ -97,6 +122,7 @@ export default function config (options: MfSchematicSchema): Rule {
     tree.overwrite('angular.json', JSON.stringify(workspace, null, '\t'));
 
     return chain([
+      makeMainAsync(main),
       externalSchematic('ngx-build-plus', 'ng-add', { project: options.project }),
       // updateWorkspace((workspace) => {
       //   const proj = workspace.projects.get(options.project);
