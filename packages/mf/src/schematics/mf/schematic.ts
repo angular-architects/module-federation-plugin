@@ -61,7 +61,7 @@ function makeMainAsync(main: string): Rule {
 
     const mainContent = tree.read(main);
     tree.create(bootstrapName, mainContent);
-    tree.overwrite(main, "import('./bootstrap');")
+    tree.overwrite(main, "import('./bootstrap');\n");
 
   }
 }
@@ -107,7 +107,8 @@ export default function config (options: MfSchematicSchema): Rule {
       throw new Error(`Port must be a number!`);
     }
 
-    const webpackConfig = createConfig(projectName, relTsConfigPath, projectRoot, port);
+    const remotes = generateRemoteConfig(workspace, projectName);
+    const webpackConfig = createConfig(projectName, remotes, relTsConfigPath, projectRoot, port);
 
     tree.create(configPath, webpackConfig);
     tree.create(configProdPath, prodConfig);
@@ -136,5 +137,23 @@ export default function config (options: MfSchematicSchema): Rule {
     ]);
 
   }
+}
+
+function generateRemoteConfig(workspace: any, projectName: string) {
+  let remotes = '';
+  for (const p in workspace.projects) {
+    const project = workspace.projects[p];
+    const projectType = project.projectType ?? 'application';
+
+    if (p !== projectName && projectType === 'application') {
+      const pPort = project.architect.serve.options.port ?? 4200;
+      remotes += `        //     "${p}": "${p}@http://localhost:${pPort}/remoteEntry.js",\n`;
+    }
+  }
+
+  if (!remotes) {
+    remotes = '        //     "mfe1": "mfe1@http://localhost:3000/remoteEntry.js",\n';
+  }
+  return remotes;
 }
 

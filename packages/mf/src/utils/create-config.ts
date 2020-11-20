@@ -1,11 +1,13 @@
-export function createConfig(projectName: string, tsConfigName: string, root: string, port: number): string {
+export function createConfig(projectName: string, remotes: string, tsConfigName: string, root: string, port: number): string {
 
     return `const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 const mf = require("@angular-architects/module-federation/webpack");
 const path = require("path");
 
 const sharedMappings = new mf.SharedMappings();
-sharedMappings.register(path.join(__dirname, '${tsConfigName}'));
+sharedMappings.register(
+  path.join(__dirname, '${tsConfigName}'),
+  [/* mapped paths to share */]);
 
 module.exports = {
   output: {
@@ -27,7 +29,7 @@ module.exports = {
         
         // For hosts (please adjust)
         // remotes: {
-        //     'mfe1': "mfe1@http://localhost:3000/remoteEntry.js" 
+${remotes}
         // },
 
         shared: {
@@ -35,13 +37,11 @@ module.exports = {
           "@angular/common": { singleton: true, strictVersion: true }, 
           "@angular/router": { singleton: true, strictVersion: true },
 
-          // Uncomment for sharing lib of an Angular CLI or Nx workspace
-          // ...sharedMappings.getDescriptors()
+          ...sharedMappings.getDescriptors()
         }
         
     }),
-    // Uncomment for sharing lib of an Angular CLI or Nx workspace
-    // sharedMappings.getPlugin(),
+    sharedMappings.getPlugin(),
   ],
 };
 `;
