@@ -61,7 +61,7 @@ function makeMainAsync(main: string): Rule {
 
     const mainContent = tree.read(main);
     tree.create(bootstrapName, mainContent);
-    tree.overwrite(main, "import('./bootstrap');\n");
+    tree.overwrite(main, "import('./bootstrap')\n\t.catch(err => console.error(err));\n");
 
   }
 }

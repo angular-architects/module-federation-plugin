@@ -66,6 +66,8 @@ Now, let's activate and configure module federation:
     ```javascript
     const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
+    [...]
+
     module.exports = {
         output: {
             uniqueName: "mfe1"
@@ -87,19 +89,23 @@ Now, let's activate and configure module federation:
                 shared: {
                     "@angular/core": { singleton: true, strictVersion: true }, 
                     "@angular/common": { singleton: true, strictVersion: true }, 
-                    "@angular/router": { singleton: true, strictVersion: true }
+                    "@angular/router": { singleton: true, strictVersion: true },
+                    [...]
                 }
-            })
+            }),
+            [...]
         ],
     };
     ```
 
     This exposes the ``FlightsModule`` under the Name ``./Module.``. Hence, the shell can use this path to load it. 
 
-3. Switch into the ``shell`` project and open the file ``projects\shell\webpack.config.js``. Adjust it as follows:
+1. Switch into the ``shell`` project and open the file ``projects\shell\webpack.config.js``. Adjust it as follows:
 
     ```javascript
     const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+
+    [...]
 
     module.exports = {
         output: {
@@ -117,16 +123,18 @@ Now, let's activate and configure module federation:
                 shared: {
                     "@angular/core": { singleton: true, strictVersion: true }, 
                     "@angular/common": { singleton: true, strictVersion: true }, 
-                    "@angular/router": { singleton: true, strictVersion: true }
+                    "@angular/router": { singleton: true, strictVersion: true },
+                    [...]
                 }
-            })
+            }),
+            [...]
         ],
     };
     ```
 
     This references the separately compiled and deployed ``mfe1`` project. There are some alternatives to configure its URL (see links at the end).
 
-4. Open the ``shell``'s router config (``projects\shell\src\app\app.routes.ts``) and add a route loading the microfrontend:
+2. Open the ``shell``'s router config (``projects\shell\src\app\app.routes.ts``) and add a route loading the microfrontend:
 
     ```javascript
     {
@@ -137,7 +145,7 @@ Now, let's activate and configure module federation:
 
     Please note that the imported URL consists of the names defined in the configuration files above.
 
-5. As the Url ``mfe1/Module`` does not exist at compile time, ease the TypeScript compiler by adding the following line to the file ``projects\shell\src\decl.d.ts``:
+3. As the Url ``mfe1/Module`` does not exist at compile time, ease the TypeScript compiler by adding the following line to the file ``projects\shell\src\decl.d.ts``:
 
     ```javascript
     declare module 'mfe1/Module';
@@ -166,6 +174,188 @@ Now, let's try it out!
    
 
 Congratulations! You've implemented your first Module Federation project with Angular!
+
+## Part 4: Switch to Dynamic Federation
+
+Now, let's remove the need for registering the micro frontends upfront with with shell.
+
+1. Switch to your ``shell`` application and open the file ``webpack.config.js``. Here, remove the registered remotes:
+
+    ```javascript
+    remotes: {
+        // Remove this line or comment it out:
+        // "mfe1": "mfe1@http://localhost:3000/remoteEntry.js",
+    },
+    ```
+
+1. Open the file ``app.routes.ts`` and use the function ``loadRemoteModule`` instead of the dynamic ``import`` statement:
+
+    ```typescript
+    import { loadRemoteModule } from '@angular-architects/module-federation';
+
+    [...]
+    const routes: Routes = [
+        [...]
+        {
+            path: 'flights',
+            loadChildren: () =>
+                loadRemoteModule({
+                    remoteEntry: 'http://localhost:3000/remoteEntry.js',
+                    remoteName: 'mfe1',
+                    exposedModule: './Module'
+                })
+                .then(m => m.FlightsModule)
+        },
+        [...]
+    ]
+    ```
+
+2. Restart both, the ``shell`` and the micro frontend (``mfe1``). 
+
+3. The shell should still be able to load the micro frontend. However, now it's loaded dynamically.
+
+This was quite easy, wasn't it? However, we can improve this solution a bit. Ideally, we load the remote entry upfront before Angular bootstraps. In this early phase, Module Federation tries to determine the highest compatible versions of all dependencies. Let's assume, the shell provides version 1.0.0 of a dependency (specifying ^1.0.0 in its ``package.json``) and the micro frontend uses version 1.1.0 (specifying ^1.1.0 in its ``package.json``). In this case, they would go with version 1.1.0. However, this is only possible if the remote's entry is loaded upfront.
+
+1. Switch to the ``shell`` project and open the file ``main.ts``. Adjust it as follows:
+
+    ```typescript
+    import { loadRemoteEntry } from '@angular-architects/module-federation';
+
+    Promise.all([
+        loadRemoteEntry('http://localhost:3000/remoteEntry.js', 'mfe1')
+    ])
+    .catch(err => console.error('Error loading remote entries', err))
+    .then(() => import('./bootstrap'))
+    .catch(err => console.error(err));
+    ```
+
+1. Open the file ``app.routes.ts`` and comment out (or remove) the property ``remoteEntry``:
+
+    ```typescript
+    import { loadRemoteModule } from '@angular-architects/module-federation';
+
+    [...]
+    const routes: Routes = [
+        [...]
+        {
+            path: 'flights',
+            loadChildren: () =>
+                loadRemoteModule({
+                    // remoteEntry: 'http://localhost:3000/remoteEntry.js',
+                    remoteName: 'mfe1',
+                    exposedModule: './Module'
+                })
+                .then(m => m.FlightsModule)
+        },
+        [...]
+    ]
+    ```
+ 
+2. Restart both, the ``shell`` and the micro frontend (``mfe1``). 
+
+3. The shell should still be able to load the micro frontend.
+
+## Step 5: Share a Library of Your Monorepo
+
+1. Add a library to your monorepo:
+
+    ```
+    ng g lib auth-lib
+    ```
+
+2. In your ``tsconfig.json`` in the project's root, adjust the path mapping for ``auth-lib`` so that it points to the libs entry point:
+
+    ```json
+    "auth-lib": [
+     "projects/auth-lib/src/public-api.ts"
+    ]
+    ```
+
+3. As most IDEs only read global configuration files like the ``tsconfig.json`` once, restart your IDE (Alternatively, your IDE might also provide an option for reloading these settings).
+
+4. Open the ``shell``'s ``webpack.config.js`` and register the created ``auth-lib`` with the ``sharedMappings``:
+
+    ```typescript
+    const sharedMappings = new mf.SharedMappings();
+    sharedMappings.register(
+        path.join(__dirname, '../../tsconfig.json'),
+        ['auth-lib'] // <-- Add this entry!  
+    );
+    ```
+
+5. Also open the micro frontends (``mfe1``) ``webpack.config.js`` and do the same.
+
+6. Switch to your ``auth-lib`` project and open the file ``auth-lib.service.ts``. Adjust it as follows:
+
+    ```typescript
+    @Injectable({
+        providedIn: 'root'
+    })
+    export class AuthLibService {
+
+        private userName: string;
+
+        public get user(): string {
+            return this.userName;
+        }
+
+        constructor() { }
+
+        public login(userName: string, password: string): void {
+            // Authentication for **honest** users TM. (c) Manfred Steyer
+            this.userName = userName;
+        }
+
+    }
+    ```
+
+7. Switch to your ``shell`` project and open its ``app.component.ts``. Use the shared ``AuthLibService`` to login a user:
+
+    ```typescript
+    import { AuthLibService } from 'auth-lib';
+
+    @Component({
+        selector: 'app-root',
+        templateUrl: './app.component.html'
+    })
+    export class AppComponent {
+        title = 'shell';
+
+        constructor(private service: AuthLibService) {
+            this.service.login('Max', null);
+        }
+
+    }
+    ```
+
+8. Switch to your ``mfe1`` project and open its ``flights-search.component.ts``. Use the shared service to retrieve the current user's name:
+
+    ```typescript
+    export class FlightsSearchComponent {
+
+        [...]
+        
+        user = this.service.user;
+
+        constructor(private service: AuthLibService, [...]) { }
+
+        [...]
+    }
+    ```
+
+9. Open this component's template(``flights-search.component.html``) and data bind the property ``user``:
+
+    ```html
+    <div id="container">
+        <div>{{user}}</div>
+        [...]
+    </div>
+	```
+
+10. Restart both, the ``shell`` and the micro frontend (``mfe1``). 
+
+11. In the shell, navigate to the micro frontend. If it shows the same user name, the library is shared.
+
 
 ## More Details on Module Federation
 
