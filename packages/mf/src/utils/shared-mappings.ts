@@ -4,14 +4,15 @@ import * as fs from 'fs';
 import * as JSON5  from 'json5';
 
 
-interface KeyValuePair {
+interface Library {
     key: string;
-    value: string;
+    path: string;
+    version?: string;
 }
 
 export class SharedMappings {
 
-    private mappings: KeyValuePair[] = [];
+    private mappings: Library[] = [];
 
     register(tsConfigPath: string, shared: string[] = null): void {
 
@@ -19,23 +20,45 @@ export class SharedMappings {
             throw new Error('SharedMappings.register: tsConfigPath needs to be an absolute path!');
         }
 
-        const tsConfig = JSON5.parse(
-            fs.readFileSync(tsConfigPath, {encoding: 'UTF8'}));
+        const tsConfig = JSON5.parse(fs.readFileSync(tsConfigPath, {encoding: 'UTF8'}));
         const mappings = tsConfig?.compilerOptions?.paths;
         const rootPath = path.normalize(path.dirname(tsConfigPath));
-
+        
         if (!mappings) {
             return;
         }
 
         for (const key in mappings) {
+
+            const libPath = path.normalize(path.join(rootPath, mappings[key][0]));
+            const version = this.getPackageVersion(libPath);
+
             if (!shared || shared.length === 0 || shared.includes(key)) {
                 this.mappings.push({
                     key,
-                    value: path.normalize(path.join(rootPath, mappings[key][0]))
+                    path: libPath,
+                    version
                 });
             }
         }
+    }
+
+    private getPackageVersion(libPath: string) {
+
+        if (libPath.endsWith('.ts')) {
+            libPath = path.dirname(libPath);
+        }
+
+
+
+        const packageJsonPath = path.join(libPath, '..', 'package.json');
+        if (fs.existsSync(packageJsonPath)) {
+            const packageJson = JSON5.parse(
+                fs.readFileSync(packageJsonPath, { encoding: 'UTF8' }));
+
+            return packageJson.version ?? null;
+        }
+        return null;
     }
 
     getPlugin(): NormalModuleReplacementPlugin {
@@ -46,7 +69,7 @@ export class SharedMappings {
             if (!req.request.startsWith('.')) return;
 
             for (const m of this.mappings) {
-                const libFolder = path.normalize(path.dirname(m.value));
+                const libFolder = path.normalize(path.dirname(m.path));
                 if (!from.startsWith(libFolder) && to.startsWith(libFolder)) {
                     req.request = m.key;
                     // console.log('remapping', { from, to, libFolder });
@@ -60,7 +83,7 @@ export class SharedMappings {
 
         for (const m of this.mappings) {
             result[m.key] = {
-                import: m.value,
+                import: m.path,
                 requiredVersion: false
             };
         }
@@ -70,13 +93,16 @@ export class SharedMappings {
 
     getDescriptor(mappedPath: string, requiredVersion: string = null): any {
 
-        if (!this.mappings[mappedPath]) {
+        const lib = this.mappings.find(m => m.key === mappedPath);
+
+        if (!lib) {
             throw new Error('No mapping found for ' + mappedPath + ' in tsconfig');
         }
 
         return ({
             [mappedPath]: {
-                import: this.mappings[mappedPath],
+                import: lib.path,
+                version: lib.version ?? undefined,
                 requiredVersion: requiredVersion ?? false
             }
         });
