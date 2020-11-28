@@ -1,8 +1,4 @@
-import {
-  chain,
-  Rule,
-  externalSchematic,
-} from '@angular-devkit/schematics';
+import { chain, Rule, externalSchematic } from '@angular-devkit/schematics';
 
 import { spawn } from 'cross-spawn';
 import * as path from 'path';
@@ -14,32 +10,26 @@ import { MfSchematicSchema } from './schema';
 export async function npmInstall(packageName: string) {
   await new Promise<boolean>((resolve) => {
     console.log('Installing packages...');
-    spawn('npm', ['install', packageName, '-D'])
-      .on('close', (code: number) => {
-        if (code === 0) {
-          console.log('Packages installed successfully ✅');
-          resolve(true);
-        } else {
-          throw new Error(
-            `Error installing '${packageName}'`
-          );
-        }
-      });
+    spawn('npm', ['install', packageName, '-D']).on('close', (code: number) => {
+      if (code === 0) {
+        console.log('Packages installed successfully ✅');
+        resolve(true);
+      } else {
+        throw new Error(`Error installing '${packageName}'`);
+      }
+    });
   });
 }
 
 export async function yarnAdd(packageName: string) {
   await new Promise<boolean>((resolve) => {
-    spawn('npm', ['install', packageName, '-D'])
-      .on('close', (code: number) => {
-        if (code === 0) {
-          resolve(true);
-        } else {
-          throw new Error(
-            `Error installing '${packageName}'`
-          );
-        }
-      });
+    spawn('npm', ['install', packageName, '-D']).on('close', (code: number) => {
+      if (code === 0) {
+        resolve(true);
+      } else {
+        throw new Error(`Error installing '${packageName}'`);
+      }
+    });
   });
 }
 
@@ -47,10 +37,10 @@ export function add(options: MfSchematicSchema): Rule {
   return config(options);
 }
 
-
 function makeMainAsync(main: string): Rule {
-  return async function (tree, context) {
+  console.log('makeMainAsync');
 
+  return async function (tree, context) {
     const mainPath = path.dirname(main);
     const bootstrapName = path.join(mainPath, 'bootstrap.ts');
 
@@ -61,24 +51,28 @@ function makeMainAsync(main: string): Rule {
 
     const mainContent = tree.read(main);
     tree.create(bootstrapName, mainContent);
-    tree.overwrite(main, "import('./bootstrap')\n\t.catch(err => console.error(err));\n");
-
-  }
+    tree.overwrite(
+      main,
+      "import('./bootstrap')\n\t.catch(err => console.error(err));\n"
+    );
+  };
 }
 
-export default function config (options: MfSchematicSchema): Rule {
+export default function config(options: MfSchematicSchema): Rule {
+  console.log('options', options);
 
   return async function (tree) {
-
-    const workspace =
-      JSON.parse(tree.read('angular.json').toString('utf8'));
+    console.log('options', tree);
+    const workspace = JSON.parse(tree.read('angular.json').toString('utf8'));
 
     if (!options.project) {
       options.project = workspace.defaultProject;
     }
 
     if (!options.project) {
-      throw new Error(`No default project found. Please specifiy a project name!`)
+      throw new Error(
+        `No default project found. Please specifiy a project name!`
+      );
     }
 
     const projectName = options.project;
@@ -90,14 +84,19 @@ export default function config (options: MfSchematicSchema): Rule {
 
     const projectRoot: string = projectConfig.root;
 
-    const configPath = path.join(projectRoot, 'webpack.config.js').replace(/\\/g, '/');
-    const configProdPath = path.join(projectRoot, 'webpack.prod.config.js').replace(/\\/g, '/');
+    const configPath = path
+      .join(projectRoot, 'webpack.config.js')
+      .replace(/\\/g, '/');
+    const configProdPath = path
+      .join(projectRoot, 'webpack.prod.config.js')
+      .replace(/\\/g, '/');
     const port = parseInt(options.port);
     const main = projectConfig.architect.build.options.main;
 
     const relWorkspaceRoot = path.relative(projectRoot, '');
-    const tsConfigName = tree.exists('tsconfig.base.json') ? 
-      'tsconfig.base.json' : 'tsconfig.json'; 
+    const tsConfigName = tree.exists('tsconfig.base.json')
+      ? 'tsconfig.base.json'
+      : 'tsconfig.json';
 
     const relTsConfigPath = path
       .join(relWorkspaceRoot, tsConfigName)
@@ -108,7 +107,13 @@ export default function config (options: MfSchematicSchema): Rule {
     }
 
     const remotes = generateRemoteConfig(workspace, projectName);
-    const webpackConfig = createConfig(projectName, remotes, relTsConfigPath, projectRoot, port);
+    const webpackConfig = createConfig(
+      projectName,
+      remotes,
+      relTsConfigPath,
+      projectRoot,
+      port
+    );
 
     tree.create(configPath, webpackConfig);
     tree.create(configProdPath, prodConfig);
@@ -124,7 +129,9 @@ export default function config (options: MfSchematicSchema): Rule {
 
     return chain([
       makeMainAsync(main),
-      externalSchematic('ngx-build-plus', 'ng-add', { project: options.project }),
+      externalSchematic('ngx-build-plus', 'ng-add', {
+        project: options.project,
+      }),
       // updateWorkspace((workspace) => {
       //   const proj = workspace.projects.get(options.project);
       //   proj.targets.get('build').options.extraWebpackConfig = configPath;
@@ -135,8 +142,7 @@ export default function config (options: MfSchematicSchema): Rule {
       //   proj.targets.get('test').options.extraWebpackConfig = configPath;
       // })
     ]);
-
-  }
+  };
 }
 
 function generateRemoteConfig(workspace: any, projectName: string) {
@@ -144,16 +150,17 @@ function generateRemoteConfig(workspace: any, projectName: string) {
   for (const p in workspace.projects) {
     const project = workspace.projects[p];
     const projectType = project.projectType ?? 'application';
+    const hasServeOptions = Boolean(project.architect?.serve?.options);
 
-    if (p !== projectName && projectType === 'application') {
+    if (p !== projectName && projectType === 'application' && hasServeOptions) {
       const pPort = project.architect.serve.options.port ?? 4200;
       remotes += `        //     "${p}": "${p}@http://localhost:${pPort}/remoteEntry.js",\n`;
     }
   }
 
   if (!remotes) {
-    remotes = '        //     "mfe1": "mfe1@http://localhost:3000/remoteEntry.js",\n';
+    remotes =
+      '        //     "mfe1": "mfe1@http://localhost:3000/remoteEntry.js",\n';
   }
   return remotes;
 }
-
