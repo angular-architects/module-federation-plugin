@@ -54,7 +54,7 @@ export function loadRemoteEntry(remoteEntry: string, remoteName: string): Promis
             resolve(); 
         }
 
-        document.body.append(script);
+        document.body.appendChild(script);
     });
 }
 
