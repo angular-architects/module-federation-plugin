@@ -33,7 +33,7 @@ export class SharedMappings {
             const libPath = path.normalize(path.join(rootPath, mappings[key][0]));
             const version = this.getPackageVersion(libPath);
 
-            if (!shared || shared.length === 0 || shared.includes(key)) {
+            if (shared && shared.includes(key)) {
                 this.mappings.push({
                     key,
                     path: libPath,
