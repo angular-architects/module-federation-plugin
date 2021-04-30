@@ -10,7 +10,9 @@
         "lint": {
           "builder": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["packages/mf/**/*.ts"]
+            "lintFilePatterns": [
+              "packages/mf/**/*.ts"
+            ]
           }
         },
         "test": {
@@ -18,7 +20,10 @@
           "options": {
             "jestConfig": "packages/mf/jest.config.js",
             "passWithNoTests": true
-          }
+          },
+          "outputs": [
+            "coverage/packages/mf"
+          ]
         },
         "build": {
           "builder": "@nrwl/node:package",
@@ -50,7 +55,10 @@
                 "output": "."
               }
             ]
-          }
+          },
+          "outputs": [
+            "{options.outputPath}"
+          ]
         }
       }
     },
@@ -72,6 +80,7 @@
     }
   },
   "cli": {
-    "defaultCollection": "@nrwl/workspace"
+    "defaultCollection": "@nrwl/workspace",
+    "packageManager": "yarn"
   }
 }

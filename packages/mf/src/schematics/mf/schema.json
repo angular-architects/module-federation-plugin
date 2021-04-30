@@ -1,6 +1,6 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
-  "id": "Mf",
+  "$schema": "http://json-schema.org/schema",
+  "$id": "mf",
   "title": "",
   "type": "object",
   "properties": {
@@ -23,5 +23,7 @@
       }
     }
   },
-  "required": ["port"]
+  "required": [
+    "port"
+  ]
 }

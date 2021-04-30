@@ -11,11 +11,16 @@ sharedMappings.register(
 
 module.exports = {
   output: {
-    uniqueName: "${projectName}"
+    uniqueName: "${projectName}",
+    publicPath: "auto"
   },
   optimization: {
-    // Only needed to bypass a temporary bug
     runtimeChunk: false
+  },   
+  resolve: {
+    alias: {
+      ...sharedMappings.getAliases(),
+    }
   },
   plugins: [
     new ModuleFederationPlugin({
@@ -35,13 +40,14 @@ ${remotes}
         shared: {
           "@angular/core": { singleton: true, strictVersion: true }, 
           "@angular/common": { singleton: true, strictVersion: true }, 
+          "@angular/common/http": { singleton: true, strictVersion: true }, 
           "@angular/router": { singleton: true, strictVersion: true },
 
           ...sharedMappings.getDescriptors()
         }
         
     }),
-    sharedMappings.getPlugin(),
+    sharedMappings.getPlugin()
   ],
 };
 `;

@@ -113,12 +113,21 @@ export default function config (options: MfSchematicSchema): Rule {
     tree.create(configPath, webpackConfig);
     tree.create(configProdPath, prodConfig);
 
-    if (!projectConfig?.architect?.build?.options ||
-      !projectConfig?.architect?.serve?.options) {
+    if (!projectConfig?.architect?.build ||
+      !projectConfig?.architect?.serve) {
         throw new Error(`The project doen't have a build or serve target in angular.json!`);
     }
 
+    if (!projectConfig.architect.build.options) {
+      projectConfig.architect.build.options = {};
+    }
+
+    if (!projectConfig.architect.serve.options) {
+      projectConfig.architect.serve.options = {};
+    }
+
     projectConfig.architect.build.options.extraWebpackConfig = configPath;
+    projectConfig.architect.build.options.commonChunk = false;
     projectConfig.architect.build.configurations.production.extraWebpackConfig = configProdPath;
     projectConfig.architect.serve.options.extraWebpackConfig = configPath;
     projectConfig.architect.serve.options.port = port;
