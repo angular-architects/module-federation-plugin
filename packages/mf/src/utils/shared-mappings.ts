@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as JSON5  from 'json5';
 
-
 interface Library {
     key: string;
     path: string;

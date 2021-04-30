@@ -11,7 +11,7 @@ Big thanks to the following people who helped to make this possible:
 
 ## Prequisites
 
-- Angular CLI 11 
+- Angular CLI 12 
 
 ## Motivation 💥
 
@@ -32,6 +32,12 @@ Since Version 1.2, we also provide some advanced features like:
 ✅ Dynamic Module Federation support
 
 ✅ Sharing Libs of a Monorepo
+
+## What's new in Version 12.0.0-beta.1?
+
+✅ Works with CLI 12.0.0-rc.1 that brings webpack 5 out of the box
+
+✅ Issues with sharing libs in monorepos are resolved (always worked with multiple repos)
 
 
 ## Usage 🛠️
@@ -194,21 +200,6 @@ plugins: [
 ```
 
 ### Pitfalls when sharing libraries of a Monorepo
-
-#### Bug with styleUrls
-
-Currently, there is, unfortunately, a bug in the experimental CLI/webpack5 integration causing issues when using shared libraries together with components pointing to ``styleUrls``. For the time being, you can work around this issue by removing all ``styleUrls`` in your applications and libraries.
-
-#### Sharing a library that is not even used
-
-If you shared a local library that is not even used, you get the following error:
-
-```
-./projects/shared-lib/src/public-api.ts - Error: Module build failed (from ./node_modules/@ngtools/webpack/src/index.js):
-Error: C:\Users\Manfred\Documents\projekte\mf-plugin\example\projects\shared-lib\src\public-api.ts is missing from the TypeScript compilation. Please make sure it is in your tsconfig via the 'files' or 'include' property.
-    at AngularCompilerPlugin.getCompiledFile (C:\Users\Manfred\Documents\projekte\mf-plugin\example\node_modules\@ngtools\webpack\src\angular_compiler_plugin.js:957:23)
-    at C:\Users\Manfred\Documents\projekte\mf-plugin\example\node_modules\@ngtools\webpack\src\loader.js:43:31
-```
 
 #### Not exported Components
 
