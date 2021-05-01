@@ -166,7 +166,7 @@ function generateRemoteConfig(workspace: any, projectName: string) {
         && projectType === 'application'
         && project?.architect?.serve
         && project?.architect?.build) {
-      const pPort = project.architect.serve.options.port ?? 4200;
+      const pPort = project.architect.serve.options?.port ?? 4200;
       remotes += `        //     "${p}": "${p}@http://localhost:${pPort}/remoteEntry.js",\n`;
     }
   }

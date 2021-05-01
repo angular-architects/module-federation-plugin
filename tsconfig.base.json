@@ -16,7 +16,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "angular-architects/mf": ["packages/mf/src/index.ts"]
+      "angular-architects/mf": ["packages/mf/src/index.ts"],
+      "@angular-architects/mf-utils": ["packages/mf-utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

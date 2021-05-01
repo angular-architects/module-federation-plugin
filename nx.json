@@ -1,14 +1,9 @@
 {
   "npmScope": "angular-architects",
-  "affected": {
-    "defaultBase": "master"
-  },
+  "affected": { "defaultBase": "master" },
   "implicitDependencies": {
     "workspace.json": "*",
-    "package.json": {
-      "dependencies": "*",
-      "devDependencies": "*"
-    },
+    "package.json": { "dependencies": "*", "devDependencies": "*" },
     "tsconfig.base.json": "*",
     "tslint.json": "*",
     ".eslintrc.json": "*",
@@ -17,22 +12,13 @@
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",
-      "options": {
-        "cacheableOperations": []
-      }
+      "options": { "cacheableOperations": [] }
     }
   },
   "projects": {
-    "mf": {
-      "tags": []
-    },
-    "mf-e2e": {
-      "tags": [],
-      "implicitDependencies": ["mf"]
-    }
+    "mf": { "tags": [] },
+    "mf-e2e": { "tags": [], "implicitDependencies": ["mf"] },
+    "mf-utils": { "tags": [] }
   },
-  "workspaceLayout": {
-    "appsDir": "e2e",
-    "libsDir": "packages"
-  }
+  "workspaceLayout": { "appsDir": "e2e", "libsDir": "packages" }
 }
