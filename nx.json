@@ -1,24 +1,21 @@
 {
-  "npmScope": "angular-architects",
-  "affected": { "defaultBase": "master" },
   "implicitDependencies": {
-    "workspace.json": "*",
     "package.json": { "dependencies": "*", "devDependencies": "*" },
-    "tsconfig.base.json": "*",
-    "tslint.json": "*",
-    ".eslintrc.json": "*",
-    "nx.json": "*"
+    ".eslintrc.json": "*"
   },
+  "affected": { "defaultBase": "master" },
+  "npmScope": "angular-architects",
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",
-      "options": { "cacheableOperations": [] }
+      "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
     }
   },
   "projects": {
+    "demo": { "tags": [] },
+    "demo-e2e": { "tags": [], "implicitDependencies": ["demo"] },
     "mf": { "tags": [] },
     "mf-e2e": { "tags": [], "implicitDependencies": ["mf"] },
-    "mf-utils": { "tags": [] }
-  },
-  "workspaceLayout": { "appsDir": "e2e", "libsDir": "packages" }
+    "mf-runtime": { "tags": [] }
+  }
 }

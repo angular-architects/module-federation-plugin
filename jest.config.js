@@ -1,7 +1,8 @@
 module.exports = {
   projects: [
-    '<rootDir>/packages/mf',
-    '<rootDir>/e2e\\mf-e2e',
-    '<rootDir>/packages/mf-utils',
+    '<rootDir>/apps/demo',
+    '<rootDir>/libs/mf',
+    '<rootDir>/apps\\mf-e2e',
+    '<rootDir>/libs/mf-runtime',
   ],
 };
