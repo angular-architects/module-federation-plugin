@@ -70,7 +70,7 @@ module.exports = {
 
 ## Getting Started 🧪
 
-Please find here a [tutorial](https://github.com/angular-architects/module-federation-plugin/blob/main/packages/mf/tutorial/tutorial.md) that shows how to use this plugin.
+Please find here a [tutorial](https://github.com/angular-architects/module-federation-plugin/blob/12.0.0/libs/mf/tutorial/tutorial.md) that shows how to use this plugin.
 
 ![Microfrontend Loaded into Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/packages/mf/tutorial/result.png)
 

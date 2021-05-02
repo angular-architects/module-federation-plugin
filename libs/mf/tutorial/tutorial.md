@@ -46,9 +46,9 @@ Now, let's activate and configure module federation:
 1. Install ``@angular-architects/module-federation`` into the shell and into the micro frontend:
 
     ```
-    ng add @angular-architects/module-federation --project shell --port 5000
+    ng add @angular-architects/module-federation@next --project shell --port 5000
 
-    ng add @angular-architects/module-federation --project mfe1 --port 3000
+    ng add @angular-architects/module-federation@next --project mfe1 --port 3000
     ```
 
     This activates module federation, assigns a port for ng serve, and generates the skeleton of a module federation configuration.
