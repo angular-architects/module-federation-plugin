@@ -15,37 +15,29 @@ In this part you will clone the starterkit and inspect its projects.
     git clone https://github.com/manfredsteyer/module-federation-plugin-example.git --branch starter
     ```
 
-2. Have a look to the ``package.json``. You should find this section:
-
-    ```json
-    "resolutions": {
-        "webpack": "5.0.0"
-    },
-    ```
-
-    This section makes yarn to install webpack 5 for the CLI (and for all the other libraries depending on webpack).
-
-3. Move into the project directory and install the dependencies with **yarn**:
+2. Move into the project directory and install the dependencies with yarn or npm:
 
     ```
     cd module-federation-plugin-example
     yarn
     ```
 
-    You really **need to install the dependencies with yarn** because providing resolutions as shown above is a **yarn** feature.
+    Alternative using npm:
 
-4. Start the shell (``ng serve shell -o``) and inspect it a bit:
+    ```
+    cd module-federation-plugin-example
+    npm i
+    ```
+  
+
+3. Start the shell (``ng serve shell -o``) and inspect it a bit:
    1. Click on the ``flights`` link. It leads to a dummy route. This route will later be used for loading the separately compiled microfrontend.
 
-        Please **ignore depreaction warnings**. They are a temporal issue in the current CLI beta when using webpack 5.
-   
    2. Have a look to the shell's source code. 
 
-        > Please note that the current CLI **beta** lacks some features when using it with webpack 5, e. g. **reloading an application in debug mode** (when using ng serve). Hence, you have to restart ng serve after changing a source file. This is just a temporal limitation and will be solved with one of the upcoming versions.
-   
    3. Stop the CLI (``CTRL+C``).
 
-5. Do the same for the microfrontend. In this project, it's called ``mfe1`` (Microfrontend 1) You can start it with ``ng serve mfe1 -o``.
+4. Do the same for the microfrontend. In this project, it's called ``mfe1`` (Microfrontend 1) You can start it with ``ng serve mfe1 -o``.
 
 ## Part 2: Activate and Configure Module Federation
 
@@ -69,21 +61,15 @@ Now, let's activate and configure module federation:
     [...]
 
     module.exports = {
-        output: {
-            uniqueName: "mfe1"
-        },
-        optimization: {
-            // Only needed to bypass a temporary bug
-            runtimeChunk: false
-        },
+        [...],
         plugins: [
             new ModuleFederationPlugin({
 
                 // For remotes (please adjust)
                 name: "mfe1",
                 filename: "remoteEntry.js",
-                
                 exposes: {
+                    // Update this:
                     './Module': './projects/mfe1/src/app/flights/flights.module.ts',
                 },        
                 shared: {
@@ -100,7 +86,7 @@ Now, let's activate and configure module federation:
 
     This exposes the ``FlightsModule`` under the Name ``./Module.``. Hence, the shell can use this path to load it. 
 
-1. Switch into the ``shell`` project and open the file ``projects\shell\webpack.config.js``. Adjust it as follows:
+3. Switch into the ``shell`` project and open the file ``projects\shell\webpack.config.js``. Adjust it as follows:
 
     ```javascript
     const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
@@ -108,15 +94,11 @@ Now, let's activate and configure module federation:
     [...]
 
     module.exports = {
-        output: {
-            uniqueName: "shell"
-        },
-        optimization: {
-            // Only needed to bypass a temporary bug
-            runtimeChunk: false
-        },
+        [...],
         plugins: [
             new ModuleFederationPlugin({
+
+                // Make sure to use port 3000
                 remotes: {
                     'mfe1': "mfe1@http://localhost:3000/remoteEntry.js" 
                 },
@@ -134,7 +116,7 @@ Now, let's activate and configure module federation:
 
     This references the separately compiled and deployed ``mfe1`` project. There are some alternatives to configure its URL (see links at the end).
 
-2. Open the ``shell``'s router config (``projects\shell\src\app\app.routes.ts``) and add a route loading the microfrontend:
+4. Open the ``shell``'s router config (``projects\shell\src\app\app.routes.ts``) and add a route loading the microfrontend:
 
     ```javascript
     {
@@ -145,7 +127,7 @@ Now, let's activate and configure module federation:
 
     Please note that the imported URL consists of the names defined in the configuration files above.
 
-3. As the Url ``mfe1/Module`` does not exist at compile time, ease the TypeScript compiler by adding the following line to the file ``projects\shell\src\decl.d.ts``:
+5. As the Url ``mfe1/Module`` does not exist at compile time, ease the TypeScript compiler by adding the following line to the file ``projects\shell\src\decl.d.ts``:
 
     ```javascript
     declare module 'mfe1/Module';

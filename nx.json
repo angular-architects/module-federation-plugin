@@ -11,11 +11,5 @@
       "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
     }
   },
-  "projects": {
-    "demo": { "tags": [] },
-    "demo-e2e": { "tags": [], "implicitDependencies": ["demo"] },
-    "mf": { "tags": [] },
-    "mf-e2e": { "tags": [], "implicitDependencies": ["mf"] },
-    "mf-runtime": { "tags": [] }
-  }
+  "projects": { "mf": { "tags": [] }, "mf-runtime": { "tags": [] } }
 }
