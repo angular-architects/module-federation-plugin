@@ -1,5 +1,8 @@
 # Tutorial: Getting Started with Webpack Module Federation and Angular
 
+> If you look for the [tutorial using Angular CLI 12 RC 1](https://github.com/angular-architects/module-federation-plugin/blob/12.0.0/libs/mf/tutorial/tutorial.md), please have a look [here](https://github.com/angular-architects/module-federation-plugin/blob/12.0.0/libs/mf/tutorial/tutorial.md).
+
+
 This tutorial shows how to use Webpack Module Federation together with the Angular CLI and the ``@angular-architects/module-federation`` plugin. The goal is to make a shell capable of **loading a separately compiled and deployed microfrontend**:
 
 ![Microfrontend Loaded into Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/packages/mf/tutorial/result.png)
