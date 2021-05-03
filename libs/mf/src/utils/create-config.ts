@@ -1,3 +1,5 @@
+import { strings } from '@angular-devkit/core';
+
 export function createConfig(projectName: string, remotes: string, tsConfigName: string, root: string, port: number): string {
 
     return `const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
@@ -11,7 +13,7 @@ sharedMappings.register(
 
 module.exports = {
   output: {
-    uniqueName: "${projectName}",
+    uniqueName: "${strings.camelize(projectName)}",
     publicPath: "auto"
   },
   optimization: {
@@ -26,7 +28,7 @@ module.exports = {
     new ModuleFederationPlugin({
       
         // For remotes (please adjust)
-        // name: "${projectName}",
+        // name: "${strings.camelize(projectName)}",
         // filename: "remoteEntry.js",
         // exposes: {
         //     './Component': './${root}/src/app/app.component.ts',

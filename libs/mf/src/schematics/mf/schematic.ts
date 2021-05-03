@@ -4,6 +4,8 @@ import {
   externalSchematic,
 } from '@angular-devkit/schematics';
 
+import { strings } from '@angular-devkit/core';
+
 import { spawn } from 'cross-spawn';
 import * as path from 'path';
 
@@ -46,7 +48,6 @@ export async function yarnAdd(packageName: string) {
 export function add(options: MfSchematicSchema): Rule {
   return config(options);
 }
-
 
 function makeMainAsync(main: string): Rule {
   return async function (tree, context) {
@@ -167,7 +168,8 @@ function generateRemoteConfig(workspace: any, projectName: string) {
         && project?.architect?.serve
         && project?.architect?.build) {
       const pPort = project.architect.serve.options?.port ?? 4200;
-      remotes += `        //     "${p}": "${p}@http://localhost:${pPort}/remoteEntry.js",\n`;
+      
+      remotes += `        //     "${strings.camelize(p)}": "${strings.camelize(p)}@http://localhost:${pPort}/remoteEntry.js",\n`;
     }
   }
 
