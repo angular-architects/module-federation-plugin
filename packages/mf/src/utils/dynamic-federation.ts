@@ -35,7 +35,7 @@ export type LoadRemoteModuleOptions = {
 }
 
 export function loadRemoteEntry(remoteEntry: string, remoteName: string): Promise<void> {
-    return new Promise<any>((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
 
         // Is remoteEntry already loaded?
         if (moduleMap[remoteEntry]) {
