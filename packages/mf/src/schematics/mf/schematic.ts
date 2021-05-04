@@ -96,8 +96,8 @@ export default function config (options: MfSchematicSchema): Rule {
     const main = projectConfig.architect.build.options.main;
 
     const relWorkspaceRoot = path.relative(projectRoot, '');
-    const tsConfigName = tree.exists('tsconfig.base.json') ? 
-      'tsconfig.base.json' : 'tsconfig.json'; 
+    const tsConfigName = tree.exists('tsconfig.base.json') ?
+      'tsconfig.base.json' : 'tsconfig.json';
 
     const relTsConfigPath = path
       .join(relWorkspaceRoot, tsConfigName)
@@ -113,21 +113,23 @@ export default function config (options: MfSchematicSchema): Rule {
     tree.create(configPath, webpackConfig);
     tree.create(configProdPath, prodConfig);
 
-    if (!projectConfig?.architect?.build?.options ||
-      !projectConfig?.architect?.serve?.options) {
+    if (!projectConfig?.architect?.build ||
+      !projectConfig?.architect?.serve) {
         throw new Error(`The project doen't have a build or serve target in angular.json!`);
     }
 
+    projectConfig.architect.build.options = projectConfig.architect.build.options || {}
     projectConfig.architect.build.options.extraWebpackConfig = configPath;
     projectConfig.architect.build.configurations.production.extraWebpackConfig = configProdPath;
+    projectConfig.architect.serve.options = projectConfig.architect.serve.options || {}
     projectConfig.architect.serve.options.extraWebpackConfig = configPath;
     projectConfig.architect.serve.options.port = port;
     projectConfig.architect.serve.configurations.production.extraWebpackConfig = configProdPath;
-    
+
     if (projectConfig?.architect?.test?.options) {
       projectConfig.architect.test.options.extraWebpackConfig = configPath;
     }
-    
+
     tree.overwrite('angular.json', JSON.stringify(workspace, null, '\t'));
 
     return chain([
@@ -153,7 +155,7 @@ function generateRemoteConfig(workspace: any, projectName: string) {
     const project = workspace.projects[p];
     const projectType = project.projectType ?? 'application';
 
-    if (p !== projectName 
+    if (p !== projectName
         && projectType === 'application'
         && project?.architect?.serve
         && project?.architect?.build) {
