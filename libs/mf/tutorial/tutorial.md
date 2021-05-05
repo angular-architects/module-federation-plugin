@@ -15,20 +15,12 @@ In this part you will clone the starterkit and inspect its projects.
     git clone https://github.com/manfredsteyer/module-federation-plugin-example.git --branch starter-12-rc
     ```
 
-2. Move into the project directory and install the dependencies with yarn or npm:
-
-    ```
-    cd module-federation-plugin-example
-    yarn
-    ```
-
-    Alternative using npm:
+2. Move into the project directory and install the dependencies **with npm**:
 
     ```
     cd module-federation-plugin-example
     npm i
     ```
-  
 
 3. Start the shell (``ng serve shell -o``) and inspect it a bit:
    1. Click on the ``flights`` link. It leads to a dummy route. This route will later be used for loading the separately compiled microfrontend.
