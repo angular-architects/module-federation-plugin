@@ -12,7 +12,7 @@ In this part you will clone the starterkit and inspect its projects.
 1. Clone the starterkit for this tutorial:
 
     ```
-    git clone https://github.com/manfredsteyer/module-federation-plugin-example.git --branch starter
+    git clone https://github.com/manfredsteyer/module-federation-plugin-example.git --branch starter-12-rc
     ```
 
 2. Move into the project directory and install the dependencies with yarn or npm:
