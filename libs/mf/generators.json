@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "name": "mf",
+  "version": "0.0.1",
+  "generators": {
+    "mf": {
+      "factory": "./src/generators/mf/generator",
+      "schema": "./src/generators/mf/schema.json",
+      "description": "mf generator"
+    }
+  }
+}

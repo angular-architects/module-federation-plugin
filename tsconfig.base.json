@@ -10,13 +10,15 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "typeRoots": ["node_modules/@types"],
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "angular-architects/mf": ["packages/mf/src/index.ts"]
+      "@angular-architects/mf": ["libs/mf/src/index.ts"],
+      "@angular-architects/module-federation-runtime": [
+        "libs/mf-runtime/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

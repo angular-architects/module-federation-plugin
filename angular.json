@@ -1,0 +1,141 @@
+{
+  "version": 1,
+  "cli": {
+    "defaultCollection": "@nrwl/angular"
+  },
+  "schematics": {
+    "@nrwl/angular": {
+      "application": {
+        "linter": "eslint"
+      },
+      "library": {
+        "linter": "eslint"
+      },
+      "storybook-configuration": {
+        "linter": "eslint"
+      }
+    },
+    "@nrwl/angular:application": {
+      "style": "css",
+      "linter": "eslint",
+      "unitTestRunner": "jest",
+      "e2eTestRunner": "cypress"
+    },
+    "@nrwl/angular:library": {
+      "style": "css",
+      "linter": "eslint",
+      "unitTestRunner": "jest"
+    },
+    "@nrwl/angular:component": {
+      "style": "css"
+    }
+  },
+  "projects": {
+    "mf": {
+      "root": "libs/mf",
+      "sourceRoot": "libs/mf/src",
+      "projectType": "library",
+      "architect": {
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/mf/**/*.ts"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/mf"],
+          "options": {
+            "jestConfig": "libs/mf/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "builder": "@nrwl/node:package",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/libs/mf",
+            "tsConfig": "libs/mf/tsconfig.lib.json",
+            "packageJson": "libs/mf/package.json",
+            "main": "libs/mf/src/index.ts",
+            "assets": [
+              {
+                "input": "./packages/mf/tutorial",
+                "glob": "**/*",
+                "output": "tutorial"
+              },
+              "libs/mf/*.md",
+              {
+                "input": "./libs/mf/src",
+                "glob": "index.ts",
+                "output": "./src"
+              },
+              {
+                "input": "./libs/mf/src",
+                "glob": "**/*.!(ts)",
+                "output": "./src"
+              },
+              {
+                "input": "./libs/mf",
+                "glob": "generators.json",
+                "output": "."
+              },
+              {
+                "input": "./libs/mf",
+                "glob": "executors.json",
+                "output": "."
+              },
+              {
+                "input": "./libs/mf",
+                "glob": "collection.json",
+                "output": "."
+              },
+              {
+                "input": "./libs/mf",
+                "glob": "builders.json",
+                "output": "."
+              }
+            ]
+          }
+        }
+      }
+    },
+    "mf-runtime": {
+      "projectType": "library",
+      "root": "libs/mf-runtime",
+      "sourceRoot": "libs/mf-runtime/src",
+      "prefix": "angular-architects",
+      "architect": {
+        "build": {
+          "builder": "@nrwl/angular:package",
+          "options": {
+            "tsConfig": "libs/mf-runtime/tsconfig.lib.json",
+            "project": "libs/mf-runtime/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/mf-runtime/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/mf-runtime/src/**/*.ts",
+              "libs/mf-runtime/src/**/*.html"
+            ]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/mf-runtime"],
+          "options": {
+            "jestConfig": "libs/mf-runtime/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    }
+  }
+}
