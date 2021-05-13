@@ -1,9 +1,9 @@
 {
   "name": "@angular-architects/module-federation-runtime",
-  "version": "12.0.0-rc.1",
+  "version": "12.0.0",
   "peerDependencies": {
-    "@angular/common": ">=12.0.0-rc.1",
-    "@angular/core": ">=12.0.0-rc.1"
+    "@angular/common": ">=12.0.0",
+    "@angular/core": ">=12.0.0"
   },
   "dependencies": {
     "tslib": "^2.0.0"

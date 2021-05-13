@@ -11,6 +11,7 @@
     "test": "ng test",
     "lint": "nx workspace-lint && ng lint",
     "e2e": "ng e2e",
+    "publish:local": "npm publish dist/libs/mf --registry http://localhost:4873 && npm publish dist/libs/mf-runtime --registry http://localhost:4873",
     "affected:apps": "nx affected:apps",
     "affected:libs": "nx affected:libs",
     "affected:build": "nx affected:build",

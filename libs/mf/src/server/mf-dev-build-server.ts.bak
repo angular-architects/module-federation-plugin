@@ -1,0 +1,119 @@
+import { exec, execSync } from 'child_process';
+import { isWorkspace, ProjectInfo, readProjectInfos, readWorkspaceDef } from './workspace';
+import { enqueuTask, Task } from './task-queue';
+import { print } from './colors';
+import * as bs from 'browser-sync';
+import * as fs from 'fs';
+const debounce = require('debounce');
+
+type Action = () => void;
+
+let padding;
+const servers: { [key: string]: bs.BrowserSyncInstance} = {};
+
+function schedule(name: string, cmd: string): void {
+    enqueuTask((done) => {
+        const process = exec(cmd);
+        process.stdout.on('data', (chunk) => {
+            print(name, padding, chunk);
+        });
+        process.stderr.on('data', (chunk) => {
+            print(name, padding, chunk, true);
+        });
+        process.on('exit', () => {
+            done();
+        });
+    });
+}
+
+// tslint:disable-next-line: no-shadowed-variable
+function buildProjects(projects: ProjectInfo[]): void {
+    for (const p of projects) {
+        const cmd = `ng build ${p.name}`;
+        schedule(p.name, cmd);
+    }
+}
+
+// tslint:disable-next-line: no-shadowed-variable
+function startApps(apps: ProjectInfo[]): void {
+    for (const app of apps) {
+        const cmd = `ng build ${app.name}`;
+        print('DEVSVR', padding, app.name + ' ' + app.port);
+        schedule(app.name, cmd);
+        enqueuTask((done) => {
+            const server = bs.create();
+            server.init({
+                server: app.outputPath,
+                port: app.port,
+                open: true
+            }, (x) => {
+                console.debug(x);
+                print('DEVSVR', padding, `${app.name} startet at port ${app.port}`);
+                done();
+            });
+
+            servers[app.name] = server;
+        });
+    }
+}
+
+// tslint:disable-next-line: no-shadowed-variable
+function watchLibs(libs: ProjectInfo[]): void {
+    const options = { recursive: true };
+
+    for (const lib of libs) {
+        print('DEVSVR', padding, 'Watch : ' + lib.sourceRoot);
+
+        fs.watch(lib.sourceRoot, options, debounce((et, fp) => {
+            print('DEVSVR', padding, et + ': ' + fp);
+            const cmd = `ng build ${lib.name}`;
+            schedule(lib.name, cmd);
+            enqueuTask(done => {
+                if (lib.projectType === 'application') {
+                    servers[lib.name].reload();
+                }
+                done();
+            });
+        }, 300));
+    }
+
+}
+
+if (!isWorkspace()) {
+    console.error('This needs to be started in the root of an Angular project!');
+    process.exit(0);
+}
+
+// process.on('SIGINT', function() {
+//     console.log("!Caught interrupt signal");
+// });
+
+const projects = readProjectInfos();
+
+padding = projects.reduce((acc, p) => Math.max(acc, p.name.length), 0);
+
+const apps = projects.filter(p => p.projectType === 'application');
+
+// TODO: Sort libs topoligically
+const libs = projects.filter(p => p.projectType === 'library');
+
+buildProjects(libs);
+startApps(apps);
+watchLibs(projects);
+
+// const proc = exec('ng build auth-lib');
+// proc.on('close', () => console.debug('close'));
+// proc.on('error', () => console.debug('error'));
+// proc.on('exit', () => console.debug('exit'));
+// proc.on('message', () => console.debug('message'));
+// proc.on('disconnect', () => console.debug('disconnect'));
+
+// proc.stdout.on('close', () => console.debug('stdout close'));
+// proc.stdout.on('data', (data) => console.debug('stdout data', data));
+// proc.stdout.on('end', () => console.debug('stdout end'));
+// proc.stdout.on('error', () => console.debug('stdout error'));
+
+// proc.stderr.on('close', () => console.debug('stderr close'));
+// proc.stderr.on('data', (data) => console.debug('stderr data', data));
+// proc.stderr.on('end', () => console.debug('stderr end'));
+// proc.stderr.on('error', () => console.debug('stderr error'));

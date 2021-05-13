@@ -2,6 +2,7 @@ import {
   chain,
   Rule,
   externalSchematic,
+  Tree,
 } from '@angular-devkit/schematics';
 
 import { strings } from '@angular-devkit/core';
@@ -67,12 +68,43 @@ function makeMainAsync(main: string): Rule {
   }
 }
 
+function getWorkspaceFileName(tree: Tree): string {
+  if (tree.exists('angular.json')) {
+    return 'angular.json';
+  }
+  if (tree.exists('workspace.json')) {
+    return 'workspace.json';
+  }
+  throw new Error('angular.json or workspae.json expected! Did you call this in your project\'s root?');
+}
+
+interface PackageJson {
+  scripts?: { [key:string]: string };
+}
+
+function updatePackageJson(tree: Tree): void {
+
+  const packageJson: PackageJson = JSON.parse(tree.read('package.json').toString('utf-8'));
+
+  if (!packageJson.scripts) {
+    packageJson.scripts = {};
+  }
+
+  if (!packageJson.scripts['run:all']) {
+    packageJson.scripts['run:all'] = 'node node_modules/@angular-architects/module-federation/src/server/mf-dev-server.js';
+  }
+
+  tree.overwrite('package.json', JSON.stringify(packageJson, null, 2));
+}
+
 export default function config (options: MfSchematicSchema): Rule {
 
   return async function (tree) {
 
+    const workspaceFileName = getWorkspaceFileName(tree);
+
     const workspace =
-      JSON.parse(tree.read('angular.json').toString('utf8'));
+      JSON.parse(tree.read(workspaceFileName).toString('utf8'));
 
     if (!options.project) {
       options.project = workspace.defaultProject;
@@ -138,20 +170,13 @@ export default function config (options: MfSchematicSchema): Rule {
       projectConfig.architect.test.options.extraWebpackConfig = configPath;
     }
     
-    tree.overwrite('angular.json', JSON.stringify(workspace, null, '\t'));
+    tree.overwrite(workspaceFileName, JSON.stringify(workspace, null, '\t'));
+
+    updatePackageJson(tree);
 
     return chain([
       makeMainAsync(main),
       externalSchematic('ngx-build-plus', 'ng-add', { project: options.project }),
-      // updateWorkspace((workspace) => {
-      //   const proj = workspace.projects.get(options.project);
-      //   proj.targets.get('build').options.extraWebpackConfig = configPath;
-      //   proj.targets.get('build').configurations.production.extraWebpackConfig = configProdPath;
-      //   proj.targets.get('serve').options.extraWebpackConfig = configPath;
-      //   proj.targets.get('serve').options.port = port;
-      //   proj.targets.get('serve').configurations.production.extraWebpackConfig = configProdPath;
-      //   proj.targets.get('test').options.extraWebpackConfig = configPath;
-      // })
     ]);
 
   }
