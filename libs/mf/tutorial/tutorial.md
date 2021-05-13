@@ -1,7 +1,5 @@
 # Tutorial: Getting Started with Webpack Module Federation and Angular
 
-> If you look for the [tutorial using Angular CLI 12 RC 1](https://github.com/angular-architects/module-federation-plugin/blob/12.0.0/libs/mf/tutorial/tutorial.md), please have a look [here](https://github.com/angular-architects/module-federation-plugin/blob/12.0.0/libs/mf/tutorial/tutorial.md).
-
 
 This tutorial shows how to use Webpack Module Federation together with the Angular CLI and the ``@angular-architects/module-federation`` plugin. The goal is to make a shell capable of **loading a separately compiled and deployed microfrontend**:
 
@@ -15,7 +13,7 @@ In this part you will clone the starterkit and inspect its projects.
 1. Clone the starterkit for this tutorial:
 
     ```
-    git clone https://github.com/manfredsteyer/module-federation-plugin-example.git --branch starter-12-rc
+    git clone https://github.com/manfredsteyer/module-federation-plugin-example.git --branch starter
     ```
 
 2. Move into the project directory and install the dependencies **with npm**:
@@ -143,11 +141,11 @@ Now, let's try it out!
 
 2. After a browser window with the shell opened (``http://localhost:5000``), click on ``Flights``. This should load the microfrontend into the shell:
 
-    ![Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/packages/mf/tutorial/shell.png)
+    ![Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/libs/mf/tutorial/shell.png)
 
 3. Also, ensure yourself that the microfrontend also runs in standalone mode at http://localhost:3000:
 
-    ![Microfrontend](https://github.com/angular-architects/module-federation-plugin/raw/main/packages/mf/tutorial/mfe1.png)
+    ![Microfrontend](https://github.com/angular-architects/module-federation-plugin/raw/main/libs/mf/tutorial/mfe1.png)
    
 
 Congratulations! You've implemented your first Module Federation project with Angular!
