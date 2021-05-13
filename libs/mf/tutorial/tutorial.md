@@ -5,7 +5,7 @@
 
 This tutorial shows how to use Webpack Module Federation together with the Angular CLI and the ``@angular-architects/module-federation`` plugin. The goal is to make a shell capable of **loading a separately compiled and deployed microfrontend**:
 
-![Microfrontend Loaded into Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/packages/mf/tutorial/result.png)
+![Microfrontend Loaded into Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/libs/mf/tutorial/result.png)
 
 
 ## Part 1: Clone and Inspect the Starterkit
@@ -41,9 +41,9 @@ Now, let's activate and configure module federation:
 1. Install ``@angular-architects/module-federation`` into the shell and into the micro frontend:
 
     ```
-    ng add @angular-architects/module-federation@next --project shell --port 5000
+    ng add @angular-architects/module-federation --project shell --port 5000
 
-    ng add @angular-architects/module-federation@next --project mfe1 --port 3000
+    ng add @angular-architects/module-federation --project mfe1 --port 3000
     ```
 
     This activates module federation, assigns a port for ng serve, and generates the skeleton of a module federation configuration.

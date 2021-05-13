@@ -72,9 +72,9 @@ module.exports = {
 
 Please find here a [tutorial](https://github.com/angular-architects/module-federation-plugin/blob/12.0.0/libs/mf/tutorial/tutorial.md) that shows how to use this plugin.
 
-![Microfrontend Loaded into Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/packages/mf/tutorial/result.png)
+![Microfrontend Loaded into Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/libs/mf/tutorial/result.png)
 
-[>> Start Tutorial](https://github.com/angular-architects/module-federation-plugin/blob/main/packages/mf/tutorial/tutorial.md)
+[>> Start Tutorial](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/mf/tutorial/tutorial.md)
 
 ## Documentation 📰
 
