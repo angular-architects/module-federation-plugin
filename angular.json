@@ -136,6 +136,43 @@
           }
         }
       }
+    },
+    "mf-tools": {
+      "projectType": "library",
+      "root": "libs/mf-tools",
+      "sourceRoot": "libs/mf-tools/src",
+      "prefix": "angular-architects",
+      "architect": {
+        "build": {
+          "builder": "@nrwl/angular:package",
+          "options": {
+            "tsConfig": "libs/mf-tools/tsconfig.lib.json",
+            "project": "libs/mf-tools/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/mf-tools/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/mf-tools/src/**/*.ts",
+              "libs/mf-tools/src/**/*.html"
+            ]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/mf-tools"],
+          "options": {
+            "jestConfig": "libs/mf-tools/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
     }
   }
 }

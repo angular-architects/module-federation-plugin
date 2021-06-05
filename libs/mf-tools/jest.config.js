@@ -1,5 +1,5 @@
 module.exports = {
-  displayName: 'mf-runtime',
+  displayName: 'mf-tools',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   globals: {
@@ -14,7 +14,7 @@ module.exports = {
       tsconfig: '<rootDir>/tsconfig.spec.json',
     },
   },
-  coverageDirectory: '../../coverage/libs/mf-runtime',
+  coverageDirectory: '../../coverage/libs/mf-tools',
   snapshotSerializers: [
     'jest-preset-angular/build/serializers/no-ng-attributes',
     'jest-preset-angular/build/serializers/ng-snapshot',

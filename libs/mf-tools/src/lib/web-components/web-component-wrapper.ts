@@ -1,4 +1,4 @@
-import { AfterContentInit, Component, ElementRef, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterContentInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LoadRemoteModuleOptions, loadRemoteModule } from '@angular-architects/module-federation';
 
@@ -9,6 +9,7 @@ export type WebComponentWrapperOptions = LoadRemoteModuleOptions & {
 @Component({
   template: '<div #vc></div>',
 })
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class WebComponentWrapper implements AfterContentInit {
 
   @ViewChild('vc', {read: ElementRef, static: true})

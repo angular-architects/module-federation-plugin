@@ -1,3 +1,8 @@
 module.exports = {
-  projects: [, '<rootDir>/libs/mf', '<rootDir>/libs/mf-runtime'],
+  projects: [
+    ,
+    '<rootDir>/libs/mf',
+    '<rootDir>/libs/mf-runtime',
+    '<rootDir>/libs/mf-tools',
+  ],
 };
