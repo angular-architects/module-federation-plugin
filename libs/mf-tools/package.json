@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/module-federation-tools",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "peerDependencies": {
     "@angular/common": "^12.0.0",
     "@angular/core": "^12.0.0",
