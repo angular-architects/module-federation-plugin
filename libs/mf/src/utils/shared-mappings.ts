@@ -29,7 +29,9 @@ export class SharedMappings {
 
         for (const key in mappings) {
 
-            const libPath = path.normalize(path.join(rootPath, mappings[key][0]));
+            const libPath = mappings[key]
+                .map(file => path.normalize(path.join(rootPath, file)))
+                .filter(file => fs.existsSync(file))[0];
             const version = this.getPackageVersion(libPath);
 
             if (shared && shared.includes(key)) {
