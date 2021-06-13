@@ -27,6 +27,13 @@
     },
     "mf-tools": {
       "tags": []
+    },
+    "playground": {
+      "tags": []
+    },
+    "playground-e2e": {
+      "tags": [],
+      "implicitDependencies": ["playground"]
     }
   }
 }
