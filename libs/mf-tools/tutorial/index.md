@@ -1,6 +1,6 @@
 # Tutorial: Module Federation Tools
 
-This tutorial is an extension for the ``@angular-architects/module-federation`` tutorial and shows, how to use the add-on lib ``@angular-architects/module-federation-tools`` to load web components exposed via module federation.
+This tutorial is an **extension** for the ``@angular-architects/module-federation`` tutorial [here](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/mf/tutorial/tutorial.md) and shows, how to use the add-on lib ``@angular-architects/module-federation-tools`` to load web components exposed via module federation.
 
 ## Part 1: Routing to Web Components
 
