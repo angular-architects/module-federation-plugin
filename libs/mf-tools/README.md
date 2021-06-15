@@ -4,7 +4,7 @@ Add-on for ``@angular-architects/module-federation`` helping to reduce boiler pl
 
 The current release is focusing on combining web components with module federation for **multi framework and multi version** micro frontends: 
 
-![Example](img/example.png)
+![Example](https://i.ibb.co/CHBQn5j/example.png)
 
 By compiling and loading these **web components via module federation**, we can share libraries like Angular if they use the same version. Otherwise, module federation would decide at runtime to load a dedicated version of the lib for the micro frontend in question:
 
