@@ -1,15 +1,39 @@
 {
   "implicitDependencies": {
-    "package.json": { "dependencies": "*", "devDependencies": "*" },
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
     ".eslintrc.json": "*"
   },
-  "affected": { "defaultBase": "master" },
+  "affected": {
+    "defaultBase": "master"
+  },
   "npmScope": "angular-architects",
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",
-      "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
+      "options": {
+        "cacheableOperations": ["build", "lint", "test", "e2e"]
+      }
     }
   },
-  "projects": { "mf": { "tags": [] }, "mf-runtime": { "tags": [] } }
+  "projects": {
+    "mf": {
+      "tags": []
+    },
+    "mf-runtime": {
+      "tags": []
+    },
+    "mf-tools": {
+      "tags": []
+    },
+    "playground": {
+      "tags": []
+    },
+    "playground-e2e": {
+      "tags": [],
+      "implicitDependencies": ["playground"]
+    }
+  }
 }

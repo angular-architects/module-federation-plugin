@@ -18,6 +18,9 @@
       "@angular-architects/mf": ["libs/mf/src/index.ts"],
       "@angular-architects/module-federation-runtime": [
         "libs/mf-runtime/src/index.ts"
+      ],
+      "@angular-architects/module-federation-tools": [
+        "libs/mf-tools/src/index.ts"
       ]
     }
   },
