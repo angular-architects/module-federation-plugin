@@ -212,7 +212,7 @@ shared: share({
     "@angular/common": { 
         singleton: true, 
         strictVersion: true,
-        requireVersion: 'auto',
+        requiredVersion: 'auto',
         includeSecondaries: true
     },
     [...]
@@ -250,7 +250,7 @@ shared: share({
     "@angular/common": { 
         singleton: true, 
         strictVersion: true,
-        requireVersion: 'auto',
+        requiredVersion: 'auto',
         includeSecondaries: {
             skip: ['@angular/http/testing']
         }
