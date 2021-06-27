@@ -80,6 +80,7 @@ export class SharedMappings {
         return result;
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-types
     getDescriptors(eager?: boolean): object {
         const result = {};
 
@@ -93,7 +94,8 @@ export class SharedMappings {
         return result;
     }
 
-    getDescriptor(mappedPath: string, requiredVersion: string = null): any {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    getDescriptor(mappedPath: string, requiredVersion: string = null): object {
         const lib = this.mappings.find((m) => m.key === mappedPath);
 
         if (!lib) {

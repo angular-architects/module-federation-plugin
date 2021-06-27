@@ -7,44 +7,44 @@ import {
 
 import { strings } from '@angular-devkit/core';
 
-import { spawn } from 'cross-spawn';
+// import { spawn } from 'cross-spawn';
 import * as path from 'path';
 
 import { createConfig } from '../../utils/create-config';
 import { prodConfig } from './prod-config';
 import { MfSchematicSchema } from './schema';
 
-export async function npmInstall(packageName: string) {
-  await new Promise<boolean>((resolve) => {
-    console.log('Installing packages...');
-    spawn('npm', ['install', packageName, '-D'])
-      .on('close', (code: number) => {
-        if (code === 0) {
-          console.log('Packages installed successfully ✅');
-          resolve(true);
-        } else {
-          throw new Error(
-            `Error installing '${packageName}'`
-          );
-        }
-      });
-  });
-}
+// export async function npmInstall(packageName: string) {
+//   await new Promise<boolean>((resolve) => {
+//     console.log('Installing packages...');
+//     spawn('npm', ['install', packageName, '-D'])
+//       .on('close', (code: number) => {
+//         if (code === 0) {
+//           console.log('Packages installed successfully ✅');
+//           resolve(true);
+//         } else {
+//           throw new Error(
+//             `Error installing '${packageName}'`
+//           );
+//         }
+//       });
+//   });
+// }
 
-export async function yarnAdd(packageName: string) {
-  await new Promise<boolean>((resolve) => {
-    spawn('npm', ['install', packageName, '-D'])
-      .on('close', (code: number) => {
-        if (code === 0) {
-          resolve(true);
-        } else {
-          throw new Error(
-            `Error installing '${packageName}'`
-          );
-        }
-      });
-  });
-}
+// export async function yarnAdd(packageName: string) {
+//   await new Promise<boolean>((resolve) => {
+//     spawn('npm', ['install', packageName, '-D'])
+//       .on('close', (code: number) => {
+//         if (code === 0) {
+//           resolve(true);
+//         } else {
+//           throw new Error(
+//             `Error installing '${packageName}'`
+//           );
+//         }
+//       });
+//   });
+// }
 
 export function add(options: MfSchematicSchema): Rule {
   return config(options);

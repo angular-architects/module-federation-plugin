@@ -203,7 +203,115 @@ plugins: [
 ],
 ```
 
+### Share Helper
+
+The helper function share adds some additional options for the shared dependencies:
+
+```json
+shared: share({
+    "@angular/common": { 
+        singleton: true, 
+        strictVersion: true,
+        requireVersion: 'auto',
+        includeSecondaries: true
+    },
+    [...]
+})
+```
+
+The added options are ``requireVersion: 'auto'`` and ``includeSecondaries``.
+
+#### requireVersion: 'auto'
+
+If you set ``requireVersion`` to ``'auto'``, the helper takes the version defined in your ``package.json``. 
+
+This helps to solve issues with not (fully) met peer dependencies and secondary entry points (see Pitfalls section below).
+
+By default, it takes the ``package.json`` that is closest to the caller (normally the ``webpack.config.js``). However, you can pass the path to an other ``package.json`` using the second optional parameter. Also, you need to define the shared libray within the node dependencies in your ``package.json``.
+
+Instead of setting requireVersion to auto time and again, you can also skip this option and call ``setInferVersion(true)`` before:
+
+```typescript
+setInferVersion(true);
+```
+
+#### includeSecondaries
+
+If set to ``true``, all secondary entry points are added too. In the case of ``@angular/common`` this is also ``@angular/common/http``, ``@angular/common/http/testing``, ``@angular/common/testing``, ``@angular/common/http/upgrade``, and ``@angular/common/locales``. This exhaustive list shows that using this option for ``@angular/common`` is not the best idea because normally, you don't need most of them.
+
+However, this option can come in handy for quick experiments or if you want to quickly share a package like ``@angular/material`` that comes with a myriad of secondary entry points. 
+
+Even if you share too much, Module Federation will only load the needed ones at runtime. However, please keep in mind that shared packages can not be tree-shaken.
+
+To skip some secondary entry points, you can assign a configuration option instead of ``true``:
+
+```typescript
+shared: share({
+    "@angular/common": { 
+        singleton: true, 
+        strictVersion: true,
+        requireVersion: 'auto',
+        includeSecondaries: {
+            skip: ['@angular/http/testing']
+        }
+    },
+    [...]
+})
+```
+
+#### shareAll
+
+The ``shareAll`` helper shares all your dependencies defined in your ``package.json``. The ``package.json`` is look up as described above:
+
+```json
+shared: {
+  ...shareAll({ 
+      singleton: true, 
+      strictVersion: true, 
+      requiredVersion: 'auto' 
+  }),
+  ...sharedMappings.getDescriptors()
+}
+```
+
+The options passed to shareAll are applied to all dependencies found in your ``package.json``.
+
+This might come in handy in an monorepo scenario and when doing some experiments/ trouble shooting.
+
+
 ### Pitfalls when sharing libraries of a Monorepo
+
+#### Warning: No required version specified
+
+If you get the warning _No required version specified and unable to automatically determine one_, Module Federation needs some help with finding out the version of a shared library to use. Reasons are not fitting peer dependencies or using secondary entry points like ``@angular/common/http``.
+
+To avoid this warning you can specify to used version by hand:
+
+```json
+shared: { 
+    "@angular/common": { 
+        singleton: true, 
+        strictVersion: true, 
+        requireVersion: '12.0.0  
+    },
+    [...]
+},
+```
+
+You can also use our ``share`` helper that infers the version number from your ``package.json`` when setting ``requireVersion`` to ``'auto'``:
+
+```json
+shared: share({
+    "@angular/common": { 
+        singleton: true, 
+        strictVersion: true,
+        requireVersion: 'auto'  
+    },
+    [...]
+})
+```
+
+
 
 #### Not exported Components
 
