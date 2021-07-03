@@ -16,10 +16,16 @@ This can help to **balance the trade-off** between bundle size and isolation of 
 
 ## Examples
 
-- [Source Code (Shell, see branch multi-framework-version)](https://red-ocean-0fe4c4610.azurestaticapps.net)
+- [Live Example](https://red-ocean-0fe4c4610.azurestaticapps.net)
+- [Source Code Shell](https://github.com/manfredsteyer/multi-framework-version)
 - [Source Code for Micro Frontend](https://github.com/manfredsteyer/angular-app1)
 - [Source Code for Micro Frontend with Routing](https://github.com/manfredsteyer/angular3-app)
+- [Source Code for Micro Frontend with Vue](https://github.com/manfredsteyer/vue-js)
+- [Source Code for Micro Frontend with AngularJS](https://github.com/manfredsteyer/angularjs-app)
 
+## Tutorial
+
+Please find our [tutorial here](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/mf-tools/tutorial/index.md).
 
 ## Providing a Web Component with Module Federation
 
@@ -94,10 +100,10 @@ export const APP_ROUTES: Routes = [
         path: 'angular1',
         component: WebComponentWrapper,
         data: {
-        remoteEntry: 'https://nice-grass-018f7d910.azurestaticapps.net/remoteEntry.js',
-        remoteName: 'angular1',
-        exposedModule: './web-components',
-        elementName: 'angular1-element'
+          remoteEntry: 'https://nice-grass-018f7d910.azurestaticapps.net/remoteEntry.js',
+          remoteName: 'angular1',
+          exposedModule: './web-components',
+          elementName: 'angular1-element'
         } as WebComponentWrapperOptions
     },
     [...]
@@ -116,10 +122,10 @@ export const APP_ROUTES: Routes = [
         matcher: startsWith('angular3'),
         component: WebComponentWrapper,
         data: {
-        remoteEntry: 'https://gray-river-0b8c23a10.azurestaticapps.net/remoteEntry.js',
-        remoteName: 'angular3',
-        exposedModule: './web-components',
-        elementName: 'angular3-element'
+          remoteEntry: 'https://gray-river-0b8c23a10.azurestaticapps.net/remoteEntry.js',
+          remoteName: 'angular3',
+          exposedModule: './web-components',
+          elementName: 'angular3-element'
         } as WebComponentWrapperOptions
     },
     [...]

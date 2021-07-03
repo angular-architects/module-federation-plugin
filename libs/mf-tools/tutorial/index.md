@@ -2,6 +2,17 @@
 
 This tutorial is an **extension** for the ``@angular-architects/module-federation`` tutorial [here](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/mf/tutorial/tutorial.md) and shows, how to use the add-on lib ``@angular-architects/module-federation-tools`` to load web components exposed via module federation.
 
+## Getting Started
+
+### Option A: Start with the Upstream Tutorial
+
+Please find the upstream tutorial this tutorial extends [here](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/mf/tutorial/tutorial.md).
+
+### Option B: Checkout the Starter Kit
+
+If you don't want to do the upstream tutorial first, you can use [this example](https://github.com/manfredsteyer/module-federation-plugin-example) (see main branch) as the starting point.
+
+
 ## Part 1: Routing to Web Components
 
 1. Install ``@angular-architects/module-federation-tools``:
