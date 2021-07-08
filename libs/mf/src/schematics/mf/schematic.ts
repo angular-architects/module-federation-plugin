@@ -50,6 +50,42 @@ export function add(options: MfSchematicSchema): Rule {
   return config(options);
 }
 
+export function adjustSSR(sourceRoot: string, ssrMappings: string): Rule {
+  return async function (tree, context) {
+
+    const server = path.join(sourceRoot, 'server.ts');
+
+    if (!tree.exists(server)) {
+      return;
+    }
+
+    let content = tree.read(server).toString('utf-8');
+
+    const imports = `import { CustomResourceLoader } from '@nguniversal/common/clover/server/src/custom-resource-loader';
+import { createFetch } from '@angular-architects/module-federation/nguniversal';
+`;
+
+    content = imports + content;
+    content = content.replace('const ssrEngine = new Engine();', `
+// Without mappings, remotes are loaded via HTTP
+const mappings = ${ssrMappings};
+
+// Monkey Patching Angular Universal for Module Federation
+CustomResourceLoader.prototype.fetch = createFetch(mappings);
+
+const ssrEngine = new Engine();
+`);
+
+    // Compensate for issue with version 12.0.0
+    content = content.replace(
+      'const HOST = `http://localhost:${PORT}`;',
+      'const HOST = `localhost:${PORT}`;');
+
+    tree.overwrite(server, content);
+
+  }
+}
+
 function makeMainAsync(main: string): Rule {
   return async function (tree, context) {
 
@@ -68,7 +104,7 @@ function makeMainAsync(main: string): Rule {
   }
 }
 
-function getWorkspaceFileName(tree: Tree): string {
+export function getWorkspaceFileName(tree: Tree): string {
   if (tree.exists('angular.json')) {
     return 'angular.json';
   }
@@ -122,6 +158,7 @@ export default function config (options: MfSchematicSchema): Rule {
     }
 
     const projectRoot: string = projectConfig.root;
+    const projectSourceRoot: string = projectConfig.sourceRoot;
 
     const configPath = path.join(projectRoot, 'webpack.config.js').replace(/\\/g, '/');
     const configProdPath = path.join(projectRoot, 'webpack.prod.config.js').replace(/\\/g, '/');
@@ -170,15 +207,38 @@ export default function config (options: MfSchematicSchema): Rule {
       projectConfig.architect.test.options.extraWebpackConfig = configPath;
     }
     
+    if (projectConfig?.architect?.['extract-i18n']?.options) {
+      projectConfig.architect['extract-i18n'].options.extraWebpackConfig = configPath;
+    }
+
+    updateServerBuilder(projectConfig, configPath);
+    const ssrMappings = generateSsrMappings(workspace, projectName);
+
     tree.overwrite(workspaceFileName, JSON.stringify(workspace, null, '\t'));
 
     updatePackageJson(tree);
 
     return chain([
       makeMainAsync(main),
+      adjustSSR(projectSourceRoot, ssrMappings),
       externalSchematic('ngx-build-plus', 'ng-add', { project: options.project }),
     ]);
 
+  }
+}
+
+export function updateServerBuilder(projectConfig: any, configPath: string) {
+
+  if (projectConfig?.architect?.server) {
+    projectConfig.architect.server.builder = 'ngx-build-plus:server';
+  }
+  
+  if (projectConfig?.architect?.server?.options) {
+    projectConfig.architect.server.options.extraWebpackConfig = configPath;
+  }
+
+  if (projectConfig?.architect?.server?.configurations?.production) {
+    projectConfig.architect.server.configurations.production.extraWebpackConfig = configPath;
   }
 }
 
@@ -201,6 +261,33 @@ function generateRemoteConfig(workspace: any, projectName: string) {
   if (!remotes) {
     remotes = '        //     "mfe1": "mfe1@http://localhost:3000/remoteEntry.js",\n';
   }
+  return remotes;
+}
+
+export function generateSsrMappings(workspace: any, projectName: string): string {
+  let remotes = '{\n';
+
+  const projectOutPath = workspace.projects[projectName].architect.build.options.outputPath;
+
+  for (const p in workspace.projects) {
+    const project = workspace.projects[p];
+    const projectType = project.projectType ?? 'application';
+
+    if (p !== projectName 
+        && projectType === 'application'
+        && project?.architect?.serve
+        && project?.architect?.build) {
+      
+          const pPort = project.architect.serve.options?.port ?? 4200;
+          const outPath = project.architect.build.options.outputPath;
+          const relOutPath = path.relative(projectOutPath, outPath).replace(/\\/g, '/') + '/';
+
+      remotes += `\t// 'http://localhost:${pPort}/': join(__dirname, '${relOutPath}')\n`;
+    }
+  }
+
+  remotes += '}';
+
   return remotes;
 }
 

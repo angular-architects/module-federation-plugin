@@ -46,7 +46,7 @@
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "12.0.0",
+    "@angular-devkit/build-angular": "^12.0.0",
     "@angular-eslint/eslint-plugin": "12.0.0",
     "@angular-eslint/eslint-plugin-template": "12.0.0",
     "@angular-eslint/template-parser": "12.0.0",
@@ -74,6 +74,7 @@
     "jest": "26.2.2",
     "jest-preset-angular": "8.4.0",
     "ng-packagr": "12.0.0",
+    "node-fetch": "^2.6.1",
     "prettier": "2.2.1",
     "ts-jest": "26.5.5",
     "ts-node": "~9.1.1",

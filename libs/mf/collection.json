@@ -12,6 +12,17 @@
       "factory": "./src/schematics/mf/schematic",
       "schema": "./src/schematics/mf/schema.json",
       "description": "Initialize an angular project for webpack module federation"
-    }
+    },
+    "nguniversal": {
+      "factory": "./src/schematics/nguniversal/schematic",
+      "schema": "./src/schematics/nguniversal/schema.json",
+      "description": "Adds MF support to an Angular Universal project"
+    },
+    "boot-async": {
+      "factory": "./src/schematics/boot-async/schematic",
+      "schema": "./src/schematics/boot-async/schema.json",
+      "description": "Enables or disables async bootstrapping"
+    }    
+
   }
 }
