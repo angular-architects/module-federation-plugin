@@ -211,7 +211,6 @@ export default function config (options: MfSchematicSchema): Rule {
       projectConfig.architect['extract-i18n'].options.extraWebpackConfig = configPath;
     }
 
-    updateServerBuilder(projectConfig, configPath);
     const ssrMappings = generateSsrMappings(workspace, projectName);
 
     tree.overwrite(workspaceFileName, JSON.stringify(workspace, null, '\t'));
@@ -224,21 +223,6 @@ export default function config (options: MfSchematicSchema): Rule {
       externalSchematic('ngx-build-plus', 'ng-add', { project: options.project }),
     ]);
 
-  }
-}
-
-export function updateServerBuilder(projectConfig: any, configPath: string) {
-
-  if (projectConfig?.architect?.server) {
-    projectConfig.architect.server.builder = 'ngx-build-plus:server';
-  }
-  
-  if (projectConfig?.architect?.server?.options) {
-    projectConfig.architect.server.options.extraWebpackConfig = configPath;
-  }
-
-  if (projectConfig?.architect?.server?.configurations?.production) {
-    projectConfig.architect.server.configurations.production.extraWebpackConfig = configPath;
   }
 }
 

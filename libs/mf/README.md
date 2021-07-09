@@ -276,8 +276,83 @@ shared: {
 
 The options passed to shareAll are applied to all dependencies found in your ``package.json``.
 
-This might come in handy in an monorepo scenario and when doing some experiments/ trouble shooting.
+This might come in handy in an mono repo scenario and when doing some experiments/ trouble shooting.
 
+### Angular Universal (Server Side Rendering)
+
+Since Version 12.4.0 of this plugin, we support the new _jsdom_-based Angular Universal API for Server Side Rendering (SSR). Please note that SSR *only* makes sense in specific scenarios, e. g. for customer-facing apps that need SEO.  
+
+To make use of SSR, you should enable SSR for **all** of your federation projects (e. g. the shell and the micro frontends).
+
+#### Adding Angular Universal BEFORE adding Module Federation
+
+If you start with a new project, you should add Angular Universal BEFORE adding Module Federation:
+
+```
+ng add @nguniversal/common --project yourProject
+ng add @angular-architects/module-federation --project yourProject
+```
+
+Then, adjust the port in the generated ``server.ts``:
+
+```typescript
+const PORT = 5000;
+```
+
+After this, you can compile and run your application:
+
+```
+ng build yourProject && ng run yourProject:server
+node dist/yourProject/server/main.js
+```
+
+#### Adding Angular Universal to an existing Module Federation project
+
+If you already use ``@angular-architects/module-federation``, you can add Angular Universal this way:
+
+1. Update ``@angular-architects/module-federation`` to the latest version (>= 12.4).
+
+    ```
+    npm i @angular-architects/module-federation@latest 
+    ```
+
+2. Now, we need to disable asynchronous bootstrapping temporarily. While it's needed for Module Federation, the schematics provided by Angular Universal assume that Angular is bootstrapped in an traditional (synchronous) way. After using these Schematics, we have to enable asynchronous bootstrapping again:
+
+    ```
+    ng g @angular-architects/module-federation:boot-async false --project yourProject
+
+    ng add @nguniversal/common --project yourProject
+    
+    ng g @angular-architects/module-federation:boot-async true --project yourProject
+    ```
+
+3. As now we have both, Module Federation and Angular Universal, in place, we can integrate them with each other:
+
+    ```
+    ng g @angular-architects/module-federation:nguniversal --project yourProject
+    ```
+
+4. Adjust the used port in the generated ``server.ts`` file:
+
+    ```typescript
+    const PORT = 5000;
+    ```
+
+5. Now, you can compile and run your application:
+
+    ```
+    ng build yourProject && ng run yourProject:server
+    node dist/yourProject/server/main.js
+    ```
+
+#### Example
+
+Please find an [example](https://github.com/manfredsteyer/module-federation-plugin-example/tree/ssr
+) here in the branch ``ssr``.
+
+#### Trying it out
+
+To try it out, you can checkout the ``main`` branch of our [example](https://github.com/manfredsteyer/module-federation-plugin-example). After installing the dependencies (``npm i``), you can repeat the steps for adding Angular Universal to an existing Module Federation project described above twice: Once for the _project shell and the port 5000_ and one more time for the _project mfe1 and port 3000_.
 
 ### Pitfalls when sharing libraries of a Monorepo
 

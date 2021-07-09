@@ -1,7 +1,6 @@
 import { NgUniversalSchema } from "./schema";
 import { Rule, chain, externalSchematic } from '@angular-devkit/schematics';
-import path = require("path");
-import { generateSsrMappings, getWorkspaceFileName, updateServerBuilder, adjustSSR } from "../mf/schematic";
+import { generateSsrMappings, getWorkspaceFileName, adjustSSR } from "../mf/schematic";
 
 export default function nguniversal (options: NgUniversalSchema): Rule {
 
@@ -23,15 +22,11 @@ export default function nguniversal (options: NgUniversalSchema): Rule {
         const projectConfig = workspace.projects[projectName];
 
         const projectSourceRoot: string = projectConfig.sourceRoot;
-        const projectRoot: string = projectConfig.root;
-
-        const configPath = path.join(projectRoot, 'webpack.config.js').replace(/\\/g, '/');
 
         if (!projectConfig?.architect?.server) {
             console.error('No server target found. Did you add Angular Universal? Try ng add @nguniversal/common');
         }
 
-        updateServerBuilder(projectConfig, configPath);
         const ssrMappings = generateSsrMappings(workspace, projectName);
     
         tree.overwrite(workspaceFileName, JSON.stringify(workspace, null, '\t'));
