@@ -4,8 +4,8 @@
   "license": "MIT",
   "version": "12.4.0",
   "peerDependencies": {
-    "@angular/common": ">=12.4.0",
-    "@angular/core": ">=12.4.0"
+    "@angular/common": ">=12.1.0",
+    "@angular/core": ">=12.1.0"
   },
   "dependencies": {
     "tslib": "^2.0.0"
