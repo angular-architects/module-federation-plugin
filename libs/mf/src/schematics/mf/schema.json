@@ -21,6 +21,10 @@
         "$source": "argv",
         "index": 1
       }
+    },
+    "nxBuilders": {
+      "type": "boolean",
+      "description": "Use builders provided by Nx instead of ngx-build-plus? Defaults to true for Nx workspaces and false for CLI workspaces.",
     }
   },
   "required": [

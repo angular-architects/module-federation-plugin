@@ -278,6 +278,10 @@ The options passed to shareAll are applied to all dependencies found in your ``p
 
 This might come in handy in an mono repo scenario and when doing some experiments/ trouble shooting.
 
+### Nx Integration
+
+If the plugin detects that you are using Nx (it basically looks for a ``nx.json``), it uses the builders provided by Nx.
+
 ### Angular Universal (Server Side Rendering)
 
 Since Version 12.4.0 of this plugin, we support the new _jsdom_-based Angular Universal API for Server Side Rendering (SSR). Please note that SSR *only* makes sense in specific scenarios, e. g. for customer-facing apps that need SEO.  
@@ -353,6 +357,8 @@ Please find an [example](https://github.com/manfredsteyer/module-federation-plug
 #### Trying it out
 
 To try it out, you can checkout the ``main`` branch of our [example](https://github.com/manfredsteyer/module-federation-plugin-example). After installing the dependencies (``npm i``), you can repeat the steps for adding Angular Universal to an existing Module Federation project described above twice: Once for the _project shell and the port 5000_ and one more time for the _project mfe1 and port 3000_.
+
+Please find a [brain dump](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/mf/tutorial/braindump-ssr.md) for this [here](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/mf/tutorial/braindump-ssr.md).
 
 ### Pitfalls when sharing libraries of a Monorepo
 

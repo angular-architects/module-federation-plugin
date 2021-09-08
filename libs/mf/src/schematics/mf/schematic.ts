@@ -133,6 +133,14 @@ function updatePackageJson(tree: Tree): void {
   tree.overwrite('package.json', JSON.stringify(packageJson, null, 2));
 }
 
+function getWebpackConfigValue(nx: boolean, path: string) {
+  if (!nx) {
+    return path;
+  }
+
+  return { path };
+}
+
 export default function config (options: MfSchematicSchema): Rule {
 
   return async function (tree) {
@@ -183,6 +191,18 @@ export default function config (options: MfSchematicSchema): Rule {
     tree.create(configPath, webpackConfig);
     tree.create(configProdPath, prodConfig);
 
+    if (typeof options.nxBuilders === 'undefined') {
+      options.nxBuilders = tree.exists('nx.json');
+    }
+
+    if (options.nxBuilders) {
+      console.log('Using Nx builders!');
+    }
+
+    const webpackProperty = options.nxBuilders ? 'customWebpackConfig' : 'extraWebpackConfig';
+    const buildBuilder = options.nxBuilders ? '@nrwl/angular:webpack-browser' : 'ngx-build-plus:browser';
+    const serveBuilder = options.nxBuilders ? '@nrwl/angular:webpack-server' : 'ngx-build-plus:dev-server';
+
     if (!projectConfig?.architect?.build ||
       !projectConfig?.architect?.serve) {
         throw new Error(`The project doen't have a build or serve target in angular.json!`);
@@ -196,18 +216,31 @@ export default function config (options: MfSchematicSchema): Rule {
       projectConfig.architect.serve.options = {};
     }
 
-    projectConfig.architect.build.options.extraWebpackConfig = configPath;
+    projectConfig.architect.build.builder = buildBuilder;
+    projectConfig.architect.build.options[webpackProperty] = getWebpackConfigValue(options.nxBuilders, configPath);
     projectConfig.architect.build.options.commonChunk = false;
-    projectConfig.architect.build.configurations.production.extraWebpackConfig = configProdPath;
-    projectConfig.architect.serve.options.extraWebpackConfig = configPath;
-    projectConfig.architect.serve.options.port = port;
-    projectConfig.architect.serve.configurations.production.extraWebpackConfig = configProdPath;
+    projectConfig.architect.build.configurations.production[webpackProperty] = getWebpackConfigValue(options.nxBuilders, configProdPath);
     
-    if (projectConfig?.architect?.test?.options) {
-      projectConfig.architect.test.options.extraWebpackConfig = configPath;
+    projectConfig.architect.serve.builder = serveBuilder;
+    projectConfig.architect.serve.options.port = port;
+
+    // Only needed for ngx-build-plus
+    if (!options.nxBuilders) {
+      projectConfig.architect.serve.options[webpackProperty] = getWebpackConfigValue(options.nxBuilders, configPath);
+      projectConfig.architect.serve.configurations.production[webpackProperty] = getWebpackConfigValue(options.nxBuilders, configProdPath);
     }
+
+    // We don't change the config for testing anymore to prevent
+    // issues with eager bundles and webpack
+    // Consequence: 
+    //    Remotes: No issue
+    //    Hosts: Should be tested using an E2E test
+    // if (projectConfig?.architect?.test?.options) {
+    //   projectConfig.architect.test.options.extraWebpackConfig = configPath;
+    // }
     
     if (projectConfig?.architect?.['extract-i18n']?.options) {
+      projectConfig.architect['extract-i18n'].builder = 'ngx-build-plus:extract-i18n';
       projectConfig.architect['extract-i18n'].options.extraWebpackConfig = configPath;
     }
 
@@ -220,11 +253,12 @@ export default function config (options: MfSchematicSchema): Rule {
     return chain([
       makeMainAsync(main),
       adjustSSR(projectSourceRoot, ssrMappings),
-      externalSchematic('ngx-build-plus', 'ng-add', { project: options.project }),
+      // externalSchematic('ngx-build-plus', 'ng-add', { project: options.project }),
     ]);
 
   }
 }
+
 
 function generateRemoteConfig(workspace: any, projectName: string) {
   let remotes = '';
