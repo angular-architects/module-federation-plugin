@@ -7,6 +7,8 @@ import {
 
 import { strings } from '@angular-devkit/core';
 
+import * as semver from 'semver' 
+
 // import { spawn } from 'cross-spawn';
 import * as path from 'path';
 
@@ -141,6 +143,23 @@ function getWebpackConfigValue(nx: boolean, path: string) {
   return { path };
 }
 
+function nxBuildersAvailable(tree: Tree): boolean {
+
+  if (!tree.exists('nx.json')) return false;
+
+  const packageJson = JSON.parse(tree.read('package.json').toString('utf-8'));
+
+  const version = packageJson?.devDependencies?.['@nrwl/workspace'] 
+    ?? packageJson?.dependencies?.['@nrwl/workspace'];
+
+  if (!version) return false;
+
+  const minVersion = semver.minVersion(version).raw;
+
+  return semver.satisfies(minVersion, '>=12.9.0');
+
+}
+
 export default function config (options: MfSchematicSchema): Rule {
 
   return async function (tree) {
@@ -191,8 +210,12 @@ export default function config (options: MfSchematicSchema): Rule {
     tree.create(configPath, webpackConfig);
     tree.create(configProdPath, prodConfig);
 
-    if (typeof options.nxBuilders === 'undefined') {
-      options.nxBuilders = tree.exists('nx.json');
+    if (options.nxBuilders && !nxBuildersAvailable(tree)) {
+      console.info('To use Nx builders, make sure you have Nx version 12.9 or higher!');
+      options.nxBuilders = false;
+    }
+    else if (typeof options.nxBuilders === 'undefined') {
+      options.nxBuilders = nxBuildersAvailable(tree); // tree.exists('nx.json');
     }
 
     if (options.nxBuilders) {
