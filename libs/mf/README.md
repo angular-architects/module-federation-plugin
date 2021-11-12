@@ -362,6 +362,20 @@ Please find a [brain dump](https://github.com/angular-architects/module-federati
 
 ### Pitfalls when sharing libraries of a Monorepo
 
+#### Schematics don't work anymore (e. g. ng add @angular/material or @angular/pwa)
+
+In order to make module federation work, we need to bootstrap the app asynchronously. Hence, we need to move the bootstrap logic into a new ``bootstrap.ts`` and import it via a dynamic import in the ``main.ts``. This is a typical pattern when using Module Federation. The dynamic import makes Module Federation to load the shared libs.
+
+However, some schematics (e. g. ``ng add @angular/material`` or ``@angular/pwa``) assume that bootstrapping directly happens in ``main.ts``. For this reason, there is a schematic, that helps you turning async bootstrapping on and off:
+
+```
+ng g @angular-architects/module-federation:boot-async false --project yourProject
+
+ng add your-libraries-of-chioce --project yourProject
+
+ng g @angular-architects/module-federation:boot-async true --project yourProject
+```
+
 #### Warning: No required version specified
 
 If you get the warning _No required version specified and unable to automatically determine one_, Module Federation needs some help with finding out the version of a shared library to use. Reasons are not fitting peer dependencies or using secondary entry points like ``@angular/common/http``.

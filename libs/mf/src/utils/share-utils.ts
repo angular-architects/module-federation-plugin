@@ -36,8 +36,11 @@ function readVersionMap(packagePath: string): VersionMap {
 function lookupVersion(key: string, versions: VersionMap): string {
 
     const parts = key.split('/');
-    if (parts.length > 2) {
+    if (parts.length >= 2 && parts[0].startsWith('@')) {
         key = parts[0] + '/' + parts[1];
+    }
+    else {
+        key = parts[0];
     }
 
     if (!versions[key]) {

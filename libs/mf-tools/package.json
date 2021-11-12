@@ -1,12 +1,12 @@
 {
   "name": "@angular-architects/module-federation-tools",
-  "version": "12.5.3",
+  "version": "13.0.1",
   "license": "MIT",
   "peerDependencies": {
     "@angular/common": ">=11.0.0",
     "@angular/core": ">=11.0.0",
     "@angular/router": ">=11.0.0",
-    "@angular-architects/module-federation": "^12.0.0",
+    "@angular-architects/module-federation": "^13.0.1",
     "@angular/platform-browser": ">=11.0.0"
   },
   "dependencies": {
