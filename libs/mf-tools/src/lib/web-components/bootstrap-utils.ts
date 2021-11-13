@@ -16,7 +16,7 @@ declare interface BootstrapOptions {
 }
 
 export type PlatformCache = {
-    platform: Map<unknown, PlatformRef>
+    platform: { [key: string]: PlatformRef }
 };
 
 export function getMajor(version: string): string {
@@ -36,13 +36,13 @@ export function getMajor(version: string): string {
 
 function getPlatformCache(): PlatformCache {
     const platformCache = window as unknown as PlatformCache;
-    platformCache.platform = platformCache.platform || new Map<unknown, PlatformRef>();
+    platformCache.platform = platformCache.platform || {};
     return platformCache;
 }
 
 function getNgZone(): NgZone {
     return window['ngZone'];
-}   
+}
 
 export function shareNgZone(zone: NgZone): void {
     window['ngZone'] = zone;
@@ -59,17 +59,17 @@ export function bootstrap<M>(module: Type<M>, options: Options): Promise<NgModul
         options.compilerOptions.ngZone = getNgZone();
     }
 
-    // if (!options.version) {
-    //     options.version = () => VERSION.full;
-    // }
+    if (!options.version) {
+        options.version = () => VERSION.full;
+    }
 
-    // const key = options.version(); 
+    const key = options.version();
     const platformCache = getPlatformCache();
 
-    let platform = platformCache.platform.get(VERSION);
+    let platform = platformCache.platform[key];
     if (!platform) {
         platform = options.platformFactory();
-        platformCache.platform.set(VERSION, platform); 
+        platformCache.platform[key] = platform;
 
         if (options.production) {
             enableProdMode();
