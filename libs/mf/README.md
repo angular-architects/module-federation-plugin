@@ -207,7 +207,7 @@ plugins: [
 
 The helper function share adds some additional options for the shared dependencies:
 
-```json
+```typescript
 shared: share({
     "@angular/common": { 
         singleton: true, 
@@ -263,7 +263,7 @@ shared: share({
 
 The ``shareAll`` helper shares all your dependencies defined in your ``package.json``. The ``package.json`` is look up as described above:
 
-```json
+```typescript
 shared: {
   ...shareAll({ 
       singleton: true, 
@@ -382,12 +382,12 @@ If you get the warning _No required version specified and unable to automaticall
 
 To avoid this warning you can specify to used version by hand:
 
-```json
+```typescript
 shared: { 
     "@angular/common": { 
         singleton: true, 
         strictVersion: true, 
-        requireVersion: '12.0.0  
+        requireVersion: '12.0.0'  
     },
     [...]
 },
@@ -395,7 +395,7 @@ shared: {
 
 You can also use our ``share`` helper that infers the version number from your ``package.json`` when setting ``requireVersion`` to ``'auto'``:
 
-```json
+```typescript
 shared: share({
     "@angular/common": { 
         singleton: true, 
