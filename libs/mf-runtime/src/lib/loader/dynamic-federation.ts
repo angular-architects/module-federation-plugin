@@ -43,10 +43,11 @@ async function initRemote(remoteName: string) {
 export type LoadRemoteModuleOptions = { 
     remoteEntry?: string; 
     remoteName: string; 
-    exposedModule: string
+    exposedModule: string;
+    crossOriginLoading?: string;
 }
 
-export function loadRemoteEntry(remoteEntry: string, remoteName: string): Promise<void> {
+export function loadRemoteEntry(remoteEntry: string, remoteName: string, crossOriginLoading?: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
 
         // Is remoteEntry already loaded?
@@ -56,6 +57,9 @@ export function loadRemoteEntry(remoteEntry: string, remoteName: string): Promis
         }
 
         const script = document.createElement('script');
+        if (crossOriginLoading !== undefined) {
+            script.crossOrigin = crossOriginLoading;
+        }
         script.src = remoteEntry;
 
         script.onerror = reject;
@@ -72,7 +76,7 @@ export function loadRemoteEntry(remoteEntry: string, remoteName: string): Promis
 
 export async function loadRemoteModule<T = any>(options: LoadRemoteModuleOptions): Promise<T> {
     if (options.remoteEntry) {
-        await loadRemoteEntry(options.remoteEntry, options.remoteName);
+        await loadRemoteEntry(options.remoteEntry, options.remoteName, options.crossOriginLoading);
     }
     return await lookupExposedModule<T>(options.remoteName, options.exposedModule);
 }
