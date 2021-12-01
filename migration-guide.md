@@ -2,6 +2,16 @@
 
 Beginning with version 13, the Angular CLI compiles bundles as EcmaScript modules. This also effects how entry points for Module Federation are generated. This guide shows how you can adjust to this.
 
+## Big Thanks
+
+Big thanks to all the people, that helped with this migration:
+
+- [Tobias Koppers](https://twitter.com/wSokra), Founder of Webpack
+- [Colum Ferry](https://twitter.com/ferrycolum), Senior Software Engineer 
+at NRWL
+- [Thomas Sandeep](https://github.com/SandeepThomas)
+
+
 ## Force the CLI into the Newest Version of Webpack
 
 As long as the CLI doesn't support webpack 5.64.4 or higher, we need to force it into this version. It seems like that this is necessary for CLI 13.0.x, while 13.1.x and above will ship with a fitting webpack version. In the latter case, you can skip this section. Otherwise, add this section to your ``package.json``:
@@ -12,7 +22,7 @@ As long as the CLI doesn't support webpack 5.64.4 or higher, we need to force it
 + },
 ```
 
-Then, nuke your ``node_modules`` folder and install the dependencies with yarn (!). Please note, that yarn is needed for respecting the ``resolutions`` section. Once, the CLI ships with a fitting webpack version you can git rid of this section and use other packages.
+Then, nuke your ``node_modules`` folder and install the dependencies with ``yarn`` (!). Please note, that yarn is needed for respecting the ``resolutions`` section. Once, the CLI ships with a fitting webpack version you can git rid of this section and use other package manager.
 
 If you haven't created your project with yarn, also add the following section to your ``angular.json``:
 
@@ -58,7 +68,7 @@ module.exports = {
 
 ## Static Federation
 
-If you use static federation, you need to further adjust your shell's webpack config. As EcmaScript modules can be directly imported, there is no remote name anymore. Before, this name was used as the name of a global variable that made the remote available. Hence, remove it from the values in your ``remotes`` section:
+If you use static federation, you need to further adjust your shell's webpack config. As EcmaScript modules can be directly imported, there is no ``remoteName`` anymore. Before, this name was used as the name of a global variable that made the remote available. Hence, remove it from the values in your ``remotes`` section:
 
 ```diff
 [...]
@@ -101,7 +111,7 @@ Adjust your usage of ``loadRemoteModule``, e. g. in your routing config:
 },
 ```
 
-Also, adjust your usage of loadRemoteEntry, e. g. in your ``main.ts``:
+Also, adjust your usage of ``loadRemoteEntry``, e. g. in your ``main.ts``:
 
 ```diff
 - loadRemoteEntry('http://localhost:3000/remoteEntry.js', 'mfe1')
@@ -127,6 +137,21 @@ To prevent issues with live reloads, you need to add a ``publicHost`` property t
 ### Advanced: Loading Script-based Remotes
 
 If you also want to load script-based remotes into your shell, e. g. remotes build with Angular 12 used for a [Multi-Version/Multi-Framework setup](https://www.npmjs.com/package/@angular-architects/module-federation-tools), you can pass ``type: 'script'`` to both, ``loadRemoteModule`` and ``loadRemoteEntry``. In this case, you also need to pass a ``remoteName``.
+
+### Advanced: Opting-out of Using EcmaScript Modules
+
+While moving forward with Modules and aligning with the CLI is a good idea, you might to temporarily opt-out of using them. This gives you some additional time for the migration as it brings back the behavior of Angular 12. For this, adjust your webpack configs as follows:
+
+```diff
+module.exports = {
+  output: {
+    uniqueName: "dashboard",
+    publicPath: "auto",
++    scriptType: 'text/javascript'
+  }, 
+  [...]
+}
+```
 
 ## Example
 
