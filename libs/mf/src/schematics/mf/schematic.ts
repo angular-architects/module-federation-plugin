@@ -1,7 +1,6 @@
 import {
   chain,
   Rule,
-  externalSchematic,
   Tree,
 } from '@angular-devkit/schematics';
 
@@ -295,12 +294,12 @@ function generateRemoteConfig(workspace: any, projectName: string) {
         && project?.architect?.build) {
       const pPort = project.architect.serve.options?.port ?? 4200;
       
-      remotes += `        //     "${strings.camelize(p)}": "${strings.camelize(p)}@http://localhost:${pPort}/remoteEntry.js",\n`;
+      remotes += `        //     "${strings.camelize(p)}": "http://localhost:${pPort}/remoteEntry.js",\n`;
     }
   }
 
   if (!remotes) {
-    remotes = '        //     "mfe1": "mfe1@http://localhost:3000/remoteEntry.js",\n';
+    remotes = '        //     "mfe1": "http://localhost:3000/remoteEntry.js",\n';
   }
   return remotes;
 }
