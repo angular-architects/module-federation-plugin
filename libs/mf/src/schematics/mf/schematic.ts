@@ -4,6 +4,7 @@ import {
   Tree,
 } from '@angular-devkit/schematics';
 
+import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { strings } from '@angular-devkit/core';
 
 import * as semver from 'semver' 
@@ -14,6 +15,8 @@ import * as path from 'path';
 import { createConfig } from '../../utils/create-config';
 import { prodConfig } from './prod-config';
 import { MfSchematicSchema } from './schema';
+
+import { addPackageJsonDependency, NodeDependencyType } from '@schematics/angular/utility/dependencies';
 
 // export async function npmInstall(packageName: string) {
 //   await new Promise<boolean>((resolve) => {
@@ -161,7 +164,7 @@ function nxBuildersAvailable(tree: Tree): boolean {
 
 export default function config (options: MfSchematicSchema): Rule {
 
-  return async function (tree) {
+  return async function (tree, context) {
 
     const workspaceFileName = getWorkspaceFileName(tree);
 
@@ -271,6 +274,15 @@ export default function config (options: MfSchematicSchema): Rule {
     tree.overwrite(workspaceFileName, JSON.stringify(workspace, null, '\t'));
 
     updatePackageJson(tree);
+
+    addPackageJsonDependency(tree, { 
+      name: 'ngx-build-plus', 
+      type: NodeDependencyType.Dev,
+      version: '^13.0.1',
+      overwrite: true 
+    });
+
+    context.addTask(new NodePackageInstallTask());
 
     return chain([
       makeMainAsync(main),
