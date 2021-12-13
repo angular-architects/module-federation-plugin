@@ -6,7 +6,7 @@ import {
 
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { strings } from '@angular-devkit/core';
-
+import * as json5 from 'json5';
 import * as semver from 'semver' 
 
 // import { spawn } from 'cross-spawn';
@@ -17,6 +17,7 @@ import { prodConfig } from './prod-config';
 import { MfSchematicSchema } from './schema';
 
 import { addPackageJsonDependency, NodeDependencyType } from '@schematics/angular/utility/dependencies';
+import { hostname } from 'os';
 
 // export async function npmInstall(packageName: string) {
 //   await new Promise<boolean>((resolve) => {
@@ -248,6 +249,7 @@ export default function config (options: MfSchematicSchema): Rule {
     
     projectConfig.architect.serve.builder = serveBuilder;
     projectConfig.architect.serve.options.port = port;
+    projectConfig.architect.serve.options.publicHost = `http://localhost:${port}`;
 
     // Only needed for ngx-build-plus
     if (!options.nxBuilders) {
@@ -269,20 +271,25 @@ export default function config (options: MfSchematicSchema): Rule {
       projectConfig.architect['extract-i18n'].options.extraWebpackConfig = configPath;
     }
 
+
+    updateTsConfig(tree, tsConfigName);
+
+
+    
     const ssrMappings = generateSsrMappings(workspace, projectName);
 
     tree.overwrite(workspaceFileName, JSON.stringify(workspace, null, '\t'));
 
     updatePackageJson(tree);
 
-    addPackageJsonDependency(tree, { 
-      name: 'ngx-build-plus', 
-      type: NodeDependencyType.Dev,
-      version: '^13.0.1',
-      overwrite: true 
-    });
+    // addPackageJsonDependency(tree, { 
+    //   name: 'ngx-build-plus', 
+    //   type: NodeDependencyType.Dev,
+    //   version: '^13.0.1',
+    //   overwrite: true 
+    // });
 
-    context.addTask(new NodePackageInstallTask());
+    // context.addTask(new NodePackageInstallTask());
 
     return chain([
       makeMainAsync(main),
@@ -293,6 +300,23 @@ export default function config (options: MfSchematicSchema): Rule {
   }
 }
 
+function updateTsConfig(tree, tsConfigName: string) {
+  const tsConfig = json5.parse(tree.read(tsConfigName).toString('utf-8'));
+  const target = tsConfig.compilerOptions.target as string;
+  let targetVersion = 0;
+
+  if (target
+    && target.toLocaleLowerCase().startsWith("es")
+    && target.length > 2) {
+    targetVersion = parseInt(target.substring(2));
+  }
+
+  if (targetVersion < 2020) {
+    tsConfig.compilerOptions.target = 'es2020';
+  }
+
+  tree.overwrite(tsConfigName, JSON.stringify(tsConfig, null, 2));
+}
 
 function generateRemoteConfig(workspace: any, projectName: string) {
   let remotes = '';

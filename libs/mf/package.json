@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/module-federation",
-  "version": "14.0.0-beta.1",
+  "version": "14.0.0-rc.1",
   "license": "MIT",
   "repository": {
     "type": "GitHub",
@@ -17,10 +17,20 @@
   "schematics": "./collection.json",
   "builders": "./builders.json",
   "dependencies": {
-    "@angular-architects/module-federation-runtime": "14.0.0-beta.1",
+    "@angular-architects/module-federation-runtime": "14.0.0-rc.1",
     "word-wrap": "^1.2.3",
     "callsite": "^1.0.0",
     "node-fetch": "^2.6.1",
-    "semver": "^7.3.5"
+    "semver": "^7.3.5",
+    "ngx-build-plus":"^13.0.0"
+  },
+  "peerDependencies": {
+  },
+  "ng-update": {
+    "migrations": "./migrations.json",
+    "package-group": [
+      "@angular-architects/module-federation-tools",
+      "ngx-build-plus"
+    ]
   }
 }

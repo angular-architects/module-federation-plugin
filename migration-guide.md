@@ -1,6 +1,6 @@
 # Migration Guide for Angular 13
 
-Beginning with version 13, the Angular CLI compiles bundles as EcmaScript modules. This also effects how entry points for Module Federation are generated. This guide shows how you can adjust to this.
+Beginning with version 13, the Angular CLI compiles emits EcmaScript modules. This also effects how entry points for Module Federation are generated. This guide shows how you can adjust to this.
 
 ## Big Thanks
 
@@ -10,39 +10,33 @@ Big thanks to all the people, that helped with this migration:
 - [Colum Ferry](https://twitter.com/ferrycolum), Senior Software Engineer 
 at NRWL
 - [Thomas Sandeep](https://github.com/SandeepThomas)
-
-
-## Force the CLI into the Newest Version of Webpack
-
-As long as the CLI doesn't support webpack 5.64.4 or higher, we need to force it into this version. It seems like that this is necessary for CLI 13.0.x, while 13.1.x and above will ship with a fitting webpack version. In the latter case, you can skip this section. Otherwise, add this section to your ``package.json``:
-
-```diff
-+ "resolutions": {
-+     "webpack": "5.64.4"
-+ },
-```
-
-Then, nuke your ``node_modules`` folder and install the dependencies with ``yarn`` (!). Please note, that yarn is needed for respecting the ``resolutions`` section. Once, the CLI ships with a fitting webpack version you can git rid of this section and use other package manager.
-
-If you haven't created your project with yarn, also add the following section to your ``angular.json``:
-
-```diff
-{
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-+  "cli": {
-+    "packageManager": "yarn"
-+  },
-  [...]
-}
-```
-
-This makes sure that calls to commands like ``ng add`` use yarn too.
+- [Michael Zikes](https://twitter.com/MikeZks)
 
 ## Upgrade to the Newest Version of @angular-architects/module-federation
 
 ```
-yarn add @angular-architects/module-federation@beta.0
+yarn add @angular-architects/module-federation@14.0.0-rc.1
+```
+
+## Upgrade to Angular and Angular CLI 13.1 (!) or higher
+
+As we need a newer webpack version, don't go with Angular 13.0 but with 13.1 or higher.
+
+## Update your Compilation Target 
+
+In your ``tsconfig.json`` or ``tsconfig.base.json``, make sure, your compilation ``target`` is ``es2020`` or higher:
+
+
+```json
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    [...]
+    "target": "es2020",
+    [...]
+  },
+  [...]
+}
 ```
 
 ## Adjust your webpack Configs
@@ -134,9 +128,25 @@ To prevent issues with live reloads, you need to add a ``publicHost`` property t
 [...]
 ```
 
-### Advanced: Loading Script-based Remotes
+### Advanced: Dynamic Federation with Script-based Remotes
 
-If you also want to load script-based remotes into your shell, e. g. remotes build with Angular 12 used for a [Multi-Version/Multi-Framework setup](https://www.npmjs.com/package/@angular-architects/module-federation-tools), you can pass ``type: 'script'`` to both, ``loadRemoteModule`` and ``loadRemoteEntry``. In this case, you also need to pass a ``remoteName``.
+If you also want to load (existing) script-based remotes into your shell, e. g. remotes built with Angular 12 used for a [Multi-Version/Multi-Framework setup](https://www.npmjs.com/package/@angular-architects/module-federation-tools), you can pass ``type: 'script'`` to both, ``loadRemoteModule`` and ``loadRemoteEntry``. In this case, you also need to pass a ``remoteName``.
+
+### Advanced: Static Federation with Script-based Remotes
+
+If you want to load (existing) script-based remote into your shell, e. g. such built with Angular 12, you can use the following syntax in the shell's ``webpack.config.js``.
+
+In the following example, ``mfe1`` is loaded as a module while ``mfe2`` is loaded as a script:
+
+```javascript
+remotes: {
+  // Load as module:
+  mfe1": "mfe2@http://localhost:3000/remoteEntry.js",
+  
+  // Load as script:
+  mfe2": "script mfe2@http://localhost:3000/remoteEntry.js",
+}
+```
 
 ### Advanced: Opting-out of Using EcmaScript Modules
 

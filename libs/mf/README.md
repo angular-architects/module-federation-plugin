@@ -39,6 +39,16 @@ Since Version 1.2, we also provide some advanced features like:
 
 ✅ Issues with sharing libs in monorepos are resolved (always worked with multiple repos)
 
+## Upgrade from Angular 12
+
+Beginning with Angular 13, the CLI generates EcmaScript modules instead of script files. This affects how we work with Module Federation a bit.
+
+Please find information on migrating here:
+
+[Migration Guide for Angular 13+](https://github.com/angular-architects/module-federation-plugin/blob/main/migration-guide.md)
+
+If you start from the scratch, ``ng add`` will take care of these settings.
+
 ## Upgrade from Version 1.x
 
 After updating the libs, you need to adjust the ``webpack.conf.js`` a bit:
@@ -64,9 +74,18 @@ module.exports = {
 
 ## Usage 🛠️
 
-1. ``ng add @angular-architects/module-federation@next``
+### Angular CLI
+
+1. ``ng add @angular-architects/module-federation``
 2. Adjust the generated ``webpack.config.js`` file
 3. Repeat this for further projects in your workspace (if needed)
+
+## Nx
+
+1. ``npm install @angular-architects/module-federation``
+2. ``ng g @angular-architects/module-federation:init``
+3. Adjust the generated ``webpack.config.js`` file
+4. Repeat this for further projects in your workspace (if needed)
 
 ## Getting Started 🧪
 

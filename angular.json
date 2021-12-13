@@ -91,6 +91,11 @@
                 "output": "."
               },
               {
+                "input": ".",
+                "glob": "migrations.json",
+                "output": "."
+              },              
+              {
                 "input": "./libs/mf",
                 "glob": "builders.json",
                 "output": "."
