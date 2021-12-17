@@ -33,13 +33,14 @@ Since Version 1.2, we also provide some advanced features like:
 
 ✅ Sharing Libs of a Monorepo
 
-## What's new in Version 12.0.0-beta.x?
+## Which Version to use?
 
-✅ Works with CLI 12.0.0-rc.1 that brings webpack 5 out of the box
+- Angular 12: @angular-architects/module-federation: ^12.0.0
+- Angular 13: @angular-architects/module-federation: ^14.0.0
 
-✅ Issues with sharing libs in monorepos are resolved (always worked with multiple repos)
+Beginning with Angular 13, we had to add some changes to adjust to the Angular CLI. Please see the next section for this.
 
-## Upgrade from Angular 12
+## Upgrade from Angular 12 or lower
 
 Beginning with Angular 13, the CLI generates EcmaScript modules instead of script files. This affects how we work with Module Federation a bit.
 
@@ -127,8 +128,8 @@ const routes: Routes = [
         path: 'flights',
         loadChildren: () =>
             loadRemoteModule({
+                type: 'module',
                 remoteEntry: 'http://localhost:3000/remoteEntry.js',
-                remoteName: 'mfe1',
                 exposedModule: './Module'
             })
             .then(m => m.FlightsModule)
@@ -146,7 +147,7 @@ For this, you could call ``loadRemoteEntry`` BEFORE bootstrapping Angular:
 import { loadRemoteEntry } from '@angular-architects/module-federation';
 
 Promise.all([
-    loadRemoteEntry('http://localhost:3000/remoteEntry.js', 'mfe1')
+    loadRemoteEntry({type: 'module', remoteEntry: 'http://localhost:3000/remoteEntry.js'})
 ])
 .catch(err => console.error('Error loading remote entries', err))
 .then(() => import('./bootstrap'))
@@ -155,7 +156,7 @@ Promise.all([
 
 The ``bootstrap.ts`` file contains the source code normally found in ``main.ts`` and hence, it calls ``platform.bootstrapModule(AppModule)``. You really need this combination of an upfront file calling loadRemoteEntry and a dynamic import loading another file bootstrapping Angular because Angular itself is already a shared library respected during the version negotiation.
 
-Then, when loading the remote Module, just skip the ``remoteEntry`` property:
+Then, when loading the remote Module, you set to mention the ``remoteEntry`` property anyway, as it also acts as an internal identifier for the remote:
 
 ```typescript
 import { loadRemoteModule } from '@angular-architects/module-federation';
@@ -167,9 +168,8 @@ const routes: Routes = [
         path: 'flights',
         loadChildren: () =>
             loadRemoteModule({
-                // Skipped - already loaded upfront:
-                // remoteEntry: 'http://localhost:3000/remoteEntry.js',
-                remoteName: 'mfe1',
+                type: 'module',
+                remoteEntry: 'http://localhost:3000/remoteEntry.js',
                 exposedModule: './Module'
             })
             .then(m => m.FlightsModule)

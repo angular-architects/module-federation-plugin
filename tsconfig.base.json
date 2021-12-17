@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@angular-architects/mf": ["libs/mf/src/index.ts"],
+      "@angular-architects/module-federation": ["libs/mf/src/index.ts"],
       "@angular-architects/module-federation-runtime": [
         "libs/mf-runtime/src/index.ts"
       ],

@@ -128,6 +128,10 @@ To prevent issues with live reloads, you need to add a ``publicHost`` property t
 [...]
 ```
 
+### Deployment: Enable CORS
+
+As remotes are now loaded as EcmaScript modules, the same origin policy is in place. Hence, if your micro frontends and the shell are deployed to different origins, you need to enable CORS. The same holds true if you run your application after building it with a command line web server like ``serve`` (``serve``, e. g., has a ``--cors`` options). 
+
 ### Advanced: Dynamic Federation with Script-based Remotes
 
 If you also want to load (existing) script-based remotes into your shell, e. g. remotes built with Angular 12 used for a [Multi-Version/Multi-Framework setup](https://www.npmjs.com/package/@angular-architects/module-federation-tools), you can pass ``type: 'script'`` to both, ``loadRemoteModule`` and ``loadRemoteEntry``. In this case, you also need to pass a ``remoteName``.

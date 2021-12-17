@@ -14,6 +14,8 @@ This can help to **balance the trade-off** between bundle size and isolation of 
 
 > **Disclaimer:** Multi-Framework and -Version Micro increase the overall complexity and call for some workarounds. This library tries to hide some of them.
 
+
+
 ## Examples
 
 - [Live Example](https://red-ocean-0fe4c4610.azurestaticapps.net)
@@ -102,6 +104,27 @@ export const APP_ROUTES: Routes = [
         data: {
           remoteEntry: 'https://nice-grass-018f7d910.azurestaticapps.net/remoteEntry.js',
           remoteName: 'angular1',
+          exposedModule: './web-components',
+          elementName: 'angular1-element'
+        } as WebComponentWrapperOptions
+    },
+    [...]
+}
+```
+
+### Important: Angular 13+
+
+Beginning with Angular 13, the CLI is emitting EcmaScript modules. Hence, we need to adjust the usage of the WebComponentWrapper when loading a remote that has been created with the CLI 13 or higher. For this, set ``type`` to ``remote`` and skip the ``remoteName`` property (for Modules, we don't need a remoteName):
+
+```typescript
+export const APP_ROUTES: Routes = [
+    [...]
+    {
+        path: 'angular1',
+        component: WebComponentWrapper,
+        data: {
+          type: 'module',
+          remoteEntry: 'https://your-path/remoteEntry.js',
           exposedModule: './web-components',
           elementName: 'angular1-element'
         } as WebComponentWrapperOptions
