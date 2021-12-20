@@ -1,12 +1,15 @@
 import callsite = require('callsite');
 import path = require('path');
 import fs = require('fs');
+import { SharedConfig } from './webpack.types';
 
 let inferVersion = false;
 
-type VersionMap = { [packageName:string]: string };
+type VersionMap = Record<string, string>;
 type IncludeSecondariesOptions = { skip: string | string[] } | boolean;
-type Config =  { [setting:string]: unknown };
+type CustomSharedConfig =  SharedConfig & { includeSecondaries: IncludeSecondariesOptions };
+type ConfigObject = Record<string, CustomSharedConfig>;
+type Config = (string | ConfigObject)[] | ConfigObject;
 
 function findPackageJson(folder: string): string {
     while (
@@ -127,7 +130,7 @@ export function setInferVersion(infer: boolean): void {
     inferVersion = infer;
 }
 
-export function share(shareObjects: Config[], packageJsonPath = ''): Config {
+export function share(shareObjects: Config, packageJsonPath = ''): Config {
 
     if (!packageJsonPath) {
         const stack = callsite();
@@ -164,4 +167,3 @@ export function share(shareObjects: Config[], packageJsonPath = ''): Config {
 
     return result;
 }
-

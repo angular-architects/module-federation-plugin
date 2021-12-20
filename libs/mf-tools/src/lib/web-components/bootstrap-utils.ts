@@ -1,12 +1,33 @@
-import { CompilerOptions, enableProdMode, NgModuleRef, NgZone, PlatformRef, Type } from "@angular/core";
+import { CompilerOptions, enableProdMode, NgModuleRef, NgZone, PlatformRef, Type, Version } from "@angular/core";
 import { platformBrowser } from "@angular/platform-browser";
 import { VERSION } from '@angular/core';
+import { getGlobalStateSlice, setGlobalStateSlice } from "../utils/global-state";
 
 export type Options = {
     production: boolean,
     platformFactory?: () => PlatformRef,
     compilerOptions?: CompilerOptions & BootstrapOptions,
-    version?: () => string,
+    version?: () => string | Version,
+    /**
+     * Opt-out of ngZone sharing.
+     * Not recommanded.
+     * Default value true.
+     */
+    ngZoneSharing?: boolean,
+    /**
+     * Opt-out of platformSharing sharing.
+     * Possible, if dependencies are not shared or each bootstrapped
+     * remote app uses a different version.
+     * Default value true.
+     */
+    platformSharing?: boolean,
+    /**
+     * Deactivate support for legacy mode.
+     * Only recommanded if all used implementations depend on
+     * @angular-architects/module-federation-tools > 13.0.1.
+     * Default value true.
+     */
+    activeLegacyMode?: boolean
 };
 
 declare interface BootstrapOptions {
@@ -15,9 +36,9 @@ declare interface BootstrapOptions {
     ngZoneRunCoalescing?: boolean;
 }
 
-export type PlatformCache = {
-    platform: Map<unknown, PlatformRef>
-};
+let ngZoneSharing = true;
+let platformSharing = true;
+let legacyMode = true;
 
 export function getMajor(version: string): string {
     const pre = version.match(/\d+/)[0];
@@ -34,47 +55,111 @@ export function getMajor(version: string): string {
     return pre;
 }
 
-function getPlatformCache(): PlatformCache {
-    const platformCache = window as unknown as PlatformCache;
-    platformCache.platform = platformCache.platform || new Map<unknown, PlatformRef>();
+/**
+ * LEGACY IMPLEMENTATIONS START
+ *
+ * Can be deprecated in later major releases.
+ *
+ * To increase backwards compatibility legacy and current namespaces
+ * within the window object are used.
+ */
+
+export type LegacyPlatformCache = {
+    platform: Record<string, PlatformRef>;
+};
+
+function getLegacyPlatformCache(): LegacyPlatformCache {
+    const platformCache = window as unknown as LegacyPlatformCache;
+    platformCache.platform = platformCache.platform || {};
     return platformCache;
 }
 
-function getNgZone(): NgZone {
-    return window['ngZone'];
-}   
+function getLegacyPlatform(key: string): PlatformRef {
+    const platform = getLegacyPlatformCache().platform[key];
+    /**
+     * If dependencies are not shared, platform with same version is different
+     * and shared platform will not be returned.
+     */
+    return platform instanceof PlatformRef ? platform : null;
+}
 
-export function shareNgZone(zone: NgZone): void {
+function setLegacyPlatform(key: string, platform: PlatformRef): void {
+    getLegacyPlatformCache().platform[key] = platform;
+}
+
+function getLegacyNgZone(): NgZone {
+    return window['ngZone'];
+}
+
+function setLegacyNgZone(zone: NgZone): void {
     window['ngZone'] = zone;
 }
 
-export function bootstrap<M>(module: Type<M>, options: Options): Promise<NgModuleRef<M>> {
+/**
+ * LEGACY IMPLEMENTATIONS END
+ */
 
-    if (!options.platformFactory) {
-        options.platformFactory = () => platformBrowser();
+function getPlatformCache(): Map<Version, PlatformRef> {
+    return getGlobalStateSlice(
+        (state: { platformCache: Map<Version, PlatformRef> }) => state.platformCache
+    ) || setGlobalStateSlice({
+        platformCache: new Map<Version, PlatformRef>()
+    }).platformCache;
+}
+
+function setPlatform(version: Version, platform: PlatformRef): void {
+    if (platformSharing) {
+      legacyMode && setLegacyPlatform(version.full, platform);
+      getPlatformCache().set(version, platform);
+    }
+}
+
+function getPlatform(options: Options): PlatformRef {
+    if (!platformSharing) {
+        return options.platformFactory();
     }
 
-    if (!options.compilerOptions?.ngZone) {
+    const versionResult = options.version();
+    const version = versionResult === VERSION.full ? VERSION : versionResult;
+    const versionKey = typeof version === 'string' ? version : version.full;
+
+    let platform =
+        getPlatformCache().get(version as Version) ||
+        (legacyMode && getLegacyPlatform(versionKey));
+
+    if (!platform) {
+        platform = options.platformFactory();
+        setPlatform(VERSION, platform);
+    }
+
+    return platform;
+}
+
+function getNgZone(): NgZone {
+    return getGlobalStateSlice(
+        (state: { ngZone: NgZone }) => state.ngZone
+    ) || getLegacyNgZone();
+}
+
+export function shareNgZone(zone: NgZone): void {
+    if (ngZoneSharing) {
+      legacyMode && setLegacyNgZone(zone);
+      setGlobalStateSlice({ ngZone: zone });
+    }
+}
+
+export function bootstrap<M>(module: Type<M>, options: Options): Promise<NgModuleRef<M>> {
+    ngZoneSharing = options.ngZoneSharing !== false;
+    platformSharing = options.platformSharing !== false;
+    legacyMode = options.activeLegacyMode !== false;
+    options.platformFactory = options.platformFactory || (() => platformBrowser());
+    options.version = options.version || (() => VERSION);
+    options.production && enableProdMode();
+
+    if (ngZoneSharing && !options.compilerOptions?.ngZone) {
         options.compilerOptions = options.compilerOptions || {};
         options.compilerOptions.ngZone = getNgZone();
     }
 
-    // if (!options.version) {
-    //     options.version = () => VERSION.full;
-    // }
-
-    // const key = options.version(); 
-    const platformCache = getPlatformCache();
-
-    let platform = platformCache.platform.get(VERSION);
-    if (!platform) {
-        platform = options.platformFactory();
-        platformCache.platform.set(VERSION, platform); 
-
-        if (options.production) {
-            enableProdMode();
-        }
-    }
-
-    return platform.bootstrapModule(module, options.compilerOptions);
+    return getPlatform(options).bootstrapModule(module, options.compilerOptions);
 }
