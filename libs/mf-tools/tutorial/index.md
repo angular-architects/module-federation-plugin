@@ -34,6 +34,7 @@ If you don't want to do the upstream tutorial first, you can use [this example](
         path: 'react',
         component: WebComponentWrapper,
         data: {
+            type: 'script',
             remoteEntry: 'https://witty-wave-0a695f710.azurestaticapps.net/remoteEntry.js',
             remoteName: 'react',
             exposedModule: './web-components',
@@ -45,6 +46,7 @@ If you don't want to do the upstream tutorial first, you can use [this example](
         path: 'angular1',
         component: WebComponentWrapper,
         data: {
+            type: 'script',
             remoteEntry: 'https://nice-grass-018f7d910.azurestaticapps.net/remoteEntry.js',
             remoteName: 'angular1',
             exposedModule: './web-components',
@@ -56,6 +58,7 @@ If you don't want to do the upstream tutorial first, you can use [this example](
         path: 'angular2',
         component: WebComponentWrapper,
         data: {
+            type: 'script',
             remoteEntry: 'https://gray-pond-030798810.azurestaticapps.net//remoteEntry.js',
             remoteName: 'angular2',
             exposedModule: './web-components',
@@ -67,6 +70,7 @@ If you don't want to do the upstream tutorial first, you can use [this example](
         matcher: startsWith('angular3'),
         component: WebComponentWrapper,
         data: {
+            type: 'script',
             remoteEntry: 'https://gray-river-0b8c23a10.azurestaticapps.net/remoteEntry.js',
             remoteName: 'angular3',
             exposedModule: './web-components',
@@ -78,6 +82,7 @@ If you don't want to do the upstream tutorial first, you can use [this example](
         path: 'vue',
         component: WebComponentWrapper,
         data: {
+            type: 'script',
             remoteEntry: 'https://mango-field-0d0778c10.azurestaticapps.net/remoteEntry.js',
             remoteName: 'vue',
             exposedModule: './web-components',
@@ -89,6 +94,7 @@ If you don't want to do the upstream tutorial first, you can use [this example](
         path: 'angularjs',
         component: WebComponentWrapper,
         data: {
+            type: 'script',
             remoteEntry: 'https://calm-mud-0a3ee4a10.azurestaticapps.net/remoteEntry.js',
             remoteName: 'angularjs',
             exposedModule: './web-components',
@@ -100,6 +106,7 @@ If you don't want to do the upstream tutorial first, you can use [this example](
         matcher: startsWith('angular3'),
         component: WebComponentWrapper,
         data: {
+            type: 'script',
             remoteEntry: 'https://gray-river-0b8c23a10.azurestaticapps.net/remoteEntry.js',
             remoteName: 'angular3',
             exposedModule: './web-components',
@@ -116,7 +123,10 @@ If you don't want to do the upstream tutorial first, you can use [this example](
     ];
     ```
 
-    Hint: Add the missing imports using your IDE's auto import feature.
+    **Hint:** Add the missing imports using your IDE's auto import feature.
+
+    **Remarks:** Please note that we are using ``type: 'script'`` here. This is needed for classic webpack setups as normally used in the Vue and React world as well as for Angular before version 13. Beginning with version 13, the CLI emits EcmaScript module instead of "plain old" JavaScript files. Hence, when loading a remote compiled with Angular 13 or higher, you need to set `type` to ``module``. In our case, however, the remotes we find at the shown URLs in the cloud are Angular 12-based, hence we need ``type: 'script'``.  
+
 
 4. Open your shell's ``app.component.html`` and add the following links:
 

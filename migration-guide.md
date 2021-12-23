@@ -145,7 +145,7 @@ In the following example, ``mfe1`` is loaded as a module while ``mfe2`` is loade
 ```javascript
 remotes: {
   // Load as module:
-  mfe1": "mfe2@http://localhost:3000/remoteEntry.js",
+  mfe1": "http://localhost:3000/remoteEntry.js",
   
   // Load as script:
   mfe2": "script mfe2@http://localhost:3000/remoteEntry.js",
@@ -166,6 +166,30 @@ module.exports = {
   [...]
 }
 ```
+
+Also, don't use the settings introduced above for Angular 13.1+:
+
+
+```diff
+[...]
+module.exports = {
+  [...]
+-  experiments: {
+-    outputModule: true
+-  },
+  plugins: [
+    new ModuleFederationPlugin({
+-        library: { type: "module" },
+
+        [...]
+    })
+  ]
+};
+```
+
+## SSR
+
+We have a sound solution including Schematics for SSR in Angular 12. However, because of a bug in Angular Universal 13, SSR is currently not supported for Angular 13. However, we are monitoring this situation and providing a solution as soon as these issues are fixed.
 
 ## Example
 

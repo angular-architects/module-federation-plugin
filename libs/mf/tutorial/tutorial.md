@@ -6,6 +6,9 @@ This tutorial shows how to use Webpack Module Federation together with the Angul
 ![Microfrontend Loaded into Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/libs/mf/tutorial/result.png)
 
 
+**Important**: This tutorial is written for Angular and **Angular CLI 13.1** and higher. To find out about the small differences for lower versions of Angular and for the migration from such a lower version, please have a look to our [migration guide](https://github.com/angular-architects/module-federation-plugin/blob/main/migration-guide.md).
+
+
 ## Part 1: Clone and Inspect the Starterkit
 
 In this part you will clone the starterkit and inspect its projects.
@@ -46,7 +49,9 @@ Now, let's activate and configure module federation:
 
     This activates module federation, assigns a port for ng serve, and generates the skeleton of a module federation configuration.
 
-2. Switch into the project ``mfe1`` and open the generated configuration file ``projects\mfe1\webpack.config.js``. It contains the module federation configuration for ``mfe1``. Adjust it as follows:
+2. Open the ``tsconfig.json`` in your workspace's root and ensure your self that the ``target`` property points to ``ES2020`` or higher. This is a prerequisite for using Module Federation with Angular 13.1 or higher.
+
+3. Switch into the project ``mfe1`` and open the generated configuration file ``projects\mfe1\webpack.config.js``. It contains the module federation configuration for ``mfe1``. Adjust it as follows:
 
     ```javascript
     const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
@@ -57,6 +62,8 @@ Now, let's activate and configure module federation:
         [...],
         plugins: [
             new ModuleFederationPlugin({
+                
+                library: { type: "module" },
 
                 // For remotes (please adjust)
                 name: "mfe1",
@@ -65,19 +72,20 @@ Now, let's activate and configure module federation:
                     // Update this:
                     './Module': './projects/mfe1/src/app/flights/flights.module.ts',
                 },        
-                shared: {
-                    "@angular/core": { singleton: true, strictVersion: true }, 
-                    "@angular/common": { singleton: true, strictVersion: true }, 
-                    "@angular/router": { singleton: true, strictVersion: true },
+                shared: share({
+                    "@angular/core": { singleton: true, strictVersion: true, requiredVersion: 'auto' }, 
+                    "@angular/common": { singleton: true, strictVersion: true, requiredVersion: 'auto' }, 
+                    "@angular/common/http": { singleton: true, strictVersion: true, requiredVersion: 'auto' },                     
+                    "@angular/router": { singleton: true, strictVersion: true, requiredVersion: 'auto' },
                     [...]
-                }
+                })
             }),
             [...]
         ],
     };
     ```
 
-    This exposes the ``FlightsModule`` under the Name ``./Module.``. Hence, the shell can use this path to load it. 
+    This exposes the ``FlightsModule`` under the Name ``./Module``. Hence, the shell can use this path to load it. 
 
 3. Switch into the ``shell`` project and open the file ``projects\shell\webpack.config.js``. Adjust it as follows:
 
@@ -90,17 +98,20 @@ Now, let's activate and configure module federation:
         [...],
         plugins: [
             new ModuleFederationPlugin({
+                
+                library: { type: "module" },
 
                 // Make sure to use port 3000
                 remotes: {
-                    'mfe1': "mfe1@http://localhost:3000/remoteEntry.js" 
+                    'mfe1': "http://localhost:3000/remoteEntry.js" 
                 },
-                shared: {
-                    "@angular/core": { singleton: true, strictVersion: true }, 
-                    "@angular/common": { singleton: true, strictVersion: true }, 
-                    "@angular/router": { singleton: true, strictVersion: true },
+                shared: share({
+                    "@angular/core": { singleton: true, strictVersion: true, requiredVersion: 'auto' }, 
+                    "@angular/common": { singleton: true, strictVersion: true, requiredVersion: 'auto' }, 
+                    "@angular/common/http": { singleton: true, strictVersion: true, requiredVersion: 'auto' },                     
+                    "@angular/router": { singleton: true, strictVersion: true, requiredVersion: 'auto' },
                     [...]
-                }
+                })
             }),
             [...]
         ],
@@ -159,11 +170,11 @@ Now, let's remove the need for registering the micro frontends upfront with with
     ```javascript
     remotes: {
         // Remove this line or comment it out:
-        // "mfe1": "mfe1@http://localhost:3000/remoteEntry.js",
+        // "mfe1": "http://localhost:3000/remoteEntry.js",
     },
     ```
 
-1. Open the file ``app.routes.ts`` and use the function ``loadRemoteModule`` instead of the dynamic ``import`` statement:
+2. Open the file ``app.routes.ts`` and use the function ``loadRemoteModule`` instead of the dynamic ``import`` statement:
 
     ```typescript
     import { loadRemoteModule } from '@angular-architects/module-federation';
@@ -175,8 +186,8 @@ Now, let's remove the need for registering the micro frontends upfront with with
             path: 'flights',
             loadChildren: () =>
                 loadRemoteModule({
+                    type: 'module',
                     remoteEntry: 'http://localhost:3000/remoteEntry.js',
-                    remoteName: 'mfe1',
                     exposedModule: './Module'
                 })
                 .then(m => m.FlightsModule)
@@ -185,9 +196,11 @@ Now, let's remove the need for registering the micro frontends upfront with with
     ]
     ```
 
-2. Restart both, the ``shell`` and the micro frontend (``mfe1``). 
+    *Remarks:* ``type: 'module'`` is needed for Angular 13.1 or higher as beginning with version 13 the CLI emits EcmaScript modules instead of "plain old" JavaScript files. 
 
-3. The shell should still be able to load the micro frontend. However, now it's loaded dynamically.
+3. Restart both, the ``shell`` and the micro frontend (``mfe1``). 
+
+4. The shell should still be able to load the micro frontend. However, now it's loaded dynamically.
 
 This was quite easy, wasn't it? However, we can improve this solution a bit. Ideally, we load the remote entry upfront before Angular bootstraps. In this early phase, Module Federation tries to determine the highest compatible versions of all dependencies. Let's assume, the shell provides version 1.0.0 of a dependency (specifying ^1.0.0 in its ``package.json``) and the micro frontend uses version 1.1.0 (specifying ^1.1.0 in its ``package.json``). In this case, they would go with version 1.1.0. However, this is only possible if the remote's entry is loaded upfront.
 
@@ -197,33 +210,11 @@ This was quite easy, wasn't it? However, we can improve this solution a bit. Ide
     import { loadRemoteEntry } from '@angular-architects/module-federation';
 
     Promise.all([
-        loadRemoteEntry('http://localhost:3000/remoteEntry.js', 'mfe1')
+        loadRemoteEntry({type: 'module', remoteEntry: 'http://localhost:3000/remoteEntry.js')
     ])
     .catch(err => console.error('Error loading remote entries', err))
     .then(() => import('./bootstrap'))
     .catch(err => console.error(err));
-    ```
-
-1. Open the file ``app.routes.ts`` and comment out (or remove) the property ``remoteEntry``:
-
-    ```typescript
-    import { loadRemoteModule } from '@angular-architects/module-federation';
-
-    [...]
-    const routes: Routes = [
-        [...]
-        {
-            path: 'flights',
-            loadChildren: () =>
-                loadRemoteModule({
-                    // remoteEntry: 'http://localhost:3000/remoteEntry.js',
-                    remoteName: 'mfe1',
-                    exposedModule: './Module'
-                })
-                .then(m => m.FlightsModule)
-        },
-        [...]
-    ]
     ```
  
 2. Restart both, the ``shell`` and the micro frontend (``mfe1``). 
