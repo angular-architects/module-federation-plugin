@@ -91,6 +91,67 @@ bootstrap(AppModule, {
 
 > Use this bootstrap helper for **both**, your shell and your micro frontends!
 
+## Sharing Zone.js
+
+In order to share zone.js, call our ``shareNgZone`` helper when starting the shell. 
+
+```typescript
+import { Component, NgZone } from '@angular/core';
+import { shareNgZone } from '@angular-architects/module-federation-tools';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+})
+export class AppComponent {
+  title = 'shell';
+
+  constructor(private ngZone: NgZone) {
+    shareNgZone(ngZone);
+  }
+
+}
+```
+
+The micro frontends will pick it up, if they are bootstrapped with the ``bootstrap`` helper (see above).
+
+## Details on ngZone and Platform sharing
+
+> In a multi version micro frontend strategy, it is important to load the zone.js bundle to the window object only once. Also, one need to make sure that only one instance of the ngZone is used by all the micro frontends.
+
+If you share `@angular/core` and therefore also have one technical reference to the BrowserPlatform, that is used by more than one micro frondend, Angular's default setup is, to support only one platform instance per shared version. Be aware that you **need** to create multi platform instances in case of different versions, but also in case the version is the same, but `@angular/core` is not shared, but packed into the micro frontend's bundles directly (like in Angular's default way w/o module federation).
+
+Naturally, such technical details are hard to get into. Therefore the `bootstrap()` function of this package helps to implement your multi version strategy w/o the need of implementing those low-level aspects on your own.
+
+Some optional flags are offered to provide options for custom behavior of the `bootstrap()` function:
+
+- `ngZoneSharing: false`: Deactivate ngZone sharing in the window object (not recommended):
+  ```typescript
+  bootstrap(AppModule, {
+    production: environment.production,
+    ngZoneSharing: false // defaults to true
+  });
+  ```
+- `platformSharing: false`: Deactivate Platform sharing in the window object (not recommended):
+  ```typescript
+  bootstrap(AppModule, {
+    production: environment.production,
+    platformSharing: false // defaults to true
+  });
+  ```
+  - Possible, if dependencies are not shared or each bootstrapped remote app uses a different version.
+- `activeLegacyMode: false`: Deactivates the legacy mode that provides backwards compatibility for Platform sharing:
+  ```typescript
+  bootstrap(AppModule, {
+    production: environment.production,
+    activeLegacyMode: false // defaults to true
+  });
+  ```
+  - If all your micro frontends use `@angular-architects/module-federation-tools` in version `^12.6.0`, `^13.1.0` or any newer major version you can switch off the legacy mode manually.
+  - Those versions introduced new features on how to share the Platform in the window object.
+  - This allows to use the `bootstrap()` function even in such cases, where the same version is packed into different micro frontend bundles.
+
+
 ## Routing to Web Components
 
 The ``WebComponentWrapper`` helps you to route to web components:
@@ -215,30 +276,6 @@ events = {
 ```html
 <mft-wc-wrapper [options]="item" [props]="props" [events]="events"></mft-wc-wrapper>
 ```
-
-## Sharing Zone.js
-
-In order to share zone.js, call our ``shareNgZone`` helper when starting the shell. 
-
-```typescript
-import { Component, NgZone } from '@angular/core';
-import { shareNgZone } from '@angular-architects/module-federation-tools';
-
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-})
-export class AppComponent {
-  title = 'shell';
-
-  constructor(private ngZone: NgZone) {
-    shareNgZone(ngZone);
-  }
-
-}
-```
-
-The micro frontends will pick it up, if they are bootstrapped with the ``bootstrap`` helper (see above).
 
 ## More about the underlying ideas
 
