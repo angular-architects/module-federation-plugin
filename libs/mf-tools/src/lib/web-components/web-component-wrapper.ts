@@ -22,7 +22,11 @@ export class WebComponentWrapper implements AfterContentInit, OnChanges {
 
   element: HTMLElement;
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(
+    private route: ActivatedRoute) { 
+
+
+    }
 
   ngOnChanges(): void {
     if (!this.element) return;

@@ -5,6 +5,13 @@ import { SharedConfig } from './webpack.types';
 
 let inferVersion = false;
 
+export const DEFAULT_SKIP_LIST = [
+    '@angular-architects/module-federation',
+    '@angular-architects/module-federation-runtime',
+    'tslib',
+    'zone.js'
+];
+
 type VersionMap = Record<string, string>;
 type IncludeSecondariesOptions = { skip: string | string[] } | boolean;
 type CustomSharedConfig =  SharedConfig & { includeSecondaries: IncludeSecondariesOptions };
@@ -44,6 +51,10 @@ function lookupVersion(key: string, versions: VersionMap): string {
     }
     else {
         key = parts[0];
+    }
+
+    if (key.toLowerCase() === '@angular-architects/module-federation-runtime') {
+        key = '@angular-architects/module-federation';
     }
 
     if (!versions[key]) {
