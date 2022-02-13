@@ -275,10 +275,7 @@ export default function config (options: MfSchematicSchema): Rule {
     updateTsConfig(tree, tsConfigName);
 
     const localTsConfig = path.join(projectRoot, 'tsconfig.app.json');
-    console.log('localTsConfig', localTsConfig);
     if (tree.exists(localTsConfig)) {
-      console.log('exists');
-
       updateTsConfig(tree, localTsConfig);
     }
 
@@ -288,14 +285,14 @@ export default function config (options: MfSchematicSchema): Rule {
 
     updatePackageJson(tree);
 
-    // addPackageJsonDependency(tree, { 
-    //   name: 'ngx-build-plus', 
-    //   type: NodeDependencyType.Dev,
-    //   version: '^13.0.1',
-    //   overwrite: true 
-    // });
+    addPackageJsonDependency(tree, { 
+      name: 'ngx-build-plus', 
+      type: NodeDependencyType.Dev,
+      version: '^13.0.1',
+      overwrite: true 
+    });
 
-    // context.addTask(new NodePackageInstallTask());
+    context.addTask(new NodePackageInstallTask());
 
     return chain([
       makeMainAsync(main),

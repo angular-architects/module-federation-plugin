@@ -1,7 +1,7 @@
 {
   "name": "@angular-architects/module-federation-runtime",
   "license": "MIT",
-  "version": "14.0.3",
+  "version": "14.1.1",
   "peerDependencies": {
     "@angular/common": ">=12.0.0",
     "@angular/core": ">=12.0.0"
