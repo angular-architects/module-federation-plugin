@@ -271,7 +271,7 @@ shared: share({
         strictVersion: true,
         requiredVersion: 'auto',
         includeSecondaries: {
-            skip: ['@angular/http/testing']
+            skip: ['@angular/common/http/testing']
         }
     },
     [...]
