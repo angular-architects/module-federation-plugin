@@ -274,8 +274,14 @@ export default function config (options: MfSchematicSchema): Rule {
 
     updateTsConfig(tree, tsConfigName);
 
+    const localTsConfig = path.join(projectRoot, 'tsconfig.app.json');
+    console.log('localTsConfig', localTsConfig);
+    if (tree.exists(localTsConfig)) {
+      console.log('exists');
 
-    
+      updateTsConfig(tree, localTsConfig);
+    }
+
     const ssrMappings = generateSsrMappings(workspace, projectName);
 
     tree.overwrite(workspaceFileName, JSON.stringify(workspace, null, '\t'));
