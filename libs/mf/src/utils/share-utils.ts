@@ -112,7 +112,7 @@ function addSecondaries(secondaries: string[], result: Config, shareObject: Conf
     }
 }
 
-export function shareAll(config: Config = {}, skip: string[] = [], packageJsonPath = ''): void {
+export function shareAll(config: Config = {}, skip: string[] = [], packageJsonPath = ''): Config {
 
     if (!packageJsonPath) {
         const stack = callsite();
