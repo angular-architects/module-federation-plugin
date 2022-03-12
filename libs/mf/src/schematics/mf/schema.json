@@ -14,7 +14,7 @@
       "x-prompt": "Project name (press enter for default project)"
     },
     "port": {
-      "type": "string",
+      "type": "number",
       "description": "The port to use for the federated module (remote, micro frontend, etc.)",
       "x-prompt": "Port to use",
       "$default": {

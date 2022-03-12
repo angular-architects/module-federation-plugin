@@ -192,7 +192,7 @@ export default function config (options: MfSchematicSchema): Rule {
 
     const configPath = path.join(projectRoot, 'webpack.config.js').replace(/\\/g, '/');
     const configProdPath = path.join(projectRoot, 'webpack.prod.config.js').replace(/\\/g, '/');
-    const port = parseInt(options.port);
+    const port = options.port;
     const main = projectConfig.architect.build.options.main;
 
     const relWorkspaceRoot = path.relative(projectRoot, '');
