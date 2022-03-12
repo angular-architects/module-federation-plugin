@@ -1,13 +1,18 @@
-import { CompilerOptions, enableProdMode, NgModuleRef, NgZone, PlatformRef, Type, Version } from "@angular/core";
+import { CompilerOptions, enableProdMode, Injector, NgModuleRef, NgZone, PlatformRef, Type, Version } from "@angular/core";
 import { platformBrowser } from "@angular/platform-browser";
 import { VERSION } from '@angular/core';
 import { getGlobalStateSlice, setGlobalStateSlice } from "../utils/global-state";
+import { Router } from "@angular/router";
+import { connectRouter } from "./router-utils";
+
+export type AppType = 'shell' | 'microfrontend';
 
 export type Options = {
     production: boolean,
     platformFactory?: () => PlatformRef,
     compilerOptions?: CompilerOptions & BootstrapOptions,
     version?: () => string | Version,
+    appType?: AppType;
     /**
      * Opt-out of ngZone sharing.
      * Not recommanded.
@@ -161,5 +166,36 @@ export function bootstrap<M>(module: Type<M>, options: Options): Promise<NgModul
         options.compilerOptions.ngZone = getNgZone();
     }
 
-    return getPlatform(options).bootstrapModule(module, options.compilerOptions);
+    return getPlatform(options).bootstrapModule(module, options.compilerOptions).then(ref => {
+
+        if (options.appType === 'shell') {
+            shareShellZone(ref.injector);
+        }
+        else if (options.appType === 'microfrontend') {
+            connectMicroFrontendRouter(ref.injector);
+        }
+
+        return ref;
+    });
 }
+
+function shareShellZone(injector: Injector) {
+    const ngZone = injector.get(NgZone, null);
+    if (!ngZone) {
+        console.warn('No NgZone to share found');
+        return;
+    }
+    shareNgZone(ngZone);
+}
+
+function connectMicroFrontendRouter(injector: Injector) {
+    const router = injector.get(Router);
+
+    if (!router) {
+        console.warn('No router to connect found');
+        return;
+    }
+
+    connectRouter(router);
+}
+
