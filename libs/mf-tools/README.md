@@ -14,7 +14,11 @@ This can help to **balance the trade-off** between bundle size and isolation of 
 
 > **Disclaimer:** Multi-Framework and -Version Micro increase the overall complexity and call for some workarounds. This library tries to hide some of them.
 
+## Features
 
+- ✅ **Minimal amount** of helper functions to allow implementing multi-framework/ multi-version Micro Frontends with Module Federation
+- ✅ You don't need an additional meta-framework. Instead, you just use your framework of choice, e. g. Angular
+- ✅ Extension to [@angular-architects/module-federation](https://www.npmjs.com/package/@angular-architects/module-federation)
 
 ## Examples
 
@@ -67,11 +71,11 @@ export class AppModule {
 }
 ```
 
-### Exposing Web Component with other Frameworks like Ract
+### Exposing Web Component with other Frameworks like React
 
 If you framework doesn't directly support exposing your application as a web component, you can easily write a simple Wrapper around it. Basically, a web component -- to be more precise: a custom element -- is just an EcmaScript class extending ``HtmlElement`` and registered via ``customElements.register``. Please find an [example for React here](https://github.com/manfredsteyer/react-app/blob/main/app.js).
 
-### Exposting Web Component-based Micro Frontend via Module Federation
+### Exposing Web Component-based Micro Frontend via Module Federation
 
 Add ``@angular-architects/module-federation`` to your micro frontend:
 

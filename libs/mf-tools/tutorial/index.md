@@ -147,7 +147,8 @@ If you don't want to do the upstream tutorial first, you can use [this example](
     import { bootstrap } from '@angular-architects/module-federation-tools';
     
     bootstrap(AppModule, {
-    production: environment.production
+        production: environment.production,
+        appType: 'shell'
     })
     ```
 
@@ -157,17 +158,13 @@ If you don't want to do the upstream tutorial first, you can use [this example](
 
 In this part of the lab, we will investigate the loaded micro frontend that has been called ["MF Angular #3"](https://github.com/manfredsteyer/angular3-app) before. We want to draw your attention to the following details:
 
-1. The application is bootstrapped with the [bootstrap function](https://github.com/manfredsteyer/angular3-app/blob/main/src/bootstrap.ts) already used above.
+1. The application is bootstrapped with the [bootstrap function](https://github.com/manfredsteyer/angular3-app/blob/main/src/bootstrap.ts) already used above. Please note that here, ``appType`` is set to ``microfrontend``.
 
 2. The ``AppModule`` is wrapping some components as web components using Angular Elements in it's [ngDoBootstrap](https://github.com/manfredsteyer/angular3-app/blob/main/src/app/app.module.ts) method.
 
 3. The [webpack config](https://github.com/manfredsteyer/angular3-app/blob/main/webpack.config.js) exposes the whole ``bootstrap.ts`` file. Hence, everyone importing it can use the provided web components. 
 
 4. The [webpack config](https://github.com/manfredsteyer/angular3-app/blob/main/webpack.config.js) shares libraries like ``@angular/core``. 
-
-5. The routes set up in the [AppModule](https://github.com/manfredsteyer/angular3-app/blob/main/src/app/app.module.ts) use the url matcher ``endsWith``, because it does not know the shell's parent route.
-
-6. The ``AppComponent`` calls the helper function [connectRouter](https://github.com/manfredsteyer/angular3-app/blob/main/src/app/app.component.ts) to make this app's router work alongside the shell's router. 
 
 
 ## More Details on Module Federation **
