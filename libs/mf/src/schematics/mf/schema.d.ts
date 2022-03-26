@@ -1,5 +1,5 @@
 export interface MfSchematicSchema {
   project: string;
-  port: number;
+  port: string;
   nxBuilders: boolean | undefined;
 }

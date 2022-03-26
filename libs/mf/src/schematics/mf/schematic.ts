@@ -16,8 +16,7 @@ import { createConfig } from '../../utils/create-config';
 import { prodConfig } from './prod-config';
 import { MfSchematicSchema } from './schema';
 
-import { addPackageJsonDependency, NodeDependencyType } from '@schematics/angular/utility/dependencies';
-import { hostname } from 'os';
+import { addPackageJsonDependency, getPackageJsonDependency, NodeDependencyType } from '@schematics/angular/utility/dependencies';
 
 // export async function npmInstall(packageName: string) {
 //   await new Promise<boolean>((resolve) => {
@@ -192,7 +191,7 @@ export default function config (options: MfSchematicSchema): Rule {
 
     const configPath = path.join(projectRoot, 'webpack.config.js').replace(/\\/g, '/');
     const configProdPath = path.join(projectRoot, 'webpack.prod.config.js').replace(/\\/g, '/');
-    const port = options.port;
+    const port = parseInt(options.port);
     const main = projectConfig.architect.build.options.main;
 
     const relWorkspaceRoot = path.relative(projectRoot, '');
@@ -285,14 +284,19 @@ export default function config (options: MfSchematicSchema): Rule {
 
     updatePackageJson(tree);
 
-    addPackageJsonDependency(tree, { 
-      name: 'ngx-build-plus', 
-      type: NodeDependencyType.Dev,
-      version: '^13.0.1',
-      overwrite: true 
-    });
 
-    context.addTask(new NodePackageInstallTask());
+    const dep = getPackageJsonDependency(tree, "ngx-build-plus");
+    
+    if (!dep) {
+      addPackageJsonDependency(tree, { 
+        name: 'ngx-build-plus', 
+        type: NodeDependencyType.Dev,
+        version: '^13.0.1',
+        overwrite: true 
+      });
+  
+      context.addTask(new NodePackageInstallTask());
+    }    
 
     return chain([
       makeMainAsync(main),
