@@ -1,12 +1,12 @@
 {
   "name": "@angular-architects/module-federation-tools",
-  "version": "14.2.2",
+  "version": "14.2.3",
   "license": "MIT",
   "peerDependencies": {
     "@angular/common": ">=11.0.0",
     "@angular/core": ">=11.0.0",
     "@angular/router": ">=11.0.0",
-    "@angular-architects/module-federation": "^14.2.2",
+    "@angular-architects/module-federation": "^14.2.3",
     "@angular/platform-browser": ">=11.0.0",
     "rxjs": ">= 6.0.0"
   },
