@@ -167,7 +167,7 @@ module.exports = {
 }
 ```
 
-Also, don't use the settings introduced above for Angular 13.1+:
+Also, use remoteName insteadof {type: 'module'} don't use the settings introduced above for Angular 13.1+:
 
 
 ```diff
