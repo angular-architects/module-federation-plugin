@@ -42,7 +42,7 @@ Now, let's activate and configure module federation:
 1. Install ``@angular-architects/module-federation`` into the shell and into the micro frontend:
 
     ```
-    ng add @angular-architects/module-federation --project shell --port 5000
+    ng add @angular-architects/module-federation --project shell --port 4200
 
     ng add @angular-architects/module-federation --project mfe1 --port 3000
     ```
@@ -150,7 +150,7 @@ Now, let's try it out!
 
     **Hint:** You might use two terminals for this.
 
-2. After a browser window with the shell opened (``http://localhost:5000``), click on ``Flights``. This should load the microfrontend into the shell:
+2. After a browser window with the shell opened (``http://localhost:4200``), click on ``Flights``. This should load the microfrontend into the shell:
 
     ![Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/libs/mf/tutorial/shell.png)
 
