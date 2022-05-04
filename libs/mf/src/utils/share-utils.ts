@@ -88,6 +88,24 @@ function findSecondaries(libPath: string, excludes: string[]): string[] {
     return acc;
 }
 
+function findLibraryRoot(libName) {
+  const libIndexPath = require.resolve(libName);
+  let libPath = path.dirname(libIndexPath);
+
+
+  while (!fs.existsSync(path.join(libPath, 'package.json'))
+   && path.dirname(libPath) !== libPath) {
+    libPath = path.dirname(libPath);
+  }
+
+  if (!fs.existsSync(path.join(libPath, 'package.json'))) {
+    throw new Error('no package root of ' + libName +
+      ' found. Searched the following folder and all parents: ' + libPath);
+  }
+
+  return libPath;
+}
+
 function getSecondaries(includeSecondaries: IncludeSecondariesOptions, packagePath: string, key: string): string[] {
     let exclude = [];
 
@@ -100,9 +118,9 @@ function getSecondaries(includeSecondaries: IncludeSecondariesOptions, packagePa
         }
     }
 
-    const libPath = path.join(path.dirname(packagePath), 'node_modules', key);
+    const libRoot = findLibraryRoot(key);
 
-    const secondaries = findSecondaries(libPath, exclude);
+    const secondaries = findSecondaries(libRoot, exclude);
     return secondaries;
 }
 
