@@ -284,19 +284,18 @@ export default function config (options: MfSchematicSchema): Rule {
 
     updatePackageJson(tree);
 
-
     const dep = getPackageJsonDependency(tree, "ngx-build-plus");
     
-    if (!dep) {
+    if (!dep || !semver.satisfies(dep.version, '>=14.0.0-beta.0')) {
       addPackageJsonDependency(tree, { 
         name: 'ngx-build-plus', 
         type: NodeDependencyType.Dev,
-        version: '^13.0.1',
+        version: '>=14.0.0-beta.0',
         overwrite: true 
       });
   
       context.addTask(new NodePackageInstallTask());
-    }    
+    } 
 
     return chain([
       makeMainAsync(main),

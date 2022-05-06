@@ -6,6 +6,13 @@
             "schema": "./src/schematics/migrate-to-13/schema.json",
             "version": "^12.0.0",
             "description": "Migrate from v12 to v14"
+        },
+        "14.3.0-beta.3": {
+            "factory": "./src/schematics/migrate-to-14-3/schematic#index",
+            "schema": "./src/schematics/migrate-to-14-3/schema.json",
+            "version": "14.3.0-beta.3",
+            "description": "Migrate to 14.3.0-beta.3"
+
         }
     }
 }
