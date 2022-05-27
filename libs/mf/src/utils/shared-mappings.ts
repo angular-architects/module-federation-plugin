@@ -23,6 +23,12 @@ export class SharedMappings {
       );
     }
 
+    const shareAll = !shared;
+
+    if (!shared) {
+      shared = [];
+    }
+
     const tsConfig = JSON5.parse(
       fs.readFileSync(tsConfigPath, { encoding: 'utf-8' })
     );
@@ -36,7 +42,7 @@ export class SharedMappings {
       const libPath = path.normalize(path.join(rootPath, mappings[key][0]));
       const version = this.getPackageVersion(libPath);
 
-      if (shared && shared.includes(key)) {
+      if (shared.includes(key) || shareAll) {
         this.mappings.push({
           key,
           path: libPath,

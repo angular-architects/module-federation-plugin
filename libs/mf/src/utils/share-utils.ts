@@ -2,6 +2,7 @@ import callsite = require('callsite');
 import path = require('path');
 import fs = require('fs');
 import { SharedConfig } from './webpack.types';
+import { cwd } from 'process';
 
 let inferVersion = false;
 
@@ -14,9 +15,25 @@ export const DEFAULT_SKIP_LIST = [
 
 type VersionMap = Record<string, string>;
 type IncludeSecondariesOptions = { skip: string | string[] } | boolean;
-type CustomSharedConfig =  SharedConfig & { includeSecondaries: IncludeSecondariesOptions };
+type CustomSharedConfig =  SharedConfig & { includeSecondaries?: IncludeSecondariesOptions };
 type ConfigObject = Record<string, CustomSharedConfig>;
 type Config = (string | ConfigObject)[] | ConfigObject;
+
+export function findRootTsConfigJson(): string {
+    const packageJson = findPackageJson(cwd());
+    const projectRoot = path.dirname(packageJson);
+    const tsConfigBaseJson = path.join(projectRoot, 'tsconfig.base.json');
+    const tsConfigJson = path.join(projectRoot, 'tsconfig.json');
+
+    if (fs.existsSync(tsConfigBaseJson)) {
+        return tsConfigBaseJson;
+    }
+    else if (fs.existsSync(tsConfigJson)) {
+        return tsConfigJson;
+    }
+
+    throw new Error('Neither a tsconfig.json nor a tsconfig.base.json was found');
+} 
 
 function findPackageJson(folder: string): string {
     while (
@@ -112,11 +129,10 @@ function addSecondaries(secondaries: string[], result: Config, shareObject: Conf
     }
 }
 
-export function shareAll(config: Config = {}, skip: string[] = [], packageJsonPath = ''): Config {
+export function shareAll(config: CustomSharedConfig = {}, skip: string[] = DEFAULT_SKIP_LIST, packageJsonPath = ''): Config {
 
     if (!packageJsonPath) {
-        const stack = callsite();
-        packageJsonPath = path.dirname(stack[1].getFileName());
+        packageJsonPath = cwd();
     }
 
     const packagePath = findPackageJson(packageJsonPath);
@@ -144,8 +160,7 @@ export function setInferVersion(infer: boolean): void {
 export function share(shareObjects: Config, packageJsonPath = ''): Config {
 
     if (!packageJsonPath) {
-        const stack = callsite();
-        packageJsonPath = path.dirname(stack[1].getFileName());
+        packageJsonPath = cwd();
     }
 
     const packagePath = findPackageJson(packageJsonPath);
@@ -160,6 +175,10 @@ export function share(shareObjects: Config, packageJsonPath = ''): Config {
 
         if (shareObject.requiredVersion === 'auto' || (inferVersion && typeof shareObject.requiredVersion === 'undefined')) {
             shareObject.requiredVersion = lookupVersion(key, versions);
+        }
+
+        if (typeof shareObject.includeSecondaries === 'undefined') {
+            shareObject.includeSecondaries = true;
         }
 
         if (shareObject.includeSecondaries) {
