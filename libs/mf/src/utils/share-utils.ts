@@ -13,6 +13,11 @@ export const DEFAULT_SKIP_LIST = [
     'zone.js'
 ];
 
+export const DEFAULT_SECONARIES_SKIP_LIST = [
+    '@angular/router/upgrade', 
+    '@angular/common/upgrade'
+];
+
 type VersionMap = Record<string, string>;
 type IncludeSecondariesOptions = { skip: string | string[] } | boolean;
 type CustomSharedConfig =  SharedConfig & { includeSecondaries?: IncludeSecondariesOptions };
@@ -80,7 +85,7 @@ function lookupVersion(key: string, versions: VersionMap): string {
     return versions[key];
 }
 
-function _findSecondaries(libPath: string, excludes: string[], acc: string[]): void {
+function _findSecondaries(libPath: string, excludes: string[], shareObject: SharedConfig, acc: Record<string, SharedConfig>): void {
 
     const files = fs.readdirSync(libPath);
 
@@ -94,19 +99,19 @@ function _findSecondaries(libPath: string, excludes: string[], acc: string[]): v
         if (excludes.includes(secondaryLibName)) {
             continue;
         }
-        acc.push(secondaryLibName);
-        _findSecondaries(s, excludes, acc);
+        acc[secondaryLibName] = {...shareObject};
+        _findSecondaries(s, excludes, shareObject, acc);
     }
 }
 
-function findSecondaries(libPath: string, excludes: string[]): string[] {
-    const acc = [];
-    _findSecondaries(libPath, excludes, acc);
+function findSecondaries(libPath: string, excludes: string[], shareObject: SharedConfig): Record<string, SharedConfig> {
+    const acc = {} as Record<string, SharedConfig>;
+    _findSecondaries(libPath, excludes, shareObject, acc);
     return acc;
 }
 
-function getSecondaries(includeSecondaries: IncludeSecondariesOptions, packagePath: string, key: string): string[] {
-    let exclude = [];
+function getSecondaries(includeSecondaries: IncludeSecondariesOptions, packagePath: string, key: string, shareObject: SharedConfig): Record<string, SharedConfig> {
+    let exclude = [...DEFAULT_SECONARIES_SKIP_LIST];
 
     if (typeof includeSecondaries === 'object' ) {
         if (Array.isArray(includeSecondaries.skip)) {
@@ -119,14 +124,54 @@ function getSecondaries(includeSecondaries: IncludeSecondariesOptions, packagePa
 
     const libPath = path.join(path.dirname(packagePath), 'node_modules', key);
 
-    const secondaries = findSecondaries(libPath, exclude);
+    const configured = readConfiguredSecondaries(key, libPath, exclude, shareObject);
+    if (configured) {
+        return configured;
+    }
+
+    // Fallback: Search folders
+    const secondaries = findSecondaries(libPath, exclude, shareObject);
     return secondaries;
 }
 
-function addSecondaries(secondaries: string[], result: Config, shareObject: Config): void {
-    for (const s of secondaries) {
-        result[s] = shareObject;
+function readConfiguredSecondaries(parent: string, libPath: string, exclude: string[], shareObject: SharedConfig): Record<string, SharedConfig> {
+    const libPackageJson = path.join(libPath, 'package.json');
+
+    if (!fs.existsSync(libPackageJson)) {
+        return null;
     }
+
+    const packageJson = JSON.parse(fs.readFileSync(libPackageJson, 'utf-8'));
+    const exports = packageJson['exports'] as Record<string, Record<string, string>>;
+
+    if (!exports) {
+        return null;
+    }
+
+    const keys = Object.keys(exports)
+        .filter(key => key != '.'
+                    && key != './package.json' 
+                    && !key.endsWith('*')
+                    && exports[key]['default']);
+
+    const result = {} as Record<string, SharedConfig>;
+    
+    for(const key of keys) {
+        const relPath = exports[key]['default'];
+        const secondaryName = path.join(parent, key).replace(/\\/g, '/');
+
+        if (exclude.includes(secondaryName)) {
+            continue;
+        }
+
+        result[secondaryName] = {
+            ...shareObject,
+            import: path.join(libPath, relPath)
+        }
+    }
+
+    return result;
+
 }
 
 export function shareAll(config: CustomSharedConfig = {}, skip: string[] = DEFAULT_SKIP_LIST, packageJsonPath = ''): Config {
@@ -174,7 +219,9 @@ export function share(shareObjects: Config, packageJsonPath = ''): Config {
         const shareObject = shareObjects[key];
 
         if (shareObject.requiredVersion === 'auto' || (inferVersion && typeof shareObject.requiredVersion === 'undefined')) {
-            shareObject.requiredVersion = lookupVersion(key, versions);
+            const version = lookupVersion(key, versions);
+            shareObject.requiredVersion = version;
+            shareObject.version = version.replace(/^\D*/, '');
         }
 
         if (typeof shareObject.includeSecondaries === 'undefined') {
@@ -189,11 +236,17 @@ export function share(shareObjects: Config, packageJsonPath = ''): Config {
         result[key] = shareObject;
 
         if (includeSecondaries) {
-            const secondaries = getSecondaries(includeSecondaries, packagePath, key);
-            addSecondaries(secondaries, result, shareObject);
+            const secondaries = getSecondaries(includeSecondaries, packagePath, key, shareObject);
+            addSecondaries(secondaries, result);
         }
 
     }
 
     return result;
 }
+function addSecondaries(secondaries: Record<string, SharedConfig>, result: {}) {
+    for (const key in secondaries) {
+        result[key] = secondaries[key];
+    }
+}
+
