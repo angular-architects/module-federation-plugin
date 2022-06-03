@@ -7,6 +7,21 @@ type Container = {
     get(module: string): Factory;
 };
 
+let config: ParsedMfConfigFile = {};
+
+export type DynamicMfConfigFile = {
+    [key: string]: string | DynamicMfConfig
+};
+
+export type ParsedMfConfigFile = {
+    [key: string]: DynamicMfConfig
+};
+
+export type DynamicMfConfig = {
+    type: 'module' | 'script',
+    remoteEntry: string
+};
+
 declare const __webpack_init_sharing__: (shareScope: string) => Promise<void>;
 declare const __webpack_share_scopes__: { default: Scope };
 
@@ -108,7 +123,7 @@ async function loadRemoteScriptEntry(remoteEntry: string, remoteName: string): P
     });
 }
 
-export type LoadRemoteModuleOptions = LoadRemoteModuleScriptOptions | LoadRemoteModuleEsmOptions;
+export type LoadRemoteModuleOptions = LoadRemoteModuleScriptOptions | LoadRemoteModuleEsmOptions | LoadRemoteModuleManifestOptions;
 
 export type LoadRemoteModuleScriptOptions = { 
     type?: 'script';
@@ -123,15 +138,39 @@ export type LoadRemoteModuleEsmOptions = {
     exposedModule: string;
 } 
 
+export type LoadRemoteModuleManifestOptions = { 
+    type: 'manifest';
+    remoteName: string; 
+    exposedModule: string;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function loadRemoteModule<T = any>(options: LoadRemoteModuleOptions): Promise<T> {
 
     let loadRemoteEntryOptions: LoadRemoteEntryOptions;
     let key: string;
+    let remoteEntry: string;
 
     // To support legacy API (< ng 13)
     if (!options.type) {
         options.type = 'script';
+    }
+
+    if (options.type === 'manifest') {
+        const manifestEntry = config[options.remoteName];
+        if (!manifestEntry) {
+            throw new Error('Manifest does not contain ' + options.remoteName);
+        }
+        options = {
+            type: manifestEntry.type,
+            exposedModule: options.exposedModule,
+            remoteEntry: manifestEntry.remoteEntry,
+            remoteName: (manifestEntry.type === 'script') ? options.remoteName : undefined
+        }
+        remoteEntry = manifestEntry.remoteEntry;
+    }
+    else {
+        remoteEntry = options.remoteEntry;
     }
 
     if (options.type === 'script') {
@@ -150,9 +189,58 @@ export async function loadRemoteModule<T = any>(options: LoadRemoteModuleOptions
         key = options.remoteEntry;
     }
 
-    if (options.remoteEntry) {
+    if (remoteEntry) {
         await loadRemoteEntry(loadRemoteEntryOptions);
     }
 
     return await lookupExposedModule<T>(key, options.exposedModule);
+}
+
+export async function loadManifest(configFile: string, skipRemoteEntries = false): Promise<void> {
+
+    const result = await fetch(configFile);
+
+    if (!result.ok) {
+        throw Error('could not load configFile: ' + configFile);
+    }
+    
+    config = parseConfig(await result.json());
+    
+    if (!skipRemoteEntries) {
+        await loadRemoteEntries();
+    }
+}
+
+function parseConfig(config: DynamicMfConfigFile): ParsedMfConfigFile {
+    const result: ParsedMfConfigFile = {};
+    for (let key in config) {
+        const value = config[key];
+
+        let entry: DynamicMfConfig;
+        if (typeof value === 'string') {
+            entry = {
+                remoteEntry: value,
+                type: 'module'
+            };
+        }
+        else {
+            entry = value;
+        }
+
+        result[key] = entry;
+    }
+    return result;
+}
+
+async function loadRemoteEntries() {
+    for (let key in config) {
+        const entry = config[key];
+
+        if (entry.type === 'module') {
+            await loadRemoteEntry({ type: 'module', remoteEntry: entry.remoteEntry });
+        }
+        else {
+            await loadRemoteEntry({ type: 'script', remoteEntry: entry.remoteEntry, remoteName: key });
+        }
+    }
 }
