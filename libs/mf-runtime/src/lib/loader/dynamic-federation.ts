@@ -233,14 +233,18 @@ function parseConfig(config: DynamicMfConfigFile): ParsedMfConfigFile {
 }
 
 async function loadRemoteEntries() {
+    const promises: Promise<void>[] = [];
+
     for (let key in config) {
         const entry = config[key];
 
         if (entry.type === 'module') {
-            await loadRemoteEntry({ type: 'module', remoteEntry: entry.remoteEntry });
+            promises.push(loadRemoteEntry({ type: 'module', remoteEntry: entry.remoteEntry }));
         }
         else {
-            await loadRemoteEntry({ type: 'script', remoteEntry: entry.remoteEntry, remoteName: key });
+            promises.push(loadRemoteEntry({ type: 'script', remoteEntry: entry.remoteEntry, remoteName: key }));
         }
     }
+
+    await Promise.all(promises);
 }

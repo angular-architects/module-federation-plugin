@@ -244,6 +244,7 @@ export function share(shareObjects: Config, packageJsonPath = ''): Config {
 
     return result;
 }
+
 function addSecondaries(secondaries: Record<string, SharedConfig>, result: {}) {
     for (const key in secondaries) {
         result[key] = secondaries[key];
