@@ -2,6 +2,11 @@ import {
   chain,
   Rule,
   Tree,
+  url,
+  apply,
+  mergeWith,
+  template,
+  move
 } from '@angular-devkit/schematics';
 
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
@@ -17,38 +22,6 @@ import { prodConfig } from './prod-config';
 import { MfSchematicSchema } from './schema';
 
 import { addPackageJsonDependency, getPackageJsonDependency, NodeDependencyType } from '@schematics/angular/utility/dependencies';
-
-// export async function npmInstall(packageName: string) {
-//   await new Promise<boolean>((resolve) => {
-//     console.log('Installing packages...');
-//     spawn('npm', ['install', packageName, '-D'])
-//       .on('close', (code: number) => {
-//         if (code === 0) {
-//           console.log('Packages installed successfully ✅');
-//           resolve(true);
-//         } else {
-//           throw new Error(
-//             `Error installing '${packageName}'`
-//           );
-//         }
-//       });
-//   });
-// }
-
-// export async function yarnAdd(packageName: string) {
-//   await new Promise<boolean>((resolve) => {
-//     spawn('npm', ['install', packageName, '-D'])
-//       .on('close', (code: number) => {
-//         if (code === 0) {
-//           resolve(true);
-//         } else {
-//           throw new Error(
-//             `Error installing '${packageName}'`
-//           );
-//         }
-//       });
-//   });
-// }
 
 export function add(options: MfSchematicSchema): Rule {
   return config(options);
@@ -90,7 +63,7 @@ const ssrEngine = new Engine();
   }
 }
 
-function makeMainAsync(main: string): Rule {
+function makeMainAsync(main: string, options: MfSchematicSchema): Rule {
   return async function (tree, context) {
 
     const mainPath = path.dirname(main);
@@ -103,8 +76,22 @@ function makeMainAsync(main: string): Rule {
 
     const mainContent = tree.read(main);
     tree.create(bootstrapName, mainContent);
-    tree.overwrite(main, "import('./bootstrap')\n\t.catch(err => console.error(err));\n");
 
+    let newMainContent = '';
+    if (options.type === 'dynamic-host') {
+      newMainContent = `import { loadManifest } from '@angular-architects/module-federation';
+
+loadManifest("/assets/mf.manifest.json")
+  .catch(err => console.error(err))
+  .then(_ => import('./bootstrap'))
+  .catch(err => console.error(err));
+`;
+    }
+    else {
+      newMainContent = "import('./bootstrap')\n\t.catch(err => console.error(err));\n"
+    }
+
+    tree.overwrite(main, newMainContent);
   }
 }
 
@@ -115,7 +102,7 @@ export function getWorkspaceFileName(tree: Tree): string {
   if (tree.exists('workspace.json')) {
     return 'workspace.json';
   }
-  throw new Error('angular.json or workspae.json expected! Did you call this in your project\'s root?');
+  throw new Error('angular.json or workspace.json expected! Did you call this in your project\'s root?');
 }
 
 interface PackageJson {
@@ -162,7 +149,21 @@ function nxBuildersAvailable(tree: Tree): boolean {
 
 }
 
-export default function config (options: MfSchematicSchema): Rule {
+async function generateWebpackConfig(remoteMap: Record<string, string>, src: string, options: MfSchematicSchema) {
+  const tmpl = url('./files');
+
+  const applied = apply(tmpl, [
+    template({
+      remoteMap,
+      ...options
+    }),
+    move(src)
+  ]);
+
+  return mergeWith(applied);
+}
+
+export default function config(options: MfSchematicSchema): Rule {
 
   return async function (tree, context) {
 
@@ -191,6 +192,8 @@ export default function config (options: MfSchematicSchema): Rule {
 
     const configPath = path.join(projectRoot, 'webpack.config.js').replace(/\\/g, '/');
     const configProdPath = path.join(projectRoot, 'webpack.prod.config.js').replace(/\\/g, '/');
+    const manifestPath = path.join(projectRoot, 'src/assets/mf.manifest.json').replace(/\\/g, '/');
+
     const port = parseInt(options.port);
     const main = projectConfig.architect.build.options.main;
 
@@ -206,11 +209,24 @@ export default function config (options: MfSchematicSchema): Rule {
       throw new Error(`Port must be a number!`);
     }
 
-    const remotes = generateRemoteConfig(workspace, projectName);
-    const webpackConfig = createConfig(projectName, remotes, relTsConfigPath, projectRoot, port);
+    const remoteMap = await generateRemoteMap(workspace, projectName);
 
-    tree.create(configPath, webpackConfig);
+    let generateRule = null;
+
+    if (options.type === 'legacy') {
+      const remotes = generateRemoteConfig(workspace, projectName);
+      const webpackConfig = createConfig(projectName, remotes, relTsConfigPath, projectRoot, port);
+      tree.create(configPath, webpackConfig);
+    }
+    else {
+      generateRule = await generateWebpackConfig(remoteMap, projectRoot, options);
+    }
+
     tree.create(configProdPath, prodConfig);
+
+    if (options.type === 'dynamic-host') {
+      tree.create(manifestPath, JSON.stringify(remoteMap, null, '\t') );
+    }
 
     if (options.nxBuilders && !nxBuildersAvailable(tree)) {
       console.info('To use Nx builders, make sure you have Nx version 12.9 or higher!');
@@ -270,7 +286,6 @@ export default function config (options: MfSchematicSchema): Rule {
       projectConfig.architect['extract-i18n'].options.extraWebpackConfig = configPath;
     }
 
-
     updateTsConfig(tree, tsConfigName);
 
     const localTsConfig = path.join(projectRoot, 'tsconfig.app.json');
@@ -298,9 +313,9 @@ export default function config (options: MfSchematicSchema): Rule {
     } 
 
     return chain([
-      makeMainAsync(main),
+      ...(generateRule)? [generateRule] : [],
+      makeMainAsync(main, options),
       adjustSSR(projectSourceRoot, ssrMappings),
-      // externalSchematic('ngx-build-plus', 'ng-add', { project: options.project }),
     ]);
 
   }
@@ -344,6 +359,31 @@ function generateRemoteConfig(workspace: any, projectName: string) {
     remotes = '        //     "mfe1": "http://localhost:3000/remoteEntry.js",\n';
   }
   return remotes;
+}
+
+function generateRemoteMap(workspace: any, projectName: string) {
+  const result = {};
+
+  for (const p in workspace.projects) {
+    const project = workspace.projects[p];
+    const projectType = project.projectType ?? 'application';
+
+    if (p !== projectName 
+        && projectType === 'application'
+        && project?.architect?.serve
+        && project?.architect?.build) {
+        
+          const pPort = project.architect.serve.options?.port ?? 4200;
+          result[strings.camelize(p)] = `http://localhost:${pPort}/remoteEntry.js`;
+
+    }
+  }
+
+  if (Object.keys(result).length === 0) {
+    result["mfe1"] = `http://localhost:3000/remoteEntry.js`;
+  }
+
+  return result;
 }
 
 export function generateSsrMappings(workspace: any, projectName: string): string {

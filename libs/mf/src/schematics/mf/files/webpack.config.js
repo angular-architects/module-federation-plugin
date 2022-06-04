@@ -1,0 +1,20 @@
+const { shareAll, withModuleFederationPlugin } = require('@angular-architects/module-federation/webpack');
+
+module.exports = withModuleFederationPlugin({
+<% if (type === 'remote') { %>
+  name: 'mfe1',
+
+  exposes: {
+    './Component': './projects/mfe1/src/app/app.component.ts',
+  },
+<% } else if (type === 'host') { %>
+  remotes: {<% for (key in remoteMap) { %>
+    "<%=key%>": "<%=remoteMap[key]%>",<% } %>    
+  },
+<% } %>
+  shared: {
+    ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+  },
+
+  sharedMappings: [],
+});
