@@ -9,7 +9,7 @@ export function index(): Rule {
         addPackageJsonDependency(tree, { 
             name: 'ngx-build-plus', 
             type: NodeDependencyType.Dev,
-            version: '>=14.0.0-beta.0',
+            version: '^14.0.0',
             overwrite: true 
           });
       

@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/module-federation",
-  "version": "14.3.0-beta.4",
+  "version": "14.3.0",
   "license": "MIT",
   "repository": {
     "type": "GitHub",
@@ -17,7 +17,7 @@
   "schematics": "./collection.json",
   "builders": "./builders.json",
   "dependencies": {
-    "@angular-architects/module-federation-runtime": "14.3.0-beta.4",
+    "@angular-architects/module-federation-runtime": "14.3.0",
     "word-wrap": "^1.2.3",
     "callsite": "^1.0.0",
     "node-fetch": "^2.6.7",

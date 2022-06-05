@@ -301,11 +301,11 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const dep = getPackageJsonDependency(tree, "ngx-build-plus");
     
-    if (!dep || !semver.satisfies(dep.version, '>=14.0.0-beta.0')) {
+    if (!dep || !semver.satisfies(dep.version, '>=14.0.0')) {
       addPackageJsonDependency(tree, { 
         name: 'ngx-build-plus', 
         type: NodeDependencyType.Dev,
-        version: '>=14.0.0-beta.0',
+        version: '^14.0.0',
         overwrite: true 
       });
   

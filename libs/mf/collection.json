@@ -7,7 +7,11 @@
       "factory": "./src/schematics/mf/schematic#add",
       "schema": "./src/schematics/mf/schema.json",
       "description": "Initialize an angular project for webpack module federation",
-      "aliases": ["init"]
+    },
+    "init": {
+      "factory": "./src/schematics/mf/schematic#add",
+      "schema": "./src/schematics/mf/schema.json",
+      "description": "Initialize an angular project for webpack module federation",
     },
     "config": {
       "factory": "./src/schematics/mf/schematic",
