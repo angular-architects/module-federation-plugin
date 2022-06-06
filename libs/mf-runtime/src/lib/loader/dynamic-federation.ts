@@ -19,7 +19,8 @@ export type ParsedMfConfigFile = {
 
 export type DynamicMfConfig = {
     type: 'module' | 'script',
-    remoteEntry: string
+    remoteEntry: string,
+    [key: string]: unknown
 };
 
 declare const __webpack_init_sharing__: (shareScope: string) => Promise<void>;
@@ -194,6 +195,18 @@ export async function loadRemoteModule<T = any>(options: LoadRemoteModuleOptions
     }
 
     return await lookupExposedModule<T>(key, options.exposedModule);
+}
+
+export async function setManifest(manifest: DynamicMfConfigFile, skipRemoteEntries = false) {
+    config = parseConfig(manifest);
+    
+    if (!skipRemoteEntries) {
+        await loadRemoteEntries();
+    }
+}
+
+export function getManifest(): ParsedMfConfigFile {
+    return config;
 }
 
 export async function loadManifest(configFile: string, skipRemoteEntries = false): Promise<void> {

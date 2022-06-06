@@ -2,7 +2,7 @@
 
 ## Streamlined Configuration
 
-With version 14, we introduced a new and more streamlined way of configuring Module Federation. **The old way still works**, but you might want to move over to the new more concise way using the new ``withModuleFederationPlugin`` helper function.
+With version 14.3, we introduced support for Angular 14 and a new and more streamlined way of configuring Module Federation. **The old way still works**, but you might want to move over to the new more concise way using the new ``withModuleFederationPlugin`` helper function.
 
 The schematics and ng add use this new way automatically if you set the ``--type`` switch to ``host``, ``dynamic-host``, or ``remote``. 
 

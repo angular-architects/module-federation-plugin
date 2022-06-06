@@ -102,8 +102,7 @@ Please have a look at this [article series about Module Federation](https://www.
 
 ## Example 📽️
 
-This [example](https://github.com/manfredsteyer/module-federation-plugin-example)
- loads a microfrontend into a shell:
+This [example](https://github.com/manfredsteyer/module-federation-plugin-example) loads a microfrontend into a shell:
 
 Please have a look into the example's **readme**. It points you to the important aspects of using Module Federation.
 
@@ -278,6 +277,8 @@ setInferVersion(true);
 
 If set to ``true``, all secondary entry points are added too. In the case of ``@angular/common`` this is also ``@angular/common/http``, ``@angular/common/http/testing``, ``@angular/common/testing``, ``@angular/common/http/upgrade``, and ``@angular/common/locales``. This exhaustive list shows that using this option for ``@angular/common`` is not the best idea because normally, you don't need most of them.
 
+> Since version 14.3, ``includeSecondaries`` is true by default.
+
 However, this option can come in handy for quick experiments or if you want to quickly share a package like ``@angular/material`` that comes with a myriad of secondary entry points. 
 
 Even if you share too much, Module Federation will only load the needed ones at runtime. However, please keep in mind that shared packages can not be tree-shaken.
@@ -319,13 +320,13 @@ This might come in handy in an mono repo scenario and when doing some experiment
 
 #### Eager and Pinned
 
-> Big thanks to [Michael Egger-Zickes](https://twitter.com/MikeZks), who came up with these solutions.
+> Big thanks to [Michael Egger-Zikes](https://twitter.com/MikeZks), who came up with these solutions.
 
 Module Federation allows to directly bundle shared dependencies into your app's bundles. Hence, you don't need to load an additional bundle per shared dependency. This can be interesting to improve an application's startup performance, when there are lots of shared dependencies. 
 
 One possible usage for improving the startup times is to set ``eager`` to ``true`` **just** for the host. The remotes loaded later can reuse these eager dependencies alothough they've been shipped via the host's bundle (e. g. its ``main.js``). This works best, if the host always has the highest compatible versions of the shared dependencies. Also, in this case, you don't need to load the remote entry points upfront.
 
-While the ``eager`` flag is an out of the box feature provided by module federation since its very first days, we need to adjust the webpack configuration used by the Angular CLI a bit to avoid code duplication in the generated bundles. The new ``withModuleFederationPlugin`` helper that has been introduces with this plugin's version 14 and is the basis for the new streamlined configuration, does this by default. The config just needs to set eager to ``true``.
+While the ``eager`` flag is an out of the box feature provided by module federation since its very first days, we need to adjust the webpack configuration used by the Angular CLI a bit to avoid code duplication in the generated bundles. The new ``withModuleFederationPlugin`` helper that has been introduced with this plugin's version 14 does this by default. The config just needs to set eager to ``true``.
 
 ```javascript
 module.exports = withModuleFederationPlugin({
@@ -337,7 +338,7 @@ module.exports = withModuleFederationPlugin({
 });
 ```
 
-As shown in the last example, we also added another property: pinned. This makes sure, the shared dependency in put into the application's (e. g. the host's) bundle, even though it's not used there. This allows to preload dependencies that are needed later but subsequently loaded micro frontends via one bundle.
+As shown in the last example, we also added another property: pinned. This makes sure, the shared dependency is put into the application's (e. g. the host's) bundle, even though it's not used there. This allows to preload dependencies that are needed later but subsequently loaded micro frontends via one bundle.
 
 ### Nx Integration
 
