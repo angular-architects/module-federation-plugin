@@ -93,7 +93,7 @@ Now, let's activate and configure module federation:
 
                 // Make sure to use port 3000
                 remotes: {
-                    'mfe1': "mfe1@http://localhost:3000/remoteEntry.js" 
+                    'mfe1': "@http://localhost:3000/remoteEntry.js" 
                 },
                 shared: {
                     "@angular/core": { singleton: true, strictVersion: true }, 
