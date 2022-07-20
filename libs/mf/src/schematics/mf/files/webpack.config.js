@@ -5,7 +5,7 @@ module.exports = withModuleFederationPlugin({
   name: 'mfe1',
 
   exposes: {
-    './Component': './projects/mfe1/src/app/app.component.ts',
+    './Component': './<%=projectSourceRoot%>/app/app.component.ts',
   },
 <% } else if (type === 'host') { %>
   remotes: {<% for (key in remoteMap) { %>

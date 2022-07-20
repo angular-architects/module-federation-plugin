@@ -124,6 +124,10 @@ function getSecondaries(includeSecondaries: IncludeSecondariesOptions, packagePa
 
     const libPath = path.join(path.dirname(packagePath), 'node_modules', key);
 
+    if (!fs.existsSync(libPath)) {
+        return {};
+    }
+
     const configured = readConfiguredSecondaries(key, libPath, exclude, shareObject);
     if (configured) {
         return configured;
@@ -157,7 +161,7 @@ function readConfiguredSecondaries(parent: string, libPath: string, exclude: str
     const result = {} as Record<string, SharedConfig>;
     
     for(const key of keys) {
-        const relPath = exports[key]['default'];
+        // const relPath = exports[key]['default'];
         const secondaryName = path.join(parent, key).replace(/\\/g, '/');
 
         if (exclude.includes(secondaryName)) {
@@ -166,7 +170,7 @@ function readConfiguredSecondaries(parent: string, libPath: string, exclude: str
 
         result[secondaryName] = {
             ...shareObject,
-            import: path.join(libPath, relPath)
+            // import: path.join(libPath, relPath)
         }
     }
 

@@ -6,12 +6,12 @@
     "ng-add": {
       "factory": "./src/schematics/mf/schematic#add",
       "schema": "./src/schematics/mf/schema.json",
-      "description": "Initialize an angular project for webpack module federation",
+      "description": "Initialize an angular project for webpack module federation"
     },
     "init": {
       "factory": "./src/schematics/mf/schematic#add",
       "schema": "./src/schematics/mf/schema.json",
-      "description": "Initialize an angular project for webpack module federation",
+      "description": "Initialize an angular project for webpack module federation"
     },
     "config": {
       "factory": "./src/schematics/mf/schematic",

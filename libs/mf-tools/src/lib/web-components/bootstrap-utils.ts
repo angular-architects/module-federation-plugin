@@ -135,6 +135,7 @@ function getPlatform(options: Options): PlatformRef {
     if (!platform) {
         platform = options.platformFactory();
         setPlatform(VERSION, platform);
+        options.production && enableProdMode();
     }
 
     return platform;
@@ -159,7 +160,6 @@ export function bootstrap<M>(module: Type<M>, options: Options): Promise<NgModul
     legacyMode = options.activeLegacyMode !== false;
     options.platformFactory = options.platformFactory || (() => platformBrowser());
     options.version = options.version || (() => VERSION);
-    options.production && enableProdMode();
 
     if (ngZoneSharing && !options.compilerOptions?.ngZone) {
         options.compilerOptions = options.compilerOptions || {};

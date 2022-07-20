@@ -149,15 +149,17 @@ function nxBuildersAvailable(tree: Tree): boolean {
 
 }
 
-async function generateWebpackConfig(remoteMap: Record<string, string>, src: string, options: MfSchematicSchema) {
+async function generateWebpackConfig(remoteMap: Record<string, string>, projectRoot: string, projectSourceRoot: string, options: MfSchematicSchema) {
   const tmpl = url('./files');
 
   const applied = apply(tmpl, [
     template({
+      projectRoot,
+      projectSourceRoot,
       remoteMap,
       ...options
     }),
-    move(src)
+    move(projectRoot)
   ]);
 
   return mergeWith(applied);
@@ -187,8 +189,8 @@ export default function config(options: MfSchematicSchema): Rule {
       throw new Error(`Project ${projectName} not found!`);
     }
 
-    const projectRoot: string = projectConfig.root;
-    const projectSourceRoot: string = projectConfig.sourceRoot;
+    const projectRoot: string = projectConfig.root?.replace(/\\/g, '/');
+    const projectSourceRoot: string = projectConfig.sourceRoot?.replace(/\\/g, '/');
 
     const configPath = path.join(projectRoot, 'webpack.config.js').replace(/\\/g, '/');
     const configProdPath = path.join(projectRoot, 'webpack.prod.config.js').replace(/\\/g, '/');
@@ -219,7 +221,7 @@ export default function config(options: MfSchematicSchema): Rule {
       tree.create(configPath, webpackConfig);
     }
     else {
-      generateRule = await generateWebpackConfig(remoteMap, projectRoot, options);
+      generateRule = await generateWebpackConfig(remoteMap, projectRoot, projectSourceRoot, options);
     }
 
     tree.create(configProdPath, prodConfig);

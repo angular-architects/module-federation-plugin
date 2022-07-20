@@ -7,17 +7,17 @@ type Container = {
     get(module: string): Factory;
 };
 
-let config: ParsedMfConfigFile = {};
+let config: Manifest = {};
 
-export type DynamicMfConfigFile = {
-    [key: string]: string | DynamicMfConfig
+export type ManifestFile<T extends RemoteConfig = RemoteConfig>  = {
+    [key: string]: string | T;
 };
 
-export type ParsedMfConfigFile = {
-    [key: string]: DynamicMfConfig
+export type Manifest<T extends RemoteConfig = RemoteConfig> = {
+    [key: string]: T;
 };
 
-export type DynamicMfConfig = {
+export type RemoteConfig = {
     type: 'module' | 'script',
     remoteEntry: string,
     [key: string]: unknown
@@ -197,7 +197,7 @@ export async function loadRemoteModule<T = any>(options: LoadRemoteModuleOptions
     return await lookupExposedModule<T>(key, options.exposedModule);
 }
 
-export async function setManifest(manifest: DynamicMfConfigFile, skipRemoteEntries = false) {
+export async function setManifest(manifest: ManifestFile, skipRemoteEntries = false) {
     config = parseConfig(manifest);
     
     if (!skipRemoteEntries) {
@@ -205,8 +205,8 @@ export async function setManifest(manifest: DynamicMfConfigFile, skipRemoteEntri
     }
 }
 
-export function getManifest(): ParsedMfConfigFile {
-    return config;
+export function getManifest<T extends Manifest>(): T {
+    return config as T;
 }
 
 export async function loadManifest(configFile: string, skipRemoteEntries = false): Promise<void> {
@@ -224,12 +224,12 @@ export async function loadManifest(configFile: string, skipRemoteEntries = false
     }
 }
 
-function parseConfig(config: DynamicMfConfigFile): ParsedMfConfigFile {
-    const result: ParsedMfConfigFile = {};
+function parseConfig(config: ManifestFile): Manifest {
+    const result: Manifest = {};
     for (let key in config) {
         const value = config[key];
 
-        let entry: DynamicMfConfig;
+        let entry: RemoteConfig;
         if (typeof value === 'string') {
             entry = {
                 remoteEntry: value,
@@ -237,7 +237,10 @@ function parseConfig(config: DynamicMfConfigFile): ParsedMfConfigFile {
             };
         }
         else {
-            entry = value;
+            entry = {
+                ...value,
+                type: value.type || 'module'
+            }
         }
 
         result[key] = entry;
