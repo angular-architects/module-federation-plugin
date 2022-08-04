@@ -1,37 +1,8 @@
 {
   "version": 1,
-  "cli": {
-    "defaultCollection": "@nrwl/angular"
-  },
-  "schematics": {
-    "@nrwl/angular": {
-      "application": {
-        "linter": "eslint"
-      },
-      "library": {
-        "linter": "eslint"
-      },
-      "storybook-configuration": {
-        "linter": "eslint"
-      }
-    },
-    "@nrwl/angular:application": {
-      "style": "css",
-      "linter": "eslint",
-      "unitTestRunner": "jest",
-      "e2eTestRunner": "cypress"
-    },
-    "@nrwl/angular:library": {
-      "style": "css",
-      "linter": "eslint",
-      "unitTestRunner": "jest"
-    },
-    "@nrwl/angular:component": {
-      "style": "css"
-    }
-  },
   "projects": {
     "mf": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/mf",
       "sourceRoot": "libs/mf/src",
       "projectType": "library",
@@ -40,18 +11,19 @@
           "builder": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["libs/mf/**/*.ts"]
-          }
+          },
+          "outputs": ["{options.outputFile}"]
         },
         "test": {
           "builder": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/mf"],
           "options": {
-            "jestConfig": "libs/mf/jest.config.js",
+            "jestConfig": "libs/mf/jest.config.ts",
             "passWithNoTests": true
           }
         },
         "build": {
-          "builder": "@nrwl/node:package",
+          "builder": "@nrwl/js:tsc",
           "outputs": ["{options.outputPath}"],
           "options": {
             "outputPath": "dist/libs/mf",
@@ -94,7 +66,7 @@
                 "input": ".",
                 "glob": "migrations.json",
                 "output": "."
-              },              
+              },
               {
                 "input": "./libs/mf",
                 "glob": "builders.json",
@@ -103,9 +75,11 @@
             ]
           }
         }
-      }
+      },
+      "tags": []
     },
     "mf-runtime": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "projectType": "library",
       "root": "libs/mf-runtime",
       "sourceRoot": "libs/mf-runtime/src",
@@ -130,19 +104,22 @@
               "libs/mf-runtime/src/**/*.ts",
               "libs/mf-runtime/src/**/*.html"
             ]
-          }
+          },
+          "outputs": ["{options.outputFile}"]
         },
         "test": {
           "builder": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/mf-runtime"],
           "options": {
-            "jestConfig": "libs/mf-runtime/jest.config.js",
+            "jestConfig": "libs/mf-runtime/jest.config.ts",
             "passWithNoTests": true
           }
         }
-      }
+      },
+      "tags": []
     },
     "mf-tools": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "projectType": "library",
       "root": "libs/mf-tools",
       "sourceRoot": "libs/mf-tools/src",
@@ -167,19 +144,22 @@
               "libs/mf-tools/src/**/*.ts",
               "libs/mf-tools/src/**/*.html"
             ]
-          }
+          },
+          "outputs": ["{options.outputFile}"]
         },
         "test": {
           "builder": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/mf-tools"],
           "options": {
-            "jestConfig": "libs/mf-tools/jest.config.js",
+            "jestConfig": "libs/mf-tools/jest.config.ts",
             "passWithNoTests": true
           }
         }
-      }
+      },
+      "tags": []
     },
     "playground": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "projectType": "application",
       "root": "apps/playground",
       "sourceRoot": "apps/playground/src",
@@ -258,19 +238,22 @@
               "apps/playground/src/**/*.ts",
               "apps/playground/src/**/*.html"
             ]
-          }
+          },
+          "outputs": ["{options.outputFile}"]
         },
         "test": {
           "builder": "@nrwl/jest:jest",
           "outputs": ["coverage/apps/playground"],
           "options": {
-            "jestConfig": "apps/playground/jest.config.js",
+            "jestConfig": "apps/playground/jest.config.ts",
             "passWithNoTests": true
           }
         }
-      }
+      },
+      "tags": []
     },
     "playground-e2e": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "apps/playground-e2e",
       "sourceRoot": "apps/playground-e2e/src",
       "projectType": "application",
@@ -292,9 +275,12 @@
           "builder": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["apps/playground-e2e/**/*.{js,ts}"]
-          }
+          },
+          "outputs": ["{options.outputFile}"]
         }
-      }
+      },
+      "tags": [],
+      "implicitDependencies": ["playground"]
     }
   }
 }

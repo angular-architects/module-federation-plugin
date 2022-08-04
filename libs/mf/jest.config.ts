@@ -1,4 +1,5 @@
-module.exports = {
+/* eslint-disable */
+export default {
   displayName: 'mf',
   preset: '../../jest.preset.js',
   globals: {
@@ -9,4 +10,5 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/packages/mf',
+  testEnvironment: 'node',
 };
