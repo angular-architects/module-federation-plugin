@@ -23,8 +23,7 @@
     "node-fetch": "^2.6.7",
     "semver": "^7.3.5"
   },
-  "peerDependencies": {
-  },
+  "peerDependencies": {},
   "ng-update": {
     "migrations": "./migrations.json",
     "package-group": [

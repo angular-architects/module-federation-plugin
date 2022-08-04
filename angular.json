@@ -1,21 +1,21 @@
 {
-  "version": 1,
+  "version": 2,
   "projects": {
     "mf": {
       "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/mf",
       "sourceRoot": "libs/mf/src",
       "projectType": "library",
-      "architect": {
+      "targets": {
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["libs/mf/**/*.ts"]
           },
           "outputs": ["{options.outputFile}"]
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/mf"],
           "options": {
             "jestConfig": "libs/mf/jest.config.ts",
@@ -23,7 +23,7 @@
           }
         },
         "build": {
-          "builder": "@nrwl/js:tsc",
+          "executor": "@nrwl/js:tsc",
           "outputs": ["{options.outputPath}"],
           "options": {
             "outputPath": "dist/libs/mf",
@@ -84,9 +84,9 @@
       "root": "libs/mf-runtime",
       "sourceRoot": "libs/mf-runtime/src",
       "prefix": "angular-architects",
-      "architect": {
+      "targets": {
         "build": {
-          "builder": "@nrwl/angular:package",
+          "executor": "@nrwl/angular:package",
           "options": {
             "tsConfig": "libs/mf-runtime/tsconfig.lib.json",
             "project": "libs/mf-runtime/ng-package.json"
@@ -98,7 +98,7 @@
           }
         },
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": [
               "libs/mf-runtime/src/**/*.ts",
@@ -108,7 +108,7 @@
           "outputs": ["{options.outputFile}"]
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/mf-runtime"],
           "options": {
             "jestConfig": "libs/mf-runtime/jest.config.ts",
@@ -124,9 +124,9 @@
       "root": "libs/mf-tools",
       "sourceRoot": "libs/mf-tools/src",
       "prefix": "angular-architects",
-      "architect": {
+      "targets": {
         "build": {
-          "builder": "@nrwl/angular:package",
+          "executor": "@nrwl/angular:package",
           "options": {
             "tsConfig": "libs/mf-tools/tsconfig.lib.json",
             "project": "libs/mf-tools/ng-package.json"
@@ -138,7 +138,7 @@
           }
         },
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": [
               "libs/mf-tools/src/**/*.ts",
@@ -148,7 +148,7 @@
           "outputs": ["{options.outputFile}"]
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/mf-tools"],
           "options": {
             "jestConfig": "libs/mf-tools/jest.config.ts",
@@ -158,15 +158,22 @@
       },
       "tags": []
     },
+    "native-federation": "libs/native-federation",
+    "native-federation-e2e": "apps/native-federation-e2e",
     "playground": {
       "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "projectType": "application",
       "root": "apps/playground",
       "sourceRoot": "apps/playground/src",
       "prefix": "angular-architects",
-      "architect": {
+      "targets": {
+        "demo": {
+          "executor": "@angular-architects/native-federation:build",
+          "options": {},
+          "configurations": {}
+        },
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "executor": "@angular-architects/native-federation:build",
           "options": {
             "outputPath": "dist/apps/playground",
             "index": "apps/playground/src/index.html",
@@ -214,7 +221,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "executor": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
               "browserTarget": "playground:build:production"
@@ -226,13 +233,13 @@
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "executor": "@angular-devkit/build-angular:extract-i18n",
           "options": {
             "browserTarget": "playground:build"
           }
         },
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": [
               "apps/playground/src/**/*.ts",
@@ -242,7 +249,7 @@
           "outputs": ["{options.outputFile}"]
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/apps/playground"],
           "options": {
             "jestConfig": "apps/playground/jest.config.ts",
@@ -257,9 +264,9 @@
       "root": "apps/playground-e2e",
       "sourceRoot": "apps/playground-e2e/src",
       "projectType": "application",
-      "architect": {
+      "targets": {
         "e2e": {
-          "builder": "@nrwl/cypress:cypress",
+          "executor": "@nrwl/cypress:cypress",
           "options": {
             "cypressConfig": "apps/playground-e2e/cypress.json",
             "tsConfig": "apps/playground-e2e/tsconfig.e2e.json",
@@ -272,7 +279,7 @@
           }
         },
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["apps/playground-e2e/**/*.{js,ts}"]
           },

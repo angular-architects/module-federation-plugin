@@ -1,3 +1,1 @@
-type BootAsyncSchema = { 
-  
-};
+type BootAsyncSchema = {};

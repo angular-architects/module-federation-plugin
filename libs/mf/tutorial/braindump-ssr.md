@@ -31,5 +31,3 @@ node dist/mfe1/server/main.js
 ng build shell && ng run shell:server
 node dist/shell/server/main.js
 ```
-
-

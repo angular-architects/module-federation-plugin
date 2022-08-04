@@ -17,6 +17,9 @@ export class SharedMappings {
     shared: string[] = null,
     rootPath: string = path.normalize(path.dirname(tsConfigPath))
   ): void {
+
+    const result: Array<Library> = [];
+
     if (!path.isAbsolute(tsConfigPath)) {
       throw new Error(
         'SharedMappings.register: tsConfigPath needs to be an absolute path!'
@@ -43,13 +46,15 @@ export class SharedMappings {
       const version = this.getPackageVersion(libPath);
 
       if (shared.includes(key) || shareAll) {
-        this.mappings.push({
+        result.push({
           key,
           path: libPath,
           version,
         });
       }
     }
+
+    this.mappings = [...this.mappings, ...result];
   }
 
   private getPackageVersion(libPath: string) {

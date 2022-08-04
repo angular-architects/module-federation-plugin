@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "name": "native-federation",
+  "version": "0.0.1",
+  "generators": {
+    "native-federation": {
+      "factory": "./src/generators/native-federation/generator",
+      "schema": "./src/generators/native-federation/schema.json",
+      "description": "native-federation generator"
+    }
+  }
+}

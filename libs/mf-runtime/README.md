@@ -1,3 +1,3 @@
 # @angular-architects/module-federation-runtime
 
-Runtime lib for @angular-architects/module-federation. 
+Runtime lib for @angular-architects/module-federation.

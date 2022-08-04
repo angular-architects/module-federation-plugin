@@ -27,7 +27,6 @@
       "factory": "./src/schematics/boot-async/schematic",
       "schema": "./src/schematics/boot-async/schema.json",
       "description": "Enables or disables async bootstrapping"
-    }    
-
+    }
   }
 }

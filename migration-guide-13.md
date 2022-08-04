@@ -7,8 +7,8 @@ Beginning with version 13, the Angular CLI compiles emits EcmaScript modules. Th
 Big thanks to all the people, that helped with this migration:
 
 - [Tobias Koppers](https://twitter.com/wSokra), Founder of Webpack
-- [Colum Ferry](https://twitter.com/ferrycolum), Senior Software Engineer 
-at NRWL
+- [Colum Ferry](https://twitter.com/ferrycolum), Senior Software Engineer
+  at NRWL
 - [Thomas Sandeep](https://github.com/SandeepThomas)
 - [Michael Zikes](https://twitter.com/MikeZks)
 
@@ -22,10 +22,9 @@ yarn add @angular-architects/module-federation@14.0.0-rc.1
 
 As we need a newer webpack version, don't go with Angular 13.0 but with 13.1 or higher.
 
-## Update your Compilation Target 
+## Update your Compilation Target
 
-In your ``tsconfig.json`` or ``tsconfig.base.json``, make sure, your compilation ``target`` is ``es2020`` or higher:
-
+In your `tsconfig.json` or `tsconfig.base.json`, make sure, your compilation `target` is `es2020` or higher:
 
 ```json
 {
@@ -62,7 +61,7 @@ module.exports = {
 
 ## Static Federation
 
-If you use static federation, you need to further adjust your shell's webpack config. As EcmaScript modules can be directly imported, there is no ``remoteName`` anymore. Before, this name was used as the name of a global variable that made the remote available. Hence, remove it from the values in your ``remotes`` section:
+If you use static federation, you need to further adjust your shell's webpack config. As EcmaScript modules can be directly imported, there is no `remoteName` anymore. Before, this name was used as the name of a global variable that made the remote available. Hence, remove it from the values in your `remotes` section:
 
 ```diff
 [...]
@@ -75,8 +74,8 @@ module.exports = {
         // For hosts (please adjust)
         remotes: {
           // Load as module
--          "mfe1": "mfe1@http://localhost:3000/remoteEntry.js", 
-+          "mfe1": "http://localhost:3000/remoteEntry.js", 
+-          "mfe1": "mfe1@http://localhost:3000/remoteEntry.js",
++          "mfe1": "http://localhost:3000/remoteEntry.js",
 
         },
 
@@ -89,7 +88,7 @@ module.exports = {
 
 ## Dynamic Federation
 
-Adjust your usage of ``loadRemoteModule``, e. g. in your routing config:
+Adjust your usage of `loadRemoteModule`, e. g. in your routing config:
 
 ```diff
 {
@@ -105,7 +104,7 @@ Adjust your usage of ``loadRemoteModule``, e. g. in your routing config:
 },
 ```
 
-Also, adjust your usage of ``loadRemoteEntry``, e. g. in your ``main.ts``:
+Also, adjust your usage of `loadRemoteEntry`, e. g. in your `main.ts`:
 
 ```diff
 - loadRemoteEntry('http://localhost:3000/remoteEntry.js', 'mfe1')
@@ -116,7 +115,7 @@ Also, adjust your usage of ``loadRemoteEntry``, e. g. in your ``main.ts``:
 
 ### Adjusting your angular.json
 
-To prevent issues with live reloads, you need to add a ``publicHost`` property to your remote's configuration in your ``angular.json``. Hence, adjust the section ``project/remote-project-name/architect/serve/options`` as follows:
+To prevent issues with live reloads, you need to add a `publicHost` property to your remote's configuration in your `angular.json`. Hence, adjust the section `project/remote-project-name/architect/serve/options` as follows:
 
 ```diff
 [...]
@@ -130,23 +129,23 @@ To prevent issues with live reloads, you need to add a ``publicHost`` property t
 
 ### Deployment: Enable CORS
 
-As remotes are now loaded as EcmaScript modules, the same origin policy is in place. Hence, if your micro frontends and the shell are deployed to different origins, you need to enable CORS. The same holds true if you run your application after building it with a command line web server like ``serve`` (``serve``, e. g., has a ``--cors`` options). 
+As remotes are now loaded as EcmaScript modules, the same origin policy is in place. Hence, if your micro frontends and the shell are deployed to different origins, you need to enable CORS. The same holds true if you run your application after building it with a command line web server like `serve` (`serve`, e. g., has a `--cors` options).
 
 ### Advanced: Dynamic Federation with Script-based Remotes
 
-If you also want to load (existing) script-based remotes into your shell, e. g. remotes built with Angular 12 used for a [Multi-Version/Multi-Framework setup](https://www.npmjs.com/package/@angular-architects/module-federation-tools), you can pass ``type: 'script'`` to both, ``loadRemoteModule`` and ``loadRemoteEntry``. In this case, you also need to pass a ``remoteName``.
+If you also want to load (existing) script-based remotes into your shell, e. g. remotes built with Angular 12 used for a [Multi-Version/Multi-Framework setup](https://www.npmjs.com/package/@angular-architects/module-federation-tools), you can pass `type: 'script'` to both, `loadRemoteModule` and `loadRemoteEntry`. In this case, you also need to pass a `remoteName`.
 
 ### Advanced: Static Federation with Script-based Remotes
 
-If you want to load (existing) script-based remote into your shell, e. g. such built with Angular 12, you can use the following syntax in the shell's ``webpack.config.js``.
+If you want to load (existing) script-based remote into your shell, e. g. such built with Angular 12, you can use the following syntax in the shell's `webpack.config.js`.
 
-In the following example, ``mfe1`` is loaded as a module while ``mfe2`` is loaded as a script:
+In the following example, `mfe1` is loaded as a module while `mfe2` is loaded as a script:
 
 ```javascript
 remotes: {
   // Load as module:
   mfe1": "http://localhost:3000/remoteEntry.js",
-  
+
   // Load as script:
   mfe2": "script mfe2@http://localhost:3000/remoteEntry.js",
 }
@@ -162,13 +161,12 @@ module.exports = {
     uniqueName: "dashboard",
     publicPath: "auto",
 +    scriptType: 'text/javascript'
-  }, 
+  },
   [...]
 }
 ```
 
 Also, don't use the settings introduced above for Angular 13.1+:
-
 
 ```diff
 [...]

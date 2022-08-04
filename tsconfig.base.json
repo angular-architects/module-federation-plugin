@@ -21,6 +21,9 @@
       ],
       "@angular-architects/module-federation-tools": [
         "libs/mf-tools/src/index.ts"
+      ],
+      "@angular-architects/native-federation": [
+        "libs/native-federation/src/index.ts"
       ]
     }
   },
