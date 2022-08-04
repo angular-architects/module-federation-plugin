@@ -20,20 +20,17 @@ export function endsWith(prefix: string): UrlMatcher {
     };
 }
 
-export function connectRouter(router: Router, useHash = false): void {
-    let url: string;
+export function connectRouter(router: Router, useHash: boolean = false): void {
     if (!useHash) {
-        url = `${location.pathname.substr(1)}${location.search}`;
-        router.navigateByUrl(url);
+        router.navigateByUrl(`${location.pathname.substring(1)}${location.search}`);
         window.addEventListener('popstate', () => {
-            router.navigateByUrl(url);
+            router.navigateByUrl(`${location.pathname.substring(1)}${location.search}`);
         });
     }
     else {
-        url = `${location.hash.substr(1)}${location.search}`;
-        router.navigateByUrl(url);
+        router.navigateByUrl(`${location.hash.substring(1)}${location.search}`);
         window.addEventListener('hashchange', () => {
-            router.navigateByUrl(url);
+            router.navigateByUrl(`${location.hash.substring(1)}${location.search}`);
         });
     }
 }
