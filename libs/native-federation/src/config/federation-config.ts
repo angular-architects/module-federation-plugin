@@ -17,12 +17,12 @@ export interface NormalizedSharedConfig {
     singleton: boolean;
     strictVersion: boolean;
     requiredVersion: string;
-    // version?: string;
+    version?: string;
 }
 
 export interface NormalizedFederationConfig {
     name: string;
     exposes: Record<string, string>;
-    shared: Record<string, SharedConfig>;
+    shared: Record<string, NormalizedSharedConfig>;
     skip: Array<string>;
 }

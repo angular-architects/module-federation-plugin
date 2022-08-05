@@ -2,48 +2,48 @@ import * as esbuild from 'esbuild';
 import {createCompilerPlugin }
   from '@angular-devkit/build-angular/src/builders/browser-esbuild/compiler-plugin';
 
-const path = require('path');
+// const path = require('path');
 
-const shareConfig = [
-  {
-    entryPoint:
-      "node_modules/@angular/platform-browser/fesm2020/platform-browser.mjs",
-    packageName: "@angular/platform-browser",
-  },
-  {
-    entryPoint: "node_modules/@angular/core/fesm2020/core.mjs",
-    packageName: "@angular/core",
-  },
-  {
-    entryPoint: "node_modules/@angular/common/fesm2020/common.mjs",
-    packageName: "@angular/common",
-  },
-  {
-    entryPoint: "node_modules/@angular/common/fesm2020/http.mjs",
-    packageName: "@angular/common/http",
-  },
-  {
-    entryPoint: "node_modules/rxjs/dist/esm/index.js",
-    packageName: "rxjs",
-  },
-  {
-    entryPoint: "node_modules/rxjs/dist/esm/operators/index.js",
-    packageName: "rxjs/operators",
-  },
-  {
-    entryPoint: "projects/shared/src/public-api.ts",
-    packageName: "@demo/shared",
-  },  
-];
+// const shareConfig = [
+//   {
+//     entryPoint:
+//       "node_modules/@angular/platform-browser/fesm2020/platform-browser.mjs",
+//     packageName: "@angular/platform-browser",
+//   },
+//   {
+//     entryPoint: "node_modules/@angular/core/fesm2020/core.mjs",
+//     packageName: "@angular/core",
+//   },
+//   {
+//     entryPoint: "node_modules/@angular/common/fesm2020/common.mjs",
+//     packageName: "@angular/common",
+//   },
+//   {
+//     entryPoint: "node_modules/@angular/common/fesm2020/http.mjs",
+//     packageName: "@angular/common/http",
+//   },
+//   {
+//     entryPoint: "node_modules/rxjs/dist/esm/index.js",
+//     packageName: "rxjs",
+//   },
+//   {
+//     entryPoint: "node_modules/rxjs/dist/esm/operators/index.js",
+//     packageName: "rxjs/operators",
+//   },
+//   {
+//     entryPoint: "projects/shared/src/public-api.ts",
+//     packageName: "@demo/shared",
+//   },  
+// ];
 
-const exposes = {
-    "comp1": "./projects/mfe1/src/app/comp1/comp1.component.ts",
-    "comp2": "./projects/mfe1/src/app/comp2/comp2.component.ts",
-};
+// const exposes = {
+//     "comp1": "./projects/mfe1/src/app/comp1/comp1.component.ts",
+//     "comp2": "./projects/mfe1/src/app/comp2/comp2.component.ts",
+// };
 
-const outDir = `dist/cli14`;
+// const outDir = `dist/cli14`;
 
-const appName = 'shell';
+// const appName = 'shell';
 
 // (async function () {
 //   const external = shareConfig.map((e) => e.packageName);

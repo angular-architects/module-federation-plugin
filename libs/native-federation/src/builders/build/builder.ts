@@ -3,17 +3,16 @@ import {
   BuilderOutput,
   createBuilder,
 } from '@angular-devkit/architect';
-import { Observable, of } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { BuildBuilderSchema } from './schema';
 
 import { buildEsbuildBrowser } from '@angular-devkit/build-angular/src/builders/browser-esbuild/index';
 import { Schema } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
 import * as path from 'path';
 import * as fs from 'fs';
-import { FederationConfig } from '../../config/federation-config';
+import { FederationConfig, NormalizedFederationConfig } from '../../config/federation-config';
 
 import { bundle } from '../utils/build-utils';
+import { getPackageInfo } from '../utils/package-info';
+import { SharedInfo, ExposesInfo, FederationInfo} from '../utils/federation-info';
 
 export async function runBuilder(
   options: Schema,
@@ -26,38 +25,106 @@ export async function runBuilder(
 
   const externals = getExternals(config);
 
-  for (const key in config.exposes) {
-    const outFile = key + '.js';
-    const outFilePath = path.join(options.outputPath, outFile);
-    const entryPoint = config.exposes[key];
-
-    console.info('Bundle exposed file', entryPoint);
-
-    await bundle({ 
-      entryPoint, 
-      tsConfigPath: options.tsConfig, 
-      external: externals, 
-      outfile: outFilePath 
-    });
-  }
-
-  // const shared 
-  // for (const entry of shareConfig) {
-  //       const fileName = entry.packageName.replace(/[^A-Za-z0-9]/g, "_");
-  //       const outFile = `dist/cli14/${fileName}.js`;
-  //       const entryPoints = [entry.entryPoint];
-    
-  //       // await bundle({ entryPoint: entryPoints, tsConfigPath: external, external: outFile });
-  // }    
-
   options.externalDependencies = externals;
   const output = await buildEsbuildBrowser(options, context)
+
+  const exposesInfo = await bundleExposed(config, options, externals);
+  const sharedInfo = await bundleShared(config, options, context, externals);
+
+  const federationInfo: FederationInfo = {
+    name: config.name,
+    shared: sharedInfo,
+    exposes: exposesInfo
+  };
+
+  writeFederationInfo(federationInfo, context, options);
+
+  writeImportMap(sharedInfo, context, options);
 
   return output;
 
 }
 
 export default createBuilder(runBuilder);
+
+function writeImportMap(sharedInfo: SharedInfo[], context: BuilderContext, options: Schema) {
+  const imports = sharedInfo.reduce((acc, cur) => {
+    return {
+      ...acc,
+      [cur.packageName]: cur.outFileName
+    };
+  }, {});
+
+  const importMap = { imports };
+  const importMapPath = path.join(context.workspaceRoot, options.outputPath, 'importmap.json');
+  fs.writeFileSync(importMapPath, JSON.stringify(importMap, null, 2));
+}
+
+function writeFederationInfo(federationInfo: FederationInfo, context: BuilderContext, options: Schema) {
+  const metaDataPath = path.join(context.workspaceRoot, options.outputPath, 'remoteEntry.json');
+  fs.writeFileSync(metaDataPath, JSON.stringify(federationInfo, null, 2));
+}
+
+async function bundleShared(config: NormalizedFederationConfig, options: Schema, context: BuilderContext, externals: string[]): Promise<Array<SharedInfo>> {
+  
+  const result: Array<SharedInfo> = [];
+
+  const packageInfos = 
+    Object
+      .keys(config.shared)
+      .map(packageName => getPackageInfo(context.workspaceRoot, packageName))
+      .filter(pi => !!pi);
+
+  for (const pi of packageInfos) {
+
+    const outFileName = pi.packageName.replace(/[^A-Za-z0-9]/g, "_") + '.js';
+    const outFilePath = path.join(options.outputPath, outFileName);
+    const shared = config.shared[pi.packageName];
+
+    console.info('Bundling shared package', pi.packageName, '...');
+
+    await bundle({
+      entryPoint: pi.entryPoint,
+      tsConfigPath: options.tsConfig,
+      external: externals,
+      outfile: outFilePath
+    });
+
+    result.push({
+      packageName: pi.packageName,
+      outFileName: outFileName,
+      requiredVersion: shared.requiredVersion,
+      singleton: shared.singleton,
+      strictVersion: shared.strictVersion,
+      version: pi.version
+    });
+  }
+
+  return result;
+}
+
+async function bundleExposed(config: NormalizedFederationConfig, options: Schema, externals: string[]): Promise<Array<ExposesInfo>> {
+  
+  const result: Array<ExposesInfo> = [];
+  
+  for (const key in config.exposes) {
+    const outFileName = key + '.js';
+    const outFilePath = path.join(options.outputPath, outFileName);
+    const entryPoint = config.exposes[key];
+
+    console.info('Bundle exposed file', entryPoint, '...');
+
+    await bundle({
+      entryPoint,
+      tsConfigPath: options.tsConfig,
+      external: externals,
+      outfile: outFilePath
+    });
+
+    result.push({ key, outFileName });
+  }
+  return result;
+}
 
 function getExternals(config: FederationConfig) {
   return config.shared ? Object.keys(config.shared) : [];
@@ -72,7 +139,7 @@ async function loadFederationConfig(options: Schema, context: BuilderContext) {
     throw new Error('Expected ' + fullConfigPath);
   }
 
-  const config = await import(fullConfigPath) as FederationConfig;
+  const config = await import(fullConfigPath) as NormalizedFederationConfig;
   return config;
 }
 
