@@ -1,5 +1,6 @@
 import { NormalizedSharedConfig } from "../../config/federation-config";
-import { PackageInfo } from "./package-info";
+
+// TODO: Move this into a common lib
 
 export type SharedInfo = NormalizedSharedConfig & {
     packageName: string;

@@ -24,6 +24,9 @@
       ],
       "@angular-architects/native-federation": [
         "libs/native-federation/src/index.ts"
+      ],
+      "@angular-architects/native-federation-runtime": [
+        "libs/native-federation-runtime/src/index.ts"
       ]
     }
   },

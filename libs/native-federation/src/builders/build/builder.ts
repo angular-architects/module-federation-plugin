@@ -14,6 +14,11 @@ import { bundle } from '../utils/build-utils';
 import { getPackageInfo } from '../utils/package-info';
 import { SharedInfo, ExposesInfo, FederationInfo} from '../utils/federation-info';
 
+const DEFAULT_SKIP_LIST = new Set([
+  '@angular-architects/native-federation',
+  'es-module-shims'
+]);
+
 export async function runBuilder(
   options: Schema,
   context: BuilderContext
@@ -127,7 +132,10 @@ async function bundleExposed(config: NormalizedFederationConfig, options: Schema
 }
 
 function getExternals(config: FederationConfig) {
-  return config.shared ? Object.keys(config.shared) : [];
+  return config.shared ? 
+    Object.keys(config.shared)
+      .filter(p => !DEFAULT_SKIP_LIST.has(p)) : 
+    [];
 }
 
 async function loadFederationConfig(options: Schema, context: BuilderContext) {

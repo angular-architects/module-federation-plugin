@@ -92,7 +92,7 @@ export function getPackageInfo(packageName: string, context: BuilderContext): Pa
     }
 
     context.logger.warn('No esm-based entry point found for ' + packageName);
-    context.logger.warn('💡 Did you confuse dependencies with depDependencies in your package.json');
+    context.logger.warn('  >> Did you confuse dependencies with depDependencies in your package.json');
 
     return null;
 } 
