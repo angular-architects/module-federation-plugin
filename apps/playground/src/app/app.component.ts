@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, Type } from '@angular/core';
 
 @Component({
   selector: 'angular-architects-root',
@@ -6,5 +6,13 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
+ 
   title = 'playground';
+  Cmp: Type<unknown>;
+
+  async load() {
+    const m = await importShim('http://localhost:3001/cmp.js');
+    this.Cmp = m['DemoComponent'];
+  }
+
 }
