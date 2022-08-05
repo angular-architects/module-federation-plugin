@@ -72,7 +72,7 @@ async function bundleShared(config: NormalizedFederationConfig, options: Schema,
   const packageInfos = 
     Object
       .keys(config.shared)
-      .map(packageName => getPackageInfo(context.workspaceRoot, packageName))
+      .map(packageName => getPackageInfo(packageName, context))
       .filter(pi => !!pi);
 
   for (const pi of packageInfos) {

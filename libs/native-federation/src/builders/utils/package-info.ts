@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { BuilderContext } from '@angular-devkit/architect';
 
 export interface PackageInfo {
     packageName: string;
@@ -7,14 +8,16 @@ export interface PackageInfo {
     version: string;
 }
 
-export function getPackageInfo(projectRoot: string, packageName: string): PackageInfo | null {
+export function getPackageInfo(packageName: string, context: BuilderContext): PackageInfo | null {
+
+    const projectRoot = context.workspaceRoot;
     const mainPkgName = getPkgFolder(packageName);
 
     const mainPkgPath = path.join(projectRoot, 'node_modules', mainPkgName);
     const mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
 
     if (!fs.existsSync(mainPkgPath)) {
-        console.warn('No package.json found for', packageName);
+        context.logger.warn('No package.json found for ' + packageName);
         return null;
     }
 
@@ -23,7 +26,7 @@ export function getPackageInfo(projectRoot: string, packageName: string): Packag
     const version = mainPkgJson['version'] as string;
 
     if (!version) {
-        console.warn('No version found for', packageName);
+        context.logger.warn('No version found for ' + packageName);
 
         return null;
     }
@@ -88,10 +91,10 @@ export function getPackageInfo(projectRoot: string, packageName: string): Packag
         };
     }
 
-    console.warn('No esm-based entry point found for', packageName);
+    context.logger.warn('No esm-based entry point found for ' + packageName);
+    context.logger.warn('💡 Did you confuse dependencies with depDependencies in your package.json');
 
     return null;
-
 } 
 
 function readJson(mainPkgJsonPath: string) {
