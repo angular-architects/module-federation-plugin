@@ -3,7 +3,8 @@ import { FederationInfo } from '@angular-architects/native-federation';
 import { Scopes, Imports, ImportMap, mergeImportMaps } from './import-map';
 import { getExternalUrl, setExternalUrl } from './externals';
 import { joinPaths, getDirectory } from './utils';
-import { setRemoteBaseUrl } from './remotes';
+import { addRemote } from './remotes';
+import { appendImportMap } from './add-import-map';
 
 export async function initFederation(remotes: Record<string, string> = {}): Promise<ImportMap> {
     const hostImportMap = await processHostInfo();
@@ -11,10 +12,7 @@ export async function initFederation(remotes: Record<string, string> = {}): Prom
 
     const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
 
-    document.body.appendChild(Object.assign(document.createElement('script'), {
-        type: 'importmap-shim',
-        innerHTML: JSON.stringify(importMap),
-    }));
+    appendImportMap(importMap);
 
     return importMap;
 }
@@ -27,26 +25,36 @@ async function processRemoteInfos(remotes: Record<string, string>): Promise<Impo
 
   for (const remoteName of Object.keys(remotes)) {
     const url = remotes[remoteName];
-    const remoteMap = await processRemoteInfo(remoteName, url);
+    const remoteMap = await processRemoteInfo(url, remoteName);
     importMap = mergeImportMaps(importMap, remoteMap);
   }
 
   return importMap;
 }
 
-export async function processRemoteInfo(remoteName: string, url: string): Promise<ImportMap> {
-  const baseUrl = getDirectory(url);
-  const remoteInfo = await loadFederationInfo(url);
+export async function processRemoteInfo(federationInfoUrl: string, remoteName?: string): Promise<ImportMap> {
+  const baseUrl = getDirectory(federationInfoUrl);
+  const remoteInfo = await loadFederationInfo(federationInfoUrl);
 
+  if (!remoteName) {
+    remoteName = remoteInfo.name;
+  }
+
+  const importMap = createRemoteImportMap(remoteInfo, remoteName, baseUrl);
+  addRemote(remoteName, {...remoteInfo, baseUrl})
+
+  return importMap;
+}
+
+function createRemoteImportMap(remoteInfo: FederationInfo, remoteName: string, baseUrl: string): ImportMap {
   const imports = processExposed(remoteInfo, remoteName, baseUrl);
   const scopes = processRemoteImports(remoteInfo, baseUrl);
-  setRemoteBaseUrl(remoteName, baseUrl);
-
   return { imports, scopes };
 }
 
 async function loadFederationInfo(url: string): Promise<FederationInfo> {
-  return await fetch(url).then(r => r.json()) as FederationInfo;
+  const info = await fetch(url).then(r => r.json()) as FederationInfo;
+  return info;
 }
 
 function processRemoteImports(remoteInfo: FederationInfo, baseUrl: string): Scopes {
