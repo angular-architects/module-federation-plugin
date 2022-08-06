@@ -14,6 +14,8 @@ export async function loadRemoteModule<T = any>(options: LoadRemoteModuleOptions
 export async function loadRemoteModule<T = any>(remoteName: string, exposedModule: string) : Promise<T>;
 export async function loadRemoteModule<T = any>(optionsOrRemoteName: LoadRemoteModuleOptions | string, exposedModule?: string): Promise<T> {
 
+    console.log('TEST');
+    
     const options = normalizeOptions(optionsOrRemoteName, exposedModule);
 
     await ensureRemoteInitialized(options);
@@ -32,7 +34,7 @@ export async function loadRemoteModule<T = any>(optionsOrRemoteName: LoadRemoteM
     }
 
     const url = joinPaths(remote.baseUrl, exposed.outFileName);
-    const module = await importShim(url) as any as T;
+    const module = await import(url) as any as T;
 
     return module;
 }

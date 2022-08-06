@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'native-federation-runtime',
+  displayName: 'native-federation-runtime3',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   globals: {
@@ -9,7 +9,7 @@ export default {
       stringifyContentPathRegex: '\\.(html|svg)$',
     },
   },
-  coverageDirectory: '../../coverage/libs/native-federation-runtime',
+  coverageDirectory: '../../coverage/libs/native-federation-runtime3',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': 'jest-preset-angular',
   },

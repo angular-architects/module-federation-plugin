@@ -3,5 +3,8 @@
   "version": "0.0.1",
   "main": "src/index.js",
   "generators": "./generators.json",
-  "builders": "./builders.json"
+  "builders": "./builders.json",
+  "dependencies": {
+    "@angular-architects/native-federation-runtime": "*"
+  }
 }

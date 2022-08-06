@@ -32,6 +32,7 @@
   "dependencies": {
     "@angular-architects/module-federation": "file:angular-architects-module-federation-14.3.10.tgz",
     "@angular-architects/native-federation": "file:angular-architects-native-federation-0.0.1.tgz",
+    "@angular-architects/native-federation-runtime": "file:angular-architects-native-federation-runtime-0.0.1.tgz",
     "@angular/animations": "14.1.1",
     "@angular/common": "14.1.1",
     "@angular/compiler": "14.1.1",
@@ -85,7 +86,7 @@
     "jest-preset-angular": "11.1.2",
     "json5": "^2.2.0",
     "jsonc-eslint-parser": "^2.1.0",
-    "ng-packagr": "14.1.0",
+    "ng-packagr": "~14.1.0",
     "node-fetch": "^2.6.7",
     "nx": "14.5.2",
     "postcss": "^8.3.9",

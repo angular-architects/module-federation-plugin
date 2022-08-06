@@ -1,4 +1,4 @@
-import { SharedInfo } from "@angular-architects/native-federation";
+import { SharedInfo } from "./federation-info";
 
 const externals = new Map<string, string>();
 

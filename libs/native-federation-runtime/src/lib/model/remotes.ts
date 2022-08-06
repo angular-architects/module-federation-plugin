@@ -1,4 +1,4 @@
-import { FederationInfo } from "@angular-architects/native-federation";
+import { FederationInfo } from "./federation-info";
 
 export type Remote = FederationInfo & {
     baseUrl: string

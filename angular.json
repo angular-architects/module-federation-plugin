@@ -283,6 +283,22 @@
       "sourceRoot": "libs/native-federation-runtime/src",
       "prefix": "angular-architects",
       "targets": {
+        "build": {
+          "executor": "@nrwl/angular:package",
+          "outputs": ["dist/libs/native-federation-runtime"],
+          "options": {
+            "project": "libs/native-federation-runtime/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/native-federation-runtime/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/native-federation-runtime/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
         "test": {
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/native-federation-runtime"],

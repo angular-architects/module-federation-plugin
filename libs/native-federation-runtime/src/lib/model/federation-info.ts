@@ -1,8 +1,8 @@
-import { NormalizedSharedConfig } from "../../config/federation-config";
-
-// TODO: Move this into a common lib
-
-export type SharedInfo = NormalizedSharedConfig & {
+export type SharedInfo = {
+    singleton: boolean;
+    strictVersion: boolean;
+    requiredVersion: string;
+    version?: string;
     packageName: string;
     outFileName: string;
 };

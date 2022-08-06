@@ -12,10 +12,11 @@ import { FederationConfig, NormalizedFederationConfig } from '../../config/feder
 
 import { bundle } from '../utils/build-utils';
 import { getPackageInfo } from '../utils/package-info';
-import { SharedInfo, ExposesInfo, FederationInfo} from '../utils/federation-info';
+import { SharedInfo, ExposesInfo, FederationInfo } from '@angular-architects/native-federation-runtime';
 
 const DEFAULT_SKIP_LIST = new Set([
   '@angular-architects/native-federation',
+  '@angular-architects/native-federation-runtime',
   'es-module-shims'
 ]);
 
