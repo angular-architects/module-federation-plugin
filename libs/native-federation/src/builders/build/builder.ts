@@ -10,8 +10,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { FederationConfig, NormalizedFederationConfig } from '../../config/federation-config';
 
-import { bundle } from '../utils/build-utils';
-import { getPackageInfo } from '../utils/package-info';
+import { bundle } from '../../utils/build-utils';
+import { getPackageInfo } from '../../utils/package-info';
 import { SharedInfo, ExposesInfo, FederationInfo } from '@angular-architects/native-federation-runtime';
 
 const DEFAULT_SKIP_LIST = new Set([

@@ -1,4 +1,4 @@
-import { getMappedPaths, MappedPath } from "../builders/utils/mapped-paths";
+import { getMappedPaths, MappedPath } from "../utils/mapped-paths";
 import { shareAll, share, findRootTsConfigJson } from "../config";
 import { FederationConfig, NormalizedFederationConfig, NormalizedSharedConfig, SharedConfig } from "./federation-config";
 

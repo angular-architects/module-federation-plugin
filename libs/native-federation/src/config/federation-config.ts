@@ -1,4 +1,4 @@
-import { MappedPath } from "../builders/utils/mapped-paths";
+import { MappedPath } from "../utils/mapped-paths";
 
 export interface SharedConfig {
     singleton?: boolean;
