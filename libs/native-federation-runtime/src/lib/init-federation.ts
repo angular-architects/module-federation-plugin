@@ -1,10 +1,10 @@
 // TODO: Move FederationInfo to common lib
 import { FederationInfo } from '@angular-architects/native-federation';
-import { Scopes, Imports, ImportMap, mergeImportMaps } from './import-map';
-import { getExternalUrl, setExternalUrl } from './externals';
-import { joinPaths, getDirectory } from './utils';
-import { addRemote } from './remotes';
-import { appendImportMap } from './add-import-map';
+import { Scopes, Imports, ImportMap, mergeImportMaps } from './model/import-map';
+import { getExternalUrl, setExternalUrl } from './model/externals';
+import { joinPaths, getDirectory } from './utils/path-utils';
+import { addRemote } from './model/remotes';
+import { appendImportMap } from './utils/add-import-map';
 
 export async function initFederation(remotes: Record<string, string> = {}): Promise<ImportMap> {
     const hostImportMap = await processHostInfo();

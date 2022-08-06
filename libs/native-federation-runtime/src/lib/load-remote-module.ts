@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { appendImportMap } from "./add-import-map";
+import { appendImportMap } from "./utils/add-import-map";
 import { processRemoteInfo } from "./init-federation";
-import { getRemote, getRemoteNameByBaseUrl, isRemoteInitialized } from "./remotes";
-import { getDirectory, joinPaths } from "./utils";
+import { getRemote, getRemoteNameByBaseUrl, isRemoteInitialized } from "./model/remotes";
+import { getDirectory, joinPaths } from "./utils/path-utils";
 
 export type LoadRemoteModuleOptions = {
     remoteEntry?: string;
