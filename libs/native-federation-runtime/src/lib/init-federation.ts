@@ -3,9 +3,7 @@ import { FederationInfo } from '@angular-architects/native-federation';
 import { Scopes, Imports, ImportMap } from './import-map';
 import { getExternalUrl, setExternalUrl } from './externals';
 import { joinPaths, getDirectory } from './utils';
-
-// remoteName -> remoteUrl
-const remotes = new Map<string, string>();
+import { setRemoteBaseUrl } from './remotes';
 
 export async function initFederation(remotes: Record<string, string> = {}) {
     const hostImports = await processHostInfo();
@@ -18,26 +16,34 @@ export async function initFederation(remotes: Record<string, string> = {}) {
 }
 
 async function processRemoteInfos(remotes: Record<string, string>, imports: Imports): Promise<ImportMap> {
-  const scopes = {} as Scopes;
+  const importMap: ImportMap = {
+    imports,
+    scopes: {}
+  };
 
   for (const remoteName of Object.keys(remotes)) {
     const url = remotes[remoteName];
-    const baseUrl = getDirectory(url);
-
-    const remoteInfo = await loadFederationInfo(url);
-
-    processExposed(remoteInfo, remoteName, baseUrl, imports);
-    processRemoteImports(remoteInfo, baseUrl, scopes);
+    await processRemoteInfo(remoteName, url, importMap);
   }
 
-  return { imports, scopes };
+  return importMap;
 }
 
-async function loadFederationInfo(url: string) {
+export async function processRemoteInfo(remoteName: string, url: string, importMap: ImportMap): Promise<void> {
+  const baseUrl = getDirectory(url);
+
+  const remoteInfo = await loadFederationInfo(url);
+
+  processExposed(remoteInfo, remoteName, baseUrl, importMap.imports);
+  processRemoteImports(remoteInfo, baseUrl, importMap.scopes);
+  setRemoteBaseUrl(remoteName, baseUrl);
+}
+
+async function loadFederationInfo(url: string): Promise<FederationInfo> {
   return await fetch(url).then(r => r.json()) as FederationInfo;
 }
 
-function processRemoteImports(remoteInfo: FederationInfo, baseUrl: string, scopes: Scopes) {
+function processRemoteImports(remoteInfo: FederationInfo, baseUrl: string, scopes: Scopes): void {
   const scopedImports: Imports = {};
 
   for (const shared of remoteInfo.shared) {
@@ -50,7 +56,7 @@ function processRemoteImports(remoteInfo: FederationInfo, baseUrl: string, scope
   scopes[baseUrl + '/'] = scopedImports;
 }
 
-function processExposed(remoteInfo: FederationInfo, remoteName: string, baseUrl: string, imports: Imports) {
+function processExposed(remoteInfo: FederationInfo, remoteName: string, baseUrl: string, imports: Imports): void {
   for (const exposed of remoteInfo.exposes) {
     const key = joinPaths(remoteName, exposed.key);
     const value = joinPaths(baseUrl, exposed.outFileName);
@@ -58,7 +64,7 @@ function processExposed(remoteInfo: FederationInfo, remoteName: string, baseUrl:
   }
 }
 
-async function processHostInfo() {
+async function processHostInfo(): Promise<Imports> {
   const hostInfo = await loadFederationInfo('./remoteEntry.json');
   
   const imports = hostInfo.shared.reduce((acc, cur) => ({ ...acc, [cur.packageName]: './' + cur.outFileName }), {}) as Imports;
