@@ -1,4 +1,4 @@
-import { initFederation } from '@angular-architects/native-federation-runtime';
+import { initFederation } from '@angular-architects/native-federation';
 
 initFederation({
     // 'mfe1': 'http://localhost:3001/remoteEntry.json'

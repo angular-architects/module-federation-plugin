@@ -1,5 +1,5 @@
-import { loadRemoteModule } from '@angular-architects/native-federation-runtime';
-import { Component, OnInit, Type } from '@angular/core';
+import { loadRemoteModule } from '@angular-architects/native-federation';
+import { Component, Type } from '@angular/core';
 
 @Component({
   selector: 'angular-architects-root',
