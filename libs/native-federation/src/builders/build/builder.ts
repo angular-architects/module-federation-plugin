@@ -29,6 +29,7 @@ export async function runBuilder(
 
   console.log('config', config);
 
+  // TODO: Add shared mapping keys
   const externals = getExternals(config);
 
   options.externalDependencies = externals;
@@ -36,6 +37,10 @@ export async function runBuilder(
 
   const exposesInfo = await bundleExposed(config, options, externals);
   const sharedInfo = await bundleShared(config, options, context, externals);
+
+  // TODO: bundleSharedMappings
+
+  // TODO: Add {key, outfile} to sharedInfo
 
   const federationInfo: FederationInfo = {
     name: config.name,
@@ -132,7 +137,7 @@ async function bundleExposed(config: NormalizedFederationConfig, options: Schema
   return result;
 }
 
-function getExternals(config: FederationConfig) {
+function getExternals(config: NormalizedFederationConfig) {
   return config.shared ? 
     Object.keys(config.shared)
       .filter(p => !DEFAULT_SKIP_LIST.has(p)) : 
