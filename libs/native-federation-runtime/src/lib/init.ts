@@ -1,76 +1,70 @@
-import { FederationInfo, SharedInfo } from '@angular-architects/native-federation';
-// import 'es-module-shims';
+// TODO: Move FederationInfo to common lib
+import { FederationInfo } from '@angular-architects/native-federation';
+import { Scopes, Imports, ImportMap } from './import-map';
+import { getExternalUrl, setExternalUrl } from './externals';
+import { joinPaths, getDirectory } from './utils';
 
-const externals = new Map<string, string>();
+// remoteName -> remoteUrl
 const remotes = new Map<string, string>();
 
-export type Imports = Record<string, string>;
-export type Scopes = Record<string, Imports>;
-
 export async function initFederation(remotes: Record<string, string> = {}) {
-    
-    const hostInfo = await fetch('./remoteEntry.json').then(r => r.json()) as FederationInfo;
-    const imports = hostInfo.shared.reduce( (acc, cur) => ({...acc, [cur.packageName]: './' + cur.outFileName }), {}) as Imports;
-    const scopes = {} as Scopes;
+    const hostImports = await processHostInfo();
+    const importMap = await processRemoteInfos(remotes, hostImports);
 
-    for (const shared of hostInfo.shared) {
-      const key = getExternalKey(shared);
-      externals.set(key, './' + shared.outFileName);
-    }
-
-    for (const remoteName of Object.keys(remotes))  {
-      const url = remotes[remoteName];
-      const baseUrl = directory(url);
-
-      const remoteInfo = await fetch(url).then(r => r.json()) as FederationInfo;
-
-      for (const exposed of remoteInfo.exposes) {
-        const key = joinPaths(remoteName, exposed.key);
-        const value = joinPaths(baseUrl, exposed.outFileName);
-        imports[key] = value;
-      }
-
-      const scopedImports: Imports = {};
-
-      for (const shared of remoteInfo.shared) {
-        const externalKey = getExternalKey(shared);
-
-        const outFileName = externals.get(externalKey) ?? joinPaths(baseUrl, shared.outFileName);
-        externals.set(externalKey, outFileName);
-        scopedImports[shared.packageName] = outFileName;
-      }
-
-      scopes[baseUrl + '/'] = scopedImports;
-
-    }
-
-    // importShim.addImportMap(importMap);
-    
     document.body.appendChild(Object.assign(document.createElement('script'), {
         type: 'importmap-shim',
-        innerHTML: JSON.stringify({ imports, scopes }),
+        innerHTML: JSON.stringify(importMap),
     }));
-
-    // window.importShim
 }
 
-function getExternalKey(shared: SharedInfo) {
-  return `${shared.packageName}@${shared.version}`;
-}
+async function processRemoteInfos(remotes: Record<string, string>, imports: Imports): Promise<ImportMap> {
+  const scopes = {} as Scopes;
 
-function directory(url: string) {
-  const parts = url.split('/');
-  parts.pop();
-  return parts.join('/');
-}
+  for (const remoteName of Object.keys(remotes)) {
+    const url = remotes[remoteName];
+    const baseUrl = getDirectory(url);
 
-function joinPaths(path1: string, path2: string): string {
-  while (path1.endsWith('/')) {
-    path1 = path1.substring(0, path1.length - 1);
-  }
-  if (path2.startsWith('./')) {
-    path2 = path2.substring(2, path2.length)
+    const remoteInfo = await loadFederationInfo(url);
+
+    processExposed(remoteInfo, remoteName, baseUrl, imports);
+    processRemoteImports(remoteInfo, baseUrl, scopes);
   }
 
-  return `${path1}/${path2}`;
+  return { imports, scopes };
+}
+
+async function loadFederationInfo(url: string) {
+  return await fetch(url).then(r => r.json()) as FederationInfo;
+}
+
+function processRemoteImports(remoteInfo: FederationInfo, baseUrl: string, scopes: Scopes) {
+  const scopedImports: Imports = {};
+
+  for (const shared of remoteInfo.shared) {
+
+    const outFileName = getExternalUrl(shared) ?? joinPaths(baseUrl, shared.outFileName);
+    setExternalUrl(shared, outFileName);
+    scopedImports[shared.packageName] = outFileName;
+  }
+
+  scopes[baseUrl + '/'] = scopedImports;
+}
+
+function processExposed(remoteInfo: FederationInfo, remoteName: string, baseUrl: string, imports: Imports) {
+  for (const exposed of remoteInfo.exposes) {
+    const key = joinPaths(remoteName, exposed.key);
+    const value = joinPaths(baseUrl, exposed.outFileName);
+    imports[key] = value;
+  }
+}
+
+async function processHostInfo() {
+  const hostInfo = await loadFederationInfo('./remoteEntry.json');
+  
+  const imports = hostInfo.shared.reduce((acc, cur) => ({ ...acc, [cur.packageName]: './' + cur.outFileName }), {}) as Imports;
+
+  for (const shared of hostInfo.shared) {
+    setExternalUrl(shared, './' + shared.outFileName);
+  }
+  return imports;
 }
