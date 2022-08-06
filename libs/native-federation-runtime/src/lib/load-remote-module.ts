@@ -4,6 +4,8 @@ import { processRemoteInfo } from "./init-federation";
 import { getRemote, getRemoteNameByBaseUrl, isRemoteInitialized } from "./model/remotes";
 import { getDirectory, joinPaths } from "./utils/path-utils";
 
+declare function importShim<T>(url: string): T;
+
 export type LoadRemoteModuleOptions = {
     remoteEntry?: string;
     remoteName?: string;
@@ -14,8 +16,6 @@ export async function loadRemoteModule<T = any>(options: LoadRemoteModuleOptions
 export async function loadRemoteModule<T = any>(remoteName: string, exposedModule: string) : Promise<T>;
 export async function loadRemoteModule<T = any>(optionsOrRemoteName: LoadRemoteModuleOptions | string, exposedModule?: string): Promise<T> {
 
-    console.log('TEST');
-    
     const options = normalizeOptions(optionsOrRemoteName, exposedModule);
 
     await ensureRemoteInitialized(options);
@@ -34,7 +34,7 @@ export async function loadRemoteModule<T = any>(optionsOrRemoteName: LoadRemoteM
     }
 
     const url = joinPaths(remote.baseUrl, exposed.outFileName);
-    const module = await import(url) as any as T;
+    const module = await importShim<T>(url);
 
     return module;
 }
