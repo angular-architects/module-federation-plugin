@@ -65,7 +65,7 @@ async function build(config: NormalizedFederationConfig, options: Schema, contex
     return options;
   };
 
-  // TODO: Remove any cast after updating version
+  // TODO: Remove cast to any after updating version
   const output = await buildEsbuildBrowser(
     options,
     context as any,
@@ -100,7 +100,7 @@ async function bundleShared(config: NormalizedFederationConfig, options: Schema,
     Object
       .keys(config.shared)
       .map(packageName => getPackageInfo(packageName, context))
-      .filter(pi => !!pi);
+      .filter(pi => pi && !DEFAULT_SKIP_LIST.has(pi.packageName));
 
   for (const pi of packageInfos) {
 
