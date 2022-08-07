@@ -4,7 +4,7 @@ import {createCompilerPlugin }
 import { MappedPath } from './mapped-paths';
 import { createSharedMappingsPlugin } from './shared-mappings-plugin';
 
-export async function bundle({ entryPoint, tsConfigPath, external, outfile, mappedPaths }: { entryPoint: string; tsConfigPath: string; external: Array<string>; outfile: string; mappedPaths: MappedPath[] }) {
+export async function bundle({ entryPoint, tsConfigPath, external, outfile, mappedPaths, useSharedMappingPlugin }: { entryPoint: string; tsConfigPath: string; external: Array<string>; outfile: string; mappedPaths: MappedPath[], useSharedMappingPlugin: boolean }) {
     await esbuild.build({
         entryPoints: [entryPoint],
         external,
@@ -28,7 +28,7 @@ export async function bundle({ entryPoint, tsConfigPath, external, outfile, mapp
                     workspaceRoot: __dirname,
                 }
             ),
-            createSharedMappingsPlugin(mappedPaths),
+            ... useSharedMappingPlugin ? [createSharedMappingsPlugin(mappedPaths)] : [],
         ],
     });
 }

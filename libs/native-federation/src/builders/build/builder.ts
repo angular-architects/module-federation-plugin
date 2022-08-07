@@ -4,8 +4,9 @@ import {
   createBuilder,
 } from '@angular-devkit/architect';
 
-import { buildEsbuildBrowser } from '@angular-devkit/build-angular/src/builders/browser-esbuild/index';
-import { Schema } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
+import { buildEsbuildBrowser } from '@angular-architects/build-angular/src/builders/browser-esbuild/index';
+import { Schema } from '@angular-architects/build-angular/src/builders/browser-esbuild/schema';
+import { ExecutionTransformer } from '@angular-architects/build-angular';
 import * as path from 'path';
 import * as fs from 'fs';
 import { NormalizedFederationConfig } from '../../config/federation-config';
@@ -13,6 +14,8 @@ import { NormalizedFederationConfig } from '../../config/federation-config';
 import { bundle } from '../../utils/build-utils';
 import { getPackageInfo } from '../../utils/package-info';
 import { SharedInfo, ExposesInfo, FederationInfo } from '@angular-architects/native-federation-runtime';
+import { BuildOptions } from 'esbuild';
+import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 
 const DEFAULT_SKIP_LIST = new Set([
   '@angular-architects/native-federation',
@@ -29,7 +32,8 @@ export async function runBuilder(
   const externals = getExternals(config);
 
   options.externalDependencies = externals;
-  const output = await buildEsbuildBrowser(options, context)
+
+  const output = await build(config, options, context);
 
   const exposesInfo = await bundleExposed(config, options, externals);
   const sharedPackageInfo = await bundleShared(config, options, context, externals);
@@ -51,6 +55,24 @@ export async function runBuilder(
 }
 
 export default createBuilder(runBuilder);
+
+async function build(config: NormalizedFederationConfig, options: Schema, context: BuilderContext) {
+  const esbuildConfiguration: ExecutionTransformer<BuildOptions> = (options) => {
+    options.plugins = [
+      ...options.plugins,
+      createSharedMappingsPlugin(config.sharedMappings)
+    ];
+    return options;
+  };
+
+  // TODO: Remove any cast after updating version
+  const output = await buildEsbuildBrowser(
+    options,
+    context as any,
+    { esbuildConfiguration }
+  );
+  return output;
+}
 
 function writeImportMap(sharedInfo: SharedInfo[], context: BuilderContext, options: Schema) {
   const imports = sharedInfo.reduce((acc, cur) => {
@@ -93,7 +115,8 @@ async function bundleShared(config: NormalizedFederationConfig, options: Schema,
       tsConfigPath: options.tsConfig,
       external: externals,
       outfile: outFilePath,
-      mappedPaths: config.sharedMappings
+      mappedPaths: config.sharedMappings,
+      useSharedMappingPlugin: true
     });
 
     result.push({
@@ -126,7 +149,8 @@ async function bundleSharedMappings(config: NormalizedFederationConfig, options:
         tsConfigPath: options.tsConfig,
         external: externals,
         outfile: outFilePath,
-        mappedPaths: config.sharedMappings
+        mappedPaths: config.sharedMappings,
+        useSharedMappingPlugin: false
       });
 
       result.push({
@@ -167,7 +191,8 @@ async function bundleExposed(config: NormalizedFederationConfig, options: Schema
       tsConfigPath: options.tsConfig,
       external: externals,
       outfile: outFilePath,
-      mappedPaths: config.sharedMappings
+      mappedPaths: config.sharedMappings,
+      useSharedMappingPlugin: true
     });
 
     result.push({ key, outFileName });
