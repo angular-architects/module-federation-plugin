@@ -27,3 +27,4 @@ export function getRemote(remoteName: string): Remote | undefined {
 export function hasRemote(remoteName: string): boolean {
     return remoteNamesToRemote.has(remoteName);
 }
+

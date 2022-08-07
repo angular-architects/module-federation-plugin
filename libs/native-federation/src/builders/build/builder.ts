@@ -26,9 +26,6 @@ export async function runBuilder(
 ): Promise<BuilderOutput> {
   
   const config = await loadFederationConfig(options, context);
-
-  console.log('config', config);
-
   const externals = getExternals(config);
 
   options.externalDependencies = externals;
@@ -95,7 +92,8 @@ async function bundleShared(config: NormalizedFederationConfig, options: Schema,
       entryPoint: pi.entryPoint,
       tsConfigPath: options.tsConfig,
       external: externals,
-      outfile: outFilePath
+      outfile: outFilePath,
+      mappedPaths: config.sharedMappings
     });
 
     result.push({
@@ -119,7 +117,6 @@ async function bundleSharedMappings(config: NormalizedFederationConfig, options:
 
     const outFileName = m.key.replace(/[^A-Za-z0-9]/g, "_") + '.js';
     const outFilePath = path.join(options.outputPath, outFileName);
-
     
     console.info('Bundling shared mapping', m.key, '...');
 
@@ -128,7 +125,8 @@ async function bundleSharedMappings(config: NormalizedFederationConfig, options:
         entryPoint: m.path,
         tsConfigPath: options.tsConfig,
         external: externals,
-        outfile: outFilePath
+        outfile: outFilePath,
+        mappedPaths: config.sharedMappings
       });
 
       result.push({
@@ -168,7 +166,8 @@ async function bundleExposed(config: NormalizedFederationConfig, options: Schema
       entryPoint,
       tsConfigPath: options.tsConfig,
       external: externals,
-      outfile: outFilePath
+      outfile: outFilePath,
+      mappedPaths: config.sharedMappings
     });
 
     result.push({ key, outFileName });
