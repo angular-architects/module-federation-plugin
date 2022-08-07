@@ -63,4 +63,3 @@ function normalizeSharedMappings(config: FederationConfig, skip: Set<string>): A
 
     return result;
 }
-

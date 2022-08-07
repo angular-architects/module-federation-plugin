@@ -15,7 +15,6 @@ export interface FederationConfig {
     skip?: Array<string>;
 }
 
-
 export interface NormalizedSharedConfig {
     singleton: boolean;
     strictVersion: boolean;

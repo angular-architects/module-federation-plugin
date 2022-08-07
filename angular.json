@@ -447,6 +447,32 @@
       },
       "tags": [],
       "implicitDependencies": ["playground"]
+    },
+    "playground-lib": {
+      "projectType": "library",
+      "root": "libs/playground-lib",
+      "sourceRoot": "libs/playground-lib/src",
+      "prefix": "angular-architects",
+      "targets": {
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/playground-lib"],
+          "options": {
+            "jestConfig": "libs/playground-lib/jest.config.ts",
+            "passWithNoTests": true
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/playground-lib/**/*.ts",
+              "libs/playground-lib/**/*.html"
+            ]
+          }
+        }
+      },
+      "tags": []
     }
   }
 }

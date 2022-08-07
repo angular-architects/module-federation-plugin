@@ -8,7 +8,7 @@ import { buildEsbuildBrowser } from '@angular-devkit/build-angular/src/builders/
 import { Schema } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
 import * as path from 'path';
 import * as fs from 'fs';
-import { FederationConfig, NormalizedFederationConfig } from '../../config/federation-config';
+import { NormalizedFederationConfig } from '../../config/federation-config';
 
 import { bundle } from '../../utils/build-utils';
 import { getPackageInfo } from '../../utils/package-info';
@@ -29,18 +29,16 @@ export async function runBuilder(
 
   console.log('config', config);
 
-  // TODO: Add shared mapping keys
   const externals = getExternals(config);
 
   options.externalDependencies = externals;
   const output = await buildEsbuildBrowser(options, context)
 
   const exposesInfo = await bundleExposed(config, options, externals);
-  const sharedInfo = await bundleShared(config, options, context, externals);
+  const sharedPackageInfo = await bundleShared(config, options, context, externals);
+  const sharedMappingInfo = await bundleSharedMappings(config, options, context, externals);
 
-  // TODO: bundleSharedMappings
-
-  // TODO: Add {key, outfile} to sharedInfo
+  const sharedInfo = [...sharedPackageInfo, ...sharedMappingInfo];
 
   const federationInfo: FederationInfo = {
     name: config.name,
@@ -53,7 +51,6 @@ export async function runBuilder(
   writeImportMap(sharedInfo, context, options);
 
   return output;
-
 }
 
 export default createBuilder(runBuilder);
@@ -114,6 +111,48 @@ async function bundleShared(config: NormalizedFederationConfig, options: Schema,
   return result;
 }
 
+async function bundleSharedMappings(config: NormalizedFederationConfig, options: Schema, context: BuilderContext, externals: string[]): Promise<Array<SharedInfo>> {
+  
+  const result: Array<SharedInfo> = [];
+
+  for (const m of config.sharedMappings) {
+
+    const outFileName = m.key.replace(/[^A-Za-z0-9]/g, "_") + '.js';
+    const outFilePath = path.join(options.outputPath, outFileName);
+
+    
+    console.info('Bundling shared mapping', m.key, '...');
+
+    try {
+      await bundle({
+        entryPoint: m.path,
+        tsConfigPath: options.tsConfig,
+        external: externals,
+        outfile: outFilePath
+      });
+
+      result.push({
+        packageName: m.key,
+        outFileName: outFileName,
+        requiredVersion: '',
+        singleton: true,
+        strictVersion: false,
+        version: ''
+      });
+    }
+    catch(e) {
+      context.logger.error('Error bundling shared mapping ' + m.key);
+      context.logger.error(`  >> If you don't need this mapping to shared, you can explicity configure the sharedMappings property in your federation.config.js`);
+
+      if (options.verbose) {
+        console.error(e);
+      } 
+    }
+  }
+
+  return result;
+}
+
 async function bundleExposed(config: NormalizedFederationConfig, options: Schema, externals: string[]): Promise<Array<ExposesInfo>> {
   
   const result: Array<ExposesInfo> = [];
@@ -138,10 +177,12 @@ async function bundleExposed(config: NormalizedFederationConfig, options: Schema
 }
 
 function getExternals(config: NormalizedFederationConfig) {
-  return config.shared ? 
-    Object.keys(config.shared)
-      .filter(p => !DEFAULT_SKIP_LIST.has(p)) : 
-    [];
+  const shared = Object.keys(config.shared);
+  const sharedMappings = config.sharedMappings.map(m => m.key);
+
+  const externals = [...shared, ...sharedMappings];
+  
+  return externals.filter(p => !DEFAULT_SKIP_LIST.has(p));
 }
 
 async function loadFederationConfig(options: Schema, context: BuilderContext) {
@@ -156,4 +197,3 @@ async function loadFederationConfig(options: Schema, context: BuilderContext) {
   const config = await import(fullConfigPath) as NormalizedFederationConfig;
   return config;
 }
-

@@ -1,4 +1,4 @@
-const { withNativeFederation, shareAll } = require("@angular-architects/native-federation");
+const { withNativeFederation, shareAll } = require("@angular-architects/native-federation/config");
 
 module.exports = withNativeFederation({
 
