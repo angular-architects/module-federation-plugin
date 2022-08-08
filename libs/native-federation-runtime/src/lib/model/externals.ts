@@ -1,17 +1,17 @@
-import { SharedInfo } from "./federation-info";
+import { SharedInfo } from './federation-info';
 
 const externals = new Map<string, string>();
 
 function getExternalKey(shared: SharedInfo) {
-    return `${shared.packageName}@${shared.version}`;
+  return `${shared.packageName}@${shared.version}`;
 }
 
 export function getExternalUrl(shared: SharedInfo): string | undefined {
-    const packageKey = getExternalKey(shared);
-    return externals.get(packageKey);
+  const packageKey = getExternalKey(shared);
+  return externals.get(packageKey);
 }
 
 export function setExternalUrl(shared: SharedInfo, url: string): void {
-    const packageKey = getExternalKey(shared);
-    externals.set(packageKey, url);
+  const packageKey = getExternalKey(shared);
+  externals.set(packageKey, url);
 }

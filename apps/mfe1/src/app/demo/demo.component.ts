@@ -1,4 +1,7 @@
-import { AuthService, PlaygroundLibModule } from '@angular-architects/playground-lib';
+import {
+  AuthService,
+  PlaygroundLibModule,
+} from '@angular-architects/playground-lib';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 
@@ -7,12 +10,9 @@ import { Component, OnInit } from '@angular/core';
   selector: 'angular-architects-demo',
   templateUrl: './demo.component.html',
   styleUrls: ['./demo.component.css'],
-  imports: [
-    CommonModule,
-    PlaygroundLibModule
-  ]
+  imports: [CommonModule, PlaygroundLibModule],
 })
-export class DemoComponent  {
+export class DemoComponent {
   title = 'Hallo';
 
   constructor(authService: AuthService) {

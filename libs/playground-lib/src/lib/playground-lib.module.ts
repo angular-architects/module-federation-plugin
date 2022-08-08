@@ -5,6 +5,6 @@ import { AuthComponent } from './auth.component';
 @NgModule({
   imports: [CommonModule],
   declarations: [AuthComponent],
-  exports: [AuthComponent]
+  exports: [AuthComponent],
 })
 export class PlaygroundLibModule {}

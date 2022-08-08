@@ -500,7 +500,15 @@
         "type": {
           "type": "string",
           "description": "The type of budget.",
-          "enum": ["all", "allScript", "any", "anyScript", "anyComponentStyle", "bundle", "initial"]
+          "enum": [
+            "all",
+            "allScript",
+            "any",
+            "anyScript",
+            "anyComponentStyle",
+            "bundle",
+            "initial"
+          ]
         },
         "name": {
           "type": "string",

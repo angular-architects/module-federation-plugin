@@ -17,7 +17,6 @@ export class SharedMappings {
     shared: string[] = null,
     rootPath: string = path.normalize(path.dirname(tsConfigPath))
   ): void {
-
     const result: Array<Library> = [];
 
     if (!path.isAbsolute(tsConfigPath)) {

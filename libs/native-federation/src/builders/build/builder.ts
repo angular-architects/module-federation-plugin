@@ -40,8 +40,18 @@ export async function runBuilder(
   const output = await build(config, options, context);
 
   const exposesInfo = await bundleExposed(config, options, externals);
-  const sharedPackageInfo = await bundleShared(config, options, context, externals);
-  const sharedMappingInfo = await bundleSharedMappings(config, options, context, externals);
+  const sharedPackageInfo = await bundleShared(
+    config,
+    options,
+    context,
+    externals
+  );
+  const sharedMappingInfo = await bundleSharedMappings(
+    config,
+    options,
+    context,
+    externals
+  );
 
   const sharedInfo = [...sharedPackageInfo, ...sharedMappingInfo];
 
@@ -65,8 +75,12 @@ export default createBuilder(runBuilder);
 function updateIndexHtml(context: BuilderContext, options: Schema) {
   const outputPath = path.join(context.workspaceRoot, options.outputPath);
   const indexPath = path.join(outputPath, 'index.html');
-  const mainName = fs.readdirSync(outputPath).find(f => f.startsWith('main.') && f.endsWith('.js'));
-  const polyfillsName = fs.readdirSync(outputPath).find(f => f.startsWith('polyfills.') && f.endsWith('.js'));
+  const mainName = fs
+    .readdirSync(outputPath)
+    .find((f) => f.startsWith('main.') && f.endsWith('.js'));
+  const polyfillsName = fs
+    .readdirSync(outputPath)
+    .find((f) => f.startsWith('polyfills.') && f.endsWith('.js'));
 
   const htmlFragment = `
 <script type="esms-options">
@@ -80,7 +94,10 @@ function updateIndexHtml(context: BuilderContext, options: Schema) {
 `;
 
   const indexContent = fs.readFileSync(indexPath, 'utf-8');
-  const updatedContent = indexContent.replace('</body>', `${htmlFragment}</body>`);
+  const updatedContent = indexContent.replace(
+    '</body>',
+    `${htmlFragment}</body>`
+  );
   fs.writeFileSync(indexPath, updatedContent, 'utf-8');
 }
 
@@ -162,7 +179,7 @@ async function bundleShared(
 
     const cachePath = path.join(
       context.workspaceRoot,
-      'node_modules/.cache/native-federation',
+      'node_modules/.cache/native-federation'
     );
 
     fs.mkdirSync(cachePath, { recursive: true });
@@ -191,10 +208,13 @@ async function bundleShared(
       version: pi.version,
     });
 
-    const fullOutputPath = path.join(context.workspaceRoot, options.outputPath, outFileName);
+    const fullOutputPath = path.join(
+      context.workspaceRoot,
+      options.outputPath,
+      outFileName
+    );
     fs.copyFileSync(cachedFile, fullOutputPath);
     copySrcMapIfExists(cachedFile, fullOutputPath);
-
   }
 
   return result;
@@ -236,9 +256,12 @@ async function bundleSharedMappings(
 
       const hash = hashFile(outFilePath);
       const hashedOutFileName = `${key}-${hash}.js`;
-      const hashedOutFilePath = path.join(options.outputPath, hashedOutFileName);
+      const hashedOutFilePath = path.join(
+        options.outputPath,
+        hashedOutFileName
+      );
       fs.renameSync(outFilePath, hashedOutFilePath);
-  
+
       result.push({
         packageName: m.key,
         outFileName: hashedOutFileName,

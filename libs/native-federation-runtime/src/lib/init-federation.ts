@@ -1,24 +1,33 @@
-import { Scopes, Imports, ImportMap, mergeImportMaps } from './model/import-map';
+import {
+  Scopes,
+  Imports,
+  ImportMap,
+  mergeImportMaps,
+} from './model/import-map';
 import { getExternalUrl, setExternalUrl } from './model/externals';
 import { joinPaths, getDirectory } from './utils/path-utils';
 import { addRemote } from './model/remotes';
 import { appendImportMap } from './utils/add-import-map';
 import { FederationInfo } from './model/federation-info';
 
-export async function initFederation(remotes: Record<string, string> = {}): Promise<ImportMap> {
-    const hostImportMap = await processHostInfo();
-    const remotesImportMap = await processRemoteInfos(remotes);
+export async function initFederation(
+  remotes: Record<string, string> = {}
+): Promise<ImportMap> {
+  const hostImportMap = await processHostInfo();
+  const remotesImportMap = await processRemoteInfos(remotes);
 
-    const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
-    appendImportMap(importMap);
+  const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
+  appendImportMap(importMap);
 
-    return importMap;
+  return importMap;
 }
 
-async function processRemoteInfos(remotes: Record<string, string>): Promise<ImportMap> {
+async function processRemoteInfos(
+  remotes: Record<string, string>
+): Promise<ImportMap> {
   let importMap: ImportMap = {
     imports: {},
-    scopes: {}
+    scopes: {},
   };
 
   for (const remoteName of Object.keys(remotes)) {
@@ -30,7 +39,10 @@ async function processRemoteInfos(remotes: Record<string, string>): Promise<Impo
   return importMap;
 }
 
-export async function processRemoteInfo(federationInfoUrl: string, remoteName?: string): Promise<ImportMap> {
+export async function processRemoteInfo(
+  federationInfoUrl: string,
+  remoteName?: string
+): Promise<ImportMap> {
   const baseUrl = getDirectory(federationInfoUrl);
   const remoteInfo = await loadFederationInfo(federationInfoUrl);
 
@@ -39,29 +51,36 @@ export async function processRemoteInfo(federationInfoUrl: string, remoteName?: 
   }
 
   const importMap = createRemoteImportMap(remoteInfo, remoteName, baseUrl);
-  addRemote(remoteName, {...remoteInfo, baseUrl})
+  addRemote(remoteName, { ...remoteInfo, baseUrl });
 
   return importMap;
 }
 
-function createRemoteImportMap(remoteInfo: FederationInfo, remoteName: string, baseUrl: string): ImportMap {
+function createRemoteImportMap(
+  remoteInfo: FederationInfo,
+  remoteName: string,
+  baseUrl: string
+): ImportMap {
   const imports = processExposed(remoteInfo, remoteName, baseUrl);
   const scopes = processRemoteImports(remoteInfo, baseUrl);
   return { imports, scopes };
 }
 
 async function loadFederationInfo(url: string): Promise<FederationInfo> {
-  const info = await fetch(url).then(r => r.json()) as FederationInfo;
+  const info = (await fetch(url).then((r) => r.json())) as FederationInfo;
   return info;
 }
 
-function processRemoteImports(remoteInfo: FederationInfo, baseUrl: string): Scopes {
+function processRemoteImports(
+  remoteInfo: FederationInfo,
+  baseUrl: string
+): Scopes {
   const scopes: Scopes = {};
   const scopedImports: Imports = {};
 
   for (const shared of remoteInfo.shared) {
-
-    const outFileName = getExternalUrl(shared) ?? joinPaths(baseUrl, shared.outFileName);
+    const outFileName =
+      getExternalUrl(shared) ?? joinPaths(baseUrl, shared.outFileName);
     setExternalUrl(shared, outFileName);
     scopedImports[shared.packageName] = outFileName;
   }
@@ -70,7 +89,11 @@ function processRemoteImports(remoteInfo: FederationInfo, baseUrl: string): Scop
   return scopes;
 }
 
-function processExposed(remoteInfo: FederationInfo, remoteName: string, baseUrl: string): Imports {
+function processExposed(
+  remoteInfo: FederationInfo,
+  remoteName: string,
+  baseUrl: string
+): Imports {
   const imports: Imports = {};
 
   for (const exposed of remoteInfo.exposes) {
@@ -84,8 +107,11 @@ function processExposed(remoteInfo: FederationInfo, remoteName: string, baseUrl:
 
 async function processHostInfo(): Promise<ImportMap> {
   const hostInfo = await loadFederationInfo('./remoteEntry.json');
-  
-  const imports = hostInfo.shared.reduce((acc, cur) => ({ ...acc, [cur.packageName]: './' + cur.outFileName }), {}) as Imports;
+
+  const imports = hostInfo.shared.reduce(
+    (acc, cur) => ({ ...acc, [cur.packageName]: './' + cur.outFileName }),
+    {}
+  ) as Imports;
 
   for (const shared of hostInfo.shared) {
     setExternalUrl(shared, './' + shared.outFileName);

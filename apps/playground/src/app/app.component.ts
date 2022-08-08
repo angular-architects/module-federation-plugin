@@ -8,7 +8,6 @@ import { Component, Type } from '@angular/core';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
- 
   title = 'playground';
   Cmp: Type<unknown>;
 
@@ -18,14 +17,13 @@ export class AppComponent {
 
   async load() {
     // const m = await importShim('http://localhost:3001/cmp.js');
-    
+
     const m = await loadRemoteModule({
       remoteEntry: 'http://localhost:3001/remoteEntry.json',
       // remoteName: 'mfe1',
-      exposedModule: './cmp'
+      exposedModule: './cmp',
     });
-    
+
     this.Cmp = m.DemoComponent;
   }
-
 }

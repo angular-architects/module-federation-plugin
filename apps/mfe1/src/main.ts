@@ -1,5 +1,5 @@
-import { initFederation } from "@angular-architects/native-federation";
+import { initFederation } from '@angular-architects/native-federation';
 
 initFederation()
   .then(() => import('./bootstrap'))
-  .catch(err => console.error(err));
+  .catch((err) => console.error(err));
