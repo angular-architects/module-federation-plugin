@@ -11,8 +11,13 @@ import { appendImportMap } from './utils/add-import-map';
 import { FederationInfo } from './model/federation-info';
 
 export async function initFederation(
-  remotes: Record<string, string> = {}
+  remotesOrManifestUrl: Record<string, string> | string = {}
 ): Promise<ImportMap> {
+  
+  const remotes = (typeof remotesOrManifestUrl === 'string') ? 
+    await loadManifest(remotesOrManifestUrl) :
+    remotesOrManifestUrl;
+
   const hostImportMap = await processHostInfo();
   const remotesImportMap = await processRemoteInfos(remotes);
 
@@ -20,6 +25,10 @@ export async function initFederation(
   appendImportMap(importMap);
 
   return importMap;
+}
+
+async function loadManifest(remotes: string): Promise<Record<string, string>> {
+  return await fetch(remotes).then(r => r.json()) as Record<string, string>;
 }
 
 async function processRemoteInfos(

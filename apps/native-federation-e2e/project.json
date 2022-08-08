@@ -12,5 +12,7 @@
     }
   },
   "tags": [],
-  "implicitDependencies": ["native-federation"]
+  "implicitDependencies": [
+    "native-federation"
+  ]
 }

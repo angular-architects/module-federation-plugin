@@ -166,8 +166,9 @@ async function bundleShared(
   const result: Array<SharedInfo> = [];
 
   const packageInfos = Object.keys(config.shared)
-    .map((packageName) => getPackageInfo(packageName, context))
-    .filter((pi) => pi && !DEFAULT_SKIP_LIST.has(pi.packageName));
+    .filter(packageName => !DEFAULT_SKIP_LIST.has(packageName))
+    .map(packageName => getPackageInfo(packageName, context))
+    .filter((pi) => !!pi);
 
   for (const pi of packageInfos) {
     console.info('Bundling shared package', pi.packageName, '...');

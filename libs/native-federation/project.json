@@ -5,7 +5,9 @@
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/native-federation",
         "main": "libs/native-federation/src/index.ts",
@@ -36,13 +38,20 @@
             "input": "./libs/native-federation",
             "glob": "executors.json",
             "output": "."
+          },
+          {
+            "input": "./libs/native-federation",
+            "glob": "collection.json",
+            "output": "."
           }
         ]
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
         "lintFilePatterns": [
           "libs/native-federation/**/*.ts",
@@ -54,7 +63,9 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/native-federation"],
+      "outputs": [
+        "coverage/libs/native-federation"
+      ],
       "options": {
         "jestConfig": "libs/native-federation/jest.config.ts",
         "passWithNoTests": true

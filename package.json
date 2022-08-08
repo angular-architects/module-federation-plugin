@@ -31,8 +31,8 @@
   "private": true,
   "dependencies": {
     "@angular-architects/module-federation": "file:angular-architects-module-federation-14.3.10.tgz",
-    "@angular-architects/native-federation": "file:angular-architects-native-federation-0.0.1.tgz",
-    "@angular-architects/native-federation-runtime": "file:angular-architects-native-federation-runtime-0.0.1.tgz",
+    "@angular-architects/native-federation": "file:angular-architects-native-federation-0.0.3.tgz",
+    "@angular-architects/native-federation-runtime": "file:angular-architects-native-federation-runtime-0.0.3.tgz",
     "@angular/animations": "14.1.1",
     "@angular/common": "14.1.1",
     "@angular/compiler": "14.1.1",

@@ -1,0 +1,17 @@
+{
+  "$schema": "../../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "name": "module-federation",
+  "version": "0.0.1",
+  "schematics": {
+    "ng-add": {
+      "factory": "./src/schematics/init/schematic",
+      "schema": "./src/schematics/init/schema.json",
+      "description": "Initialize an angular project for webpack module federation"
+    },
+    "init": {
+      "factory": "./src/schematics/init/schematic",
+      "schema": "./src/schematics/init/schema.json",
+      "description": "Initialize an angular project for webpack module federation"
+    }
+  }
+}

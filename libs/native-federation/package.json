@@ -1,10 +1,13 @@
 {
   "name": "@angular-architects/native-federation",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "main": "src/index.js",
-  "generators": "./generators.json",
+  "generators": "./collection.json",
   "builders": "./builders.json",
-  "dependencies": {
-    "@angular-architects/native-federation-runtime": "*"
+  "schematics": "./collection.json",
+  "peerDependencies": {
+    "@angular-architects/build-angular": "^14.2.0-next.0",
+    "@angular-architects/module-federation": "^14.0.0"
   }
+
 }
