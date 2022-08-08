@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/native-federation-runtime",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "peerDependencies": {
   },
   "dependencies": {

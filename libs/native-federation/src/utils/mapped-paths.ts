@@ -42,7 +42,7 @@ export function getMappedPaths({
   const mappings = tsConfig?.compilerOptions?.paths;
 
   if (!mappings) {
-    return;
+    return result;
   }
 
   for (const key in mappings) {
