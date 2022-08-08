@@ -6,7 +6,10 @@ import { AuthService } from './auth.service';
     template: `
         <p>AuthComponent</p>
         <p>User Name: {{userName}}</p>
-    `
+    `,
+    styles: [`
+        p { color: blue; }
+    `]
 })
 export class AuthComponent {
     

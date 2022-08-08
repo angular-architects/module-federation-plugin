@@ -10,7 +10,6 @@ export async function initFederation(remotes: Record<string, string> = {}): Prom
     const remotesImportMap = await processRemoteInfos(remotes);
 
     const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
-
     appendImportMap(importMap);
 
     return importMap;

@@ -2,10 +2,10 @@ git push -u experiment
 
 
 <script type="esms-options">
-      {
-        "shimMode": true
-      }
-    </script>
+  {
+    "shimMode": true
+  }
+</script>
 
-    <script type="module" src="polyfills.I42V2X7N.js"></script>
-    <script type="module-shim" src="main.OOCA3QGX.js"></script>
+<script type="module" src="polyfills.I42V2X7N.js"></script>
+<script type="module-shim" src="main.OOCA3QGX.js"></script>

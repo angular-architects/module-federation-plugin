@@ -20,6 +20,7 @@ import {
 } from '@angular-architects/native-federation-runtime';
 import { BuildOptions } from 'esbuild';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
+import { hashFile } from '../../utils/hash-file';
 
 const DEFAULT_SKIP_LIST = new Set([
   '@angular-architects/native-federation',
@@ -54,10 +55,34 @@ export async function runBuilder(
 
   writeImportMap(sharedInfo, context, options);
 
+  updateIndexHtml(context, options);
+
   return output;
 }
 
 export default createBuilder(runBuilder);
+
+function updateIndexHtml(context: BuilderContext, options: Schema) {
+  const outputPath = path.join(context.workspaceRoot, options.outputPath);
+  const indexPath = path.join(outputPath, 'index.html');
+  const mainName = fs.readdirSync(outputPath).find(f => f.startsWith('main.') && f.endsWith('.js'));
+  const polyfillsName = fs.readdirSync(outputPath).find(f => f.startsWith('polyfills.') && f.endsWith('.js'));
+
+  const htmlFragment = `
+<script type="esms-options">
+{
+  "shimMode": true
+}
+</script>
+
+<script type="module" src="${polyfillsName}"></script>
+<script type="module-shim" src="${mainName}"></script>
+`;
+
+  const indexContent = fs.readFileSync(indexPath, 'utf-8');
+  const updatedContent = indexContent.replace('</body>', `${htmlFragment}</body>`);
+  fs.writeFileSync(indexPath, updatedContent, 'utf-8');
+}
 
 async function build(
   config: NormalizedFederationConfig,
@@ -145,8 +170,6 @@ async function bundleShared(
     const cachedFile = path.join(cachePath, outFileName);
 
     if (!fs.existsSync(cachedFile)) {
-      const shared = config.shared[pi.packageName];
-
       await bundle({
         entryPoint: pi.entryPoint,
         tsConfigPath: options.tsConfig,
@@ -155,16 +178,18 @@ async function bundleShared(
         mappedPaths: config.sharedMappings,
         useSharedMappingPlugin: true,
       });
-
-      result.push({
-        packageName: pi.packageName,
-        outFileName: outFileName,
-        requiredVersion: shared.requiredVersion,
-        singleton: shared.singleton,
-        strictVersion: shared.strictVersion,
-        version: pi.version,
-      });
     }
+
+    const shared = config.shared[pi.packageName];
+
+    result.push({
+      packageName: pi.packageName,
+      outFileName: outFileName,
+      requiredVersion: shared.requiredVersion,
+      singleton: shared.singleton,
+      strictVersion: shared.strictVersion,
+      version: pi.version,
+    });
 
     const fullOutputPath = path.join(context.workspaceRoot, options.outputPath, outFileName);
     fs.copyFileSync(cachedFile, fullOutputPath);
@@ -193,7 +218,8 @@ async function bundleSharedMappings(
   const result: Array<SharedInfo> = [];
 
   for (const m of config.sharedMappings) {
-    const outFileName = m.key.replace(/[^A-Za-z0-9]/g, '_') + '.js';
+    const key = m.key.replace(/[^A-Za-z0-9]/g, '_');
+    const outFileName = key + '.js';
     const outFilePath = path.join(options.outputPath, outFileName);
 
     console.info('Bundling shared mapping', m.key, '...');
@@ -208,9 +234,14 @@ async function bundleSharedMappings(
         useSharedMappingPlugin: false,
       });
 
+      const hash = hashFile(outFilePath);
+      const hashedOutFileName = `${key}-${hash}.js`;
+      const hashedOutFilePath = path.join(options.outputPath, hashedOutFileName);
+      fs.renameSync(outFilePath, hashedOutFilePath);
+  
       result.push({
         packageName: m.key,
-        outFileName: outFileName,
+        outFileName: hashedOutFileName,
         requiredVersion: '',
         singleton: true,
         strictVersion: false,
@@ -254,7 +285,12 @@ async function bundleExposed(
       useSharedMappingPlugin: true,
     });
 
-    result.push({ key, outFileName });
+    const hash = hashFile(outFilePath);
+    const hashedOutFileName = `${key}-${hash}.js`;
+    const hashedOutFilePath = path.join(options.outputPath, hashedOutFileName);
+    fs.renameSync(outFilePath, hashedOutFilePath);
+
+    result.push({ key, outFileName: hashedOutFileName });
   }
   return result;
 }
