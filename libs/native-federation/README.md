@@ -30,7 +30,7 @@ This is a first experimental version. The results look very promising, however i
 
 Limitations:
 
-- 🔷 As we use a fork of the experimental esbuild builder the CLI team is current working on, there is currently **only a builder for ng build**. ng serve or ng test are currently not supported. This support will be added with a future version.
+- 🔷 As we use a fork of the experimental esbuild builder the CLI team is current working on, there is currently **only a builder for ng build**. ng serve or ng test are currently not supported. This support will be added with a future version. Also, as the forked esbuile builder is still experimental, you cannot expect to get all the features you are used to. This will also change over time.
   
 - 🔷 Libraries are currently only shared if two or more remotes (Micro Frontends) request the very same version. This is also what works best with Angular. In a future version, we will add optional "version negotiation" for the sake of feature parity with Module Federation. This allows Native Federation to decide for a "higher compatible version" (e. g. a higher minor version provided by another Micro Frontend) at runtime.
 
@@ -247,6 +247,20 @@ export const APP_ROUTES: Routes = [
 ```
 
 However, we prefer the first option where just the ``remoteName`` is passed.
+
+
+## FAQ
+
+### Should we Already use Native Federation in Production?
+
+For production, we would stick with Module Federation for the time being. Native Federation, however, shows that you don't need to fear that you are left alone, once you (or the community) wants to move over to other build tools.
+
+We will evolve Native Federation but also our Module Federation support and keep you posted.
+
+### How does Native Federation Work under the Covers?
+
+We use Import Maps at runtime. As they are currently not supported in every browser, our ``init`` schematic installs the ``es-module-shims`` polyfill. In addition to Import Maps, we use some code at build time and at runtime to provide the Mental Model of Module Federation.
+
 
 ## More: Blog Articles
 
