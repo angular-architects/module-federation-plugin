@@ -48,7 +48,7 @@ Big thanks to:
 
 We migrated our webpack Module Federation example to Native Federation:
 
-![Example](./example.png)
+![Example](https://raw.githubusercontent.com/angular-architects/module-federation-plugin/main/libs/native-federation/example.png)
 
 Please find the example [here (branch: ng-solution)](https://github.com/manfredsteyer/module-federation-plugin-example/tree/nf-solution):
 
@@ -59,7 +59,7 @@ cd module-federation-plugin-example
 
 npm i
 npm run build
-npm run start
+npm start
 ```
 
 Then, open http://localhost:3000 in your browser.
