@@ -18,6 +18,7 @@
   "builders": "./builders.json",
   "dependencies": {
     "@angular-architects/module-federation-runtime": "14.3.10",
+    "@angular-devkit/architect": "^0.1401.2",
     "word-wrap": "^1.2.3",
     "callsite": "^1.0.0",
     "node-fetch": "^2.6.7",
