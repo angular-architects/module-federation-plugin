@@ -132,7 +132,21 @@ export const APP_ROUTES: Routes = [
           remoteEntry: 'https://nice-grass-018f7d910.azurestaticapps.net/remoteEntry.js',
           remoteName: 'angular1',
           exposedModule: './web-components',
-          elementName: 'angular1-element'
+          elementName: 'angular1-element',
+          props: { // optional if you like to provide some input to the webcomponent
+            testInput: 'testinput',
+          },
+          events: { // optional if you like to provide some events that gives a callback to the "shell"
+            click: (event: Event) => {
+              console.debug('clicked!', event);
+            },
+            testOutput: (event: CustomEvent) => {
+              console.log('I was emitted from the other angular component by this.myEventEmmiter.emit("hello")' + event.detail);
+            },
+          },
+          shadowDom: { // optional if you like that the loaded WebComponent is in a shadow dom
+            mode: 'open',
+          },
         } as WebComponentWrapperOptions
     },
     [...]
@@ -232,6 +246,8 @@ events = {
   [events]="events"
 ></mft-wc-wrapper>
 ```
+
+**Attention**: _item_ props and events are overwritten by the corresponding inputs on the wrapper!
 
 ## Some Additional Details
 
