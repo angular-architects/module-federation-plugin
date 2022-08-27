@@ -7,6 +7,8 @@ let inferVersion = false;
 
 export const DEFAULT_SKIP_LIST = [
   '@softarc/native-federation-runtime',
+  '@softarc/native-federation-core',
+  '@softarc/native-federation',
   '@angular-architects/module-federation',
   '@angular-architects/module-federation-runtime',
   'tslib',
