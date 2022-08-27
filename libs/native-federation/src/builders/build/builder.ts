@@ -30,11 +30,12 @@ export async function runBuilder(
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
     outputPath: options.outputPath,
+    federationConfig: infereConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose
   }
 
-  const config = await loadFederationConfigByConvention(fedOptions);
+  const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);
 
   options.externalDependencies = externals;
@@ -100,14 +101,9 @@ async function build(
   return output;
 }
 
-async function loadFederationConfigByConvention(fedOption: FederationOptions) {
-  const relProjectPath = path.dirname(fedOption.tsConfig);
-  const fullProjectPath = path.join(fedOption.workspaceRoot, relProjectPath);
-  const fullConfigPath = path.join(fullProjectPath, 'federation.config.js');
+function infereConfigPath(tsConfig: string): string {
+  const relProjectPath = path.dirname(tsConfig);
+  const relConfigPath = path.join(relProjectPath, 'federation.config.js');
 
-  if (!fs.existsSync(fullConfigPath)) {
-    throw new Error('Expected ' + fullConfigPath);
-  }
-
-  return await loadFederationConfig(fullConfigPath);
+  return relConfigPath;
 }
