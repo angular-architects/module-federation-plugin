@@ -1,12 +1,12 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { NormalizedFederationConfig } from '../config/federation-config';
-import { bundle } from './build-utils';
-import { getPackageInfo } from './package-info';
+import { bundle } from '../utils/build-utils';
+import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { SharedInfo } from '@angular-architects/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 import { DEFAULT_SKIP_LIST } from "./default-skip-list";
-import { copySrcMapIfExists } from './copy-src-map-if-exists';
+import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 
 export async function bundleShared(
   config: NormalizedFederationConfig,
@@ -17,7 +17,7 @@ export async function bundleShared(
   const packageInfos = Object.keys(config.shared)
     .filter(packageName => !DEFAULT_SKIP_LIST.has(packageName))
     .map(packageName => getPackageInfo(packageName, fedOptions.workspaceRoot))
-    .filter((pi) => !!pi);
+    .filter((pi) => !!pi) as PackageInfo[];
 
   for (const pi of packageInfos) {
 

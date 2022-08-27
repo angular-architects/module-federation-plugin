@@ -394,40 +394,7 @@
       "implicitDependencies": ["mfe2"]
     },
     "native-federation": "libs/native-federation",
-    "native-federation-core": {
-      "root": "libs/native-federation-core",
-      "sourceRoot": "libs/native-federation-core/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "outputs": ["{options.outputFile}"],
-          "options": {
-            "lintFilePatterns": ["libs/native-federation-core/**/*.ts"]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/native-federation-core"],
-          "options": {
-            "jestConfig": "libs/native-federation-core/jest.config.ts",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/js:tsc",
-          "outputs": ["{options.outputPath}"],
-          "options": {
-            "outputPath": "dist/libs/native-federation-core",
-            "tsConfig": "libs/native-federation-core/tsconfig.lib.json",
-            "packageJson": "libs/native-federation-core/package.json",
-            "main": "libs/native-federation-core/src/index.ts",
-            "assets": ["libs/native-federation-core/*.md"]
-          }
-        }
-      },
-      "tags": []
-    },
+    "native-federation-core": "libs/native-federation-core",
     "native-federation-e2e": "apps/native-federation-e2e",
     "native-federation-runtime": {
       "projectType": "library",

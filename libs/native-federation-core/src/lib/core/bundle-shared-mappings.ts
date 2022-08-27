@@ -1,9 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { NormalizedFederationConfig } from '../config/federation-config';
-import { bundle } from '../core/build-utils';
+import { bundle } from '../utils/build-utils';
 import { SharedInfo } from '@angular-architects/native-federation-runtime';
-import { hashFile } from '../core/hash-file';
+import { hashFile } from '../utils/hash-file';
 import { FederationOptions } from '../core/federation-options';
 
 export async function bundleSharedMappings(

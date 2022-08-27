@@ -1,4 +1,4 @@
-import { MappedPath } from "./mapped-paths";
+import { MappedPath } from "../utils/mapped-paths";
 
 let _buildAdapter: BuildAdapter = async () => {
     // TODO: add logger
@@ -8,7 +8,7 @@ let _buildAdapter: BuildAdapter = async () => {
 export interface BuildAdapterOptions
 {
     entryPoint: string;
-    tsConfigPath: string;
+    tsConfigPath?: string;
     external: Array<string>;
     outfile: string;
     mappedPaths: MappedPath[];

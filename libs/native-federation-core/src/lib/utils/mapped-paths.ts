@@ -15,7 +15,7 @@ export interface GetMappedPathsOptions {
 
 export function getMappedPaths({
   rootTsConfigPath,
-  sharedMappings = null,
+  sharedMappings,
   rootPath,
 }: GetMappedPathsOptions): Array<MappedPath> {
   const result: Array<MappedPath> = [];

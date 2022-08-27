@@ -7,6 +7,10 @@ export interface PackageInfo {
   version: string;
 }
 
+export interface PartialPackageJson {
+  module: string;
+}
+
 export function getPackageInfo(
   packageName: string,
   workspaceRoot: string,
@@ -67,14 +71,14 @@ export function getPackageInfo(
 
   const secondaryPgkPath = path.join(projectRoot, 'node_modules', packageName);
   const secondaryPgkJsonPath = path.join(secondaryPgkPath, 'package.json');
-  let secondaryPgkJson: unknown = null;
+  let secondaryPgkJson: PartialPackageJson | null = null;
   if (fs.existsSync(secondaryPgkJsonPath)) {
     secondaryPgkJson = readJson(secondaryPgkJsonPath);
   }
 
-  if (secondaryPgkJson && secondaryPgkJson['module']) {
+  if (secondaryPgkJson && secondaryPgkJson.module) {
     return {
-      entryPoint: path.join(secondaryPgkPath, secondaryPgkJson['module']),
+      entryPoint: path.join(secondaryPgkPath, secondaryPgkJson.module),
       packageName,
       version,
     };

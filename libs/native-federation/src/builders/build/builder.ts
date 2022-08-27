@@ -9,23 +9,16 @@ import { Schema } from '@angular-architects/build-angular/src/builders/browser-e
 import { ExecutionTransformer } from '@angular-architects/build-angular';
 import * as path from 'path';
 import * as fs from 'fs';
-import { NormalizedFederationConfig } from '../../config/federation-config';
+import { NormalizedFederationConfig } from '@softarc/native-federation';
 
-import {
-  FederationInfo,
-} from '@angular-architects/native-federation-runtime';
 import { BuildOptions } from 'esbuild';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
-import { FederationOptions } from '../../core/federation-options';
-import { setBuildAdapter } from '../../core/build-adapter';
+import { FederationOptions } from '@softarc/native-federation';
+import { setBuildAdapter } from '@softarc/native-federation';
 import { AngularEsBuildAdapter } from '../../utils/angular-esbuild-adapter';
-import { writeImportMap } from '../../core/write-import-map';
-import { writeFederationInfo } from '../../core/write-federation-info';
-import { bundleShared } from '../../core/bundle-shared';
-import { bundleSharedMappings } from '../../core/bundle-shared-mappings';
-import { bundleExposed } from '../../core/bundle-exposed';
-import { getExternals } from '../../core/get-externals';
-import { loadFederationConfig } from '../../core/load-federation-config';
+import { getExternals } from '@softarc/native-federation';
+import { loadFederationConfig } from '@softarc/native-federation';
+import { buildForFederation } from '@softarc/native-federation';
 
 export async function runBuilder(
   options: Schema,
@@ -55,34 +48,6 @@ export async function runBuilder(
 }
 
 export default createBuilder(runBuilder);
-
-async function buildForFederation(config: NormalizedFederationConfig, fedOptions: FederationOptions, externals: string[]) {
-  const exposedInfo = await bundleExposed(config, fedOptions, externals);
-
-  const sharedPackageInfo = await bundleShared(
-    config,
-    fedOptions,
-    externals
-  );
-
-  const sharedMappingInfo = await bundleSharedMappings(
-    config,
-    fedOptions,
-    externals
-  );
-
-  const sharedInfo = [...sharedPackageInfo, ...sharedMappingInfo];
-
-  const federationInfo: FederationInfo = {
-    name: config.name,
-    shared: sharedInfo,
-    exposes: exposedInfo,
-  };
-
-  writeFederationInfo(federationInfo, fedOptions);
-
-  writeImportMap(sharedInfo, fedOptions);
-}
 
 function updateIndexHtml(fedOptions: FederationOptions) {
   const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);

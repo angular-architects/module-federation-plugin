@@ -1,6 +1,6 @@
 import { Plugin, PluginBuild } from 'esbuild';
 import * as path from 'path';
-import { MappedPath } from '../core/mapped-paths';
+import { MappedPath } from '@softarc/native-federation';
 
 export function createSharedMappingsPlugin(mappedPaths: MappedPath[]): Plugin {
   return {

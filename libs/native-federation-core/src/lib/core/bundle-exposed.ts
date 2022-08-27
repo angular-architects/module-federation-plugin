@@ -1,9 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { NormalizedFederationConfig } from '../config/federation-config';
-import { bundle } from './build-utils';
+import { bundle } from '../utils/build-utils';
 import { ExposesInfo } from '@angular-architects/native-federation-runtime';
-import { hashFile } from './hash-file';
+import { hashFile } from '../utils/hash-file';
 import { FederationOptions } from './federation-options';
 
 export async function bundleExposed(
