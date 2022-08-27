@@ -11,45 +11,63 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { NormalizedFederationConfig } from '../../config/federation-config';
 
-import { bundle } from '../../utils/build-utils';
-import { getPackageInfo } from '../../utils/package-info';
 import {
-  SharedInfo,
-  ExposesInfo,
   FederationInfo,
 } from '@angular-architects/native-federation-runtime';
 import { BuildOptions } from 'esbuild';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
-import { hashFile } from '../../utils/hash-file';
-
-const DEFAULT_SKIP_LIST = new Set([
-  '@angular-architects/native-federation',
-  '@angular-architects/native-federation-runtime',
-  'es-module-shims',
-]);
+import { FederationOptions } from '../../core/federation-options';
+import { setBuildAdapter } from '../../core/build-adapter';
+import { AngularEsBuildAdapter } from '../../utils/angular-esbuild-adapter';
+import { writeImportMap } from '../../core/write-import-map';
+import { writeFederationInfo } from '../../core/write-federation-info';
+import { bundleShared } from '../../core/bundle-shared';
+import { bundleSharedMappings } from '../../core/bundle-shared-mappings';
+import { bundleExposed } from '../../core/bundle-exposed';
+import { getExternals } from '../../core/get-externals';
+import { loadFederationConfig } from '../../core/load-federation-config';
 
 export async function runBuilder(
   options: Schema,
   context: BuilderContext
 ): Promise<BuilderOutput> {
-  const config = await loadFederationConfig(options, context);
+
+  setBuildAdapter(AngularEsBuildAdapter);
+
+  const fedOptions: FederationOptions = {
+    workspaceRoot: context.workspaceRoot,
+    outputPath: options.outputPath,
+    tsConfig: options.tsConfig,
+    verbose: options.verbose
+  }
+
+  const config = await loadFederationConfigByConvention(fedOptions);
   const externals = getExternals(config);
 
   options.externalDependencies = externals;
-
   const output = await build(config, options, context);
 
-  const exposesInfo = await bundleExposed(config, options, externals);
+  await buildForFederation(config, fedOptions, externals);
+
+  updateIndexHtml(fedOptions);
+
+  return output;
+}
+
+export default createBuilder(runBuilder);
+
+async function buildForFederation(config: NormalizedFederationConfig, fedOptions: FederationOptions, externals: string[]) {
+  const exposedInfo = await bundleExposed(config, fedOptions, externals);
+
   const sharedPackageInfo = await bundleShared(
     config,
-    options,
-    context,
+    fedOptions,
     externals
   );
+
   const sharedMappingInfo = await bundleSharedMappings(
     config,
-    options,
-    context,
+    fedOptions,
     externals
   );
 
@@ -58,22 +76,16 @@ export async function runBuilder(
   const federationInfo: FederationInfo = {
     name: config.name,
     shared: sharedInfo,
-    exposes: exposesInfo,
+    exposes: exposedInfo,
   };
 
-  writeFederationInfo(federationInfo, context, options);
+  writeFederationInfo(federationInfo, fedOptions);
 
-  writeImportMap(sharedInfo, context, options);
-
-  updateIndexHtml(context, options);
-
-  return output;
+  writeImportMap(sharedInfo, fedOptions);
 }
 
-export default createBuilder(runBuilder);
-
-function updateIndexHtml(context: BuilderContext, options: Schema) {
-  const outputPath = path.join(context.workspaceRoot, options.outputPath);
+function updateIndexHtml(fedOptions: FederationOptions) {
+  const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
   const indexPath = path.join(outputPath, 'index.html');
   const mainName = fs
     .readdirSync(outputPath)
@@ -123,220 +135,14 @@ async function build(
   return output;
 }
 
-function writeImportMap(
-  sharedInfo: SharedInfo[],
-  context: BuilderContext,
-  options: Schema
-) {
-  const imports = sharedInfo.reduce((acc, cur) => {
-    return {
-      ...acc,
-      [cur.packageName]: cur.outFileName,
-    };
-  }, {});
-
-  const importMap = { imports };
-  const importMapPath = path.join(
-    context.workspaceRoot,
-    options.outputPath,
-    'importmap.json'
-  );
-  fs.writeFileSync(importMapPath, JSON.stringify(importMap, null, 2));
-}
-
-function writeFederationInfo(
-  federationInfo: FederationInfo,
-  context: BuilderContext,
-  options: Schema
-) {
-  const metaDataPath = path.join(
-    context.workspaceRoot,
-    options.outputPath,
-    'remoteEntry.json'
-  );
-  fs.writeFileSync(metaDataPath, JSON.stringify(federationInfo, null, 2));
-}
-
-async function bundleShared(
-  config: NormalizedFederationConfig,
-  options: Schema,
-  context: BuilderContext,
-  externals: string[]
-): Promise<Array<SharedInfo>> {
-  const result: Array<SharedInfo> = [];
-
-  const packageInfos = Object.keys(config.shared)
-    .filter(packageName => !DEFAULT_SKIP_LIST.has(packageName))
-    .map(packageName => getPackageInfo(packageName, context))
-    .filter((pi) => !!pi);
-
-  for (const pi of packageInfos) {
-    console.info('Bundling shared package', pi.packageName, '...');
-
-    const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
-    const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
-
-    const outFileName = `${encName}-${encVersion}.js`;
-
-    const cachePath = path.join(
-      context.workspaceRoot,
-      'node_modules/.cache/native-federation'
-    );
-
-    fs.mkdirSync(cachePath, { recursive: true });
-
-    const cachedFile = path.join(cachePath, outFileName);
-
-    if (!fs.existsSync(cachedFile)) {
-      await bundle({
-        entryPoint: pi.entryPoint,
-        tsConfigPath: options.tsConfig,
-        external: externals,
-        outfile: cachedFile,
-        mappedPaths: config.sharedMappings,
-        useSharedMappingPlugin: true,
-      });
-    }
-
-    const shared = config.shared[pi.packageName];
-
-    result.push({
-      packageName: pi.packageName,
-      outFileName: outFileName,
-      requiredVersion: shared.requiredVersion,
-      singleton: shared.singleton,
-      strictVersion: shared.strictVersion,
-      version: pi.version,
-    });
-
-    const fullOutputPath = path.join(
-      context.workspaceRoot,
-      options.outputPath,
-      outFileName
-    );
-    fs.copyFileSync(cachedFile, fullOutputPath);
-    copySrcMapIfExists(cachedFile, fullOutputPath);
-  }
-
-  return result;
-}
-
-function copySrcMapIfExists(cachedFile: string, fullOutputPath: string) {
-  const mapSrc = cachedFile + '.map';
-  const mapDest = fullOutputPath + '.map';
-
-  if (fs.existsSync(mapSrc)) {
-    fs.copyFileSync(mapSrc, mapDest);
-  }
-}
-
-async function bundleSharedMappings(
-  config: NormalizedFederationConfig,
-  options: Schema,
-  context: BuilderContext,
-  externals: string[]
-): Promise<Array<SharedInfo>> {
-  const result: Array<SharedInfo> = [];
-
-  for (const m of config.sharedMappings) {
-    const key = m.key.replace(/[^A-Za-z0-9]/g, '_');
-    const outFileName = key + '.js';
-    const outFilePath = path.join(options.outputPath, outFileName);
-
-    console.info('Bundling shared mapping', m.key, '...');
-
-    try {
-      await bundle({
-        entryPoint: m.path,
-        tsConfigPath: options.tsConfig,
-        external: externals,
-        outfile: outFilePath,
-        mappedPaths: config.sharedMappings,
-        useSharedMappingPlugin: false,
-      });
-
-      const hash = hashFile(outFilePath);
-      const hashedOutFileName = `${key}-${hash}.js`;
-      const hashedOutFilePath = path.join(
-        options.outputPath,
-        hashedOutFileName
-      );
-      fs.renameSync(outFilePath, hashedOutFilePath);
-
-      result.push({
-        packageName: m.key,
-        outFileName: hashedOutFileName,
-        requiredVersion: '',
-        singleton: true,
-        strictVersion: false,
-        version: '',
-      });
-    } catch (e) {
-      context.logger.error('Error bundling shared mapping ' + m.key);
-      context.logger.error(
-        `  >> If you don't need this mapping to shared, you can explicity configure the sharedMappings property in your federation.config.js`
-      );
-
-      if (options.verbose) {
-        console.error(e);
-      }
-    }
-  }
-
-  return result;
-}
-
-async function bundleExposed(
-  config: NormalizedFederationConfig,
-  options: Schema,
-  externals: string[]
-): Promise<Array<ExposesInfo>> {
-  const result: Array<ExposesInfo> = [];
-
-  for (const key in config.exposes) {
-    const outFileName = key + '.js';
-    const outFilePath = path.join(options.outputPath, outFileName);
-    const entryPoint = config.exposes[key];
-
-    console.info('Bundle exposed file', entryPoint, '...');
-
-    await bundle({
-      entryPoint,
-      tsConfigPath: options.tsConfig,
-      external: externals,
-      outfile: outFilePath,
-      mappedPaths: config.sharedMappings,
-      useSharedMappingPlugin: true,
-    });
-
-    const hash = hashFile(outFilePath);
-    const hashedOutFileName = `${key}-${hash}.js`;
-    const hashedOutFilePath = path.join(options.outputPath, hashedOutFileName);
-    fs.renameSync(outFilePath, hashedOutFilePath);
-
-    result.push({ key, outFileName: hashedOutFileName });
-  }
-  return result;
-}
-
-function getExternals(config: NormalizedFederationConfig) {
-  const shared = Object.keys(config.shared);
-  const sharedMappings = config.sharedMappings.map((m) => m.key);
-
-  const externals = [...shared, ...sharedMappings];
-
-  return externals.filter((p) => !DEFAULT_SKIP_LIST.has(p));
-}
-
-async function loadFederationConfig(options: Schema, context: BuilderContext) {
-  const relProjectPath = path.dirname(options.tsConfig);
-  const fullProjectPath = path.join(context.workspaceRoot, relProjectPath);
+async function loadFederationConfigByConvention(fedOption: FederationOptions) {
+  const relProjectPath = path.dirname(fedOption.tsConfig);
+  const fullProjectPath = path.join(fedOption.workspaceRoot, relProjectPath);
   const fullConfigPath = path.join(fullProjectPath, 'federation.config.js');
 
   if (!fs.existsSync(fullConfigPath)) {
     throw new Error('Expected ' + fullConfigPath);
   }
 
-  const config = (await import(fullConfigPath)) as NormalizedFederationConfig;
-  return config;
+  return await loadFederationConfig(fullConfigPath);
 }

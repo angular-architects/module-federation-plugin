@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { BuilderContext } from '@angular-devkit/architect';
 
 export interface PackageInfo {
   packageName: string;
@@ -10,16 +9,20 @@ export interface PackageInfo {
 
 export function getPackageInfo(
   packageName: string,
-  context: BuilderContext
+  workspaceRoot: string,
 ): PackageInfo | null {
-  const projectRoot = context.workspaceRoot;
+  const projectRoot = workspaceRoot;
   const mainPkgName = getPkgFolder(packageName);
 
   const mainPkgPath = path.join(projectRoot, 'node_modules', mainPkgName);
   const mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
 
   if (!fs.existsSync(mainPkgPath)) {
-    context.logger.warn('No package.json found for ' + packageName);
+    
+    // TODO: Add logger
+    // context.logger.warn('No package.json found for ' + packageName);
+    console.warn('No package.json found for ' + packageName);
+
     return null;
   }
 
@@ -28,7 +31,10 @@ export function getPackageInfo(
   const version = mainPkgJson['version'] as string;
 
   if (!version) {
-    context.logger.warn('No version found for ' + packageName);
+
+    // TODO: Add logger
+    // context.logger.warn('No version found for ' + packageName);
+    console.warn('No version found for ' + packageName);
 
     return null;
   }
@@ -92,8 +98,9 @@ export function getPackageInfo(
     };
   }
 
-  context.logger.warn('No esm-based entry point found for ' + packageName);
-  context.logger.warn(
+  // TODO: Add logger
+  console.warn('No esm-based entry point found for ' + packageName);
+  console.warn(
     '  >> Did you confuse dependencies with depDependencies in your package.json or your federation config?'
   );
 
