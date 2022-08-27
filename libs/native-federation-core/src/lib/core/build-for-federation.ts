@@ -1,5 +1,5 @@
 import { NormalizedFederationConfig } from '../config/federation-config';
-import { FederationInfo } from '@angular-architects/native-federation-runtime';
+import { FederationInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 import { writeImportMap } from './write-import-map';
 import { writeFederationInfo } from './write-federation-info';

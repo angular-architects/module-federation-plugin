@@ -25,13 +25,15 @@
       "@angular-architects/native-federation": [
         "libs/native-federation/src/index.ts"
       ],
-      "@angular-architects/native-federation-runtime": [
+      "@softarc/native-federation-runtime": [
         "libs/native-federation-runtime/src/index.ts"
       ],
       "@angular-architects/playground-lib": [
         "libs/playground-lib/src/index.ts"
       ],
-      "@softarc/native-federation": ["libs/native-federation-core/src/index.ts"]
+      "@softarc/native-federation": ["libs/native-federation-core/src/index.ts"],
+      "@softarc/native-federation/build": ["libs/native-federation-core/build.ts"]
+
     }
   },
   "exclude": ["node_modules", "tmp"]

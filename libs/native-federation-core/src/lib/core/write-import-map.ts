@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { SharedInfo } from '@angular-architects/native-federation-runtime';
+import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 
 export function writeImportMap(

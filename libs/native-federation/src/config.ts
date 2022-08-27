@@ -1,4 +1,4 @@
-export { withNativeFederation } from '@softarc/native-federation';
+export { withNativeFederation } from '@softarc/native-federation/build';
 export {
   findRootTsConfigJson,
   share,

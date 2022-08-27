@@ -9,16 +9,16 @@ import { Schema } from '@angular-architects/build-angular/src/builders/browser-e
 import { ExecutionTransformer } from '@angular-architects/build-angular';
 import * as path from 'path';
 import * as fs from 'fs';
-import { NormalizedFederationConfig } from '@softarc/native-federation';
+import { NormalizedFederationConfig } from '@softarc/native-federation/build';
 
 import { BuildOptions } from 'esbuild';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
-import { FederationOptions } from '@softarc/native-federation';
-import { setBuildAdapter } from '@softarc/native-federation';
+import { FederationOptions } from '@softarc/native-federation/build';
+import { setBuildAdapter } from '@softarc/native-federation/build';
 import { AngularEsBuildAdapter } from '../../utils/angular-esbuild-adapter';
-import { getExternals } from '@softarc/native-federation';
-import { loadFederationConfig } from '@softarc/native-federation';
-import { buildForFederation } from '@softarc/native-federation';
+import { getExternals } from '@softarc/native-federation/build';
+import { loadFederationConfig } from '@softarc/native-federation/build';
+import { buildForFederation } from '@softarc/native-federation/build';
 
 export async function runBuilder(
   options: Schema,

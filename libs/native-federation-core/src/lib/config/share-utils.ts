@@ -1,17 +1,10 @@
 import path = require('path');
 import fs = require('fs');
-import { SharedConfig } from './webpack.types';
 import { cwd } from 'process';
+import { SharedConfig } from './federation-config';
+import { DEFAULT_SKIP_LIST } from '../core/default-skip-list';
 
 let inferVersion = false;
-
-export const DEFAULT_SKIP_LIST = [
-  '@softarc/native-federation-runtime',
-  '@angular-architects/module-federation',
-  '@angular-architects/module-federation-runtime',
-  'tslib',
-  'zone.js',
-];
 
 export const DEFAULT_SECONARIES_SKIP_LIST = [
   '@angular/router/upgrade',
@@ -131,7 +124,7 @@ function getSecondaries(
   packagePath: string,
   key: string,
   shareObject: SharedConfig
-): Record<string, SharedConfig> {
+): Record<string, SharedConfig> | null {
   let exclude = [...DEFAULT_SECONARIES_SKIP_LIST];
 
   if (typeof includeSecondaries === 'object') {
@@ -168,7 +161,7 @@ function readConfiguredSecondaries(
   libPath: string,
   exclude: string[],
   shareObject: SharedConfig
-): Record<string, SharedConfig> {
+): Record<string, SharedConfig> | null {
   const libPackageJson = path.join(libPath, 'package.json');
 
   if (!fs.existsSync(libPackageJson)) {
@@ -214,9 +207,9 @@ function readConfiguredSecondaries(
 
 export function shareAll(
   config: CustomSharedConfig = {},
-  skip: string[] = DEFAULT_SKIP_LIST,
+  skip: string[] = [...DEFAULT_SKIP_LIST],
   packageJsonPath = ''
-): Config {
+): Config | null {
   if (!packageJsonPath) {
     packageJsonPath = cwd();
   }
@@ -224,7 +217,7 @@ export function shareAll(
   const packagePath = findPackageJson(packageJsonPath);
 
   const versions = readVersionMap(packagePath);
-  const share = {};
+  const share: any = {};
 
   for (const key in versions) {
     if (skip.includes(key)) {
@@ -249,12 +242,12 @@ export function share(shareObjects: Config, packageJsonPath = ''): Config {
   const packagePath = findPackageJson(packageJsonPath);
 
   const versions = readVersionMap(packagePath);
-  const result = {};
+  const result: any = {};
   let includeSecondaries;
 
   for (const key in shareObjects) {
     includeSecondaries = false;
-    const shareObject = shareObjects[key];
+    const shareObject = (shareObjects as any)[key];
 
     if (
       shareObject.requiredVersion === 'auto' ||
@@ -283,14 +276,16 @@ export function share(shareObjects: Config, packageJsonPath = ''): Config {
         key,
         shareObject
       );
-      addSecondaries(secondaries, result);
+      if (secondaries) {
+        addSecondaries(secondaries, result);
+      }
     }
   }
 
   return result;
 }
 
-function addSecondaries(secondaries: Record<string, SharedConfig>, result: {}) {
+function addSecondaries(secondaries: Record<string, SharedConfig>, result: any) {
   for (const key in secondaries) {
     result[key] = secondaries[key];
   }

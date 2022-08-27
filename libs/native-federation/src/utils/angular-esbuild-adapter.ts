@@ -1,4 +1,4 @@
-import { BuildAdapter } from '@softarc/native-federation';
+import { BuildAdapter } from '@softarc/native-federation/build';
 import * as esbuild from 'esbuild';
 import { createCompilerPlugin } from '@angular-devkit/build-angular/src/builders/browser-esbuild/compiler-plugin';
 import { createSharedMappingsPlugin } from './shared-mappings-plugin';

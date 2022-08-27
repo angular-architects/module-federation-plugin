@@ -1,1 +1,1 @@
-export * from '@angular-architects/native-federation-runtime';
+export * from '@softarc/native-federation-runtime';

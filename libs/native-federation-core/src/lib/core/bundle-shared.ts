@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { NormalizedFederationConfig } from '../config/federation-config';
 import { bundle } from '../utils/build-utils';
 import { getPackageInfo, PackageInfo } from '../utils/package-info';
-import { SharedInfo } from '@angular-architects/native-federation-runtime';
+import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 import { DEFAULT_SKIP_LIST } from "./default-skip-list";
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
