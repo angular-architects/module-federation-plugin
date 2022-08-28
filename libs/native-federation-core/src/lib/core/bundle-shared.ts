@@ -5,22 +5,22 @@ import { bundle } from '../utils/build-utils';
 import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
-import { DEFAULT_SKIP_LIST } from "./default-skip-list";
+import { DEFAULT_SKIP_LIST } from './default-skip-list';
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 
 export async function bundleShared(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
-  externals: string[]): Promise<Array<SharedInfo>> {
+  externals: string[]
+): Promise<Array<SharedInfo>> {
   const result: Array<SharedInfo> = [];
 
   const packageInfos = Object.keys(config.shared)
-    .filter(packageName => !DEFAULT_SKIP_LIST.has(packageName))
-    .map(packageName => getPackageInfo(packageName, fedOptions.workspaceRoot))
+    .filter((packageName) => !DEFAULT_SKIP_LIST.has(packageName))
+    .map((packageName) => getPackageInfo(packageName, fedOptions.workspaceRoot))
     .filter((pi) => !!pi) as PackageInfo[];
 
   for (const pi of packageInfos) {
-
     // TODO: add logger
     console.info('Bundling shared package', pi.packageName, '...');
 

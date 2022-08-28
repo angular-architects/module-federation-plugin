@@ -18,5 +18,4 @@
     "@angular-architects/build-angular": "^14.2.0-next.0",
     "@angular-architects/module-federation": "^14.0.0"
   }
-
 }

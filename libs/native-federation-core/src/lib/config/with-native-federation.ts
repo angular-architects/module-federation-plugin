@@ -42,7 +42,7 @@ function normalizeShared(
           singleton: shared[cur].singleton ?? false,
           strictVersion: shared[cur].strictVersion ?? false,
           version: shared[cur].version,
-          includeSecondaries: shared[cur].includeSecondaries
+          includeSecondaries: shared[cur].includeSecondaries,
         },
       }),
       {}

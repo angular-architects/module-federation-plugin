@@ -21,31 +21,30 @@ import {
 import * as path from 'path';
 
 type NormalizedOptions = {
-  polyfills: string; 
-  projectName: string; 
-  projectRoot: string; 
-  projectSourceRoot: string; 
-  manifestPath: string; 
-  projectConfig: any; 
+  polyfills: string;
+  projectName: string;
+  projectRoot: string;
+  projectSourceRoot: string;
+  manifestPath: string;
+  projectConfig: any;
   main: string;
-}
+};
 
 export default function config(options: MfSchematicSchema): Rule {
   return async function (tree, context) {
-
     const workspaceFileName = getWorkspaceFileName(tree);
     const workspace = JSON.parse(tree.read(workspaceFileName).toString('utf8'));
 
-    const { 
-      polyfills, 
-      projectName, 
-      projectRoot, 
-      projectSourceRoot, 
-      manifestPath, 
-      projectConfig, 
-      main 
+    const {
+      polyfills,
+      projectName,
+      projectRoot,
+      projectSourceRoot,
+      manifestPath,
+      projectConfig,
+      main,
     } = normalizeOptions(options, workspace);
-    
+
     updatePolyfills(tree, polyfills);
 
     const remoteMap = await generateRemoteMap(workspace, projectName);
@@ -61,12 +60,7 @@ export default function config(options: MfSchematicSchema): Rule {
       options
     );
 
-    updateWorkspaceConfig(
-      projectConfig, 
-      tree, 
-      workspaceFileName, 
-      workspace
-    );
+    updateWorkspaceConfig(projectConfig, tree, workspaceFileName, workspace);
 
     addPackageJsonDependency(tree, {
       name: 'es-module-shims',
@@ -77,28 +71,29 @@ export default function config(options: MfSchematicSchema): Rule {
 
     context.addTask(new NodePackageInstallTask());
 
-    return chain([
-      generateRule,
-      makeMainAsync(main, options, remoteMap),
-    ]);
+    return chain([generateRule, makeMainAsync(main, options, remoteMap)]);
   };
 }
 
-function updateWorkspaceConfig(projectConfig: any, tree, workspaceFileName: string, workspace: any) {
+function updateWorkspaceConfig(
+  projectConfig: any,
+  tree,
+  workspaceFileName: string,
+  workspace: any
+) {
   if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
     throw new Error(
       `The project doen't have a build or serve target in angular.json!`
     );
   }
 
-  // TODO: When adding a builder for serve, we 
+  // TODO: When adding a builder for serve, we
   //  should set the port
   // const port = parseInt(options.port);
 
   // if (isNaN(port)) {
   //   throw new Error(`Port must be a number!`);
   // }
-
 
   if (!projectConfig.architect.build.options) {
     projectConfig.architect.build.options = {};
@@ -108,14 +103,18 @@ function updateWorkspaceConfig(projectConfig: any, tree, workspaceFileName: stri
     projectConfig.architect.serve.options = {};
   }
 
-  projectConfig.architect.build.builder = '@angular-architects/native-federation:build';
+  projectConfig.architect.build.builder =
+    '@angular-architects/native-federation:build';
 
   // projectConfig.architect.serve.builder = serveBuilder;
   // TODO: Register further builders when ready
   tree.overwrite(workspaceFileName, JSON.stringify(workspace, null, '\t'));
 }
 
-function normalizeOptions(options: MfSchematicSchema, workspace: any): NormalizedOptions {
+function normalizeOptions(
+  options: MfSchematicSchema,
+  workspace: any
+): NormalizedOptions {
   if (!options.project) {
     options.project = workspace.defaultProject;
   }
@@ -145,7 +144,15 @@ function normalizeOptions(options: MfSchematicSchema, workspace: any): Normalize
 
   const main = projectConfig.architect.build.options.main;
   const polyfills = projectConfig.architect.build.options.polyfills;
-  return { polyfills, projectName, projectRoot, projectSourceRoot, manifestPath, projectConfig, main };
+  return {
+    polyfills,
+    projectName,
+    projectRoot,
+    projectSourceRoot,
+    manifestPath,
+    projectConfig,
+    main,
+  };
 }
 
 function updatePolyfills(tree, polyfills: any) {
@@ -170,7 +177,9 @@ function generateRemoteMap(workspace: any, projectName: string) {
       project?.architect?.build
     ) {
       const pPort = project.architect.serve.options?.port ?? 4200;
-      result[strings.camelize(p)] = `http://localhost:${pPort}/remoteEntry.json`;
+      result[
+        strings.camelize(p)
+      ] = `http://localhost:${pPort}/remoteEntry.json`;
     }
   }
 
@@ -181,7 +190,11 @@ function generateRemoteMap(workspace: any, projectName: string) {
   return result;
 }
 
-function makeMainAsync(main: string, options: MfSchematicSchema, remoteMap: unknown): Rule {
+function makeMainAsync(
+  main: string,
+  options: MfSchematicSchema,
+  remoteMap: unknown
+): Rule {
   return async function (tree, context) {
     const mainPath = path.dirname(main);
     const bootstrapName = path.join(mainPath, 'bootstrap.ts');
@@ -204,7 +217,7 @@ initFederation('/assets/federation.manifest.json')
   .catch(err => console.error(err));
 `;
     } else if (options.type === 'host') {
-      const manifest = JSON.stringify(remoteMap, null, 2).replace(/"/g, '\'');
+      const manifest = JSON.stringify(remoteMap, null, 2).replace(/"/g, "'");
       newMainContent = `import { initFederation } from '@angular-architects/native-federation';
 
 initFederation(${manifest})
@@ -212,9 +225,7 @@ initFederation(${manifest})
   .then(_ => import('./bootstrap'))
   .catch(err => console.error(err));
 `;
-
-    }
-    else {
+    } else {
       newMainContent = `import { initFederation } from '@angular-architects/native-federation';
 
 initFederation()
@@ -222,7 +233,6 @@ initFederation()
   .then(_ => import('./bootstrap'))
   .catch(err => console.error(err));
 `;
-
     }
 
     tree.overwrite(main, newMainContent);

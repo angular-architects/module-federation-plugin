@@ -13,7 +13,7 @@ export interface PartialPackageJson {
 
 export function getPackageInfo(
   packageName: string,
-  workspaceRoot: string,
+  workspaceRoot: string
 ): PackageInfo | null {
   const projectRoot = workspaceRoot;
   const mainPkgName = getPkgFolder(packageName);
@@ -22,7 +22,6 @@ export function getPackageInfo(
   const mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
 
   if (!fs.existsSync(mainPkgPath)) {
-    
     // TODO: Add logger
     // context.logger.warn('No package.json found for ' + packageName);
     console.warn('No package.json found for ' + packageName);
@@ -35,7 +34,6 @@ export function getPackageInfo(
   const version = mainPkgJson['version'] as string;
 
   if (!version) {
-
     // TODO: Add logger
     // context.logger.warn('No version found for ' + packageName);
     console.warn('No version found for ' + packageName);

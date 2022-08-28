@@ -24,7 +24,6 @@ export async function runBuilder(
   options: Schema,
   context: BuilderContext
 ): Promise<BuilderOutput> {
-
   setBuildAdapter(AngularEsBuildAdapter);
 
   const fedOptions: FederationOptions = {
@@ -32,8 +31,8 @@ export async function runBuilder(
     outputPath: options.outputPath,
     federationConfig: infereConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
-    verbose: options.verbose
-  }
+    verbose: options.verbose,
+  };
 
   const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);

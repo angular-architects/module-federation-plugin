@@ -4,21 +4,21 @@ Native Federation is a "browser-native" implementation of the successful mental 
 
 ## Features
 
-- ✅ Mental Model of Module Federation 
+- ✅ Mental Model of Module Federation
 - ✅ Future Proof: Independent of build tools like webpack
 - ✅ Embraces Import Maps - an emerging web standard
 - ✅ Easy to configure: We use the same API and Schematics as for our Module Federation plugin
-- ✅ Blazing Fast: The reference implementation not only uses the fast esbuild; it also caches already built shared dependencies (like Angular itself). 
+- ✅ Blazing Fast: The reference implementation not only uses the fast esbuild; it also caches already built shared dependencies (like Angular itself).
 
 ## Today and Tomorrow
 
 ### Bundler
 
-The current version uses **esbuild**. Future versions will allow to easily **switch out the build tool**. 
+The current version uses **esbuild**. Future versions will allow to easily **switch out the build tool**.
 
 ### Frameworks
 
-**Angular** is a first-class citizen: The package ships with **Schematics** for the Angular CLI and a **builder** (that delegates to the experimental esbuild builder the CLI team is current working on). Future versions will also make it easy to use the implementation **with other frameworks**. 
+**Angular** is a first-class citizen: The package ships with **Schematics** for the Angular CLI and a **builder** (that delegates to the experimental esbuild builder the CLI team is current working on). Future versions will also make it easy to use the implementation **with other frameworks**.
 
 ### Design
 
@@ -31,7 +31,6 @@ This is a first experimental version. The results look very promising, however i
 Limitations:
 
 - 🔷 As we use a fork of the experimental esbuild builder the CLI team is current working on, there is currently **only a builder for ng build**. ng serve or ng test are currently not supported. This support will be added with a future version. Also, as the forked esbuile builder is still experimental, you cannot expect to get all the features you are used to. This will also change over time.
-  
 - 🔷 Libraries are currently only shared if two or more remotes (Micro Frontends) request the very same version. This is also what works best with Angular. In a future version, we will add optional "version negotiation" for the sake of feature parity with Module Federation. This allows Native Federation to decide for a "higher compatible version" (e. g. a higher minor version provided by another Micro Frontend) at runtime.
 
 ## Credits
@@ -64,7 +63,7 @@ npm start
 
 Then, open http://localhost:3000 in your browser.
 
-Please note, that the current **experimental** version does **not** support ``ng serve``. Hence, you need to build it and serve it from the ``dist`` folder (this is what npm run build && npm run start in the above shown example do).
+Please note, that the current **experimental** version does **not** support `ng serve`. Hence, you need to build it and serve it from the `dist` folder (this is what npm run build && npm run start in the above shown example do).
 
 ## Usage
 
@@ -82,7 +81,7 @@ Making an application a host:
 ng g @angular-architects/native-federation:init --project shell --type host
 ```
 
-A dynamic host is a host reading the configuration data at runtime from a ``.json`` file:
+A dynamic host is a host reading the configuration data at runtime from a `.json` file:
 
 ```
 ng g @angular-architects/native-federation:init --project shell --type dynamic-host
@@ -101,14 +100,19 @@ The host configuration looks like what you know from our Module Federation plugi
 ```javascript
 // projects/shell/federation.config.js
 
-const { withNativeFederation, shareAll } = require('@angular-architects/native-federation/config');
+const {
+  withNativeFederation,
+  shareAll,
+} = require('@angular-architects/native-federation/config');
 
 module.exports = withNativeFederation({
-
   shared: {
-    ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+    ...shareAll({
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+    }),
   },
-
 });
 ```
 
@@ -119,10 +123,12 @@ Also the remote configuration looks familiar:
 ```javascript
 // projects/mfe1/federation.config.js
 
-const { withNativeFederation, shareAll } = require('@angular-architects/native-federation/config');
+const {
+  withNativeFederation,
+  shareAll,
+} = require('@angular-architects/native-federation/config');
 
 module.exports = withNativeFederation({
-
   name: 'mfe1',
 
   exposes: {
@@ -130,15 +136,18 @@ module.exports = withNativeFederation({
   },
 
   shared: {
-    ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+    ...shareAll({
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+    }),
   },
-
 });
 ```
 
 ### Initializing the Host
 
-Call ``initFederation`` before bootstrapping your ``main.ts``:
+Call `initFederation` before bootstrapping your `main.ts`:
 
 ```typescript
 // projects/shell/src/main.ts
@@ -146,18 +155,18 @@ Call ``initFederation`` before bootstrapping your ``main.ts``:
 import { initFederation } from '@angular-architects/native-federation';
 
 initFederation({
-	mfe1: 'http://localhost:3001/remoteEntry.json'
+  mfe1: 'http://localhost:3001/remoteEntry.json',
 })
-  .catch(err => console.error(err))
-  .then(_ => import('./bootstrap'))
-  .catch(err => console.error(err));
+  .catch((err) => console.error(err))
+  .then((_) => import('./bootstrap'))
+  .catch((err) => console.error(err));
 ```
 
-> Our ``init`` schematic shown above generates all of this if you pass ``--type host``.
+> Our `init` schematic shown above generates all of this if you pass `--type host`.
 
-You can directly pass a mapping between remote names and their ``remoteEntry.json``. The ``remoteEntry.json`` contains the necessary metadata. It is generated when compiling the remote.
+You can directly pass a mapping between remote names and their `remoteEntry.json`. The `remoteEntry.json` contains the necessary metadata. It is generated when compiling the remote.
 
-Please note that in Native Federation, the remote entry is just a ``.json`` file while its a ``.js`` file in Module Federation.
+Please note that in Native Federation, the remote entry is just a `.json` file while its a `.js` file in Module Federation.
 
 However, you don't need to hardcode this mapping. Feel free to point to the file name of a federation manifest:
 
@@ -167,14 +176,14 @@ However, you don't need to hardcode this mapping. Feel free to point to the file
 import { initFederation } from '@angular-architects/native-federation';
 
 initFederation('/assets/federation.manifest.json')
-  .catch(err => console.error(err))
-  .then(_ => import('./bootstrap'))
-  .catch(err => console.error(err));
+  .catch((err) => console.error(err))
+  .then((_) => import('./bootstrap'))
+  .catch((err) => console.error(err));
 ```
 
 This manifest can be exchanged when deploying the solution. Hence, you can adopt the solution to the current environment.
 
-> Our ``init`` schematic shown above generates this variation if you pass ``--type dynamic-host``.
+> Our `init` schematic shown above generates this variation if you pass `--type dynamic-host`.
 
 Credits: The Nx team originally came up with the idea for the manifest.
 
@@ -182,26 +191,26 @@ This is what the (also generated) federation manifest looks like:
 
 ```json
 {
-	"mfe1": "http://localhost:3001/remoteEntry.json"
+  "mfe1": "http://localhost:3001/remoteEntry.json"
 }
 ```
 
 ### Initializing the Remote
 
-Also, the remote needs to be initialized. If a remote doesn't load further remotes, you don't need to pass any mappings to ``initFederation``:
+Also, the remote needs to be initialized. If a remote doesn't load further remotes, you don't need to pass any mappings to `initFederation`:
 
 ```typescript
 import { initFederation } from '@angular-architects/native-federation';
 
 initFederation()
-  .catch(err => console.error(err))
-  .then(_ => import('./bootstrap'))
-  .catch(err => console.error(err));
+  .catch((err) => console.error(err))
+  .then((_) => import('./bootstrap'))
+  .catch((err) => console.error(err));
 ```
 
 ### Loading a Remote
 
-Use the helper function ``loadRemoteModule`` to load a configured remote:
+Use the helper function `loadRemoteModule` to load a configured remote:
 
 ```typescript
 import { loadRemoteModule } from '@angular-architects/native-federation';
@@ -222,9 +231,9 @@ export const APP_ROUTES: Routes = [
 }
 ```
 
-This can be used with and without routing; with ``NgModule``s but also with **standalone** building blocks. Just use it instead of dynamic imports.
+This can be used with and without routing; with `NgModule`s but also with **standalone** building blocks. Just use it instead of dynamic imports.
 
-For the sake of compatibility with our Module Federation API, you can also use the ``remoteEntry`` to identify the remote in question:
+For the sake of compatibility with our Module Federation API, you can also use the `remoteEntry` to identify the remote in question:
 
 ```typescript
 import { loadRemoteModule } from '@angular-architects/native-federation';
@@ -246,8 +255,7 @@ export const APP_ROUTES: Routes = [
 }
 ```
 
-However, we prefer the first option where just the ``remoteName`` is passed.
-
+However, we prefer the first option where just the `remoteName` is passed.
 
 ## FAQ
 
@@ -259,8 +267,7 @@ We will evolve Native Federation but also our Module Federation support and keep
 
 ### How does Native Federation Work under the Covers?
 
-We use Import Maps at runtime. As they are currently not supported in every browser, our ``init`` schematic installs the ``es-module-shims`` polyfill. In addition to Import Maps, we use some code at build time and at runtime to provide the Mental Model of Module Federation.
-
+We use Import Maps at runtime. As they are currently not supported in every browser, our `init` schematic installs the `es-module-shims` polyfill. In addition to Import Maps, we use some code at build time and at runtime to provide the Mental Model of Module Federation.
 
 ## More: Blog Articles
 

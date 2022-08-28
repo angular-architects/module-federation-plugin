@@ -9,7 +9,8 @@ import { FederationOptions } from './federation-options';
 export async function bundleExposed(
   config: NormalizedFederationConfig,
   options: FederationOptions,
-  externals: string[]): Promise<Array<ExposesInfo>> {
+  externals: string[]
+): Promise<Array<ExposesInfo>> {
   const result: Array<ExposesInfo> = [];
 
   for (const key in config.exposes) {

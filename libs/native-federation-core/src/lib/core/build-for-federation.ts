@@ -7,14 +7,14 @@ import { bundleShared } from './bundle-shared';
 import { bundleSharedMappings } from './bundle-shared-mappings';
 import { bundleExposed } from './bundle-exposed';
 
-export async function buildForFederation(config: NormalizedFederationConfig, fedOptions: FederationOptions, externals: string[]) {
+export async function buildForFederation(
+  config: NormalizedFederationConfig,
+  fedOptions: FederationOptions,
+  externals: string[]
+) {
   const exposedInfo = await bundleExposed(config, fedOptions, externals);
 
-  const sharedPackageInfo = await bundleShared(
-    config,
-    fedOptions,
-    externals
-  );
+  const sharedPackageInfo = await bundleShared(config, fedOptions, externals);
 
   const sharedMappingInfo = await bundleSharedMappings(
     config,

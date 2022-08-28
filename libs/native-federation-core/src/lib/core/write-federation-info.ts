@@ -5,7 +5,8 @@ import { FederationOptions } from './federation-options';
 
 export function writeFederationInfo(
   federationInfo: FederationInfo,
-  fedOptions: FederationOptions) {
+  fedOptions: FederationOptions
+) {
   const metaDataPath = path.join(
     fedOptions.workspaceRoot,
     fedOptions.outputPath,

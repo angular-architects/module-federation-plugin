@@ -1,4 +1,4 @@
 {
-	"mfe1": "http://localhost:4200/remoteEntry.json",
-	"playground": "http://localhost:4200/remoteEntry.json"
+  "mfe1": "http://localhost:4200/remoteEntry.json",
+  "playground": "http://localhost:4200/remoteEntry.json"
 }
