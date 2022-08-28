@@ -1,12 +1,12 @@
 # @softarc/native-federation
 
-Native Federation is a "browser-native"  implementation of the successful mental model behind wepback Module Federation for building Micro Frontends. It can be **used with any framework and build tool** for implementing **Micro Frontends** and plugin-based architectures.
+Native Federation is a "browser-native"  implementation of the successful mental model behind wepback Module Federation for building Micro Frontends and plugin-based solutions. It can be **used with any framework and build tool** for implementing **Micro Frontends** and plugin-based architectures.
 
 ## Features
 
 - ✅ Mental Model of Module Federation
 - ✅ Future Proof: Independent of build tools like webpack and frameworks
-- ✅ Embraces Import Maps - an emerging browser technology
+- ✅ Embraces Import Maps -- an emerging browser technology -- and EcmaScript modules
 - ✅ Easy to configure
 - ✅ Blazing Fast: The reference implementation not only uses the fast esbuild; it also caches already built shared dependencies (like Angular itself). However, as mentioned above, feel free to use it with any other build tool.
 
@@ -21,6 +21,17 @@ While this core library can be used with any framework and build tool, there is 
 > Please find the [Angular-based version here](https://www.npmjs.com/package/@angular-architects/native-federation).
 
 Also, other higher level abstractions on top of this core library are possible. 
+
+## About the Mental Model
+
+The underlying mental model allows for runtime integration: Loading a part of a separately built and deployed application into your's. This is needed for Micro Frontend architectures but also for plugin-based solutions.
+
+For this, the mental model introduces several concepts:
+
+- **Remote:** The remote is a separately built and deployed application. It can **expose EcmaScript** modules that can be loaded into other applications.
+- **Host:** The host loads one or several remotes on demand. For your framework's perspective, this looks like traditional lazy loading. The big difference is that the host doesn't know the remotes at compilation time.
+- **Shared Dependencies:** If a several remotes and the host use the same library, you might not want to download it several times. Instead, you might want to just download it once and share it at runtime. For this use case, the mental model allows for defining such shared dependencies.
+- **Version Mismatch:** If two or more applications use a different version of the same shared library, we need to prevent a version mismatch. To deal with it, the mental model defines several strategies, like falling back to another version that fits the application, using a different compatible one (according to semantic versioning) or throwing an error.
 
 ## Example 
 
@@ -77,13 +88,13 @@ await federationBuilder.init({
 });
 
 /*
-    *  Step 2: Trigger your build process
-    *
-    *   You can use any tool for this. 
-    *   Here, we go with a very simple esbuild-based build.
-    * 
-    *  Just respect the externals in 
-    *  `federationBuilder.externals`.
+  * Step 2: Trigger your build process
+  *
+  * You can use any tool for this. Here, we go 
+  * with a very simple esbuild-based build.
+  * 
+  * Just respect the externals in 
+  * `federationBuilder.externals`.
 */
 
 [...]
@@ -97,8 +108,8 @@ await esbuild.build({
 [...]
 
 /*
-    *  Step 3: Let the build method do the additional tasks
-    *       for supporting Native Federation
+  * Step 3: Let the build method do the additional tasks
+  *   for supporting Native Federation
 */
 
 await federationBuilder.build();
@@ -158,11 +169,11 @@ module.exports = withNativeFederation({
 });
 ```
 
-The API for configuring and using Native Federation is very similar to the one provided by our Module Federation plugin @angular-architects/module-federation. Hence, most the articles on it are also valid for Native Federation.
+The API for configuring and using Native Federation is very similar to the one provided by our Module Federation plugin [@angular-architects/module-federation](https://www.npmjs.com/package/@angular-architects/native-federation). Hence, most the articles on it are also valid for Native Federation.
 
 ### Sharing
 
-The ``shareAll``-helper used here shares all dependencies found in your ``package.json`` at runtime. Hence, they only need to loaded once (instead of once per remote and host). If you don't want to share them all, you can opt-out of sharing by using the ``skip`` option:
+The ``shareAll``-helper used here shares all dependencies found in your ``package.json``. Hence, they only need to be loaded once (instead of once per remote and host). If you don't want to share all of them, you can opt-out of sharing by using the ``skip`` option:
 
 ```typescript
 module.exports = withNativeFederation({
@@ -177,7 +188,9 @@ module.exports = withNativeFederation({
 }
 ```
 
-Also pahts, mapped in your ``tsconfig.json`` are shared by default. They are treaded like libraries:
+### Sharing Mapped Paths (Monorepo-internal Libraries)
+
+Paths mapped in your ``tsconfig.json`` are shared by default too. While they are part of your (mono) repository, they are treaded like libraries:
 
 ```json
 {
@@ -192,11 +205,11 @@ Also pahts, mapped in your ``tsconfig.json`` are shared by default. They are tre
 }
 ```
 
-If you don't want to share (all of) the, put their names into the skip array (see above).
+If you don't want to share (all of) them, put their names into the skip array (see above).
 
 ### Configuring Remotes
 
-When configuring a remote, you can also expose files that can be loaded into the shell at runtime:
+When configuring a remote, you can expose files that can be loaded into the shell at runtime:
 
 ```javascript
 const {
@@ -225,7 +238,7 @@ module.exports = withNativeFederation({
 
 ### Initializing a Host
 
-On startup, call the ``initFederation`` method. It takes a mapping between the names of remotes and their ``remoteEntry.json``. This is a file containing meta data. It's automatically generated by the augmented build process (see above).
+On startup, call the ``initFederation`` method. It takes a mapping between the names of remotes and their ``remoteEntry.json``. This is a file containing meta data generated by the augmented build process (see above).
 
 ```typescript
 import { initFederation } from '@softarc/native-federation';
@@ -255,7 +268,7 @@ import { initFederation } from '@softarc/native-federation';
 })();
 ```
 
-Following the idea of our friends at Nrwl, we call such a file a manifest:
+Following the ideas of our friends at [Nrwl](https://nrwl.io), we call such a file a manifest:
 
 ```json
 {
@@ -267,7 +280,7 @@ Manifests allow to adjust your application to different environments without any
 
 ## Initializing a Remote
 
-Also for initializing a remote, call ``initFederation``. If you don't plan to load further remotes into your remote, you don't need to pass any data to ``initFederation``:
+For initializing a remote, also call ``initFederation``. If you don't plan to load further remotes into your remote, you don't need to pass any parameters:
 
 ```typescript
 import { initFederation } from '@softarc/native-federation';
@@ -291,7 +304,7 @@ const module = await loadRemoteModule({
 });
 ```
 
-If you know the type of the loaded module (perhaps you have a shared interface), than you can use it as a type parameter:
+If you know the type of the loaded module (perhaps you have a shared interface), you can use it as a type parameter:
 
 ```typescript
 const module = await loadRemoteModule<MyRemoteType>({
@@ -299,3 +312,33 @@ const module = await loadRemoteModule<MyRemoteType>({
     exposedModule: './component'
 });
 ```
+
+### Polyfill
+
+This library uses Import Maps. As currently not all browsers support this emerging browser feature, we need a polyfill. We recommend the polyfill ``es-module-shims`` which has been developed for production use cases:
+
+```html
+<script type="esms-options">
+    {
+        "shimMode": true
+    }
+</script>
+
+<script src="https://ga.jspm.io/npm:es-module-shims@1.5.17/dist/es-module-shims.js"></script>
+
+<script type="module-shim" src="main.js"></script>
+```
+
+The script with the type ``esms-options`` configures the polyfill. This library was built for shim mode. In this mode, the polyfill provides some additional features beyond the proposal for Import Maps. These features, for instance, allow for dynamically creating an import map after loading a first EcmaScript module. Native Federation uses this possibility.
+
+To make the polyfill to load your EcmaScript modules (bundles) in shim mode, assign the type ``module-shim``.
+
+## More: Blog Articles
+
+Find out more about our work including Micro Frontends and Module Federation but also about alternatives to these approaches in our [blog](https://www.angulararchitects.io/en/aktuelles/the-microfrontend-revolution-part-2-module-federation-with-angular/).
+
+## More: Angular Architecture Workshop (100% online, interactive)
+
+In our [Angular Architecture Workshop](https://www.angulararchitects.io/en/angular-workshops/advanced-angular-enterprise-architecture-incl-ivy/), we cover all these topics and far more. We provide different options and alternatives and show up their consequences.
+
+[Details: Angular Architecture Workshop](https://www.angulararchitects.io/en/angular-workshops/advanced-angular-enterprise-architecture-incl-ivy/)

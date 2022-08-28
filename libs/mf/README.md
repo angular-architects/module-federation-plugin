@@ -89,7 +89,7 @@ A dynamic host reads the micro frontend's URLs from a configuration file at runt
 
 ## Getting Started 🧪
 
-Please find here a [tutorial](https://github.com/angular-architects/module-federation-plugin/blob/12.0.0/libs/mf/tutorial/tutorial.md) that shows how to use this plugin.
+Please find here a [tutorial](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/mf/tutorial/tutorial.md) that shows how to use this plugin.
 
 ![Microfrontend Loaded into Shell](https://github.com/angular-architects/module-federation-plugin/raw/main/libs/mf/tutorial/result.png)
 

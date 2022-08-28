@@ -6,11 +6,11 @@ This tutorial shows how to use Webpack Module Federation together with the Angul
 
 **Important**: This tutorial is written for Angular and **Angular CLI 14** and higher. To find out about the small differences for lower versions of Angular and for the migration from such a lower version, please have a look to our [migration guide](https://github.com/angular-architects/module-federation-plugin/blob/main/migration-guide.md).
 
-## Part 1: Clone and Inspect the Starterkit
+## Part 1: Clone and Inspect the Starter Kit
 
-In this part you will clone the starterkit and inspect its projects.
+In this part you will clone the starter kit and inspect its projects.
 
-1. Clone the starterkit for this tutorial:
+1. Clone the starter kit for this tutorial:
 
    ```
    git clone https://github.com/manfredsteyer/module-federation-plugin-example.git --branch starter

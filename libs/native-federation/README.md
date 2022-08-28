@@ -66,6 +66,17 @@ Then, open http://localhost:3000 in your browser.
 
 Please note, that the current **experimental** version does **not** support `ng serve`. Hence, you need to build it and serve it from the `dist` folder (this is what npm run build && npm run start in the above shown example do).
 
+## About the Mental Model
+
+The underlying mental model allows for runtime integration: Loading a part of a separately built and deployed application into your's. This is needed for Micro Frontend architectures but also for plugin-based solutions.
+
+For this, the mental model introduces several concepts:
+
+- **Remote:** The remote is a separately built and deployed application. It can **expose EcmaScript** modules that can be loaded into other applications.
+- **Host:** The host loads one or several remotes on demand. For your framework's perspective, this looks like traditional lazy loading. The big difference is that the host doesn't know the remotes at compilation time.
+- **Shared Dependencies:** If a several remotes and the host use the same library, you might not want to download it several times. Instead, you might want to just download it once and share it at runtime. For this use case, the mental model allows for defining such shared dependencies.
+- **Version Mismatch:** If two or more applications use a different version of the same shared library, we need to prevent a version mismatch. To deal with it, the mental model defines several strategies, like falling back to another version that fits the application, using a different compatible one (according to semantic versioning) or throwing an error.
+
 ## Usage
 
 > You can checkout the [nf-starter branch](https://github.com/manfredsteyer/module-federation-plugin-example/tree/nf-solution) to try out Native Federation.
@@ -258,6 +269,28 @@ export const APP_ROUTES: Routes = [
 
 However, we prefer the first option where just the `remoteName` is passed.
 
+### Polyfill
+
+This library uses Import Maps. As of today, not all browsers support this emerging browser feature, we need a polyfill. We recommend the polyfill ``es-module-shims`` which has been developed for production use cases. Our schematics install it via npm and add it to your ``polyfills.ts``.
+
+Also, the schematics add the following to your ``index.html``:
+
+```html
+<script type="esms-options">
+    {
+        "shimMode": true
+    }
+</script>
+
+<script type="module" src="polyfills.js"></script>
+
+<script type="module-shim" src="main.js"></script>
+```
+
+The script with the type ``esms-options`` configures the polyfill. This library was built for shim mode. In this mode, the polyfill provides some additional features beyond the proposal for Import Maps. These features, for instance, allow for dynamically creating an import map after loading the first EcmaScript module. Native Federation uses this possibility.
+
+To make the polyfill to load your EcmaScript modules (bundles) in shim mode, assign the type ``module-shim``. However, please just use module for the polyfill bundle itself to prevent an hen/egg-issue.
+
 ## FAQ
 
 ### Should we Already use Native Federation in Production?
@@ -269,6 +302,7 @@ We will evolve Native Federation but also our Module Federation support and keep
 ### How does Native Federation Work under the Covers?
 
 We use Import Maps at runtime. As they are currently not supported in every browser, our `init` schematic installs the `es-module-shims` polyfill. In addition to Import Maps, we use some code at build time and at runtime to provide the Mental Model of Module Federation.
+
 
 ## More: Blog Articles
 
