@@ -16,7 +16,7 @@ This library allows to augment your build process, to configure hosts (Micro Fro
 
 While this core library can be used with any framework and build tool, there is a higher level API on top of it. It hooks into the Angular CLI and provides a builder and schematics:
 
-![Stack](stack.png)
+![Stack](https://github.com/angular-architects/module-federation-plugin/raw/main/libs/native-federation-core/stack.png)
 
 > Please find the [Angular-based version here](https://www.npmjs.com/package/@angular-architects/native-federation).
 
