@@ -9,7 +9,8 @@ import { FederationOptions } from '../core/federation-options';
 export async function bundleSharedMappings(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
-  externals: string[]): Promise<Array<SharedInfo>> {
+  externals: string[]
+): Promise<Array<SharedInfo>> {
   const result: Array<SharedInfo> = [];
 
   for (const m of config.sharedMappings) {
@@ -45,7 +46,6 @@ export async function bundleSharedMappings(
         version: '',
       });
     } catch (e) {
-
       // TODO: add logger
       console.error('Error bundling shared mapping ' + m.key);
       console.error(

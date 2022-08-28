@@ -1,11 +1,7 @@
-# native-federation-core
+# @softarc/native-federation
 
-This library was generated with [Nx](https://nx.dev).
+This is the **framework- and bundler-agnostic** foundation for Native Federation.
 
-## Building
+Please find here an [example project](https://github.com/manfredsteyer/native-federation-core-example.git). There, have a look at ``build/build-common.ts``. 
 
-Run `nx build native-federation-core` to build the library.
-
-## Running unit tests
-
-Run `nx test native-federation-core` to execute the unit tests via [Jest](https://jestjs.io).
+There is also an [Angular-specific wrapper](https://www.npmjs.com/package/@angular-architects/native-federation).
