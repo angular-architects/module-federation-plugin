@@ -37,12 +37,16 @@ In this part you will clone the starter kit and inspect its projects.
 
 Now, let's activate and configure module federation:
 
-1. Install `@angular-architects/module-federation` into the shell and into the micro frontend:
+1. Install `@angular-architects/module-federation` into the shell:
+
+   ```
+   ng add @angular-architects/module-federation --project shell --type host --port 4200
+   ```
+
+   Also, install it into the micro frontend:
 
    ```
    ng add @angular-architects/module-federation --project mfe1 --type remote --port 4201
-
-   ng add @angular-architects/module-federation --project shell --type host --port 4200
    ```
 
    This activates module federation, assigns a port for ng serve, and generates the skeleton of a module federation configuration.
@@ -86,7 +90,7 @@ Now, let's activate and configure module federation:
    module.exports = withModuleFederationPlugin({
      remotes: {
        // Check this line. Is port 4201 configured?
-       mfe1: 'http://localhost:4201/remoteEntry.js',
+       'mfe1': 'http://localhost:4201/remoteEntry.js',
      },
 
      shared: {
@@ -105,14 +109,23 @@ Now, let's activate and configure module federation:
 
    ```javascript
    {
-       path: 'flights',
-       loadChildren: () => import('mfe1/Module').then(m => m.FlightsModule)
+      path: 'flights',
+      loadChildren: () => import('mfe1/Module')
+        .then(m => m.FlightsModule)
    },
+
+   {
+      path: '**',
+      component: NotFoundComponent
+   }
+
+   // DO NOT insert routes after this one.
+   // { path:'**', ...} needs to be the LAST one.
    ```
 
    Please note that the imported URL consists of the names defined in the configuration files above.
 
-5. As the Url `mfe1/Module` does not exist at compile time, ease the TypeScript compiler by adding the following line to the file `projects\shell\src\decl.d.ts`:
+5. As the URL `mfe1/Module` does not exist at compile time, ease the TypeScript compiler by adding the following line to the file `projects\shell\src\decl.d.ts`:
 
    ```javascript
    declare module 'mfe1/Module';
@@ -122,7 +135,7 @@ Now, let's activate and configure module federation:
 
 Now, let's try it out!
 
-1. Start the `shell` and `mfe1` side by side:
+1. Start the `shell` and `mfe1` side by side in two different terminals:
 
    ```
    ng serve shell -o
@@ -141,7 +154,7 @@ Now, let's try it out!
 
 **Hint:** You can also call the following script to start all projects at once: `npm run run:all`. This script is added by the Module Federation plugin.
 
-Congratulations! You've implemented your first Module Federation project with Angular!
+**Congratulations!** You've implemented your first Module Federation project with Angular!
 
 ## Part 4: Switch to Dynamic Federation
 
@@ -153,7 +166,8 @@ Now, let's remove the need for registering the Micro Frontends upfront with with
 
    ```javascript
    remotes: {
-       // "mfe1": "http://localhost:4201/remoteEntry.js",
+      // Remove this line:
+      // "mfe1": "http://localhost:4201/remoteEntry.js",
    },
    ```
 
@@ -164,45 +178,45 @@ Now, let's remove the need for registering the Micro Frontends upfront with with
 
    [...]
    const routes: Routes = [
-       [...]
-       {
-           path: 'flights',
-           loadChildren: () =>
+      [...]
+      {
+          path: 'flights',
+          loadChildren: () =>
                loadRemoteModule({
-                   type: 'module',
-                   remoteEntry: 'http://localhost:4201/remoteEntry.js',
-                   exposedModule: './Module'
-               })
-               .then(m => m.FlightsModule)
-       },
-       [...]
+                  type: 'module',
+                  remoteEntry: 'http://localhost:4201/remoteEntry.js',
+                  exposedModule: './Module'
+              })
+              .then(m => m.FlightsModule)
+      },
+      [...]
    ]
    ```
 
-   _Remarks:_ `type: 'module'` is needed for Angular 13 or higher as beginning with version 13 the CLI emits EcmaScript modules instead of "plain old" JavaScript files.
+   _Remarks:_ `type: 'module'` is needed for Angular 13 or higher as beginning with version 13, the CLI emits EcmaScript modules instead of "plain old" JavaScript files.
 
-3. Restart both, the `shell` and the micro frontend (`mfe1`).
+3. **Restart both**, the `shell` and the micro frontend (`mfe1`).
 
 4. The shell should still be able to load the micro frontend. However, now it's loaded dynamically.
 
 ### Part 4b: Loading Meta Data Upfront
 
-This was quite easy, wasn't it? However, we can improve this solution a bit. Ideally, we load the Micro Frontend's remoteEntry.js upfront.before Angular bootstraps. This file contains meta data about the Micro Frontend, esp. about its shared dependencies. Knowing about them upfront help Module Federation to avoid version conflicts.
+This was quite easy, wasn't it? However, we can improve this solution a bit. Ideally, we load the Micro Frontend's **remoteEntry.js** before Angular bootstraps. This file contains meta data about the Micro Frontend, esp. about its shared dependencies. Knowing about them upfront helps Module Federation to avoid version conflicts.
 
 1. Switch to the `shell` project and open the file `main.ts`. Adjust it as follows:
 
-   ```typescript
-   import { loadRemoteEntry } from '@angular-architects/module-federation';
+  ```typescript
+  import { loadRemoteEntry } from '@angular-architects/module-federation';
 
-   Promise.all([
-     loadRemoteEntry({
-       type: 'module',
-       remoteEntry: 'http://localhost:4201/remoteEntry.js',
-     }),
-   ])
-     .catch((err) => console.error('Error loading remote entries', err))
-     .then(() => import('./bootstrap'))
-     .catch((err) => console.error(err));
+  Promise.all([
+    loadRemoteEntry({
+      type: 'module',
+      remoteEntry: 'http://localhost:4201/remoteEntry.js',
+    }),
+  ])
+  .catch((err) => console.error('Error loading remote entries', err))
+  .then(() => import('./bootstrap'))
+  .catch((err) => console.error(err));
    ```
 
 2. Restart both, the `shell` and the micro frontend (`mfe1`).
@@ -211,133 +225,149 @@ This was quite easy, wasn't it? However, we can improve this solution a bit. Ide
 
 ### Part 4c: Use a Registry
 
-So far, we just hardcoded the urls pointing to our Micro Frontends. However, in a real world scenario, we would rather get this information at runtime from a config file or a registry service. This is what this exercise is about.
+So far, we just hardcoded the URLs pointing to our Micro Frontends. However, in a real world scenario, we would rather get this information at runtime from a config file or a registry service. This is what this part of the lab is about.
 
-1. Switch to the shell, and create a file `mf.manifest.json` in its `assets` folder (`projects\shell\src\assets\mf.manifest.json`):
+1. Switch to the shell and create a file `mf.manifest.json` in its `assets` folder (`projects\shell\src\assets\mf.manifest.json`):
 
-   ```json
-   {
-     "mfe1": "http://localhost:4201/remoteEntry.js"
-   }
-   ```
+  ```json
+  {
+    "mfe1": "http://localhost:4201/remoteEntry.js"
+  }
+  ```
 
 2. Adjust the shell's `main.ts` (`projects/shell/src/main.ts`) as follows:
 
    ```typescript
-   import { loadManifest } from '@angular-architects/module-federation';
+  import { loadManifest } from '@angular-architects/module-federation';
 
-   loadManifest('assets/mf.manifest.json')
-     .catch((err) => console.error('Error loading remote entries', err))
-     .then(() => import('./bootstrap'))
-     .catch((err) => console.error(err));
+  loadManifest('assets/mf.manifest.json')
+    .catch((err) => console.error('Error loading remote entries', err))
+    .then(() => import('./bootstrap'))
+    .catch((err) => console.error(err));
    ```
 
-   The imported `loadManifest` function also loads the remote entry points.
+  The imported `loadManifest` function also loads the remote entry points.
 
 3. Adjust the shell's lazy route pointing to the Micro Frontend as follows (`projects/shell/src/app/app.routes.ts`):
 
-   ```typescript
-   {
-       path: 'flights',
-       loadChildren: () =>
-           loadRemoteModule({
-               type: 'manifest',
-               remoteName: 'mfe1',
-               exposedModule: './Module'
-           })
-           .then(m => m.FlightsModule)
-   },
-   ```
+  ```typescript
+  {
+      path: 'flights',
+      loadChildren: () =>
+          loadRemoteModule({
+              type: 'manifest',
+              remoteName: 'mfe1',
+              exposedModule: './Module'
+          })
+          .then(m => m.FlightsModule)
+  },
+  ```
 
 4. Restart both, the `shell` and the micro frontend (`mfe1`).
 
 5. The shell should still be able to load the micro frontend.
 
-**Hint:** The `ng add` command used initially also provides an option `--type dynamic-host`. This makes ng add to generate the `mf.manifest.json` and generates the call to `loadManifest` in the `main.ts`.
+**Hint:** The `ng add` command used initially also provides an option `--type dynamic-host`. This makes ``ng add`` to generate the `mf.manifest.json` as well as the call to `loadManifest` in the `main.ts`.
 
 ## Step 5: Communication Between Micro Frontends and Sharing Monorepo Libraries
 
 1. Add a library to your monorepo:
 
-   ```
-   ng g lib auth-lib
-   ```
+  ```
+  ng g lib auth-lib
+  ```
 
 2. In your `tsconfig.json` in the workspace's root, adjust the path mapping for `auth-lib` so that it points to the libs entry point:
 
-   ```json
-   "auth-lib": [
-       "projects/auth-lib/src/public-api.ts"
-   ]
-   ```
+  ```json
+  "auth-lib": [
+      "projects/auth-lib/src/public-api.ts"
+  ]
+  ```
 
 3. As most IDEs only read global configuration files like the `tsconfig.json` once, restart your IDE (Alternatively, your IDE might also provide an option for reloading these settings).
 
 4. Switch to your `auth-lib` project and open the file `auth-lib.service.ts` (`projects\auth-lib\src\lib\auth-lib.service.ts`). Adjust it as follows:
 
-   ```typescript
-   import { Injectable } from '@angular/core';
+  ```typescript
+  import { Injectable } from '@angular/core';
 
-   @Injectable({
-     providedIn: 'root',
-   })
-   export class AuthLibService {
-     private userName: string;
+  @Injectable({
+    providedIn: 'root',
+  })
+  export class AuthLibService {
+    private userName: string;
 
-     public get user(): string {
-       return this.userName;
-     }
+    public get user(): string {
+      return this.userName;
+    }
 
-     constructor() {}
+    constructor() {}
 
-     public login(userName: string, password: string): void {
-       // Authentication for **honest** users TM. (c) Manfred Steyer
-       this.userName = userName;
-     }
-   }
-   ```
+    public login(userName: string, password: string): void {
+      // Authentication for **honest** users TM. (c) Manfred Steyer
+      this.userName = userName;
+    }
+  }
+  ```
 
 5. Switch to your `shell` project and open its `app.component.ts` (`projects\shell\src\app\app.component.ts`). Use the `AuthLibService` to login a user:
 
-   ```typescript
-   import { AuthLibService } from 'auth-lib';
+  ```typescript
+  [...]
 
-   @Component({
-     selector: 'app-root',
-     templateUrl: './app.component.html',
-   })
-   export class AppComponent {
-     title = 'shell';
+  // IMPORTANT: Make sure you import the service
+  //  from 'auth-lib'!
+  import { AuthLibService } from 'auth-lib';
 
-     constructor(private service: AuthLibService) {
-       this.service.login('Max', null);
-     }
-   }
-   ```
+  [...]
 
-6. Switch to your `mfe1` project and open its `flights-search.component.ts`. Use the shared service to retrieve the current user's name:
+  @Component({
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+  })
+  export class AppComponent {
+    title = 'shell';
 
-   ```typescript
-   export class FlightsSearchComponent {
+    constructor(private service: AuthLibService) {
+      this.service.login('Max', null);
+    }
+  }
+  ```
 
-       // Add this:
-       user = this.service.user;
+6. Switch to your `mfe1` project and open its `flights-search.component.ts` (``projects\mfe1\src\app\flights\flights-search\flights-search.component.ts``). Use the shared service to retrieve the current user's name:
 
-       // And add that:
-       constructor(private service: AuthLibService) { }
+  ```typescript
+  [...]
 
-       [...]
-   }
-   ```
+  // IMPORTANT: Make sure you import the service
+  //  from 'auth-lib'!
+  import { AuthLibService } from 'auth-lib';
+
+  [...]
+
+  export class FlightsSearchComponent {
+
+      // Add this:
+      user = this.service.user;
+
+      // And add that:
+      constructor(private service: AuthLibService) { }
+
+      [...]
+  }
+  ```
 
 7. Open this component's template(`flights-search.component.html`) and data bind the property `user`:
 
-   ```html
-   <div id="container">
-     <div>User: {{user}}</div>
-     [...]
-   </div>
-   ```
+  ```html
+  <div id="container">
+
+    <!-- Add this line: -->
+    <div>User: {{user}}</div>
+    [...]
+  </div>
+  ```
 
 8. Restart both, the `shell` and the micro frontend (`mfe1`).
 
@@ -355,93 +385,93 @@ For explicitly sharing our dependencies, you could switch to the following confi
 
 1. Shell's `webpack.config.js` (`projects\shell\webpack.config.js`):
 
-   ```javascript
-   // Import share instead of shareAll:
-   const {
-     share,
-     withModuleFederationPlugin,
-   } = require('@angular-architects/module-federation/webpack');
+  ```javascript
+  // Import share instead of shareAll:
+  const {
+    share,
+    withModuleFederationPlugin,
+  } = require('@angular-architects/module-federation/webpack');
 
-   module.exports = withModuleFederationPlugin({
-     remotes: {
-       // Check this line. Is port 4201 configured?
-       // "mfe1": "http://localhost:4201/remoteEntry.js",
-     },
+  module.exports = withModuleFederationPlugin({
+    remotes: {
+      // Check this line. Is port 4201 configured?
+      // "mfe1": "http://localhost:4201/remoteEntry.js",
+    },
 
-     // Explicitly share packages:
-     shared: share({
-       '@angular/core': {
-         singleton: true,
-         strictVersion: true,
-         requiredVersion: 'auto',
-       },
-       '@angular/common': {
-         singleton: true,
-         strictVersion: true,
-         requiredVersion: 'auto',
-       },
-       '@angular/common/http': {
-         singleton: true,
-         strictVersion: true,
-         requiredVersion: 'auto',
-       },
-       '@angular/router': {
-         singleton: true,
-         strictVersion: true,
-         requiredVersion: 'auto',
-       },
-     }),
+    // Explicitly share packages:
+    shared: share({
+      '@angular/core': {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+      },
+      '@angular/common': {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+      },
+      '@angular/common/http': {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+      },
+      '@angular/router': {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+      },
+    }),
 
-     // Explicitly share mono-repo libs:
-     sharedMappings: ['auth-lib'],
-   });
-   ```
+    // Explicitly share mono-repo libs:
+    sharedMappings: ['auth-lib'],
+  });
+  ```
 
 1. Micro Frontend's `webpack.config.js` (`projects\mfe1\webpack.config.js`):
 
-   ```javascript
-   // Import share instead of shareAll:
-   const {
-     share,
-     withModuleFederationPlugin,
-   } = require('@angular-architects/module-federation/webpack');
+  ```javascript
+  // Import share instead of shareAll:
+  const {
+    share,
+    withModuleFederationPlugin,
+  } = require('@angular-architects/module-federation/webpack');
 
-   module.exports = withModuleFederationPlugin({
-     name: 'mfe1',
+  module.exports = withModuleFederationPlugin({
+    name: 'mfe1',
 
-     exposes: {
-       // Update this whole line (both, left and right part):
-       './Module': './projects/mfe1/src/app/flights/flights.module.ts',
-     },
+    exposes: {
+      // Update this whole line (both, left and right part):
+      './Module': './projects/mfe1/src/app/flights/flights.module.ts',
+    },
 
-     // Explicitly share packages:
-     shared: share({
-       '@angular/core': {
-         singleton: true,
-         strictVersion: true,
-         requiredVersion: 'auto',
-       },
-       '@angular/common': {
-         singleton: true,
-         strictVersion: true,
-         requiredVersion: 'auto',
-       },
-       '@angular/common/http': {
-         singleton: true,
-         strictVersion: true,
-         requiredVersion: 'auto',
-       },
-       '@angular/router': {
-         singleton: true,
-         strictVersion: true,
-         requiredVersion: 'auto',
-       },
-     }),
+    // Explicitly share packages:
+    shared: share({
+      '@angular/core': {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+      },
+      '@angular/common': {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+      },
+      '@angular/common/http': {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+      },
+      '@angular/router': {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+      },
+    }),
 
-     // Explicitly share mono-repo libs:
-     sharedMappings: ['auth-lib'],
-   });
-   ```
+    // Explicitly share mono-repo libs:
+    sharedMappings: ['auth-lib'],
+  });
+  ```
 
 After that, restart the `shell` and the Micro Frontend.
 
