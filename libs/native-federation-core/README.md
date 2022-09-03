@@ -50,6 +50,23 @@ Big thanks to:
 
 ## Using this Library
 
+### Installing the Library
+
+```
+npm i @softarc/native-federation
+```
+
+As Native Federation is tooling agnostic, we need an adapter to make it work with specific build tools. The package ``@softarc/native-federation-esbuild`` contains a simple adapter that uses esbuild:
+
+```
+npm i @softarc/native-federation-esbuild
+```
+
+In some situations, this builder also delegates to rollup. This is necessary b/c esbuild does not provide all features we need (yet). We hope to minimize the usage of rollup in the future.
+
+You can also provide your own adapter by providing a function aligning with the ``BuildAdapter`` type.
+
+
 ### Augment your Build Process
 
 Just call three helper methods provided by our ``federationBuilder`` in your build process to adjust it for Native Federation.
@@ -58,7 +75,7 @@ Just call three helper methods provided by our ``federationBuilder`` in your bui
 import * as esbuild from 'esbuild';
 import * as path from 'path';
 import * as fs from 'fs';
-import { esBuildAdapter } from './esbuild-adapter';
+import { esBuildAdapter } from '@softarc/native-federation-esbuild';
 import { federationBuilder } from '@softarc/native-federation/build';
 
 
@@ -115,32 +132,7 @@ await esbuild.build({
 await federationBuilder.build();
 ```
 
-The method ``federationBuilder.build`` bundles the shared and exposed parts of your app. For this, it needs a bundler. As this solution is tooling-agnostic, you need to provide an adapter for your bundler:
-
-```typescript
-import { BuildAdapter } from '@softarc/native-federation/build';
-import * as esbuild from 'esbuild';
-
-export const esBuildAdapter: BuildAdapter = async (options) => {
-  
-    const {
-      entryPoint,
-      external,
-      outfile,
-    } = options;
-    
-    await esbuild.build({
-      entryPoints: [entryPoint],
-      external,
-      outfile,
-      bundle: true,
-      sourcemap: true,
-      minify: true,
-      format: 'esm',
-      target: ['esnext']
-    });
-  }
-```
+The method ``federationBuilder.build`` bundles the shared and exposed parts of your app. 
 
 ### Configuring Hosts 
 
