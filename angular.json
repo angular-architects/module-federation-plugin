@@ -396,6 +396,7 @@
     "native-federation": "libs/native-federation",
     "native-federation-core": "libs/native-federation-core",
     "native-federation-e2e": "apps/native-federation-e2e",
+    "native-federation-esbuild": "libs/native-federation-esbuild",
     "native-federation-runtime": {
       "projectType": "library",
       "root": "libs/native-federation-runtime",
