@@ -45,6 +45,7 @@ export async function bundleShared(
         external: externals,
         outfile: cachedFile,
         mappedPaths: config.sharedMappings,
+        packageName: pi.packageName,
       });
     }
 

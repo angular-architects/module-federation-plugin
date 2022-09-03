@@ -11,6 +11,7 @@ export interface BuildAdapterOptions {
   external: Array<string>;
   outfile: string;
   mappedPaths: MappedPath[];
+  packageName?: string;
 }
 
 export type BuildAdapter = (options: BuildAdapterOptions) => Promise<void>;
