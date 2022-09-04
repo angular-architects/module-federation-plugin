@@ -30,9 +30,6 @@
   },
   "private": true,
   "dependencies": {
-    "@angular-architects/module-federation": "file:angular-architects-module-federation-14.3.10.tgz",
-    "@angular-architects/module-federation-runtime": "file:angular-architects-module-federation-runtime-14.3.10.tgz",
-    "@angular-architects/native-federation": "file:angular-architects-native-federation-0.9.1.tgz",
     "@angular/animations": "14.1.1",
     "@angular/common": "14.1.1",
     "@angular/compiler": "14.1.1",
@@ -41,8 +38,6 @@
     "@angular/platform-browser": "14.1.1",
     "@angular/platform-browser-dynamic": "14.1.1",
     "@angular/router": "14.1.1",
-    "@softarc/native-federation": "file:softarc-native-federation-0.9.2-beta.3.tgz",
-    "@softarc/native-federation-runtime": "file:softarc-native-federation-runtime-0.9.2-beta.3.tgz",
     "@types/browser-sync": "^2.26.3",
     "es-module-shims": "^1.5.12",
     "rxjs": "~6.6.3",
