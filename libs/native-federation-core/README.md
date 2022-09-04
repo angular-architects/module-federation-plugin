@@ -35,7 +35,8 @@ For this, the mental model introduces several concepts:
 
 ## Example 
 
-Please find here an [example project](https://github.com/manfredsteyer/native-federation-core-microfrontend).
+- [VanillaJS example](https://github.com/manfredsteyer/native-federation-core-microfrontend).
+- [React example](https://github.com/manfredsteyer/native-federation-react-example)
 
 ## Credits
 
