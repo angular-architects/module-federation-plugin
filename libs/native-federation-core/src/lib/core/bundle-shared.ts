@@ -45,6 +45,7 @@ export async function bundleShared(
           outfile: cachedFile,
           mappedPaths: config.sharedMappings,
           packageName: pi.packageName,
+          esm: pi.esm,
         });
       }
       catch(e) {

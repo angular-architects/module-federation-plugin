@@ -12,6 +12,7 @@ export interface BuildAdapterOptions {
   outfile: string;
   mappedPaths: MappedPath[];
   packageName?: string;
+  esm?: boolean;
 }
 
 export type BuildAdapter = (options: BuildAdapterOptions) => Promise<void>;

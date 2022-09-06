@@ -7,12 +7,13 @@ import { prepareNodePackage } from './prepare-node-package';
 const SKIP_PACKAGE_PREPARATION = ['@angular', '@ngrx', 'rxjs', 'zone.js'];
 
 export const AngularEsBuildAdapter: BuildAdapter = async (options) => {
-  const { entryPoint, tsConfigPath, external, outfile, mappedPaths, packageName } = options;
+  const { entryPoint, tsConfigPath, external, outfile, mappedPaths, packageName, esm } = options;
 
   const pNameOrEmpty = packageName ?? '';
 
   const preparePackage = entryPoint.includes("node_modules")
-    &&  !SKIP_PACKAGE_PREPARATION.find(p => pNameOrEmpty?.split('/')[0] === p);
+    &&  !(SKIP_PACKAGE_PREPARATION.find(p => pNameOrEmpty?.split('/')[0] === p)
+    || esm);
 
   const pkgName = preparePackage ? inferePkgName(entryPoint) : "";
   const tmpFolder = `node_modules/.tmp/native-federation/${pkgName}`;

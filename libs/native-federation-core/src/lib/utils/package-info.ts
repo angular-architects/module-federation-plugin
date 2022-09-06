@@ -5,6 +5,7 @@ export interface PackageInfo {
   packageName: string;
   entryPoint: string;
   version: string;
+  esm: boolean;
 }
 
 export interface PartialPackageJson {
@@ -33,6 +34,7 @@ export function getPackageInfo(
   const mainPkgJson = readJson(mainPkgJsonPath);
 
   const version = mainPkgJson['version'] as string;
+  const esm = mainPkgJson['type'] === 'module';
 
   if (!version) {
     // TODO: Add logger
@@ -49,12 +51,23 @@ export function getPackageInfo(
     relSecondaryPath = './' + relSecondaryPath.replace(/\\/g, '/');
   }
 
-  let cand = mainPkgJson?.exports?.[relSecondaryPath]?.default;
+  let cand = mainPkgJson?.exports?.[relSecondaryPath]?.import;
   if (cand) {
     return {
       entryPoint: path.join(mainPkgPath, cand),
       packageName,
       version,
+      esm
+    };
+  }
+
+  cand = mainPkgJson?.exports?.[relSecondaryPath]?.default;
+  if (cand) {
+    return {
+      entryPoint: path.join(mainPkgPath, cand),
+      packageName,
+      version,
+      esm
     };
   }
 
@@ -65,6 +78,7 @@ export function getPackageInfo(
       entryPoint: path.join(mainPkgPath, cand),
       packageName,
       version,
+      esm: true
     };
   }
 
@@ -80,6 +94,7 @@ export function getPackageInfo(
       entryPoint: path.join(secondaryPgkPath, secondaryPgkJson.module),
       packageName,
       version,
+      esm: true
     };
   }
 
@@ -89,6 +104,7 @@ export function getPackageInfo(
       entryPoint: cand,
       packageName,
       version,
+      esm: true
     };
   }
 
@@ -97,6 +113,7 @@ export function getPackageInfo(
       entryPoint: path.join(secondaryPgkPath, secondaryPgkJson.main),
       packageName,
       version,
+      esm
     };
   }
 
@@ -106,11 +123,12 @@ export function getPackageInfo(
       entryPoint: cand,
       packageName,
       version,
+      esm
     };
   }
 
   // TODO: Add logger
-  console.warn('No esm-based entry point found for ' + packageName);
+  console.warn('No entry point found for ' + packageName);
   console.warn(
     '  >> Did you confuse dependencies with depDependencies in your package.json or your federation config?'
   );
