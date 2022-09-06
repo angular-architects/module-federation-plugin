@@ -7,10 +7,6 @@ module.exports = withNativeFederation({
   exposes: {
     './Component': './<%=projectSourceRoot%>/app/app.component.ts',
   },
-<% } else if (type === 'host') { %>
-  remotes: {<% for (key in remoteMap) { %>
-    "<%=key%>": "<%=remoteMap[key]%>",<% } %>    
-  },
 <% } %>
   shared: {
     ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
