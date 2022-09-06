@@ -12,7 +12,7 @@ export { MappedPath } from './lib/utils/mapped-paths';
 export { BuildAdapter } from './lib/core/build-adapter';
 export { withNativeFederation } from './lib/config/with-native-federation';
 export { buildForFederation } from './lib/core/build-for-federation';
-export { share, shareAll } from './lib/config/share-utils';
+export { share, shareAll, findRootTsConfigJson } from './lib/config/share-utils';
 export {
   federationBuilder,
   BuildHelperParams,

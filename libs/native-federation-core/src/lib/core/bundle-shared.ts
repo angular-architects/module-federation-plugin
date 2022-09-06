@@ -5,7 +5,6 @@ import { bundle } from '../utils/build-utils';
 import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
-import { DEFAULT_SKIP_LIST } from './default-skip-list';
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 
 export async function bundleShared(
@@ -14,9 +13,8 @@ export async function bundleShared(
   externals: string[]
 ): Promise<Array<SharedInfo>> {
   const result: Array<SharedInfo> = [];
-
   const packageInfos = Object.keys(config.shared)
-    .filter((packageName) => !DEFAULT_SKIP_LIST.has(packageName))
+    // .filter((packageName) => !isInSkipList(packageName, PREPARED_DEFAULT_SKIP_LIST))
     .map((packageName) => getPackageInfo(packageName, fedOptions.workspaceRoot))
     .filter((pi) => !!pi) as PackageInfo[];
 
@@ -39,14 +37,21 @@ export async function bundleShared(
     const cachedFile = path.join(cachePath, outFileName);
 
     if (!fs.existsSync(cachedFile)) {
-      await bundle({
-        entryPoint: pi.entryPoint,
-        tsConfigPath: fedOptions.tsConfig,
-        external: externals,
-        outfile: cachedFile,
-        mappedPaths: config.sharedMappings,
-        packageName: pi.packageName,
-      });
+      try {
+        await bundle({
+          entryPoint: pi.entryPoint,
+          tsConfigPath: fedOptions.tsConfig,
+          external: externals,
+          outfile: cachedFile,
+          mappedPaths: config.sharedMappings,
+          packageName: pi.packageName,
+        });
+      }
+      catch(e) {
+        console.error('Error bundling', pi.packageName);
+        console.info(`If you don't need this package, skip it in your federation.config.js!`);
+        continue;
+      }
     }
 
     const shared = config.shared[pi.packageName];

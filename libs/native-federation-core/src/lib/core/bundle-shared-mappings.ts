@@ -23,7 +23,7 @@ export async function bundleSharedMappings(
     try {
       await bundle({
         entryPoint: m.path,
-        tsConfigPath: fedOptions.tsConfig,
+        tsConfigPath: findTsConfig(m.path) ?? fedOptions.tsConfig,
         external: externals,
         outfile: outFilePath,
         mappedPaths: [],
@@ -59,4 +59,32 @@ export async function bundleSharedMappings(
   }
 
   return result;
+}
+
+function findTsConfig(folder: string): string | null {
+  while (
+    !fs.existsSync(path.join(folder, 'tsconfig.lib.json')) &&
+    !fs.existsSync(path.join(folder, 'tsconfig.json')) &&
+    !fs.existsSync(path.join(folder, 'tsconfig.base.json')) &&
+    path.dirname(folder) !== folder
+  ) {
+    folder = path.dirname(folder);
+  }
+
+  const filePathOption0 = path.join(folder, 'tsconfig.lib.json');
+  if (fs.existsSync(filePathOption0)) {
+    return filePathOption0;
+  }
+
+  const filePathOption1 = path.join(folder, 'tsconfig.json');
+  if (fs.existsSync(filePathOption1)) {
+    return filePathOption1;
+  }
+
+  const filePathOption2 = path.join(folder, 'tsconfig.base.json');
+  if (fs.existsSync(filePathOption2)) {
+    return filePathOption2;
+  }
+
+  return null;
 }

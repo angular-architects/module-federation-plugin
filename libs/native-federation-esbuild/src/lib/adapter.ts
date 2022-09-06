@@ -19,7 +19,6 @@ export const esBuildAdapter: BuildAdapter = async (options) => {
 
   if (isPkg) {
     console.log('Preparing package ...');
-
     await prepareNodePackage(entryPoint, external, tmpFolder);
   }
 
@@ -34,6 +33,7 @@ export const esBuildAdapter: BuildAdapter = async (options) => {
     target: ["esnext"],
     plugins: [],
   });
+
 };
 
 async function prepareNodePackage(entryPoint: string, external: string[], tmpFolder: string) {

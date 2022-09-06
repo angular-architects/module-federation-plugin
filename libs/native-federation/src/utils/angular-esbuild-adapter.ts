@@ -4,7 +4,7 @@ import { createCompilerPlugin } from '@angular-devkit/build-angular/src/builders
 import { createSharedMappingsPlugin } from './shared-mappings-plugin';
 import { prepareNodePackage } from './prepare-node-package';
 
-const SKIP_PACKAGE_PREPARATION = ['@angular', '@ngrx', 'rxjs'];
+const SKIP_PACKAGE_PREPARATION = ['@angular', '@ngrx', 'rxjs', 'zone.js'];
 
 export const AngularEsBuildAdapter: BuildAdapter = async (options) => {
   const { entryPoint, tsConfigPath, external, outfile, mappedPaths, packageName } = options;
@@ -12,7 +12,7 @@ export const AngularEsBuildAdapter: BuildAdapter = async (options) => {
   const pNameOrEmpty = packageName ?? '';
 
   const preparePackage = entryPoint.includes("node_modules")
-    &&  !SKIP_PACKAGE_PREPARATION.find(p => pNameOrEmpty === p);
+    &&  !SKIP_PACKAGE_PREPARATION.find(p => pNameOrEmpty?.split('/')[0] === p);
 
   const pkgName = preparePackage ? inferePkgName(entryPoint) : "";
   const tmpFolder = `node_modules/.tmp/native-federation/${pkgName}`;
@@ -28,6 +28,7 @@ export const AngularEsBuildAdapter: BuildAdapter = async (options) => {
     bundle: true,
     sourcemap: true,
     minify: true,
+    platform: 'node',
     format: 'esm',
     target: ['esnext'],
     plugins: [

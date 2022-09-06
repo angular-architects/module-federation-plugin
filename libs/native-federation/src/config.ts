@@ -3,4 +3,4 @@ export {
   findRootTsConfigJson,
   share,
   shareAll,
-} from '@angular-architects/module-federation/webpack';
+} from '@softarc/native-federation/build';

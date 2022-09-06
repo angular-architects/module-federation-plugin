@@ -1,5 +1,5 @@
 import { NormalizedFederationConfig } from '../config/federation-config';
-import { DEFAULT_SKIP_LIST } from './default-skip-list';
+import { isInSkipList, PREPARED_DEFAULT_SKIP_LIST } from './default-skip-list';
 
 export function getExternals(config: NormalizedFederationConfig) {
   const shared = Object.keys(config.shared);
@@ -7,5 +7,6 @@ export function getExternals(config: NormalizedFederationConfig) {
 
   const externals = [...shared, ...sharedMappings];
 
-  return externals.filter((p) => !DEFAULT_SKIP_LIST.has(p));
+  return externals;
+  // return externals.filter((p) => !isInSkipList(p, PREPARED_DEFAULT_SKIP_LIST));
 }

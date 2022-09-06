@@ -9,6 +9,7 @@ export interface PackageInfo {
 
 export interface PartialPackageJson {
   module: string;
+  main: string;
 }
 
 export function getPackageInfo(
@@ -45,7 +46,7 @@ export function getPackageInfo(
   if (!relSecondaryPath) {
     relSecondaryPath = '.';
   } else {
-    relSecondaryPath = './' + relSecondaryPath;
+    relSecondaryPath = './' + relSecondaryPath.replace(/\\/g, '/');
   }
 
   let cand = mainPkgJson?.exports?.[relSecondaryPath]?.default;
@@ -86,6 +87,14 @@ export function getPackageInfo(
   if (fs.existsSync(cand)) {
     return {
       entryPoint: cand,
+      packageName,
+      version,
+    };
+  }
+
+  if (secondaryPgkJson && secondaryPgkJson.main) {
+    return {
+      entryPoint: path.join(secondaryPgkPath, secondaryPgkJson.main),
       packageName,
       version,
     };

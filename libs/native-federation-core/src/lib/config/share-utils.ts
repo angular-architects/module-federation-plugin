@@ -2,7 +2,7 @@ import path = require('path');
 import fs = require('fs');
 import { cwd } from 'process';
 import { SharedConfig } from './federation-config';
-import { DEFAULT_SKIP_LIST } from '../core/default-skip-list';
+import { DEFAULT_SKIP_LIST, isInSkipList, PREPARED_DEFAULT_SKIP_LIST, prepareSkipList, SkipList } from '../core/default-skip-list';
 
 let inferVersion = false;
 
@@ -104,6 +104,11 @@ function _findSecondaries(
     if (excludes.includes(secondaryLibName)) {
       continue;
     }
+
+    if (isInSkipList(secondaryLibName, PREPARED_DEFAULT_SKIP_LIST)) {
+      continue;
+    }
+
     acc[secondaryLibName] = { ...shareObject };
     _findSecondaries(s, excludes, shareObject, acc);
   }
@@ -196,6 +201,10 @@ function readConfiguredSecondaries(
       continue;
     }
 
+    if (isInSkipList(secondaryName, PREPARED_DEFAULT_SKIP_LIST)) {
+      continue;
+    }
+
     result[secondaryName] = {
       ...shareObject,
       // import: path.join(libPath, relPath)
@@ -207,7 +216,7 @@ function readConfiguredSecondaries(
 
 export function shareAll(
   config: CustomSharedConfig = {},
-  skip: string[] = [...DEFAULT_SKIP_LIST],
+  skip: SkipList = DEFAULT_SKIP_LIST,
   packageJsonPath = ''
 ): Config | null {
   if (!packageJsonPath) {
@@ -219,8 +228,10 @@ export function shareAll(
   const versions = readVersionMap(packagePath);
   const share: any = {};
 
+  const preparedSkipList = prepareSkipList(skip);
+
   for (const key in versions) {
-    if (skip.includes(key)) {
+    if (isInSkipList(key, preparedSkipList)) {
       continue;
     }
 

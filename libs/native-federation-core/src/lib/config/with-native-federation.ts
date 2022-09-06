@@ -5,11 +5,13 @@ import {
   NormalizedFederationConfig,
   NormalizedSharedConfig,
 } from './federation-config';
+import { isInSkipList, PreparedSkipList, prepareSkipList } from '../core/default-skip-list';
 
 export function withNativeFederation(
   config: FederationConfig
 ): NormalizedFederationConfig {
-  const skip = new Set(config.skip) ?? new Set<string>();
+
+  const skip = prepareSkipList(config.skip ?? []);
 
   return {
     name: config.name ?? '',
@@ -21,7 +23,7 @@ export function withNativeFederation(
 
 function normalizeShared(
   config: FederationConfig,
-  skip: Set<string>
+  skip: PreparedSkipList
 ): Record<string, NormalizedSharedConfig> {
   let result: Record<string, NormalizedSharedConfig> = {};
 
@@ -52,7 +54,7 @@ function normalizeShared(
   }
 
   result = Object.keys(result)
-    .filter((key) => !skip.has(key))
+    .filter((key) => !isInSkipList(key, skip))
     .reduce(
       (acc, cur) => ({
         ...acc,
@@ -66,7 +68,7 @@ function normalizeShared(
 
 function normalizeSharedMappings(
   config: FederationConfig,
-  skip: Set<string>
+  skip: PreparedSkipList
 ): Array<MappedPath> {
   const rootTsConfigPath = findRootTsConfigJson();
 
@@ -75,7 +77,7 @@ function normalizeSharedMappings(
     sharedMappings: config.sharedMappings,
   });
 
-  const result = paths.filter((p) => !skip.has(p.key));
+  const result = paths.filter((p) => !isInSkipList(p.key, skip));
 
   return result;
 }

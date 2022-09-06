@@ -1,3 +1,4 @@
+import { SkipList } from '../core/default-skip-list';
 import { MappedPath } from '../utils/mapped-paths';
 
 export interface SharedConfig {
@@ -13,7 +14,7 @@ export interface FederationConfig {
   exposes?: Record<string, string>;
   shared?: Record<string, SharedConfig>;
   sharedMappings?: Array<string>;
-  skip?: Array<string>;
+  skip?: SkipList;
 }
 
 export interface NormalizedSharedConfig {
