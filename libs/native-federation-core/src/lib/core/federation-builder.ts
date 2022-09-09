@@ -22,7 +22,7 @@ async function init(params: BuildHelperParams): Promise<void> {
 }
 
 async function build(): Promise<void> {
-  buildForFederation(config, fedOptions, externals);
+  await buildForFederation(config, fedOptions, externals);
 }
 
 export const federationBuilder = {
