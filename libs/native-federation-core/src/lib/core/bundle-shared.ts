@@ -6,6 +6,7 @@ import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
+import { logger } from '../utils/logger';
 
 export async function bundleShared(
   config: NormalizedFederationConfig,
@@ -18,9 +19,14 @@ export async function bundleShared(
     .map((packageName) => getPackageInfo(packageName, fedOptions.workspaceRoot))
     .filter((pi) => !!pi) as PackageInfo[];
 
+  logger.notice('Shared packages are only bundles once as they are cached');
+  logger.notice(
+    'Make sure, you skip all unneeded packages in your federation.config.js'
+  );
+
   for (const pi of packageInfos) {
     // TODO: add logger
-    console.info('Bundling shared package', pi.packageName, '...');
+    logger.info('Bundling shared package ' + pi.packageName);
 
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
     const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
@@ -48,11 +54,12 @@ export async function bundleShared(
           esm: pi.esm,
           kind: 'shared-package',
         });
-      }
-      catch(e) {
-        console.error('Error bundling', pi.packageName);
-        console.error(e);
-        console.info(`If you don't need this package, skip it in your federation.config.js!`);
+      } catch (e) {
+        logger.error('Error bundling ' + pi.packageName);
+        logger.notice(
+          `If you don't need this package, skip it in your federation.config.js!`
+        );
+        logger.error(e);
         continue;
       }
     }
@@ -86,4 +93,3 @@ function copyFileIfExists(cachedFile: string, fullOutputPath: string) {
     fs.copyFileSync(cachedFile, fullOutputPath);
   }
 }
-

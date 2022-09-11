@@ -1,6 +1,12 @@
+//
+// We stick with rollup for bundling shared npm packages, as esbuild
+// does currently not allow to convert commonjs to esm
+//
+
 import { rollup } from 'rollup';
 import resolve from '@rollup/plugin-node-resolve';
 import { externals } from 'rollup-plugin-node-externals';
+import { logger } from '@softarc/native-federation/build';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const commonjs = require('@rollup/plugin-commonjs');
@@ -11,18 +17,17 @@ const replace = require('@rollup/plugin-replace');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const json = require('@rollup/plugin-json');
 
-
-export async function prepareNodePackage(
+export async function runRollup(
   entryPoint: string,
   external: string[],
   outfile: string
 ) {
-  console.log('Converting package to esm ...');
-
   try {
     const result = await rollup({
       input: entryPoint,
-
+      onwarn: (warning) => {
+        logger.verbose(warning);
+      },
       plugins: [
         json(),
         commonjs(),
@@ -39,11 +44,13 @@ export async function prepareNodePackage(
 
     await result.write({
       format: 'esm',
+      compact: true,
       file: outfile,
       sourcemap: true,
       exports: 'named',
     });
   } catch (e) {
-    console.error('Error', e);
+    logger.error('Error bundling/ preparing shared package');
+    throw e;
   }
 }

@@ -5,6 +5,7 @@ import { bundle } from '../utils/build-utils';
 import { SharedInfo } from '@softarc/native-federation-runtime';
 import { hashFile } from '../utils/hash-file';
 import { FederationOptions } from '../core/federation-options';
+import { logger } from '../utils/logger';
 
 export async function bundleSharedMappings(
   config: NormalizedFederationConfig,
@@ -18,7 +19,7 @@ export async function bundleSharedMappings(
     const outFileName = key + '.js';
     const outFilePath = path.join(fedOptions.outputPath, outFileName);
 
-    console.info('Bundling shared mapping', m.key, '...');
+    logger.info('Bundling shared mapping ' + m.key);
 
     try {
       await bundle({
@@ -27,7 +28,7 @@ export async function bundleSharedMappings(
         external: externals,
         outfile: outFilePath,
         mappedPaths: [],
-        kind: 'shared-mapping'
+        kind: 'shared-mapping',
       });
 
       const hash = hashFile(outFilePath);
@@ -48,14 +49,11 @@ export async function bundleSharedMappings(
       });
     } catch (e) {
       // TODO: add logger
-      console.error('Error bundling shared mapping ' + m.key);
-      console.error(
-        `  >> If you don't need this mapping to shared, you can explicity configure the sharedMappings property in your federation.config.js`
+      logger.error('Error bundling shared mapping ' + m.key);
+      logger.notice(
+        `If you don't need this mapping to shared, you can skip it in your federation.config.js`
       );
-
-      if (fedOptions.verbose) {
-        console.error(e);
-      }
+      logger.error(e);
     }
   }
 

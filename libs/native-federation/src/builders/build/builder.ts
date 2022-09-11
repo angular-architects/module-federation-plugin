@@ -9,7 +9,10 @@ import { Schema } from '@angular-architects/build-angular/src/builders/browser-e
 import { ExecutionTransformer } from '@angular-architects/build-angular';
 import * as path from 'path';
 import * as fs from 'fs';
-import { NormalizedFederationConfig } from '@softarc/native-federation/build';
+import {
+  NormalizedFederationConfig,
+  setLogLevel,
+} from '@softarc/native-federation/build';
 
 import { BuildOptions } from 'esbuild';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
@@ -25,6 +28,7 @@ export async function runBuilder(
   context: BuilderContext
 ): Promise<BuilderOutput> {
   setBuildAdapter(AngularEsBuildAdapter);
+  setLogLevel(options.verbose ? 'verbose' : 'info');
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
@@ -37,7 +41,7 @@ export async function runBuilder(
   const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);
 
-  options.externalDependencies = externals.filter(e => e !== 'tslib');
+  options.externalDependencies = externals.filter((e) => e !== 'tslib');
   const output = await build(config, options, context);
 
   await buildForFederation(config, fedOptions, externals);

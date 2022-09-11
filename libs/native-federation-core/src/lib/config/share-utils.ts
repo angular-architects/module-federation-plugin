@@ -2,7 +2,13 @@ import path = require('path');
 import fs = require('fs');
 import { cwd } from 'process';
 import { SharedConfig } from './federation-config';
-import { DEFAULT_SKIP_LIST, isInSkipList, PREPARED_DEFAULT_SKIP_LIST, prepareSkipList, SkipList } from '../core/default-skip-list';
+import {
+  DEFAULT_SKIP_LIST,
+  isInSkipList,
+  PREPARED_DEFAULT_SKIP_LIST,
+  prepareSkipList,
+  SkipList,
+} from '../core/default-skip-list';
 
 let inferVersion = false;
 
