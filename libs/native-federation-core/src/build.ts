@@ -22,3 +22,4 @@ export {
   BuildHelperParams,
 } from './lib/core/federation-builder';
 export { logger, setLogLevel } from './lib/utils/logger';
+export { hashFile } from './lib/utils/hash-file';

@@ -23,7 +23,7 @@ log.addLevel(
   'verbose',
   levels.verbose,
   { fg: 'brightWhite', bg: 'brightBlue' },
-  ' MORE '
+  ' VRB! '
 );
 log.addLevel('silly', levels.silly, { fg: 'black', bg: 'white' }, ' DBG! ');
 

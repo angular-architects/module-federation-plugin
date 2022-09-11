@@ -25,7 +25,8 @@
     "@babel/core": "^7.19.0",
     "@softarc/native-federation": "1.0.0",
     "@softarc/native-federation-runtime": "1.0.0",
-    "@rollup/plugin-json": "^4.1.0"
+    "@rollup/plugin-json": "^4.1.0",
+    "cross-spawn": "^7.0.3"
   },
   "peerDependencies": {
     "@angular/compiler-cli": "*"
