@@ -13,6 +13,7 @@ export interface BuildAdapterOptions {
   mappedPaths: MappedPath[];
   packageName?: string;
   esm?: boolean;
+  kind: 'shared-package' | 'shared-mapping' | 'exposed';
 }
 
 export type BuildAdapter = (options: BuildAdapterOptions) => Promise<void>;

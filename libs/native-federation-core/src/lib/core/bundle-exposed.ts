@@ -26,6 +26,7 @@ export async function bundleExposed(
       external: externals,
       outfile: outFilePath,
       mappedPaths: config.sharedMappings,
+      kind: 'exposed',
     });
 
     const hash = hashFile(outFilePath);

@@ -11,7 +11,7 @@ export const DEFAULT_SKIP_LIST: SkipList = [
   '@angular-architects/native-federation-runtime',
   'es-module-shims',
   'zone.js',
-  'tslib',
+  // 'tslib',
   /\/schematics(\/|$)/,
   (pkg) => pkg.startsWith('@angular/') && !!pkg.match(/\/testing(\/|$)/)
 ];

@@ -46,10 +46,12 @@ export async function bundleShared(
           mappedPaths: config.sharedMappings,
           packageName: pi.packageName,
           esm: pi.esm,
+          kind: 'shared-package',
         });
       }
       catch(e) {
         console.error('Error bundling', pi.packageName);
+        console.error(e);
         console.info(`If you don't need this package, skip it in your federation.config.js!`);
         continue;
       }
@@ -71,9 +73,17 @@ export async function bundleShared(
       fedOptions.outputPath,
       outFileName
     );
-    fs.copyFileSync(cachedFile, fullOutputPath);
+
+    copyFileIfExists(cachedFile, fullOutputPath);
     copySrcMapIfExists(cachedFile, fullOutputPath);
   }
 
   return result;
 }
+
+function copyFileIfExists(cachedFile: string, fullOutputPath: string) {
+  if (fs.existsSync(cachedFile)) {
+    fs.copyFileSync(cachedFile, fullOutputPath);
+  }
+}
+

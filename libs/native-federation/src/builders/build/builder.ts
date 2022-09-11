@@ -37,7 +37,7 @@ export async function runBuilder(
   const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);
 
-  options.externalDependencies = externals;
+  options.externalDependencies = externals.filter(e => e !== 'tslib');
   const output = await build(config, options, context);
 
   await buildForFederation(config, fedOptions, externals);

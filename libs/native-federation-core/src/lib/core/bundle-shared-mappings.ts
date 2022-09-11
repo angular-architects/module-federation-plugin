@@ -27,6 +27,7 @@ export async function bundleSharedMappings(
         external: externals,
         outfile: outFilePath,
         mappedPaths: [],
+        kind: 'shared-mapping'
       });
 
       const hash = hashFile(outFilePath);
