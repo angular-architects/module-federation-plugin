@@ -50,7 +50,7 @@ export async function runRollup(
       exports: 'named',
     });
   } catch (e) {
-    logger.error('Error bundling/ preparing shared package');
+    logger.error('Rollup error');
     throw e;
   }
 }

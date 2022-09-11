@@ -7,6 +7,7 @@ import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 import { logger } from '../utils/logger';
+import { hashFile } from '../utils/hash-file';
 
 export async function bundleShared(
   config: NormalizedFederationConfig,
@@ -24,6 +25,9 @@ export async function bundleShared(
     'Make sure, you skip all unneeded packages in your federation.config.js'
   );
 
+  const federationConfigPath = path.join(fedOptions.workspaceRoot, fedOptions.federationConfig);
+  const hash = hashFile(federationConfigPath);
+
   for (const pi of packageInfos) {
     // TODO: add logger
     logger.info('Bundling shared package ' + pi.packageName);
@@ -31,7 +35,7 @@ export async function bundleShared(
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
     const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
 
-    const outFileName = `${encName}-${encVersion}.js`;
+    const outFileName = `${encName}-${encVersion}-${hash}.js`;
 
     const cachePath = path.join(
       fedOptions.workspaceRoot,
@@ -56,10 +60,14 @@ export async function bundleShared(
         });
       } catch (e) {
         logger.error('Error bundling ' + pi.packageName);
+        if (e instanceof Error) {
+          logger.error(e.message);
+        }
+        logger.error('For more information, run in verbose mode');
         logger.notice(
           `If you don't need this package, skip it in your federation.config.js!`
         );
-        logger.error(e);
+        logger.verbose(e);
         continue;
       }
     }
