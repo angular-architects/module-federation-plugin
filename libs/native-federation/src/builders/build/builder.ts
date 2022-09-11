@@ -72,12 +72,11 @@ function runNgccIfNeeded(fedOptions: FederationOptions, workspaceRoot: string) {
 function runNgcc(workspaceRoot: string) {
   logger.verbose('Running ngcc');
   const command = getNpxCommand(workspaceRoot);
-  const result = crossSpawn.sync(command, [
-    'ngcc',
-    '--async',
-    '--create-ivy-entry-points',
-    '--first-only'
-  ], { stdio: 'inherit' });
+  const result = crossSpawn.sync(
+    command,
+    ['ngcc', '--async', '--create-ivy-entry-points', '--first-only'],
+    { stdio: 'inherit' }
+  );
 
   if (result.status !== 0) {
     const error = result.error || '';
@@ -94,7 +93,6 @@ function getLockFileHash(fedOptions: FederationOptions) {
 const NGCC_LOCK_DIR = 'node_modules/.cache/native-federation/ngcc';
 
 function skipNgcc(hash: string, workspaceRoot: string) {
-  
   const ngccLockFileDir = path.join(workspaceRoot, NGCC_LOCK_DIR);
   const ngccLockFileName = path.join(ngccLockFileDir, hash + '.lock');
 
@@ -129,10 +127,14 @@ function getLockFileName(workspaceRoot: string) {
 
 function getNpxCommand(workspaceRoot: string): string {
   switch (getLockFileName(workspaceRoot)) {
-    case 'package-lock.json': return 'npx';
-    case 'yarn.lock': return 'yarn';
-    case 'pnpm-lock.yaml': return 'pnpx';
-    default: return 'npx';
+    case 'package-lock.json':
+      return 'npx';
+    case 'yarn.lock':
+      return 'yarn';
+    case 'pnpm-lock.yaml':
+      return 'pnpx';
+    default:
+      return 'npx';
   }
 }
 

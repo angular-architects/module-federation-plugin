@@ -20,12 +20,15 @@ export async function bundleShared(
     .map((packageName) => getPackageInfo(packageName, fedOptions.workspaceRoot))
     .filter((pi) => !!pi) as PackageInfo[];
 
-  logger.notice('Shared packages are only bundles once as they are cached');
+  logger.notice('Shared packages are only bundled once as they are cached');
   logger.notice(
-    'Make sure, you skip all unneeded packages in your federation.config.js'
+    'Make sure, you skip all unneeded packages in your federation.config.js!'
   );
 
-  const federationConfigPath = path.join(fedOptions.workspaceRoot, fedOptions.federationConfig);
+  const federationConfigPath = path.join(
+    fedOptions.workspaceRoot,
+    fedOptions.federationConfig
+  );
   const hash = hashFile(federationConfigPath);
 
   for (const pi of packageInfos) {

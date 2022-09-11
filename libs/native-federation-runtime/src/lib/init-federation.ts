@@ -45,7 +45,9 @@ async function processRemoteInfos(
       const remoteMap = await processRemoteInfo(url, remoteName);
       importMap = mergeImportMaps(importMap, remoteMap);
     } catch (e) {
-      console.error(`Error loading remote entry for ${remoteName} from file ${remotes[remoteName]}`);
+      console.error(
+        `Error loading remote entry for ${remoteName} from file ${remotes[remoteName]}`
+      );
     }
   }
 

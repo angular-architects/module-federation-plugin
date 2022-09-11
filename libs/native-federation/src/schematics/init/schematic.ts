@@ -265,6 +265,7 @@ async function generateFederationConfig(
       projectSourceRoot,
       remoteMap,
       ...options,
+      tmpl: '',
     }),
     move(projectRoot),
   ]);
