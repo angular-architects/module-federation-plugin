@@ -2,7 +2,7 @@ const { shareAll, withModuleFederationPlugin } = require('@angular-architects/mo
 
 module.exports = withModuleFederationPlugin({
 <% if (type === 'remote') { %>
-  name: 'mfe1',
+  name: '<%=project%>',
 
   exposes: {
     './Component': './<%=projectSourceRoot%>/app/app.component.ts',

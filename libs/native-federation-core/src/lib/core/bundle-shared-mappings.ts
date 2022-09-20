@@ -6,6 +6,7 @@ import { SharedInfo } from '@softarc/native-federation-runtime';
 import { hashFile } from '../utils/hash-file';
 import { FederationOptions } from '../core/federation-options';
 import { logger } from '../utils/logger';
+import { normalize } from '../utils/normalize';
 
 export async function bundleSharedMappings(
   config: NormalizedFederationConfig,
@@ -46,6 +47,9 @@ export async function bundleSharedMappings(
         singleton: true,
         strictVersion: false,
         version: '',
+        debug: !fedOptions.debug ? undefined : {
+          entryPoint: normalize(m.path)
+        }
       });
     } catch (e) {
       // TODO: add logger

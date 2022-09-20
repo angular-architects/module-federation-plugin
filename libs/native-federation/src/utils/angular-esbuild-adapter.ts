@@ -44,6 +44,7 @@ async function link(outfile: string) {
       compact: false,
       configFile: false,
       babelrc: false,
+      minified: true,
       browserslistConfigFile: false,
       plugins: [linker],
     });

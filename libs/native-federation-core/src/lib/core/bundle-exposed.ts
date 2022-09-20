@@ -6,6 +6,7 @@ import { ExposesInfo } from '@softarc/native-federation-runtime';
 import { hashFile } from '../utils/hash-file';
 import { FederationOptions } from './federation-options';
 import { logger } from '../utils/logger';
+import { normalize } from '../utils/normalize';
 
 export async function bundleExposed(
   config: NormalizedFederationConfig,
@@ -18,6 +19,11 @@ export async function bundleExposed(
     const outFileName = key + '.js';
     const outFilePath = path.join(options.outputPath, outFileName);
     const entryPoint = config.exposes[key];
+
+    const localPath = normalize(path.join(
+        options.workspaceRoot, 
+        config.exposes[key]
+    ));
 
     logger.info(`Bundling exposed module ${entryPoint}`);
 
@@ -37,9 +43,17 @@ export async function bundleExposed(
         options.outputPath,
         hashedOutFileName
       );
+
       fs.renameSync(outFilePath, hashedOutFilePath);
 
-      result.push({ key, outFileName: hashedOutFileName });
+      result.push({ 
+        key, 
+        outFileName: hashedOutFileName, 
+        debug: !options.debug ? undefined : {
+          localPath
+        }  
+      });
+      
     } catch (e) {
       logger.error('Error bundling exposed module ' + entryPoint);
       logger.error(e);

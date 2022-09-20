@@ -9,7 +9,7 @@ export { bundleExposed } from './lib/core/bundle-exposed';
 export { getExternals } from './lib/core/get-externals';
 export { loadFederationConfig } from './lib/core/load-federation-config';
 export { MappedPath } from './lib/utils/mapped-paths';
-export { BuildAdapter } from './lib/core/build-adapter';
+export { BuildAdapter, BuildAdapterOptions } from './lib/core/build-adapter';
 export { withNativeFederation } from './lib/config/with-native-federation';
 export { buildForFederation } from './lib/core/build-for-federation';
 export {

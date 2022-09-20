@@ -1,4 +1,4 @@
-import { BuildAdapter } from '@softarc/native-federation/build';
+import { BuildAdapter, BuildAdapterOptions } from '@softarc/native-federation/build';
 import * as esbuild from 'esbuild';
 import { rollup } from 'rollup';
 import resolve from '@rollup/plugin-node-resolve';
@@ -10,30 +10,41 @@ const commonjs = require('@rollup/plugin-commonjs');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const replace = require('@rollup/plugin-replace');
 
-export const esBuildAdapter: BuildAdapter = async (options) => {
-  const { entryPoint, external, outfile } = options;
+export const esBuildAdapter: BuildAdapter = createEsBuildAdapter({
+  plugins: []
+});
 
-  const isPkg = entryPoint.includes('node_modules');
-  const pkgName = isPkg ? inferePkgName(entryPoint) : '';
-  const tmpFolder = `node_modules/.tmp/${pkgName}`;
+export interface EsBuildAdapterConfig {
+  plugins: esbuild.Plugin[];
+}
 
-  if (isPkg) {
-    console.log('Preparing package ...');
-    await prepareNodePackage(entryPoint, external, tmpFolder);
-  }
+export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
+  return async (options: BuildAdapterOptions) => {
+    const { entryPoint, external, outfile } = options;
 
-  await esbuild.build({
-    entryPoints: [isPkg ? tmpFolder : entryPoint],
-    external,
-    outfile,
-    bundle: true,
-    sourcemap: true,
-    minify: true,
-    format: 'esm',
-    target: ['esnext'],
-    plugins: [],
-  });
-};
+    const isPkg = entryPoint.includes('node_modules');
+    const pkgName = isPkg ? inferePkgName(entryPoint) : '';
+    const tmpFolder = `node_modules/.tmp/${pkgName}`;
+
+    if (isPkg) {
+      await prepareNodePackage(entryPoint, external, tmpFolder);
+    }
+
+    await esbuild.build({
+      entryPoints: [isPkg ? tmpFolder : entryPoint],
+      external,
+      outfile,
+      bundle: true,
+      sourcemap: true,
+      minify: true,
+      format: 'esm',
+      target: ['esnext'],
+      plugins: [
+        ...config.plugins
+      ],
+    });
+  };
+}
 
 async function prepareNodePackage(
   entryPoint: string,
@@ -67,5 +78,5 @@ async function prepareNodePackage(
 function inferePkgName(entryPoint: string) {
   return entryPoint
     .replace(/.*?node_modules/g, '')
-    .replace(/[^A-Za-z0-9\.]/g, '_');
+    .replace(/[^A-Za-z0-9.]/g, '_');
 }

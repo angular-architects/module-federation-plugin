@@ -82,7 +82,7 @@ function normalizeSharedMappings(
   });
 
   const result = paths.filter(
-    (p) => !isInSkipList(p.key, skip) && p.key.includes('*')
+    (p) => !isInSkipList(p.key, skip) && !p.key.includes('*')
   );
 
   if (paths.find((p) => p.key.includes('*'))) {

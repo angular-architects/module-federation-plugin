@@ -8,6 +8,7 @@ import { FederationOptions } from './federation-options';
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 import { logger } from '../utils/logger';
 import { hashFile } from '../utils/hash-file';
+import { normalize } from '../utils/normalize';
 
 export async function bundleShared(
   config: NormalizedFederationConfig,
@@ -20,10 +21,10 @@ export async function bundleShared(
     .map((packageName) => getPackageInfo(packageName, fedOptions.workspaceRoot))
     .filter((pi) => !!pi) as PackageInfo[];
 
-  logger.notice('Shared packages are only bundled once as they are cached');
-  logger.notice(
-    'Make sure, you skip all unneeded packages in your federation.config.js!'
-  );
+  // logger.notice('Shared packages are only bundled once as they are cached');
+  // logger.notice(
+  //   'Make sure, you skip all unneeded packages in your federation.config.js!'
+  // );
 
   const federationConfigPath = path.join(
     fedOptions.workspaceRoot,
@@ -32,8 +33,7 @@ export async function bundleShared(
   const hash = hashFile(federationConfigPath);
 
   for (const pi of packageInfos) {
-    // TODO: add logger
-    logger.info('Bundling shared package ' + pi.packageName);
+    // logger.info('Bundling shared package ' + pi.packageName);
 
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
     const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
@@ -50,6 +50,9 @@ export async function bundleShared(
     const cachedFile = path.join(cachePath, outFileName);
 
     if (!fs.existsSync(cachedFile)) {
+
+      logger.info('Preparing shared package ' + pi.packageName);
+
       try {
         await bundle({
           entryPoint: pi.entryPoint,
@@ -84,6 +87,9 @@ export async function bundleShared(
       singleton: shared.singleton,
       strictVersion: shared.strictVersion,
       version: pi.version,
+      debug: !fedOptions.debug ? undefined : {
+        entryPoint: normalize(pi.entryPoint),
+      }
     });
 
     const fullOutputPath = path.join(

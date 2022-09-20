@@ -7,6 +7,7 @@ import { rollup } from 'rollup';
 import resolve from '@rollup/plugin-node-resolve';
 import { externals } from 'rollup-plugin-node-externals';
 import { logger } from '@softarc/native-federation/build';
+import { terser } from "rollup-plugin-terser";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const commonjs = require('@rollup/plugin-commonjs');
@@ -16,6 +17,9 @@ const replace = require('@rollup/plugin-replace');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const json = require('@rollup/plugin-json');
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 
 export async function runRollup(
   entryPoint: string,
@@ -39,6 +43,7 @@ export async function runRollup(
             'process.env.NODE_ENV': '"development"',
           },
         }),
+        terser(),
       ],
     });
 
