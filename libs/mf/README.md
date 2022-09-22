@@ -72,8 +72,8 @@ If you start from the scratch, `ng add` will take care of these settings.
 
 ### Nx
 
-1. `npm install @angular-architects/module-federation`
-2. `ng g @angular-architects/module-federation:init`
+1. `npm install --save-dev @angular-architects/module-federation`
+2. `nx g @angular-architects/module-federation:init`
 3. Adjust the generated `webpack.config.js` file
 4. Repeat this for further projects in your workspace (if needed)
 
