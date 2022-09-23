@@ -27,8 +27,8 @@ async function init(params: BuildHelperParams): Promise<void> {
   externals = getExternals(config);
 }
 
-async function build(): Promise<void> {
-  await buildForFederation(config, fedOptions, externals);
+async function build(buildParams = defaultBuildParams): Promise<void> {
+  await buildForFederation(config, fedOptions, externals, buildParams);
 }
 
 export const federationBuilder = {

@@ -32,6 +32,7 @@ export async function bundleShared(
   );
   const hash = hashFile(federationConfigPath);
 
+  let first = true;
   for (const pi of packageInfos) {
     // logger.info('Bundling shared package ' + pi.packageName);
 
@@ -50,6 +51,14 @@ export async function bundleShared(
     const cachedFile = path.join(cachePath, outFileName);
 
     if (!fs.existsSync(cachedFile)) {
+
+      if (first) {
+        logger.notice('Preparing shared npm packages');
+        logger.notice('This only needs to be done once');
+        logger.notice('Skip packages you don\'t want to share in your federation config');
+      }
+      first = false;
+
       logger.info('Preparing shared package ' + pi.packageName);
 
       try {

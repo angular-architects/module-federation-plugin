@@ -7,9 +7,7 @@ import * as esbuild from 'esbuild';
 import { createCompilerPlugin } from '@angular-devkit/build-angular/src/builders/browser-esbuild/compiler-plugin';
 import { createSharedMappingsPlugin } from './shared-mappings-plugin';
 import { runRollup as runRollup } from './rollup';
-
 import * as fs from 'fs';
-
 import { PluginItem, transformAsync } from '@babel/core';
 
 export const AngularEsBuildAdapter: BuildAdapter = async (options) => {
@@ -21,7 +19,6 @@ export const AngularEsBuildAdapter: BuildAdapter = async (options) => {
   } else {
     await runEsbuild(entryPoint, external, outfile, tsConfigPath, mappedPaths);
   }
-
   if (kind === 'shared-package' && fs.existsSync(outfile)) {
     await link(outfile);
   }
@@ -68,12 +65,16 @@ async function runEsbuild(
   outfile: string,
   tsConfigPath: string,
   mappedPaths: MappedPath[],
-  plugins: esbuild.Plugin[] | null = null
+  plugins: esbuild.Plugin[] | null = null,
+  absWorkingDir: string | undefined = undefined,
+  logLevel: esbuild.LogLevel = 'warning'
 ) {
-  await esbuild.build({
+  return await esbuild.build({
     entryPoints: [entryPoint],
+    absWorkingDir,
     external,
     outfile,
+    logLevel,
     bundle: true,
     sourcemap: true,
     minify: true,
