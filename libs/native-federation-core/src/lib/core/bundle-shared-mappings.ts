@@ -5,6 +5,8 @@ import { bundle } from '../utils/build-utils';
 import { SharedInfo } from '@softarc/native-federation-runtime';
 import { hashFile } from '../utils/hash-file';
 import { FederationOptions } from '../core/federation-options';
+import { logger } from '../utils/logger';
+import { normalize } from '../utils/normalize';
 
 export async function bundleSharedMappings(
   config: NormalizedFederationConfig,
@@ -18,7 +20,7 @@ export async function bundleSharedMappings(
     const outFileName = key + '.js';
     const outFilePath = path.join(fedOptions.outputPath, outFileName);
 
-    console.info('Bundling shared mapping', m.key, '...');
+    logger.info('Bundling shared mapping ' + m.key);
 
     try {
       await bundle({
@@ -27,6 +29,7 @@ export async function bundleSharedMappings(
         external: externals,
         outfile: outFilePath,
         mappedPaths: [],
+        kind: 'shared-mapping',
       });
 
       const hash = hashFile(outFilePath);
@@ -44,17 +47,19 @@ export async function bundleSharedMappings(
         singleton: true,
         strictVersion: false,
         version: '',
+        dev: !fedOptions.dev
+          ? undefined
+          : {
+              entryPoint: normalize(m.path),
+            },
       });
     } catch (e) {
       // TODO: add logger
-      console.error('Error bundling shared mapping ' + m.key);
-      console.error(
-        `  >> If you don't need this mapping to shared, you can explicity configure the sharedMappings property in your federation.config.js`
+      logger.error('Error bundling shared mapping ' + m.key);
+      logger.notice(
+        `If you don't need this mapping to shared, you can skip it in your federation.config.js`
       );
-
-      if (fedOptions.verbose) {
-        console.error(e);
-      }
+      logger.error(e);
     }
   }
 
@@ -87,4 +92,29 @@ function findTsConfig(folder: string): string | null {
   }
 
   return null;
+}
+
+export function describeSharedMappings(
+  config: NormalizedFederationConfig,
+  fedOptions: FederationOptions
+): Array<SharedInfo> {
+  const result: Array<SharedInfo> = [];
+
+  for (const m of config.sharedMappings) {
+    result.push({
+      packageName: m.key,
+      outFileName: '',
+      requiredVersion: '',
+      singleton: true,
+      strictVersion: false,
+      version: '',
+      dev: !fedOptions.dev
+        ? undefined
+        : {
+            entryPoint: normalize(m.path),
+          },
+    });
+  }
+
+  return result;
 }

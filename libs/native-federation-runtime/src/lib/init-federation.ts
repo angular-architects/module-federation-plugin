@@ -40,9 +40,15 @@ async function processRemoteInfos(
   };
 
   for (const remoteName of Object.keys(remotes)) {
-    const url = remotes[remoteName];
-    const remoteMap = await processRemoteInfo(url, remoteName);
-    importMap = mergeImportMaps(importMap, remoteMap);
+    try {
+      const url = remotes[remoteName];
+      const remoteMap = await processRemoteInfo(url, remoteName);
+      importMap = mergeImportMaps(importMap, remoteMap);
+    } catch (e) {
+      console.error(
+        `Error loading remote entry for ${remoteName} from file ${remotes[remoteName]}`
+      );
+    }
   }
 
   return importMap;

@@ -6,6 +6,9 @@ import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
+import { logger } from '../utils/logger';
+import { hashFile } from '../utils/hash-file';
+import { normalize } from '../utils/normalize';
 
 export async function bundleShared(
   config: NormalizedFederationConfig,
@@ -18,14 +21,24 @@ export async function bundleShared(
     .map((packageName) => getPackageInfo(packageName, fedOptions.workspaceRoot))
     .filter((pi) => !!pi) as PackageInfo[];
 
+  // logger.notice('Shared packages are only bundled once as they are cached');
+  // logger.notice(
+  //   'Make sure, you skip all unneeded packages in your federation.config.js!'
+  // );
+
+  const federationConfigPath = path.join(
+    fedOptions.workspaceRoot,
+    fedOptions.federationConfig
+  );
+  const hash = hashFile(federationConfigPath);
+
   for (const pi of packageInfos) {
-    // TODO: add logger
-    console.info('Bundling shared package', pi.packageName, '...');
+    // logger.info('Bundling shared package ' + pi.packageName);
 
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
     const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
 
-    const outFileName = `${encName}-${encVersion}.js`;
+    const outFileName = `${encName}-${encVersion}-${hash}.js`;
 
     const cachePath = path.join(
       fedOptions.workspaceRoot,
@@ -37,6 +50,8 @@ export async function bundleShared(
     const cachedFile = path.join(cachePath, outFileName);
 
     if (!fs.existsSync(cachedFile)) {
+      logger.info('Preparing shared package ' + pi.packageName);
+
       try {
         await bundle({
           entryPoint: pi.entryPoint,
@@ -46,11 +61,18 @@ export async function bundleShared(
           mappedPaths: config.sharedMappings,
           packageName: pi.packageName,
           esm: pi.esm,
+          kind: 'shared-package',
         });
-      }
-      catch(e) {
-        console.error('Error bundling', pi.packageName);
-        console.info(`If you don't need this package, skip it in your federation.config.js!`);
+      } catch (e) {
+        logger.error('Error bundling ' + pi.packageName);
+        if (e instanceof Error) {
+          logger.error(e.message);
+        }
+        logger.error('For more information, run in verbose mode');
+        logger.notice(
+          `If you don't need this package, skip it in your federation.config.js!`
+        );
+        logger.verbose(e);
         continue;
       }
     }
@@ -64,6 +86,11 @@ export async function bundleShared(
       singleton: shared.singleton,
       strictVersion: shared.strictVersion,
       version: pi.version,
+      dev: !fedOptions.dev
+        ? undefined
+        : {
+            entryPoint: normalize(pi.entryPoint),
+          },
     });
 
     const fullOutputPath = path.join(
@@ -71,9 +98,18 @@ export async function bundleShared(
       fedOptions.outputPath,
       outFileName
     );
-    fs.copyFileSync(cachedFile, fullOutputPath);
+
+    copyFileIfExists(cachedFile, fullOutputPath);
     copySrcMapIfExists(cachedFile, fullOutputPath);
   }
 
   return result;
+}
+
+function copyFileIfExists(cachedFile: string, fullOutputPath: string) {
+  fs.mkdirSync(path.dirname(fullOutputPath), { recursive: true });
+
+  if (fs.existsSync(cachedFile)) {
+    fs.copyFileSync(cachedFile, fullOutputPath);
+  }
 }

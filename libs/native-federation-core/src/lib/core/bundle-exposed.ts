@@ -5,6 +5,8 @@ import { bundle } from '../utils/build-utils';
 import { ExposesInfo } from '@softarc/native-federation-runtime';
 import { hashFile } from '../utils/hash-file';
 import { FederationOptions } from './federation-options';
+import { logger } from '../utils/logger';
+import { normalize } from '../utils/normalize';
 
 export async function bundleExposed(
   config: NormalizedFederationConfig,
@@ -18,22 +20,69 @@ export async function bundleExposed(
     const outFilePath = path.join(options.outputPath, outFileName);
     const entryPoint = config.exposes[key];
 
-    console.info('Bundle exposed file', entryPoint, '...');
+    const localPath = normalize(
+      path.join(options.workspaceRoot, config.exposes[key])
+    );
 
-    await bundle({
-      entryPoint,
-      tsConfigPath: options.tsConfig,
-      external: externals,
-      outfile: outFilePath,
-      mappedPaths: config.sharedMappings,
-    });
+    logger.info(`Bundling exposed module ${entryPoint}`);
 
-    const hash = hashFile(outFilePath);
-    const hashedOutFileName = `${key}-${hash}.js`;
-    const hashedOutFilePath = path.join(options.outputPath, hashedOutFileName);
-    fs.renameSync(outFilePath, hashedOutFilePath);
+    try {
+      await bundle({
+        entryPoint,
+        tsConfigPath: options.tsConfig,
+        external: externals,
+        outfile: outFilePath,
+        mappedPaths: config.sharedMappings,
+        kind: 'exposed',
+      });
 
-    result.push({ key, outFileName: hashedOutFileName });
+      const hash = hashFile(outFilePath);
+      const hashedOutFileName = `${key}-${hash}.js`;
+      const hashedOutFilePath = path.join(
+        options.outputPath,
+        hashedOutFileName
+      );
+
+      fs.renameSync(outFilePath, hashedOutFilePath);
+
+      result.push({
+        key,
+        outFileName: hashedOutFileName,
+        dev: !options.dev
+          ? undefined
+          : {
+              entryPoint: localPath,
+            },
+      });
+    } catch (e) {
+      logger.error('Error bundling exposed module ' + entryPoint);
+      logger.error(e);
+    }
   }
+  return result;
+}
+
+export function describeExposed(
+  config: NormalizedFederationConfig,
+  options: FederationOptions
+): Array<ExposesInfo> {
+  const result: Array<ExposesInfo> = [];
+
+  for (const key in config.exposes) {
+    const localPath = normalize(
+      path.join(options.workspaceRoot, config.exposes[key])
+    );
+
+    result.push({
+      key,
+      outFileName: '',
+      dev: !options.dev
+        ? undefined
+        : {
+            entryPoint: localPath,
+          },
+    });
+  }
+
   return result;
 }

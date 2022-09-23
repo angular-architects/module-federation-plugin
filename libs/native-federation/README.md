@@ -39,7 +39,7 @@ Big thanks to:
 
 - [Zack Jackson](https://twitter.com/ScriptedAlchemy) for originally coming up with the great idea of Module Federation and its successful mental model
 - [Tobias Koppers](https://twitter.com/wSokra) for helping to make Module Federation a first class citizen of webpack
-- [Florian Rappl](https://twitter.com/FlorianRappl) for an good discussion about these topics during a speakers dinner in Nuremberg 
+- [Florian Rappl](https://twitter.com/FlorianRappl) for an good discussion about these topics during a speakers dinner in Nuremberg
 - [The Nx Team](https://twitter.com/NxDevTools), esp. [Colum Ferry](https://twitter.com/FerryColum), who seamlessly integrated webpack Module Federation into Nx and hence helped to spread the word about it (Nx + Module Federation === ❤️)
 - [Michael Egger-Zikes](https://twitter.com/MikeZks) for contributing to our Module Federation efforts and brining in valuable feedback
 - The Angular CLI-Team, esp. [Alan Agius](https://twitter.com/AlanAgius4) and [Charles Lyding](https://twitter.com/charleslyding), for working on the experimental esbuild builder for Angular
@@ -271,15 +271,15 @@ However, we prefer the first option where just the `remoteName` is passed.
 
 ### Polyfill
 
-This library uses Import Maps. As of today, not all browsers support this emerging browser feature, we need a polyfill. We recommend the polyfill ``es-module-shims`` which has been developed for production use cases. Our schematics install it via npm and add it to your ``polyfills.ts``.
+This library uses Import Maps. As of today, not all browsers support this emerging browser feature, we need a polyfill. We recommend the polyfill `es-module-shims` which has been developed for production use cases. Our schematics install it via npm and add it to your `polyfills.ts`.
 
-Also, the schematics add the following to your ``index.html``:
+Also, the schematics add the following to your `index.html`:
 
 ```html
 <script type="esms-options">
-    {
-        "shimMode": true
-    }
+  {
+      "shimMode": true
+  }
 </script>
 
 <script type="module" src="polyfills.js"></script>
@@ -287,9 +287,9 @@ Also, the schematics add the following to your ``index.html``:
 <script type="module-shim" src="main.js"></script>
 ```
 
-The script with the type ``esms-options`` configures the polyfill. This library was built for shim mode. In this mode, the polyfill provides some additional features beyond the proposal for Import Maps. These features, for instance, allow for dynamically creating an import map after loading the first EcmaScript module. Native Federation uses this possibility.
+The script with the type `esms-options` configures the polyfill. This library was built for shim mode. In this mode, the polyfill provides some additional features beyond the proposal for Import Maps. These features, for instance, allow for dynamically creating an import map after loading the first EcmaScript module. Native Federation uses this possibility.
 
-To make the polyfill to load your EcmaScript modules (bundles) in shim mode, assign the type ``module-shim``. However, please just use module for the polyfill bundle itself to prevent an hen/egg-issue.
+To make the polyfill to load your EcmaScript modules (bundles) in shim mode, assign the type `module-shim`. However, please just use module for the polyfill bundle itself to prevent an hen/egg-issue.
 
 ## FAQ
 
@@ -302,7 +302,6 @@ We will evolve Native Federation but also our Module Federation support and keep
 ### How does Native Federation Work under the Covers?
 
 We use Import Maps at runtime. As they are currently not supported in every browser, our `init` schematic installs the `es-module-shims` polyfill. In addition to Import Maps, we use some code at build time and at runtime to provide the Mental Model of Module Federation.
-
 
 ## More: Blog Articles
 

@@ -171,6 +171,7 @@ async function generateWebpackConfig(
       projectSourceRoot,
       remoteMap,
       ...options,
+      tmpl: '',
     }),
     move(projectRoot),
   ]);

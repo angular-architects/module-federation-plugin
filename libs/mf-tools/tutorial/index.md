@@ -24,114 +24,114 @@ If you don't want to do the upstream tutorial first, you can use [this example](
 
 3. Open your shell's `app.routes.ts` and add the following routes:
 
-    ```typescript
-    [...]
+   ```typescript
+   [...]
 
-    // Add this import:
-    import { WebComponentWrapper, WebComponentWrapperOptions, startsWith } from '@angular-architects/module-federation-tools';
-    
-    [...]
+   // Add this import:
+   import { WebComponentWrapper, WebComponentWrapperOptions, startsWith } from '@angular-architects/module-federation-tools';
 
-
-    export const APP_ROUTES: Routes = [
-
-        [...]
-        // Add these routes:
-        {
-                path: 'react',
-                component: WebComponentWrapper,
-                data: {
-                    type: 'script',
-                    remoteEntry: 'https://witty-wave-0a695f710.azurestaticapps.net/remoteEntry.js',
-                    remoteName: 'react',
-                    exposedModule: './web-components',
-                    elementName: 'react-element'
-                } as WebComponentWrapperOptions
-        },
-
-        {
-                path: 'angular1',
-                component: WebComponentWrapper,
-                data: {
-                    type: 'script',
-                    remoteEntry: 'https://nice-grass-018f7d910.azurestaticapps.net/remoteEntry.js',
-                    remoteName: 'angular1',
-                    exposedModule: './web-components',
-                    elementName: 'angular1-element'
-                } as WebComponentWrapperOptions
-        },
-
-        {
-                path: 'angular2',
-                component: WebComponentWrapper,
-                data: {
-                    type: 'script',
-                    remoteEntry: 'https://gray-pond-030798810.azurestaticapps.net//remoteEntry.js',
-                    remoteName: 'angular2',
-                    exposedModule: './web-components',
-                    elementName: 'angular2-element'
-                } as WebComponentWrapperOptions
-        },
-
-        {
-            matcher: startsWith('angular3'),
-            component: WebComponentWrapper,
-            data: {
-                type: 'script',
-                remoteEntry: 'https://gray-river-0b8c23a10.azurestaticapps.net/remoteEntry.js',
-                remoteName: 'angular3',
-                exposedModule: './web-components',
-                elementName: 'angular3-element'
-            } as WebComponentWrapperOptions
-        },
-
-        {
-            path: 'vue',
-            component: WebComponentWrapper,
-            data: {
-                type: 'script',
-                remoteEntry: 'https://mango-field-0d0778c10.azurestaticapps.net/remoteEntry.js',
-                remoteName: 'vue',
-                exposedModule: './web-components',
-                elementName: 'vue-element'
-            } as WebComponentWrapperOptions
-        },
-
-        {
-            path: 'angularjs',
-            component: WebComponentWrapper,
-            data: {
-                type: 'script',
-                remoteEntry: 'https://calm-mud-0a3ee4a10.azurestaticapps.net/remoteEntry.js',
-                remoteName: 'angularjs',
-                exposedModule: './web-components',
-                elementName: 'angularjs-element'
-            } as WebComponentWrapperOptions
-        },
-
-        {
-            matcher: startsWith('angular3'),
-            component: WebComponentWrapper,
-            data: {
-                type: 'script',
-                remoteEntry: 'https://gray-river-0b8c23a10.azurestaticapps.net/remoteEntry.js',
-                remoteName: 'angular3',
-                exposedModule: './web-components',
-                elementName: 'angular3-element'
-            } as WebComponentWrapperOptions
-        },
+   [...]
 
 
-        // THIS needs to be the last route!!!
-        {
-            path: '**',
-            component: NotFoundComponent
-        }
+   export const APP_ROUTES: Routes = [
 
-    ];
-    ```
+       [...]
+       // Add these routes:
+       {
+               path: 'react',
+               component: WebComponentWrapper,
+               data: {
+                   type: 'script',
+                   remoteEntry: 'https://witty-wave-0a695f710.azurestaticapps.net/remoteEntry.js',
+                   remoteName: 'react',
+                   exposedModule: './web-components',
+                   elementName: 'react-element'
+               } as WebComponentWrapperOptions
+       },
 
-   **Remarks:** The URL matcher ``startsWith`` makes the shell to ignore the remaining part of the URL. This is necessary when the loaded micro frontend uses a router too.
+       {
+               path: 'angular1',
+               component: WebComponentWrapper,
+               data: {
+                   type: 'script',
+                   remoteEntry: 'https://nice-grass-018f7d910.azurestaticapps.net/remoteEntry.js',
+                   remoteName: 'angular1',
+                   exposedModule: './web-components',
+                   elementName: 'angular1-element'
+               } as WebComponentWrapperOptions
+       },
+
+       {
+               path: 'angular2',
+               component: WebComponentWrapper,
+               data: {
+                   type: 'script',
+                   remoteEntry: 'https://gray-pond-030798810.azurestaticapps.net//remoteEntry.js',
+                   remoteName: 'angular2',
+                   exposedModule: './web-components',
+                   elementName: 'angular2-element'
+               } as WebComponentWrapperOptions
+       },
+
+       {
+           matcher: startsWith('angular3'),
+           component: WebComponentWrapper,
+           data: {
+               type: 'script',
+               remoteEntry: 'https://gray-river-0b8c23a10.azurestaticapps.net/remoteEntry.js',
+               remoteName: 'angular3',
+               exposedModule: './web-components',
+               elementName: 'angular3-element'
+           } as WebComponentWrapperOptions
+       },
+
+       {
+           path: 'vue',
+           component: WebComponentWrapper,
+           data: {
+               type: 'script',
+               remoteEntry: 'https://mango-field-0d0778c10.azurestaticapps.net/remoteEntry.js',
+               remoteName: 'vue',
+               exposedModule: './web-components',
+               elementName: 'vue-element'
+           } as WebComponentWrapperOptions
+       },
+
+       {
+           path: 'angularjs',
+           component: WebComponentWrapper,
+           data: {
+               type: 'script',
+               remoteEntry: 'https://calm-mud-0a3ee4a10.azurestaticapps.net/remoteEntry.js',
+               remoteName: 'angularjs',
+               exposedModule: './web-components',
+               elementName: 'angularjs-element'
+           } as WebComponentWrapperOptions
+       },
+
+       {
+           matcher: startsWith('angular3'),
+           component: WebComponentWrapper,
+           data: {
+               type: 'script',
+               remoteEntry: 'https://gray-river-0b8c23a10.azurestaticapps.net/remoteEntry.js',
+               remoteName: 'angular3',
+               exposedModule: './web-components',
+               elementName: 'angular3-element'
+           } as WebComponentWrapperOptions
+       },
+
+
+       // THIS needs to be the last route!!!
+       {
+           path: '**',
+           component: NotFoundComponent
+       }
+
+   ];
+   ```
+
+   **Remarks:** The URL matcher `startsWith` makes the shell to ignore the remaining part of the URL. This is necessary when the loaded micro frontend uses a router too.
 
    **Remarks:** Please note that we are using `type: 'script'` here. This is needed for classic webpack setups as normally used in the Vue and React world as well as for Angular before version 13. Beginning with version 13, the CLI emits EcmaScript module instead of "plain old" JavaScript files. Hence, when loading a remote compiled with Angular 13 or higher, you need to set `type` to `module`. In our case, however, the remotes we find at the shown URLs in the cloud are Angular 12-based, hence we need `type: 'script'`.
 
@@ -149,20 +149,20 @@ If you don't want to do the upstream tutorial first, you can use [this example](
 
 5. Open your shell's `bootstrap.ts` and use the `bootstrap` helper function found in `@angular-architects/module-federation-tools` for bootstrapping:
 
-    ```typescript
-    import { AppModule } from './app/app.module';
-    import { environment } from './environments/environment';
-    import { bootstrap } from '@angular-architects/module-federation-tools';
+   ```typescript
+   import { AppModule } from './app/app.module';
+   import { environment } from './environments/environment';
+   import { bootstrap } from '@angular-architects/module-federation-tools';
 
-    bootstrap(AppModule, {
-        production: environment.production,
-        appType: 'shell',
-    });
-    ```
+   bootstrap(AppModule, {
+     production: environment.production,
+     appType: 'shell',
+   });
+   ```
 
-    Remarks: This special bootstrap function takes care of some **workarounds** necessary to run several versions of Angular side by side.
+   Remarks: This special bootstrap function takes care of some **workarounds** necessary to run several versions of Angular side by side.
 
-6. Start your ``shell`` and the ``mfe1`` project (e. g. by calling `npm run run:all`) and try it out.
+6. Start your `shell` and the `mfe1` project (e. g. by calling `npm run run:all`) and try it out.
 
 ## Part 2: Inspect the Web-Component-based Micro Frontends
 

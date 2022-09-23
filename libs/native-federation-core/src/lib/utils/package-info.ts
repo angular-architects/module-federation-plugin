@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { logger } from './logger';
 
 export interface PackageInfo {
   packageName: string;
@@ -26,7 +27,7 @@ export function getPackageInfo(
   if (!fs.existsSync(mainPkgPath)) {
     // TODO: Add logger
     // context.logger.warn('No package.json found for ' + packageName);
-    console.warn('No package.json found for ' + packageName);
+    logger.warn('No package.json found for ' + packageName);
 
     return null;
   }
@@ -39,7 +40,7 @@ export function getPackageInfo(
   if (!version) {
     // TODO: Add logger
     // context.logger.warn('No version found for ' + packageName);
-    console.warn('No version found for ' + packageName);
+    logger.warn('No version found for ' + packageName);
 
     return null;
   }
@@ -57,7 +58,7 @@ export function getPackageInfo(
       entryPoint: path.join(mainPkgPath, cand),
       packageName,
       version,
-      esm
+      esm,
     };
   }
 
@@ -67,7 +68,7 @@ export function getPackageInfo(
       entryPoint: path.join(mainPkgPath, cand),
       packageName,
       version,
-      esm
+      esm,
     };
   }
 
@@ -78,7 +79,7 @@ export function getPackageInfo(
       entryPoint: path.join(mainPkgPath, cand),
       packageName,
       version,
-      esm: true
+      esm: true,
     };
   }
 
@@ -94,7 +95,7 @@ export function getPackageInfo(
       entryPoint: path.join(secondaryPgkPath, secondaryPgkJson.module),
       packageName,
       version,
-      esm: true
+      esm: true,
     };
   }
 
@@ -104,7 +105,7 @@ export function getPackageInfo(
       entryPoint: cand,
       packageName,
       version,
-      esm: true
+      esm: true,
     };
   }
 
@@ -113,7 +114,7 @@ export function getPackageInfo(
       entryPoint: path.join(secondaryPgkPath, secondaryPgkJson.main),
       packageName,
       version,
-      esm
+      esm,
     };
   }
 
@@ -123,14 +124,14 @@ export function getPackageInfo(
       entryPoint: cand,
       packageName,
       version,
-      esm
+      esm,
     };
   }
 
   // TODO: Add logger
-  console.warn('No entry point found for ' + packageName);
-  console.warn(
-    '  >> Did you confuse dependencies with depDependencies in your package.json or your federation config?'
+  logger.warn('No entry point found for ' + packageName);
+  logger.warn(
+    "If you don't need this package, skip it in your federation.config.js or consider moving it into depDependencies in your package.json"
   );
 
   return null;

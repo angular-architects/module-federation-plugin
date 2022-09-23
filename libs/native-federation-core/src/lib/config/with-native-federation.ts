@@ -5,12 +5,16 @@ import {
   NormalizedFederationConfig,
   NormalizedSharedConfig,
 } from './federation-config';
-import { isInSkipList, PreparedSkipList, prepareSkipList } from '../core/default-skip-list';
+import {
+  isInSkipList,
+  PreparedSkipList,
+  prepareSkipList,
+} from '../core/default-skip-list';
+import { logger } from '../utils/logger';
 
 export function withNativeFederation(
   config: FederationConfig
 ): NormalizedFederationConfig {
-
   const skip = prepareSkipList(config.skip ?? []);
 
   return {
@@ -77,7 +81,13 @@ function normalizeSharedMappings(
     sharedMappings: config.sharedMappings,
   });
 
-  const result = paths.filter((p) => !isInSkipList(p.key, skip));
+  const result = paths.filter(
+    (p) => !isInSkipList(p.key, skip) && !p.key.includes('*')
+  );
+
+  if (paths.find((p) => p.key.includes('*'))) {
+    logger.warn('Sharing mapped paths with wildcards (*) not supported');
+  }
 
   return result;
 }

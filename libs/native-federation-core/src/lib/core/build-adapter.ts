@@ -1,8 +1,9 @@
+import { logger } from '../utils/logger';
 import { MappedPath } from '../utils/mapped-paths';
 
 let _buildAdapter: BuildAdapter = async () => {
   // TODO: add logger
-  console.error('Please set a BuildAdapter!');
+  logger.error('Please set a BuildAdapter!');
 };
 
 export interface BuildAdapterOptions {
@@ -13,6 +14,7 @@ export interface BuildAdapterOptions {
   mappedPaths: MappedPath[];
   packageName?: string;
   esm?: boolean;
+  kind: 'shared-package' | 'shared-mapping' | 'exposed';
 }
 
 export type BuildAdapter = (options: BuildAdapterOptions) => Promise<void>;
