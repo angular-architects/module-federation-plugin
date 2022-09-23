@@ -42,7 +42,7 @@ export async function runRollup(
             'process.env.NODE_ENV': '"development"',
           },
         }),
-        terser(),
+        terser({ mangle: false, format: { comments: false } }),
       ],
     });
 
