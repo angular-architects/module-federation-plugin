@@ -1,7 +1,11 @@
 import { SharedInfo } from '@softarc/native-federation';
 import { NormalizedFederationConfig } from '../config/federation-config';
 import { BuildAdapter, setBuildAdapter } from './build-adapter';
-import { buildForFederation } from './build-for-federation';
+import {
+  buildForFederation,
+  BuildParams,
+  defaultBuildParams,
+} from './build-for-federation';
 import { bundleShared } from './bundle-shared';
 import { FederationOptions } from './federation-options';
 import { getExternals } from './get-externals';
@@ -23,22 +27,17 @@ async function init(params: BuildHelperParams): Promise<void> {
   externals = getExternals(config);
 }
 
-async function build(): Promise<void> {
-  buildForFederation(config, fedOptions, externals);
-}
-
-async function buildShared(): Promise<SharedInfo[]> {
-  return bundleShared(config, fedOptions, externals);
+async function build(buildParams = defaultBuildParams): Promise<void> {
+  buildForFederation(config, fedOptions, externals, buildParams);
 }
 
 export const federationBuilder = {
   init,
   build,
-  buildShared,
   get externals(): string[] {
     return externals;
   },
   get config(): NormalizedFederationConfig {
     return config;
-  }
+  },
 };

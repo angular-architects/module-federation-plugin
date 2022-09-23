@@ -47,9 +47,11 @@ export async function bundleSharedMappings(
         singleton: true,
         strictVersion: false,
         version: '',
-        debug: !fedOptions.debug ? undefined : {
-          entryPoint: normalize(m.path)
-        }
+        dev: !fedOptions.dev
+          ? undefined
+          : {
+              entryPoint: normalize(m.path),
+            },
       });
     } catch (e) {
       // TODO: add logger
@@ -90,4 +92,29 @@ function findTsConfig(folder: string): string | null {
   }
 
   return null;
+}
+
+export function describeSharedMappings(
+  config: NormalizedFederationConfig,
+  fedOptions: FederationOptions
+): Array<SharedInfo> {
+  const result: Array<SharedInfo> = [];
+
+  for (const m of config.sharedMappings) {
+    result.push({
+      packageName: m.key,
+      outFileName: '',
+      requiredVersion: '',
+      singleton: true,
+      strictVersion: false,
+      version: '',
+      dev: !fedOptions.dev
+        ? undefined
+        : {
+            entryPoint: normalize(m.path),
+          },
+    });
+  }
+
+  return result;
 }

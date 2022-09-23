@@ -50,7 +50,6 @@ export async function bundleShared(
     const cachedFile = path.join(cachePath, outFileName);
 
     if (!fs.existsSync(cachedFile)) {
-
       logger.info('Preparing shared package ' + pi.packageName);
 
       try {
@@ -87,9 +86,11 @@ export async function bundleShared(
       singleton: shared.singleton,
       strictVersion: shared.strictVersion,
       version: pi.version,
-      debug: !fedOptions.debug ? undefined : {
-        entryPoint: normalize(pi.entryPoint),
-      }
+      dev: !fedOptions.dev
+        ? undefined
+        : {
+            entryPoint: normalize(pi.entryPoint),
+          },
     });
 
     const fullOutputPath = path.join(
@@ -106,6 +107,8 @@ export async function bundleShared(
 }
 
 function copyFileIfExists(cachedFile: string, fullOutputPath: string) {
+  fs.mkdirSync(path.dirname(fullOutputPath), { recursive: true });
+
   if (fs.existsSync(cachedFile)) {
     fs.copyFileSync(cachedFile, fullOutputPath);
   }

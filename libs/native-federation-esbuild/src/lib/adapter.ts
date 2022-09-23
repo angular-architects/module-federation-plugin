@@ -1,4 +1,7 @@
-import { BuildAdapter, BuildAdapterOptions } from '@softarc/native-federation/build';
+import {
+  BuildAdapter,
+  BuildAdapterOptions,
+} from '@softarc/native-federation/build';
 import * as esbuild from 'esbuild';
 import { rollup } from 'rollup';
 import resolve from '@rollup/plugin-node-resolve';
@@ -11,7 +14,7 @@ const commonjs = require('@rollup/plugin-commonjs');
 const replace = require('@rollup/plugin-replace');
 
 export const esBuildAdapter: BuildAdapter = createEsBuildAdapter({
-  plugins: []
+  plugins: [],
 });
 
 export interface EsBuildAdapterConfig {
@@ -39,9 +42,7 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
       minify: true,
       format: 'esm',
       target: ['esnext'],
-      plugins: [
-        ...config.plugins
-      ],
+      plugins: [...config.plugins],
     });
   };
 }

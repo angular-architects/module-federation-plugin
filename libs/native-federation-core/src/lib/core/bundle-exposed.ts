@@ -20,10 +20,9 @@ export async function bundleExposed(
     const outFilePath = path.join(options.outputPath, outFileName);
     const entryPoint = config.exposes[key];
 
-    const localPath = normalize(path.join(
-        options.workspaceRoot, 
-        config.exposes[key]
-    ));
+    const localPath = normalize(
+      path.join(options.workspaceRoot, config.exposes[key])
+    );
 
     logger.info(`Bundling exposed module ${entryPoint}`);
 
@@ -46,18 +45,44 @@ export async function bundleExposed(
 
       fs.renameSync(outFilePath, hashedOutFilePath);
 
-      result.push({ 
-        key, 
-        outFileName: hashedOutFileName, 
-        debug: !options.debug ? undefined : {
-          localPath
-        }  
+      result.push({
+        key,
+        outFileName: hashedOutFileName,
+        dev: !options.dev
+          ? undefined
+          : {
+              entryPoint: localPath,
+            },
       });
-      
     } catch (e) {
       logger.error('Error bundling exposed module ' + entryPoint);
       logger.error(e);
     }
   }
+  return result;
+}
+
+export function describeExposed(
+  config: NormalizedFederationConfig,
+  options: FederationOptions
+): Array<ExposesInfo> {
+  const result: Array<ExposesInfo> = [];
+
+  for (const key in config.exposes) {
+    const localPath = normalize(
+      path.join(options.workspaceRoot, config.exposes[key])
+    );
+
+    result.push({
+      key,
+      outFileName: '',
+      dev: !options.dev
+        ? undefined
+        : {
+            entryPoint: localPath,
+          },
+    });
+  }
+
   return result;
 }

@@ -5,16 +5,16 @@ export type SharedInfo = {
   version?: string;
   packageName: string;
   outFileName: string;
-  debug?: {
+  dev?: {
     entryPoint: string;
-  }
+  };
 };
 
 export interface ExposesInfo {
   key: string;
   outFileName: string;
-  debug?: {
-    localPath: string;
+  dev?: {
+    entryPoint: string;
   };
 }
 

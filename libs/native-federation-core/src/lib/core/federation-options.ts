@@ -4,5 +4,5 @@ export interface FederationOptions {
   federationConfig: string;
   tsConfig?: string;
   verbose?: boolean;
-  debug?: boolean;
+  dev?: boolean;
 }
