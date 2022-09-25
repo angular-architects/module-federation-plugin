@@ -40,6 +40,7 @@ export async function runBuilder(
     federationConfig: infereConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose,
+    watch: options.watch,
   };
 
   const config = await loadFederationConfig(fedOptions);

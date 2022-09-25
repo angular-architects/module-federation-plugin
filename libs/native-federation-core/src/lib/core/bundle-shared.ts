@@ -26,11 +26,12 @@ export async function bundleShared(
   //   'Make sure, you skip all unneeded packages in your federation.config.js!'
   // );
 
-  const federationConfigPath = path.join(
-    fedOptions.workspaceRoot,
-    fedOptions.federationConfig
-  );
-  const hash = hashFile(federationConfigPath);
+  // const federationConfigPath = path.join(
+  //   fedOptions.workspaceRoot,
+  //   fedOptions.federationConfig
+  // );
+
+  //const hash = hashFile(federationConfigPath);
 
   let first = true;
   for (const pi of packageInfos) {
@@ -39,7 +40,8 @@ export async function bundleShared(
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
     const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
 
-    const outFileName = `${encName}-${encVersion}-${hash}.js`;
+    // const outFileName = `${encName}-${encVersion}-${hash}.js`;
+    const outFileName = `${encName}-${encVersion}.js`;
 
     const cachePath = path.join(
       fedOptions.workspaceRoot,

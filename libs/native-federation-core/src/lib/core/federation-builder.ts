@@ -1,9 +1,6 @@
 import { NormalizedFederationConfig } from '../config/federation-config';
 import { BuildAdapter, setBuildAdapter } from './build-adapter';
-import {
-  buildForFederation,
-  defaultBuildParams,
-} from './build-for-federation';
+import { buildForFederation, defaultBuildParams } from './build-for-federation';
 import { FederationOptions } from './federation-options';
 import { getExternals } from './get-externals';
 import { loadFederationConfig } from './load-federation-config';

@@ -29,20 +29,24 @@ export async function bundleSharedMappings(
         external: externals,
         outfile: outFilePath,
         mappedPaths: [],
+        watch: fedOptions.watch,
         kind: 'shared-mapping',
       });
 
-      const hash = hashFile(outFilePath);
-      const hashedOutFileName = `${key}-${hash}.js`;
-      const hashedOutFilePath = path.join(
-        fedOptions.outputPath,
-        hashedOutFileName
-      );
-      fs.renameSync(outFilePath, hashedOutFilePath);
+      let finalOutFileName = outFileName;
+      if (!fedOptions.watch) {
+        const hash = hashFile(outFilePath);
+        finalOutFileName = `${key}-${hash}.js`;
+        const hashedOutFilePath = path.join(
+          fedOptions.outputPath,
+          finalOutFileName
+        );
+        fs.renameSync(outFilePath, hashedOutFilePath);
+      }
 
       result.push({
         packageName: m.key,
-        outFileName: hashedOutFileName,
+        outFileName: finalOutFileName,
         requiredVersion: '',
         singleton: true,
         strictVersion: false,

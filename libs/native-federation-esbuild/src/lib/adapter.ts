@@ -1,6 +1,7 @@
 import {
   BuildAdapter,
   BuildAdapterOptions,
+  logger,
 } from '@softarc/native-federation/build';
 import * as esbuild from 'esbuild';
 import { rollup } from 'rollup';
@@ -23,7 +24,7 @@ export interface EsBuildAdapterConfig {
 
 export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
   return async (options: BuildAdapterOptions) => {
-    const { entryPoint, external, outfile } = options;
+    const { entryPoint, external, outfile, watch } = options;
 
     const isPkg = entryPoint.includes('node_modules');
     const pkgName = isPkg ? inferePkgName(entryPoint) : '';
@@ -40,6 +41,17 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
       bundle: true,
       sourcemap: true,
       minify: true,
+      watch: !watch
+        ? false
+        : {
+            onRebuild: (err) => {
+              if (err) {
+                logger.error('Error rebuilding ' + entryPoint);
+              } else {
+                logger.info('Rebuilt ' + entryPoint);
+              }
+            },
+          },
       format: 'esm',
       target: ['esnext'],
       plugins: [...config.plugins],

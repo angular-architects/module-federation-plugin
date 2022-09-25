@@ -11,13 +11,27 @@ import * as fs from 'fs';
 import { PluginItem, transformAsync } from '@babel/core';
 
 export const AngularEsBuildAdapter: BuildAdapter = async (options) => {
-  const { entryPoint, tsConfigPath, external, outfile, mappedPaths, kind } =
-    options;
+  const {
+    entryPoint,
+    tsConfigPath,
+    external,
+    outfile,
+    mappedPaths,
+    kind,
+    watch,
+  } = options;
 
   if (kind === 'shared-package') {
     await runRollup(entryPoint, external, outfile);
   } else {
-    await runEsbuild(entryPoint, external, outfile, tsConfigPath, mappedPaths);
+    await runEsbuild(
+      entryPoint,
+      external,
+      outfile,
+      tsConfigPath,
+      mappedPaths,
+      watch
+    );
   }
   if (kind === 'shared-package' && fs.existsSync(outfile)) {
     await link(outfile);
@@ -65,6 +79,7 @@ async function runEsbuild(
   outfile: string,
   tsConfigPath: string,
   mappedPaths: MappedPath[],
+  watch?: boolean,
   plugins: esbuild.Plugin[] | null = null,
   absWorkingDir: string | undefined = undefined,
   logLevel: esbuild.LogLevel = 'warning'
@@ -75,6 +90,7 @@ async function runEsbuild(
     external,
     outfile,
     logLevel,
+    watch: !!watch,
     bundle: true,
     sourcemap: true,
     minify: true,

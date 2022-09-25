@@ -32,22 +32,25 @@ export async function bundleExposed(
         tsConfigPath: options.tsConfig,
         external: externals,
         outfile: outFilePath,
+        watch: options.watch,
         mappedPaths: config.sharedMappings,
         kind: 'exposed',
       });
 
-      const hash = hashFile(outFilePath);
-      const hashedOutFileName = `${key}-${hash}.js`;
-      const hashedOutFilePath = path.join(
-        options.outputPath,
-        hashedOutFileName
-      );
-
-      fs.renameSync(outFilePath, hashedOutFilePath);
+      let finalOutFileName = outFileName;
+      if (!options.watch) {
+        const hash = hashFile(outFilePath);
+        finalOutFileName = `${key}-${hash}.js`;
+        const hashedOutFilePath = path.join(
+          options.outputPath,
+          finalOutFileName
+        );
+        fs.renameSync(outFilePath, hashedOutFilePath);
+      }
 
       result.push({
         key,
-        outFileName: hashedOutFileName,
+        outFileName: finalOutFileName,
         dev: !options.dev
           ? undefined
           : {
@@ -56,7 +59,9 @@ export async function bundleExposed(
       });
     } catch (e) {
       logger.error('Error bundling exposed module ' + entryPoint);
-      logger.notice('Please check the `exposes` section in your federation.config.js');
+      logger.notice(
+        'Please check the `exposes` section in your federation.config.js'
+      );
       logger.error(e);
     }
   }

@@ -53,6 +53,17 @@ export function getPackageInfo(
   }
 
   let cand = mainPkgJson?.exports?.[relSecondaryPath]?.import;
+
+  if (typeof cand === 'object') {
+    if (cand.module) {
+      cand = cand.module;
+    } else if (cand.default) {
+      cand = cand.default;
+    } else {
+      cand = null;
+    }
+  }
+
   if (cand) {
     return {
       entryPoint: path.join(mainPkgPath, cand),
