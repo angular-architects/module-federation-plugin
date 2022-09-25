@@ -5,4 +5,5 @@ export interface FederationOptions {
   tsConfig?: string;
   verbose?: boolean;
   dev?: boolean;
+  watch?: boolean;
 }

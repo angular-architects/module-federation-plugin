@@ -54,8 +54,10 @@ export async function bundleSharedMappings(
             },
       });
     } catch (e) {
-      // TODO: add logger
       logger.error('Error bundling shared mapping ' + m.key);
+      logger.notice(
+        `Please check this shared mapping in the 'path' section or your tsconfig.(app|base).json`
+      );
       logger.notice(
         `If you don't need this mapping to shared, you can skip it in your federation.config.js`
       );

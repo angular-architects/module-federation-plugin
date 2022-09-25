@@ -1,12 +1,9 @@
-import { SharedInfo } from '@softarc/native-federation';
 import { NormalizedFederationConfig } from '../config/federation-config';
 import { BuildAdapter, setBuildAdapter } from './build-adapter';
 import {
   buildForFederation,
-  BuildParams,
   defaultBuildParams,
 } from './build-for-federation';
-import { bundleShared } from './bundle-shared';
 import { FederationOptions } from './federation-options';
 import { getExternals } from './get-externals';
 import { loadFederationConfig } from './load-federation-config';

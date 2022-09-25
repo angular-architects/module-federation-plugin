@@ -51,11 +51,12 @@ export async function bundleShared(
     const cachedFile = path.join(cachePath, outFileName);
 
     if (!fs.existsSync(cachedFile)) {
-
       if (first) {
         logger.notice('Preparing shared npm packages');
         logger.notice('This only needs to be done once');
-        logger.notice('Skip packages you don\'t want to share in your federation config');
+        logger.notice(
+          "Skip packages you don't want to share in your federation config"
+        );
       }
       first = false;
 
@@ -73,7 +74,7 @@ export async function bundleShared(
           kind: 'shared-package',
         });
       } catch (e) {
-        logger.error('Error bundling ' + pi.packageName);
+        logger.error('Error bundling npm package ' + pi.packageName);
         if (e instanceof Error) {
           logger.error(e.message);
         }

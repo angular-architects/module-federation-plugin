@@ -56,6 +56,7 @@ export async function bundleExposed(
       });
     } catch (e) {
       logger.error('Error bundling exposed module ' + entryPoint);
+      logger.notice('Please check the `exposes` section in your federation.config.js');
       logger.error(e);
     }
   }
