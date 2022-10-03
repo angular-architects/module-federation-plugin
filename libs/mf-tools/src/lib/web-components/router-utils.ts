@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Router, UrlMatcher, UrlSegment } from '@angular/router';
 
 export function startsWith(prefix: string): UrlMatcher {
@@ -20,19 +21,15 @@ export function endsWith(prefix: string): UrlMatcher {
   };
 }
 
-export function connectRouter(router: Router, useHash = false): void {
-  let url: string;
-  if (!useHash) {
-    url = `${location.pathname.substr(1)}${location.search}`;
-    router.navigateByUrl(url);
-    window.addEventListener('popstate', () => {
-      router.navigateByUrl(url);
-    });
-  } else {
-    url = `${location.hash.substr(1)}${location.search}`;
-    router.navigateByUrl(url);
-    window.addEventListener('hashchange', () => {
-      router.navigateByUrl(url);
-    });
+
+export function connectRouter(router: Router, newLocation?: Location) {
+  if (!router) {
+    // eslint-disable-next-line no-console
+    console.warn('No router to connect found');
+    return;
+  }
+  router.initialNavigation();
+  if (location) {
+    void router.navigateByUrl(newLocation.path(true))
   }
 }

@@ -211,11 +211,9 @@ function shareShellZone(injector: Injector) {
 
 function connectMicroFrontendRouter(injector: Injector) {
   const router = injector.get(Router);
-
   if (!router) {
     console.warn('No router to connect found');
     return;
   }
-
   connectRouter(router);
 }
