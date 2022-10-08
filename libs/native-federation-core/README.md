@@ -20,6 +20,8 @@ While this core library can be used with any framework and build tool, there is 
 
 > Please find the [Angular-based version here](https://www.npmjs.com/package/@angular-architects/native-federation).
 
+> Please find the [vite plugin here](https://www.npmjs.com/package/@gioboa/vite-module-federation).
+
 Also, other higher level abstractions on top of this core library are possible.
 
 ## About the Mental Model
@@ -37,6 +39,11 @@ For this, the mental model introduces several concepts:
 
 - [VanillaJS example](https://github.com/manfredsteyer/native-federation-core-microfrontend).
 - [React example](https://github.com/manfredsteyer/native-federation-react-example)
+  - This example also shows the **watch mode** for compiling a federated application
+- [Vite + Svelte example](https://github.com/gioboa/svelte-microfrontend-demo)
+- [Vite + Angular example powered by AnalogJS](https://github.com/manfredsteyer/native-federation-vite-angular-demo)
+- **Your Example:** If you have an example with aspects not covered here, let us know. We are happy to link it here.
+
 
 ## Credits
 
@@ -48,6 +55,7 @@ Big thanks to:
 - [The Nx Team](https://twitter.com/NxDevTools), esp. [Colum Ferry](https://twitter.com/FerryColum), who seamlessly integrated webpack Module Federation into Nx and hence helped to spread the word about it (Nx + Module Federation === ❤️)
 - [Michael Egger-Zikes](https://twitter.com/MikeZks) for contributing to our Module Federation efforts and brining in valuable feedback
 - The Angular CLI-Team, esp. [Alan Agius](https://twitter.com/AlanAgius4) and [Charles Lyding](https://twitter.com/charleslyding), for working on the experimental esbuild builder for Angular
+- [Giorgio Boa](https://twitter.com/giorgio_boa) for implementing the awesome vite plugin for module federation.
 
 ## Using this Library
 

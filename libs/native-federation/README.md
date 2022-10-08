@@ -50,7 +50,7 @@ We migrated our webpack Module Federation example to Native Federation:
 
 ![Example](https://raw.githubusercontent.com/angular-architects/module-federation-plugin/main/libs/native-federation/example.png)
 
-Please find the example [here (branch: ng-solution)](https://github.com/manfredsteyer/module-federation-plugin-example/tree/nf-solution):
+Please find the example [here (branch: nf-solution)](https://github.com/manfredsteyer/module-federation-plugin-example/tree/nf-solution):
 
 ```
 git clone https://github.com/manfredsteyer/module-federation-plugin-example.git --branch nf-solution
