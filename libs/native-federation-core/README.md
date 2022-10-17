@@ -44,7 +44,6 @@ For this, the mental model introduces several concepts:
 - [Vite + Angular example powered by AnalogJS](https://github.com/manfredsteyer/native-federation-vite-angular-demo)
 - **Your Example:** If you have an example with aspects not covered here, let us know. We are happy to link it here.
 
-
 ## Credits
 
 Big thanks to:
