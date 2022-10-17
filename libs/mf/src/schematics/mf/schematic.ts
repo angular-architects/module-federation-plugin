@@ -283,7 +283,7 @@ export default function config(options: MfSchematicSchema): Rule {
       ? '@nrwl/angular:webpack-browser'
       : 'ngx-build-plus:browser';
     const serveBuilder = options.nxBuilders
-      ? '@nrwl/angular:webpack-server'
+      ? '@nrwl/angular:webpack-dev-server'
       : 'ngx-build-plus:dev-server';
 
     if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
