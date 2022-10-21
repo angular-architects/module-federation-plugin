@@ -26,6 +26,7 @@ import {
   getPackageJsonDependency,
   NodeDependencyType,
 } from '@schematics/angular/utility/dependencies';
+import { serve } from 'esbuild';
 
 export function add(options: MfSchematicSchema): Rule {
   return config(options);
@@ -157,6 +158,39 @@ function nxBuildersAvailable(tree: Tree): boolean {
   return semver.satisfies(minVersion, '>=12.9.0');
 }
 
+function infereNxBuilderNames(
+  tree: Tree
+): { dev: string; prod: string } {
+
+  const defaultResult = {
+    dev: '@nrwl/angular:webpack-dev-server',
+    prod: '@nrwl/angular:webpack-browser',
+  };
+
+  const fallbackResult = {
+    dev: '@nrwl/angular:webpack-server',
+    prod: '@nrwl/angular:webpack-browser',
+  };
+
+  if (!tree.exists('nx.json')) return defaultResult;
+
+  const packageJson = JSON.parse(tree.read('package.json').toString('utf-8'));
+
+  const version =
+    packageJson?.devDependencies?.['@nrwl/angular'] ??
+    packageJson?.dependencies?.['@nrwl/angular'];
+
+  if (!version) defaultResult;
+
+  const minVersion = semver.minVersion(version).raw;
+
+  if (semver.satisfies(minVersion, '>=15.0.0')) {
+    return defaultResult;
+  } else {
+    return fallbackResult;
+  }
+}
+
 async function generateWebpackConfig(
   remoteMap: Record<string, string>,
   projectRoot: string,
@@ -272,6 +306,8 @@ export default function config(options: MfSchematicSchema): Rule {
       options.nxBuilders = nxBuildersAvailable(tree); // tree.exists('nx.json');
     }
 
+    const nxBuilderNames = infereNxBuilderNames(tree);
+
     if (options.nxBuilders) {
       console.log('Using Nx builders!');
     }
@@ -280,10 +316,10 @@ export default function config(options: MfSchematicSchema): Rule {
       ? 'customWebpackConfig'
       : 'extraWebpackConfig';
     const buildBuilder = options.nxBuilders
-      ? '@nrwl/angular:webpack-browser'
+      ? nxBuilderNames.prod
       : 'ngx-build-plus:browser';
     const serveBuilder = options.nxBuilders
-      ? '@nrwl/angular:webpack-server'
+      ? nxBuilderNames.dev
       : 'ngx-build-plus:dev-server';
 
     if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
