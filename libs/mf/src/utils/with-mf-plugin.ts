@@ -1,17 +1,25 @@
-import { findRootTsConfigJson, shareAll } from './share-utils';
+import { DEFAULT_SECONARIES_SKIP_LIST, DEFAULT_SKIP_LIST, findRootTsConfigJson, shareAll } from './share-utils';
 import { SharedMappings } from './shared-mappings';
 import { ModifyEntryPlugin } from './modify-entry-plugin';
 
-const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+import ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 
 export function withModuleFederationPlugin(config: unknown) {
-  const sharedMappings = config['sharedMappings'];
+  const sharedMappings = config['sharedMappings'] || [];
   delete config['sharedMappings'];
 
-  const mappings = new SharedMappings();
-  mappings.register(findRootTsConfigJson(), sharedMappings);
+  const skip = [
+    ...DEFAULT_SKIP_LIST, 
+    ...DEFAULT_SECONARIES_SKIP_LIST,
+    ...(config['skip'] || [])
+  ];
 
-  setDefaults(config, mappings);
+  delete config['skip'];
+
+  const mappings = new SharedMappings();
+  mappings.register(findRootTsConfigJson(), sharedMappings.filter(m => !skip.includes(m)));
+
+  setDefaults(config, mappings, skip);
   const modifyEntryPlugin = createModifyEntryPlugin(config);
 
   const isModule = config['library']?.['type'] === 'module';
@@ -45,7 +53,7 @@ export function withModuleFederationPlugin(config: unknown) {
   };
 }
 
-function setDefaults(config: unknown, mappings: SharedMappings) {
+function setDefaults(config: unknown, mappings: SharedMappings, skip: string[]) {
   if (!config['library']) {
     config['library'] = {
       type: 'module',
@@ -61,7 +69,7 @@ function setDefaults(config: unknown, mappings: SharedMappings) {
       singleton: true,
       strictVersion: true,
       requiredVersion: 'auto',
-    });
+    }, skip);
   }
 
   if (typeof config['shared'] === 'object') {
@@ -102,7 +110,7 @@ function createModifyEntryPlugin(config: unknown) {
     );
   }
 
-  let modifyEntryConfig = {};
+  const modifyEntryConfig = {};
   let modifyEntryPlugin = null;
   if (hasPinned) {
     modifyEntryConfig['main'] = { import: pinned };

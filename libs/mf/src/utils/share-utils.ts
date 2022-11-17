@@ -132,9 +132,9 @@ function getSecondaries(
   includeSecondaries: IncludeSecondariesOptions,
   packagePath: string,
   key: string,
-  shareObject: SharedConfig
+  shareObject: SharedConfig,
+  exclude = [...DEFAULT_SECONARIES_SKIP_LIST],
 ): Record<string, SharedConfig> {
-  let exclude = [...DEFAULT_SECONARIES_SKIP_LIST];
 
   if (typeof includeSecondaries === 'object') {
     if (Array.isArray(includeSecondaries.skip)) {
@@ -192,7 +192,7 @@ function readConfiguredSecondaries(
       key != '.' &&
       key != './package.json' &&
       !key.endsWith('*') &&
-      exports[key]['default']
+      (exports[key]['default'] || typeof exports[key] === 'string')
   );
 
   const result = {} as Record<string, SharedConfig>;
@@ -216,7 +216,7 @@ function readConfiguredSecondaries(
 
 export function shareAll(
   config: CustomSharedConfig = {},
-  skip: string[] = DEFAULT_SKIP_LIST,
+  skip: string[] = [...DEFAULT_SKIP_LIST, ...DEFAULT_SECONARIES_SKIP_LIST],
   packageJsonPath = ''
 ): Config {
   if (!packageJsonPath) {
@@ -236,14 +236,18 @@ export function shareAll(
     share[key] = { ...config };
   }
 
-  return module.exports.share(share, packageJsonPath);
+  return module.exports.share(share, packageJsonPath, skip);
 }
 
 export function setInferVersion(infer: boolean): void {
   inferVersion = infer;
 }
 
-export function share(shareObjects: Config, packageJsonPath = ''): Config {
+export function share(
+  shareObjects: Config, 
+  packageJsonPath = '',
+  skip: string[] = DEFAULT_SECONARIES_SKIP_LIST): Config {
+
   if (!packageJsonPath) {
     packageJsonPath = cwd();
   }
@@ -283,7 +287,8 @@ export function share(shareObjects: Config, packageJsonPath = ''): Config {
         includeSecondaries,
         packagePath,
         key,
-        shareObject
+        shareObject,
+        skip,
       );
       addSecondaries(secondaries, result);
     }

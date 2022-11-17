@@ -164,16 +164,32 @@ export type LoadRemoteModuleManifestOptions = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function loadRemoteModule<T = any>(remoteName: string, exposedModule: string): Promise<T>;
+export async function loadRemoteModule<T = any>(options: LoadRemoteModuleOptions): Promise<T>
 export async function loadRemoteModule<T = any>(
-  options: LoadRemoteModuleOptions
+  optionsOrRemoteName: LoadRemoteModuleOptions | string,
+  exposedModule?: string
 ): Promise<T> {
   let loadRemoteEntryOptions: LoadRemoteEntryOptions;
   let key: string;
   let remoteEntry: string;
+  let options: LoadRemoteModuleOptions;
+
+  if (typeof optionsOrRemoteName === 'string') {
+    options = {
+      type: 'manifest',
+      remoteName: optionsOrRemoteName,
+      exposedModule: exposedModule
+    }
+  }
+  else {
+    options = optionsOrRemoteName;
+  }
 
   // To support legacy API (< ng 13)
   if (!options.type) {
-    options.type = 'script';
+    const hasManifest = Object.keys(config).length > 0;
+    options.type = hasManifest ? 'manifest' : 'script';
   }
 
   if (options.type === 'manifest') {
@@ -230,6 +246,15 @@ export function getManifest<T extends Manifest>(): T {
   return config as T;
 }
 
+export async function initFederation(manifest: string | ManifestFile, skipRemoteEntries = false): Promise<void> {
+  if (typeof manifest === 'string') {
+    return loadManifest(manifest, skipRemoteEntries);
+  }
+  else {
+    return setManifest(manifest, skipRemoteEntries);
+  }
+}
+
 export async function loadManifest(
   configFile: string,
   skipRemoteEntries = false
@@ -249,7 +274,7 @@ export async function loadManifest(
 
 function parseConfig(config: ManifestFile): Manifest {
   const result: Manifest = {};
-  for (let key in config) {
+  for (const key in config) {
     const value = config[key];
 
     let entry: RemoteConfig;
@@ -273,7 +298,7 @@ function parseConfig(config: ManifestFile): Manifest {
 async function loadRemoteEntries() {
   const promises: Promise<void>[] = [];
 
-  for (let key in config) {
+  for (const key in config) {
     const entry = config[key];
 
     if (entry.type === 'module') {

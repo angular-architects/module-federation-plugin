@@ -29,21 +29,13 @@ export function print(prefix: string, prefixSize: number, message: string, error
         .update(prefix)
         .digest("hex");
     
-    const color = '#' + correctColor(hash.substring(6,6));
+    const color = '#' + correctColor(hash.substring(6,12));
     
     prefix = prefix.padEnd(prefixSize);
 
     if (message.endsWith('\n')) {
         message = message.substring(0, message.length-1);
     }
-
-  const color = '#' + correctColor(hash.substr(6, 6));
-
-  prefix = prefix.padEnd(prefixSize);
-
-  if (message.endsWith('\n')) {
-    message = message.substr(0, message.length - 1);
-  }
 
   const coloredPrefix = chalk.hex(color)(prefix) + ' | ';
   const lines = message.split('\n');

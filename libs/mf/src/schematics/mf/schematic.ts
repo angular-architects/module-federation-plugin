@@ -85,9 +85,9 @@ function makeMainAsync(main: string, options: MfSchematicSchema): Rule {
 
     let newMainContent = '';
     if (options.type === 'dynamic-host') {
-      newMainContent = `import { loadManifest } from '@angular-architects/module-federation';
+      newMainContent = `import { initFederation } from '@angular-architects/module-federation';
 
-loadManifest("/assets/mf.manifest.json")
+initFederation('/assets/mf.manifest.json')
   .catch(err => console.error(err))
   .then(_ => import('./bootstrap'))
   .catch(err => console.error(err));
@@ -386,11 +386,11 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const dep = getPackageJsonDependency(tree, 'ngx-build-plus');
 
-    if (!dep || !semver.satisfies(dep.version, '>=14.0.0')) {
+    if (!dep || !semver.satisfies(dep.version, '>=15.0.0')) {
       addPackageJsonDependency(tree, {
         name: 'ngx-build-plus',
         type: NodeDependencyType.Dev,
-        version: '^14.0.0',
+        version: '^15.0.0',
         overwrite: true,
       });
 

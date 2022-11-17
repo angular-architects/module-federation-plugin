@@ -12,7 +12,7 @@ Big thanks to the following people who helped to make this possible:
 
 ## Prequisites
 
-- Angular CLI 12 or higher (13, 14)
+- Angular CLI 12 or higher (13, 14, 15)
 
 ## Motivation 💥
 
@@ -39,6 +39,7 @@ Since Version 1.2, we also provide some advanced features like:
 - Angular 12: @angular-architects/module-federation: ^12.0.0
 - Angular 13: @angular-architects/module-federation: ~14.2.0
 - Angular 14: @angular-architects/module-federation: ^14.3.0
+- Angular 15: @angular-architects/module-federation: ^15.0.0
 
 Beginning with Angular 13, we had to add some changes to adjust to the Angular CLI. Please see the next section for this.
 
@@ -50,7 +51,7 @@ This library supports `ng update`:
 ng update @angular-architects/module-federation
 ```
 
-If you update by hand (e. g. via `npm install`), make sure you also install a respective version of ngx-build-plus (version 14 for Angular 14, version 13 for Angular 13, etc.)
+If you update by hand (e. g. via `npm install`), make sure you also install a respective version of ngx-build-plus (version 15 for Angular 15, version 14 for Angular 14, version 13 for Angular 13, etc.)
 
 ## Upgrade from Angular 12 or lower
 
