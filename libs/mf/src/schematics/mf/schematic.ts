@@ -408,7 +408,7 @@ export default function config(options: MfSchematicSchema): Rule {
 function updateTsConfig(tree, tsConfigName: string) {
   const tsConfig = json5.parse(tree.read(tsConfigName).toString('utf-8'));
   const target = tsConfig.compilerOptions.target as string;
-  let targetVersion = 0;
+  let targetVersion = 2022;
 
   if (
     target &&
