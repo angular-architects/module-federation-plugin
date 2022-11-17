@@ -194,7 +194,7 @@ function readConfiguredSecondaries(
       key != '.' &&
       key != './package.json' &&
       !key.endsWith('*') &&
-      exports[key]['default']
+      (exports[key]['default'] || typeof exports[key] === 'string' )
   );
 
   const result = {} as Record<string, SharedConfig>;

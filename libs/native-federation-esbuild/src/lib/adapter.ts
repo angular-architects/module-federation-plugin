@@ -20,6 +20,7 @@ export const esBuildAdapter: BuildAdapter = createEsBuildAdapter({
 
 export interface EsBuildAdapterConfig {
   plugins: esbuild.Plugin[];
+  fileReplacements?: Record<string, string>
 }
 
 export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
@@ -31,7 +32,7 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
     const tmpFolder = `node_modules/.tmp/${pkgName}`;
 
     if (isPkg) {
-      await prepareNodePackage(entryPoint, external, tmpFolder);
+      await prepareNodePackage(entryPoint, external, tmpFolder, config);
     }
 
     await esbuild.build({
@@ -62,8 +63,15 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
 async function prepareNodePackage(
   entryPoint: string,
   external: string[],
-  tmpFolder: string
+  tmpFolder: string,
+  config: EsBuildAdapterConfig,
 ) {
+
+
+  if (config.fileReplacements) {
+    entryPoint = replaceEntryPoint(entryPoint, config.fileReplacements);
+  }
+
   const result = await rollup({
     input: entryPoint,
 
@@ -93,3 +101,14 @@ function inferePkgName(entryPoint: string) {
     .replace(/.*?node_modules/g, '')
     .replace(/[^A-Za-z0-9.]/g, '_');
 }
+
+function replaceEntryPoint(entryPoint: string, fileReplacements: Record<string, string>): string {
+  entryPoint = entryPoint.replace(/\\/g, '/');
+ 
+  for(const key in fileReplacements) {
+    entryPoint = entryPoint.replace(new RegExp(`${key}$`), fileReplacements[key]);
+  }
+
+  return entryPoint;
+}
+

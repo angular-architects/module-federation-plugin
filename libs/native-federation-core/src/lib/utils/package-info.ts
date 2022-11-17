@@ -52,7 +52,18 @@ export function getPackageInfo(
     relSecondaryPath = './' + relSecondaryPath.replace(/\\/g, '/');
   }
 
-  let cand = mainPkgJson?.exports?.[relSecondaryPath]?.import;
+  let cand = mainPkgJson?.exports?.[relSecondaryPath];
+
+  if (typeof cand === 'string') {
+    return {
+        entryPoint: path.join(mainPkgPath, cand),
+        packageName,
+        version,
+        esm,
+    };
+  }
+  
+  cand = mainPkgJson?.exports?.[relSecondaryPath]?.import;
 
   if (typeof cand === 'object') {
     if (cand.module) {
