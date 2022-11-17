@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/module-federation",
-  "version": "14.2.3",
+  "version": "14.3.14",
   "license": "MIT",
   "repository": {
     "type": "GitHub",
@@ -17,14 +17,13 @@
   "schematics": "./collection.json",
   "builders": "./builders.json",
   "dependencies": {
-    "@angular-architects/module-federation-runtime": "14.2.3",
+    "@angular-architects/module-federation-runtime": "14.3.14",
     "word-wrap": "^1.2.3",
     "callsite": "^1.0.0",
     "node-fetch": "^2.6.7",
     "semver": "^7.3.5"
   },
-  "peerDependencies": {
-  },
+  "peerDependencies": {},
   "ng-update": {
     "migrations": "./migrations.json",
     "package-group": [

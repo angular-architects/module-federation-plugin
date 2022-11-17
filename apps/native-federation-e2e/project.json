@@ -1,0 +1,16 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/native-federation-e2e/src",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/nx-plugin:e2e",
+      "options": {
+        "target": "native-federation:build",
+        "jestConfig": "apps/native-federation-e2e/jest.config.ts"
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["native-federation"]
+}

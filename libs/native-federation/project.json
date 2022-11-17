@@ -1,0 +1,70 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/native-federation/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/native-federation",
+        "main": "libs/native-federation/src/index.ts",
+        "tsConfig": "libs/native-federation/tsconfig.lib.json",
+        "assets": [
+          "libs/native-federation/*.md",
+          {
+            "input": "./libs/native-federation/src",
+            "glob": "**/!(*.ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./libs/native-federation/src",
+            "glob": "**/*.d.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./libs/native-federation",
+            "glob": "generators.json",
+            "output": "."
+          },
+          {
+            "input": "./libs/native-federation",
+            "glob": "builders.json",
+            "output": "."
+          },
+          {
+            "input": "./libs/native-federation",
+            "glob": "executors.json",
+            "output": "."
+          },
+          {
+            "input": "./libs/native-federation",
+            "glob": "collection.json",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/native-federation/**/*.ts",
+          "libs/native-federation/generators.json",
+          "libs/native-federation/executors.json",
+          "libs/native-federation/package.json"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/native-federation"],
+      "options": {
+        "jestConfig": "libs/native-federation/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

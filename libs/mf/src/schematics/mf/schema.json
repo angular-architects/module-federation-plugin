@@ -25,12 +25,15 @@
         "index": 1
       }
     },
+    "type": {
+      "enum": ["host", "dynamic-host", "remote", "legacy"],
+      "type": "string",
+      "default": "legacy"
+    },
     "nxBuilders": {
       "type": "boolean",
       "description": "Use builders provided by Nx instead of ngx-build-plus? Defaults to true for Nx workspaces and false for CLI workspaces."
     }
   },
-  "required": [
-    "port"
-  ]
+  "required": ["port"]
 }

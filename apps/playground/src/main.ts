@@ -1,13 +1,7 @@
-import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { initFederation } from '@angular-architects/native-federation';
 
-import { AppModule } from './app/app.module';
-import { environment } from './environments/environment';
-
-if (environment.production) {
-  enableProdMode();
-}
-
-platformBrowserDynamic()
-  .bootstrapModule(AppModule)
-  .catch((err) => console.error(err));
+initFederation({
+  //'mfe1': 'http://localhost:3001/remoteEntry.json'
+})
+  .then(() => import('./bootstrap'))
+  .catch((e) => console.error('err', e));

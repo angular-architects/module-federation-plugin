@@ -1,8 +1,8 @@
 # @angular-architects/module-federation-tools
 
-Add-on for ``@angular-architects/module-federation`` helping to reduce boiler plate code.
+Add-on for `@angular-architects/module-federation` helping to reduce boiler plate code.
 
-The current release is focusing on combining web components with module federation for **multi framework and multi version** micro frontends: 
+The current release is focusing on combining web components with module federation for **multi framework and multi version** micro frontends:
 
 ![Example](https://i.ibb.co/CHBQn5j/example.png)
 
@@ -73,17 +73,17 @@ export class AppModule {
 
 ### Exposing Web Component with other Frameworks like React
 
-If you framework doesn't directly support exposing your application as a web component, you can easily write a simple Wrapper around it. Basically, a web component -- to be more precise: a custom element -- is just an EcmaScript class extending ``HtmlElement`` and registered via ``customElements.register``. Please find an [example for React here](https://github.com/manfredsteyer/react-app/blob/main/app.js).
+If you framework doesn't directly support exposing your application as a web component, you can easily write a simple Wrapper around it. Basically, a web component -- to be more precise: a custom element -- is just an EcmaScript class extending `HtmlElement` and registered via `customElements.register`. Please find an [example for React here](https://github.com/manfredsteyer/react-app/blob/main/app.js).
 
 ### Exposing Web Component-based Micro Frontend via Module Federation
 
-Add ``@angular-architects/module-federation`` to your micro frontend:
+Add `@angular-architects/module-federation` to your micro frontend:
 
 ```
 ng add @angular-architects/module-federation
 ```
 
-Make your ``webpack.config.js`` expose the whole ``bootstrap.ts`` that bootstraps your ``AppModule``.
+Make your `webpack.config.js` expose the whole `bootstrap.ts` that bootstraps your `AppModule`.
 
 ```typescript
 // webpack.config.js
@@ -97,10 +97,9 @@ exposes: {
 
 If the file that bootstraps your applications is called differently, adjust these settings accordingly.
 
-## Helper for Angular 
+## Helper for Angular
 
 For enabling Angular for a multi version/ multi framework scenario, we need some helper functions. The easiest way to use them, is to bootstrap your Angular app with our bootstrap helper:
-
 
 ```typescript
 // main.ts
@@ -110,19 +109,18 @@ import { bootstrap } from '@angular-architects/module-federation-tools';
 
 bootstrap(AppModule, {
   production: environment.production,
-  appType: 'shell', 
-  // appType: 'microfrontend' 
+  appType: 'shell',
+  // appType: 'microfrontend'
 });
 ```
 
 > Use this bootstrap helper for **both**, your shell and your micro frontends!
 
-Please make sure to set the ``appType`` to ``shell`` for your shell application and to ``microfrontend`` for your Micro Frontends.
-
+Please make sure to set the `appType` to `shell` for your shell application and to `microfrontend` for your Micro Frontends.
 
 ## Routing to Web Components
 
-The ``WebComponentWrapper`` helps you to route to web components:
+The `WebComponentWrapper` helps you to route to web components:
 
 ```typescript
 export const APP_ROUTES: Routes = [
@@ -143,7 +141,7 @@ export const APP_ROUTES: Routes = [
 
 ### Important: Angular 13+
 
-Beginning with Angular 13, the CLI is emitting EcmaScript modules. Hence, we need to adjust the usage of the WebComponentWrapper when loading a remote that has been created with the CLI 13 or higher. For this, set ``type`` to ``remote`` and skip the ``remoteName`` property (for Modules, we don't need a remoteName):
+Beginning with Angular 13, the CLI is emitting EcmaScript modules. Hence, we need to adjust the usage of the WebComponentWrapper when loading a remote that has been created with the CLI 13 or higher. For this, set `type` to `remote` and skip the `remoteName` property (for Modules, we don't need a remoteName):
 
 ```typescript
 export const APP_ROUTES: Routes = [
@@ -164,7 +162,7 @@ export const APP_ROUTES: Routes = [
 
 ## Sub-Routes
 
-If a web component has it's own router, you can use our UrlMatchers ``startsWith`` and ``endsWith`` to define, which part of the URL is intended for the shell and for the micro frontend:
+If a web component has it's own router, you can use our UrlMatchers `startsWith` and `endsWith` to define, which part of the URL is intended for the shell and for the micro frontend:
 
 ```typescript
 // Shell
@@ -187,19 +185,18 @@ export const APP_ROUTES: Routes = [
 ```typescript
 // Micro Frontend
 RouterModule.forRoot([
-      { path: 'angular3/a', component: AComponent },
-      { path: 'angular3/b', component: BComponent },
+  { path: 'angular3/a', component: AComponent },
+  { path: 'angular3/b', component: BComponent },
 
-      // To prevent issues when routing to other micro frontends
-      // a catch-all route should be defined
-      { path: '**', component: EmptyComponent },
-
+  // To prevent issues when routing to other micro frontends
+  // a catch-all route should be defined
+  { path: '**', component: EmptyComponent },
 ]);
 ```
 
 ## Directly Loading a Web Component via Module Federation
 
-The ``WebComponentWrapper`` can also be used as a traditional component:
+The `WebComponentWrapper` can also be used as a traditional component:
 
 ```html
 <mft-wc-wrapper [options]="item"></mft-wc-wrapper>
@@ -211,28 +208,32 @@ item: WebComponentWrapperOptions = {
     remoteName: 'react',
     exposedModule: './web-components',
     elementName: 'react-element'
-}, 
+},
 ```
 
-The optional properties ``props`` and ``events`` allow to defined properties and events for the web component:
+The optional properties `props` and `events` allow to defined properties and events for the web component:
 
 ```typescript
 props = {
-    "message": "Hello from Shell"
-}
+  message: 'Hello from Shell',
+};
 
 events = {
-    "clicked": (event) => {
-        console.debug('clicked!', event);
-    }
-}
+  clicked: (event) => {
+    console.debug('clicked!', event);
+  },
+};
 ```
 
 ```html
-<mft-wc-wrapper [options]="item" [props]="props" [events]="events"></mft-wc-wrapper>
+<mft-wc-wrapper
+  [options]="item"
+  [props]="props"
+  [events]="events"
+></mft-wc-wrapper>
 ```
 
-## Some Additional Details 
+## Some Additional Details
 
 > In a multi version micro frontend strategy, it is important to load the zone.js bundle to the window object only once. Also, one need to make sure that only one instance of the ngZone is used by all the micro frontends.
 
@@ -246,14 +247,14 @@ Some optional flags are offered to provide options for custom behavior of the `b
   ```typescript
   bootstrap(AppModule, {
     production: environment.production,
-    ngZoneSharing: false // defaults to true
+    ngZoneSharing: false, // defaults to true
   });
   ```
 - `platformSharing: false`: Deactivate Platform sharing in the window object (not recommended):
   ```typescript
   bootstrap(AppModule, {
     production: environment.production,
-    platformSharing: false // defaults to true
+    platformSharing: false, // defaults to true
   });
   ```
   - Possible, if dependencies are not shared or each bootstrapped remote app uses a different version.
@@ -261,16 +262,13 @@ Some optional flags are offered to provide options for custom behavior of the `b
   ```typescript
   bootstrap(AppModule, {
     production: environment.production,
-    activeLegacyMode: false // defaults to true
+    activeLegacyMode: false, // defaults to true
   });
   ```
   - If all your micro frontends use `@angular-architects/module-federation-tools` in version `^12.6.0`, `^13.1.0` or any newer major version you can switch off the legacy mode manually.
   - Those versions introduced new features on how to share the Platform in the window object.
   - This allows to use the `bootstrap()` function even in such cases, where the same version is packed into different micro frontend bundles.
 
-
-
 ## More about the underlying ideas
 
 Please find more information on the underlying ideas in this [blog article](https://www.angulararchitects.io/aktuelles/multi-framework-and-version-micro-frontends-with-module-federation-the-good-the-bad-the-ugly).
-

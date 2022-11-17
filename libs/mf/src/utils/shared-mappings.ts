@@ -17,10 +17,18 @@ export class SharedMappings {
     shared: string[] = null,
     rootPath: string = path.normalize(path.dirname(tsConfigPath))
   ): void {
+    const result: Array<Library> = [];
+
     if (!path.isAbsolute(tsConfigPath)) {
       throw new Error(
         'SharedMappings.register: tsConfigPath needs to be an absolute path!'
       );
+    }
+
+    const shareAll = !shared;
+
+    if (!shared) {
+      shared = [];
     }
 
     const tsConfig = JSON5.parse(
@@ -36,14 +44,16 @@ export class SharedMappings {
       const libPath = path.normalize(path.join(rootPath, mappings[key][0]));
       const version = this.getPackageVersion(libPath);
 
-      if (shared && shared.includes(key)) {
-        this.mappings.push({
+      if (shared.includes(key) || shareAll) {
+        result.push({
           key,
           path: libPath,
           version,
         });
       }
     }
+
+    this.mappings = [...this.mappings, ...result];
   }
 
   private getPackageVersion(libPath: string) {

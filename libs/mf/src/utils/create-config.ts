@@ -1,8 +1,13 @@
 import { strings } from '@angular-devkit/core';
 
-export function createConfig(projectName: string, remotes: string, tsConfigName: string, root: string, port: number): string {
-
-    return `const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+export function createConfig(
+  projectName: string,
+  remotes: string,
+  tsConfigName: string,
+  root: string,
+  port: number
+): string {
+  return `const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 const mf = require("@angular-architects/module-federation/webpack");
 const path = require("path");
 const share = mf.share;
@@ -58,5 +63,4 @@ ${remotes}
   ],
 };
 `;
-
 }

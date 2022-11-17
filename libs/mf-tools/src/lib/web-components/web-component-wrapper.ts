@@ -1,9 +1,19 @@
-import { AfterContentInit, Component, ElementRef, Input, OnChanges, ViewChild } from '@angular/core';
+import {
+  AfterContentInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { LoadRemoteModuleOptions, loadRemoteModule } from '@angular-architects/module-federation';
+import {
+  LoadRemoteModuleOptions,
+  loadRemoteModule,
+} from '@angular-architects/module-federation';
 
 export type WebComponentWrapperOptions = LoadRemoteModuleOptions & {
-    elementName: string;
+  elementName: string;
 };
 
 @Component({
@@ -13,8 +23,7 @@ export type WebComponentWrapperOptions = LoadRemoteModuleOptions & {
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class WebComponentWrapper implements AfterContentInit, OnChanges {
-
-  @ViewChild('vc', {read: ElementRef, static: true})
+  @ViewChild('vc', { read: ElementRef, static: true })
   vc: ElementRef;
 
   @Input() options: WebComponentWrapperOptions;
@@ -23,11 +32,7 @@ export class WebComponentWrapper implements AfterContentInit, OnChanges {
 
   element: HTMLElement;
 
-  constructor(
-    private route: ActivatedRoute) { 
-
-
-    }
+  constructor(private route: ActivatedRoute) {}
 
   ngOnChanges(): void {
     if (!this.element) return;
@@ -48,22 +53,19 @@ export class WebComponentWrapper implements AfterContentInit, OnChanges {
   }
 
   async ngAfterContentInit() {
+    const options =
+      this.options ?? (this.route.snapshot.data as WebComponentWrapperOptions);
 
-    const options = this.options ?? this.route.snapshot.data as WebComponentWrapperOptions;
-   
     try {
-        await loadRemoteModule(options);
+      await loadRemoteModule(options);
 
-        this.element = document.createElement(options.elementName);
-        this.populateProps();
-        this.setupEvents();
+      this.element = document.createElement(options.elementName);
+      this.populateProps();
+      this.setupEvents();
 
-        this.vc.nativeElement.appendChild(this.element);
+      this.vc.nativeElement.appendChild(this.element);
+    } catch (error) {
+      console.error(error);
     }
-    catch(error) {
-        console.error(error);
-    }
-
   }
-
 }
