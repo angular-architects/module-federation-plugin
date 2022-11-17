@@ -17,6 +17,7 @@ export type WebComponentWrapperOptions = LoadRemoteModuleOptions & {
 };
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'mft-wc-wrapper',
   template: '<div #vc></div>',
 })

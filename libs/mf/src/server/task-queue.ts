@@ -1,7 +1,7 @@
 export type DoneFn = () => void;
 export type Task = (done: DoneFn) => void;
 
-let queue: Task[] = [];
+const queue: Task[] = [];
 
 // tslint:disable-next-line: no-shadowed-variable
 function peek<T>(queue: Array<T>): T {
