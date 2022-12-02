@@ -16,7 +16,7 @@
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/mf"],
+          "outputs": ["{workspaceRoot}/coverage/libs/mf"],
           "options": {
             "jestConfig": "libs/mf/jest.config.ts",
             "passWithNoTests": true
@@ -109,7 +109,7 @@
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/mf-runtime"],
+          "outputs": ["{workspaceRoot}/coverage/libs/mf-runtime"],
           "options": {
             "jestConfig": "libs/mf-runtime/jest.config.ts",
             "passWithNoTests": true
@@ -149,7 +149,7 @@
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/mf-tools"],
+          "outputs": ["{workspaceRoot}/coverage/libs/mf-tools"],
           "options": {
             "jestConfig": "libs/mf-tools/jest.config.ts",
             "passWithNoTests": true
@@ -236,7 +236,7 @@
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/apps/mfe1"],
+          "outputs": ["{workspaceRoot}/coverage/apps/mfe1"],
           "options": {
             "jestConfig": "apps/mfe1/jest.config.ts",
             "passWithNoTests": true
@@ -354,7 +354,7 @@
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/apps/mfe2"],
+          "outputs": ["{workspaceRoot}/coverage/apps/mfe2"],
           "options": {
             "jestConfig": "apps/mfe2/jest.config.ts",
             "passWithNoTests": true
@@ -405,7 +405,7 @@
       "targets": {
         "build": {
           "executor": "@nrwl/angular:package",
-          "outputs": ["dist/libs/native-federation-runtime"],
+          "outputs": ["{workspaceRoot}/dist/libs/native-federation-runtime"],
           "options": {
             "project": "libs/native-federation-runtime/ng-package.json"
           },
@@ -421,7 +421,9 @@
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/native-federation-runtime"],
+          "outputs": [
+            "{workspaceRoot}/coverage/libs/native-federation-runtime"
+          ],
           "options": {
             "jestConfig": "libs/native-federation-runtime/jest.config.ts",
             "passWithNoTests": true
@@ -529,7 +531,7 @@
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/apps/playground"],
+          "outputs": ["{workspaceRoot}/coverage/apps/playground"],
           "options": {
             "jestConfig": "apps/playground/jest.config.ts",
             "passWithNoTests": true
@@ -576,7 +578,7 @@
       "targets": {
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/playground-lib"],
+          "outputs": ["{workspaceRoot}/coverage/libs/playground-lib"],
           "options": {
             "jestConfig": "libs/playground-lib/jest.config.ts",
             "passWithNoTests": true

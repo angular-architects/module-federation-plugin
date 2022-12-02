@@ -1,4 +1,5 @@
 {
+  "name": "native-federation",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/native-federation/src",
   "projectType": "library",
@@ -59,7 +60,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/native-federation"],
+      "outputs": ["{workspaceRoot}/coverage/libs/native-federation"],
       "options": {
         "jestConfig": "libs/native-federation/jest.config.ts",
         "passWithNoTests": true
