@@ -10,7 +10,7 @@ Big thanks to the following people who helped to make this possible:
 - [Dmitriy Shekhovtsov](https://twitter.com/valorkin), Angular GDE
 - [Michael Egger-Zikes](https://twitter.com/MikeZks), Angular Architects
 
-## Prequisites
+## Prerequisites
 
 - Angular CLI 12 or higher (13, 14, 15)
 
