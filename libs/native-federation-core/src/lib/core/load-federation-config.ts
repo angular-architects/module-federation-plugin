@@ -7,7 +7,7 @@ export async function loadFederationConfig(
   fedOptions: FederationOptions
 ): Promise<NormalizedFederationConfig> {
   const fullConfigPath = path.join(
-    fedOptions.workspaceRoot,
+    fedOptions.projectRoot ?? fedOptions.workspaceRoot,
     fedOptions.federationConfig
   );
 

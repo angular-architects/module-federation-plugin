@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from './logger';
+import { normalize } from './normalize';
 
 export interface PackageInfo {
   packageName: string;
@@ -16,18 +17,50 @@ export interface PartialPackageJson {
 
 export function getPackageInfo(
   packageName: string,
-  workspaceRoot: string
+  workspaceRoot: string,
+  projectRoot: string
 ): PackageInfo | null {
-  const projectRoot = workspaceRoot;
+
+  let currentPath = projectRoot;
+
+  workspaceRoot = normalize(path.dirname(workspaceRoot), true);
+  projectRoot = normalize(path.dirname(projectRoot), true);
+
+  while (workspaceRoot !== currentPath) {
+
+    const cand = _getPackageInfo(packageName, currentPath);
+    if (cand) {
+      return cand;
+    }
+
+    currentPath = normalize(path.dirname(currentPath), true);
+  }
+
+  const result = _getPackageInfo(packageName, currentPath);
+
+  if (!result) {
+    logger.warn('No meta data found for shared lib ' + packageName);
+  }
+
+  return result;
+
+}
+
+export function _getPackageInfo(
+  packageName: string,
+  currentPath: string,
+): PackageInfo | null {
+
+
   const mainPkgName = getPkgFolder(packageName);
 
-  const mainPkgPath = path.join(projectRoot, 'node_modules', mainPkgName);
+  const mainPkgPath = path.join(currentPath, 'node_modules', mainPkgName);
   const mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
 
   if (!fs.existsSync(mainPkgPath)) {
     // TODO: Add logger
     // context.logger.warn('No package.json found for ' + packageName);
-    logger.warn('No package.json found for ' + packageName);
+    logger.verbose('No package.json found for ' + packageName + ' in ' + mainPkgPath);
 
     return null;
   }
@@ -105,7 +138,7 @@ export function getPackageInfo(
     };
   }
 
-  const secondaryPgkPath = path.join(projectRoot, 'node_modules', packageName);
+  const secondaryPgkPath = path.join(currentPath, 'node_modules', packageName);
   const secondaryPgkJsonPath = path.join(secondaryPgkPath, 'package.json');
   let secondaryPgkJson: PartialPackageJson | null = null;
   if (fs.existsSync(secondaryPgkJsonPath)) {

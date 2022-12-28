@@ -18,7 +18,11 @@ export async function bundleShared(
   const result: Array<SharedInfo> = [];
   const packageInfos = Object.keys(config.shared)
     // .filter((packageName) => !isInSkipList(packageName, PREPARED_DEFAULT_SKIP_LIST))
-    .map((packageName) => getPackageInfo(packageName, fedOptions.workspaceRoot))
+    .map((packageName) => getPackageInfo(
+      packageName, 
+      fedOptions.workspaceRoot,
+      fedOptions.projectRoot ?? fedOptions.workspaceRoot
+    ))
     .filter((pi) => !!pi) as PackageInfo[];
 
   // logger.notice('Shared packages are only bundled once as they are cached');
@@ -106,7 +110,7 @@ export async function bundleShared(
     });
 
     const fullOutputPath = path.join(
-      fedOptions.workspaceRoot,
+      fedOptions.projectRoot ?? fedOptions.workspaceRoot,
       fedOptions.outputPath,
       outFileName
     );
