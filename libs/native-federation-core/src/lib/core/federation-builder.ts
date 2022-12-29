@@ -1,3 +1,4 @@
+import { useWorkspace } from '../config/configuration-context';
 import { NormalizedFederationConfig } from '../config/federation-config';
 import { BuildAdapter, setBuildAdapter } from './build-adapter';
 import { buildForFederation, defaultBuildParams } from './build-for-federation';
@@ -17,6 +18,7 @@ let fedOptions: FederationOptions;
 async function init(params: BuildHelperParams): Promise<void> {
   setBuildAdapter(params.adapter);
   fedOptions = params.options;
+  useWorkspace(params.options.workspaceRoot);
   config = await loadFederationConfig(fedOptions);
   externals = getExternals(config);
 }

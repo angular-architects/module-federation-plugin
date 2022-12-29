@@ -15,16 +15,46 @@ export interface PartialPackageJson {
   main: string;
 }
 
+export function findPackageJsonFiles(project: string, workspace: string): string[] {
+  return expandFolders(project, workspace)
+    .map(f => path.join(f, 'package.json'))
+    .filter(f => fs.existsSync(f));
+}
+
+export function expandFolders(child: string, parent: string): string[] {
+  const result: string[] = [];
+  parent = normalize(parent, true);
+  child = normalize(child, true);
+
+  if (!child.startsWith(parent)) {
+    throw new Error(`Workspace folder ${path} needs to be a parent of the project folder ${child}`);
+  }
+
+  let current = child;
+
+  while (current !== parent) {
+    result.push(current);
+    
+    const cand = normalize(path.dirname(current), true);
+    if (cand === current) {
+      break
+    };
+    current = cand;
+  }
+  result.push(parent);
+  return result;
+}
+
 export function getPackageInfo(
   packageName: string,
   workspaceRoot: string,
   projectRoot: string
 ): PackageInfo | null {
 
-  let currentPath = projectRoot;
+  workspaceRoot = normalize(workspaceRoot, true);
+  projectRoot = normalize(projectRoot, true);
 
-  workspaceRoot = normalize(path.dirname(workspaceRoot), true);
-  projectRoot = normalize(path.dirname(projectRoot), true);
+  let currentPath = projectRoot;
 
   while (workspaceRoot !== currentPath) {
 

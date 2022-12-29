@@ -9,6 +9,8 @@ import {
   prepareSkipList,
   SkipList,
 } from '../core/default-skip-list';
+import { expandFolders, findPackageJsonFiles } from '../utils/package-info';
+import { getConfigContext } from './configuration-context';
 
 let inferVersion = false;
 
@@ -223,28 +225,47 @@ function readConfiguredSecondaries(
 export function shareAll(
   config: CustomSharedConfig = {},
   skip: SkipList = DEFAULT_SKIP_LIST,
-  packageJsonPath = ''
+  projectPath = '',
+  workspacePath = '',
 ): Config | null {
-  if (!packageJsonPath) {
-    packageJsonPath = cwd();
+  
+  if (!projectPath) {
+    projectPath = cwd();
   }
 
-  const packagePath = findPackageJson(packageJsonPath);
+  if (!workspacePath) {
+    workspacePath = getConfigContext().workspaceRoot ?? '';
+  }
 
-  const versions = readVersionMap(packagePath);
-  const share: any = {};
+  if (!workspacePath) {
+    workspacePath = projectPath;
+  }
 
-  const preparedSkipList = prepareSkipList(skip);
+  const packageJsonList = findPackageJsonFiles(projectPath, workspacePath);
+  const share: Record<string, unknown> = {};
 
-  for (const key in versions) {
-    if (isInSkipList(key, preparedSkipList)) {
-      continue;
+  for(const packagePath of packageJsonList) {
+    const versions = readVersionMap(packagePath);
+
+    const preparedSkipList = prepareSkipList(skip);
+  
+    for (const key in versions) {
+      if (isInSkipList(key, preparedSkipList)) {
+        continue;
+      }
+
+      const inferVersion = (!config.requiredVersion || config.requiredVersion === 'auto');
+      const requiredVersion = inferVersion ?
+          versions[key] :
+          config.requiredVersion;
+
+      if (!share[key]) {
+        share[key] = { ...config, requiredVersion };
+      }
     }
-
-    share[key] = { ...config };
   }
 
-  return module.exports.share(share, packageJsonPath);
+  return module.exports.share(share, projectPath);
 }
 
 export function setInferVersion(infer: boolean): void {
