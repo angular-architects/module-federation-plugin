@@ -54,6 +54,10 @@ export function getPackageInfo(
   workspaceRoot = normalize(workspaceRoot, true);
   projectRoot = normalize(projectRoot, true);
 
+  if (!projectRoot.startsWith(workspaceRoot)) {
+    throw new Error(`Workspace folder ${workspaceRoot} needs to be a parent of the project folder ${projectRoot}`);
+  }
+
   let currentPath = projectRoot;
 
   while (workspaceRoot !== currentPath) {
@@ -80,7 +84,6 @@ export function _getPackageInfo(
   packageName: string,
   currentPath: string,
 ): PackageInfo | null {
-
 
   const mainPkgName = getPkgFolder(packageName);
 
