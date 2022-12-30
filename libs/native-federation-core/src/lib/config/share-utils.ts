@@ -9,7 +9,7 @@ import {
   prepareSkipList,
   SkipList,
 } from '../core/default-skip-list';
-import { expandFolders, findPackageJsonFiles } from '../utils/package-info';
+import { findPackageJsonFiles } from '../utils/package-info';
 import { getConfigContext } from './configuration-context';
 
 let inferVersion = false;
@@ -70,7 +70,27 @@ function readVersionMap(packagePath: string): VersionMap {
   return versions;
 }
 
-function lookupVersion(key: string, versions: VersionMap): string {
+function lookupVersion(key: string, projectRoot: string, workspaceRoot: string): string {
+
+  const packageJsonList = findPackageJsonFiles(projectRoot, workspaceRoot);
+
+  for (const packagePath of packageJsonList) {
+
+    const versionMap = readVersionMap(packagePath);
+    const version = lookupVersionInMap(key, versionMap);
+
+    if (version) {
+      return version;
+    }
+
+  }
+
+  throw new Error(
+    `Shared Dependency ${key} has requiredVersion:'auto'. However, this dependency is not found in your package.json`
+  );
+}
+
+function lookupVersionInMap(key: string, versions: VersionMap): string | null {
   const parts = key.split('/');
   if (parts.length >= 2 && parts[0].startsWith('@')) {
     key = parts[0] + '/' + parts[1];
@@ -83,9 +103,7 @@ function lookupVersion(key: string, versions: VersionMap): string {
   }
 
   if (!versions[key]) {
-    throw new Error(
-      `Shared Dependency ${key} has requiredVersion:'auto'. However, this dependency is not found in your package.json`
-    );
+    return null;
   }
   return versions[key];
 }
@@ -225,17 +243,16 @@ function readConfiguredSecondaries(
 export function shareAll(
   config: CustomSharedConfig = {},
   skip: SkipList = DEFAULT_SKIP_LIST,
-  projectPath = '',
-  workspacePath = '',
+  projectPath = ''
 ): Config | null {
   
+  let workspacePath: string | undefined = undefined;
+
   if (!projectPath) {
     projectPath = cwd();
   }
 
-  if (!workspacePath) {
-    workspacePath = getConfigContext().workspaceRoot ?? '';
-  }
+  workspacePath = getConfigContext().workspaceRoot ?? '';
 
   if (!workspacePath) {
     workspacePath = projectPath;
@@ -272,14 +289,22 @@ export function setInferVersion(infer: boolean): void {
   inferVersion = infer;
 }
 
-export function share(shareObjects: Config, packageJsonPath = ''): Config {
-  if (!packageJsonPath) {
-    packageJsonPath = cwd();
+export function share(shareObjects: Config, projectPath = ''): Config {
+  if (!projectPath) {
+    projectPath = cwd();
   }
 
-  const packagePath = findPackageJson(packageJsonPath);
+  let workspacePath: string | undefined = undefined;
 
-  const versions = readVersionMap(packagePath);
+  workspacePath = getConfigContext().workspaceRoot ?? '';
+
+  if (!workspacePath) {
+    workspacePath = projectPath;
+  }
+  
+  const packagePath = findPackageJson(projectPath);
+
+  // const versions = readVersionMap(packagePath);
   const result: any = {};
   let includeSecondaries;
 
@@ -291,7 +316,8 @@ export function share(shareObjects: Config, packageJsonPath = ''): Config {
       shareObject.requiredVersion === 'auto' ||
       (inferVersion && typeof shareObject.requiredVersion === 'undefined')
     ) {
-      const version = lookupVersion(key, versions);
+      const version = lookupVersion(key, projectPath, workspacePath);
+      
       shareObject.requiredVersion = version;
       shareObject.version = version.replace(/^\D*/, '');
     }
