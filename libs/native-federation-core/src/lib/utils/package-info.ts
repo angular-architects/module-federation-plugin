@@ -1,3 +1,4 @@
+import { dir } from 'console';
 import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from './logger';
@@ -54,6 +55,7 @@ export function expandFolders(child: string, parent: string): string[] {
   return result;
 }
 
+
 export function getPackageInfo(
   packageName: string,
   workspaceRoot: string,
@@ -70,7 +72,7 @@ export function getPackageInfo(
   const packageJsonInfos = getPackageJsonFiles(projectRoot, workspaceRoot);
 
   for (const info of packageJsonInfos) {
-    const cand = _getPackageInfo(packageName, info);
+    const cand = _getPackageInfo(packageName, info.directory);
     if (cand) {
       return cand;
     }
@@ -102,8 +104,8 @@ export function getPackageJsonFiles(project: string, workspace: string): Package
 
   maps = findPackageJsonFiles(project, workspace)
     .map(f => {
-      const content = fs.readFileSync(f, 'utf-8');
-      const directory = path.dirname(f);
+      const content = JSON.parse(fs.readFileSync(f, 'utf-8'));
+      const directory = normalize(path.dirname(f), true);
       const result: PackageJsonInfo = {
         content, directory
       };
@@ -114,26 +116,51 @@ export function getPackageJsonFiles(project: string, workspace: string): Package
   return maps;
 }
 
-export function _getPackageInfo(
-  packageName: string,
-  packageJsonInfo: PackageJsonInfo,
-): PackageInfo | null {
-
+export function findDepPackageJson(packageName: string, projectRoot: string): string | null {
   const mainPkgName = getPkgFolder(packageName);
 
-  const mainPkgPath = path.join(packageJsonInfo.directory, 'node_modules', mainPkgName);
-  // const mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
+  let mainPkgPath = path.join(projectRoot, 'node_modules', mainPkgName);
+  let mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
 
-  if (!fs.existsSync(mainPkgPath)) {
+  let directory = projectRoot;
+
+  while (path.dirname(directory) !== directory) {
+
+    if (fs.existsSync(mainPkgJsonPath)) {
+      break;
+    }
+
+    directory = normalize(path.dirname(directory), true);
+
+    mainPkgPath = path.join(directory, 'node_modules', mainPkgName);
+    mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
+  }
+
+  if (!fs.existsSync(mainPkgJsonPath)) {
     // TODO: Add logger
     // context.logger.warn('No package.json found for ' + packageName);
     logger.verbose('No package.json found for ' + packageName + ' in ' + mainPkgPath);
 
     return null;
   }
+  return mainPkgJsonPath;
 
-  //const mainPkgJson = readJson(mainPkgJsonPath);
-  const mainPkgJson = packageJsonInfo.content;
+}
+
+export function _getPackageInfo(
+  packageName: string,
+  directory: string,
+): PackageInfo | null {
+
+  const mainPkgName = getPkgFolder(packageName);
+  const mainPkgJsonPath = findDepPackageJson(packageName, directory);
+
+  if (!mainPkgJsonPath) {
+    return null;
+  }
+
+  const mainPkgPath = path.dirname(mainPkgJsonPath);
+  const mainPkgJson = readJson(mainPkgJsonPath);
 
   const version = mainPkgJson['version'] as string;
   const esm = mainPkgJson['type'] === 'module';
@@ -206,7 +233,7 @@ export function _getPackageInfo(
     };
   }
 
-  const secondaryPgkPath = path.join(packageJsonInfo.directory, 'node_modules', packageName);
+  const secondaryPgkPath = path.join(mainPkgPath, relSecondaryPath);
   const secondaryPgkJsonPath = path.join(secondaryPgkPath, 'package.json');
   let secondaryPgkJson: PartialPackageJson | null = null;
   if (fs.existsSync(secondaryPgkJsonPath)) {

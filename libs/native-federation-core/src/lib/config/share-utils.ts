@@ -9,8 +9,9 @@ import {
   prepareSkipList,
   SkipList,
 } from '../core/default-skip-list';
-import { findPackageJsonFiles, getVersionMaps, VersionMap } from '../utils/package-info';
+import { findDepPackageJson, findPackageJsonFiles, getVersionMaps, VersionMap } from '../utils/package-info';
 import { getConfigContext } from './configuration-context';
+import { logger } from '../utils/logger';
 
 let inferVersion = false;
 
@@ -150,7 +151,7 @@ function findSecondaries(
 
 function getSecondaries(
   includeSecondaries: IncludeSecondariesOptions,
-  packagePath: string,
+  libPath: string,
   key: string,
   shareObject: SharedConfig
 ): Record<string, SharedConfig> | null {
@@ -164,7 +165,7 @@ function getSecondaries(
     }
   }
 
-  const libPath = path.join(path.dirname(packagePath), 'node_modules', key);
+  // const libPath = path.join(path.dirname(packagePath), 'node_modules', key);
 
   if (!fs.existsSync(libPath)) {
     return {};
@@ -331,9 +332,19 @@ export function share(shareObjects: Config, projectPath = ''): Config {
     result[key] = shareObject;
 
     if (includeSecondaries) {
+
+      const libPackageJson = findDepPackageJson(key, path.dirname(packagePath));
+
+      if (!libPackageJson) {
+        logger.error('Could not find folder containing dep ' + key);
+        continue;
+      }
+
+      const libPath = path.dirname(libPackageJson);
+
       const secondaries = getSecondaries(
         includeSecondaries,
-        packagePath,
+        libPath,
         key,
         shareObject
       );

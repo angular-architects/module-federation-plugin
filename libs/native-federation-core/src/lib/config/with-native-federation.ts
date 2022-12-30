@@ -54,7 +54,7 @@ function normalizeShared(
       {}
     );
 
-    result = share(result) as Record<string, NormalizedSharedConfig>;
+    //result = share(result) as Record<string, NormalizedSharedConfig>;
   }
 
   result = Object.keys(result)

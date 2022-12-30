@@ -1,4 +1,4 @@
-import { useWorkspace } from '../config/configuration-context';
+import { getConfigContext, useWorkspace } from '../config/configuration-context';
 import { NormalizedFederationConfig } from '../config/federation-config';
 import { BuildAdapter, setBuildAdapter } from './build-adapter';
 import { buildForFederation, defaultBuildParams } from './build-for-federation';
@@ -20,6 +20,7 @@ async function init(params: BuildHelperParams): Promise<void> {
   fedOptions = params.options;
   useWorkspace(params.options.workspaceRoot);
   config = await loadFederationConfig(fedOptions);
+  params.options.workspaceRoot = getConfigContext().workspaceRoot ?? params.options.workspaceRoot;
   externals = getExternals(config);
 }
 
