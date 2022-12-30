@@ -15,6 +15,15 @@ export interface PartialPackageJson {
   main: string;
 }
 
+export type VersionMap = Record<string, string>;
+
+export type PackageJsonInfo = {
+  content: any;
+  directory: string;
+}
+
+const packageCache: Record<string, PackageJsonInfo[]> = {};
+
 export function findPackageJsonFiles(project: string, workspace: string): string[] {
   return expandFolders(project, workspace)
     .map(f => path.join(f, 'package.json'))
@@ -58,37 +67,62 @@ export function getPackageInfo(
     throw new Error(`Workspace folder ${workspaceRoot} needs to be a parent of the project folder ${projectRoot}`);
   }
 
-  let currentPath = projectRoot;
+  const packageJsonInfos = getPackageJsonFiles(projectRoot, workspaceRoot);
 
-  while (workspaceRoot !== currentPath) {
-
-    const cand = _getPackageInfo(packageName, currentPath);
+  for (const info of packageJsonInfos) {
+    const cand = _getPackageInfo(packageName, info);
     if (cand) {
       return cand;
     }
-
-    currentPath = normalize(path.dirname(currentPath), true);
   }
 
-  const result = _getPackageInfo(packageName, currentPath);
+  logger.warn('No meta data found for shared lib ' + packageName);
+  return null;
+}
 
-  if (!result) {
-    logger.warn('No meta data found for shared lib ' + packageName);
+function getVersionMapCacheKey(project: string, workspace: string): string {
+  return `${project}**${workspace}`;
+}
+
+export function getVersionMaps(project: string, workspace: string): VersionMap[] {
+  return getPackageJsonFiles(project, workspace)
+    .map(json => ({
+      ...json.content['dependencies']
+    }));
+}
+
+export function getPackageJsonFiles(project: string, workspace: string): PackageJsonInfo[] {
+  const cacheKey = getVersionMapCacheKey(project, workspace);
+
+  let maps = packageCache[cacheKey];
+
+  if (maps) {
+    return maps;
   }
 
-  return result;
+  maps = findPackageJsonFiles(project, workspace)
+    .map(f => {
+      const content = fs.readFileSync(f, 'utf-8');
+      const directory = path.dirname(f);
+      const result: PackageJsonInfo = {
+        content, directory
+      };
+      return result;
+    });
 
+  packageCache[cacheKey] = maps;
+  return maps;
 }
 
 export function _getPackageInfo(
   packageName: string,
-  currentPath: string,
+  packageJsonInfo: PackageJsonInfo,
 ): PackageInfo | null {
 
   const mainPkgName = getPkgFolder(packageName);
 
-  const mainPkgPath = path.join(currentPath, 'node_modules', mainPkgName);
-  const mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
+  const mainPkgPath = path.join(packageJsonInfo.directory, 'node_modules', mainPkgName);
+  // const mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
 
   if (!fs.existsSync(mainPkgPath)) {
     // TODO: Add logger
@@ -98,7 +132,8 @@ export function _getPackageInfo(
     return null;
   }
 
-  const mainPkgJson = readJson(mainPkgJsonPath);
+  //const mainPkgJson = readJson(mainPkgJsonPath);
+  const mainPkgJson = packageJsonInfo.content;
 
   const version = mainPkgJson['version'] as string;
   const esm = mainPkgJson['type'] === 'module';
@@ -171,7 +206,7 @@ export function _getPackageInfo(
     };
   }
 
-  const secondaryPgkPath = path.join(currentPath, 'node_modules', packageName);
+  const secondaryPgkPath = path.join(packageJsonInfo.directory, 'node_modules', packageName);
   const secondaryPgkJsonPath = path.join(secondaryPgkPath, 'package.json');
   let secondaryPgkJson: PartialPackageJson | null = null;
   if (fs.existsSync(secondaryPgkJsonPath)) {

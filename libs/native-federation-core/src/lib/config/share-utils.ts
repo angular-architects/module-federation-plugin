@@ -9,7 +9,7 @@ import {
   prepareSkipList,
   SkipList,
 } from '../core/default-skip-list';
-import { findPackageJsonFiles } from '../utils/package-info';
+import { findPackageJsonFiles, getVersionMaps, VersionMap } from '../utils/package-info';
 import { getConfigContext } from './configuration-context';
 
 let inferVersion = false;
@@ -19,7 +19,6 @@ export const DEFAULT_SECONARIES_SKIP_LIST = [
   '@angular/common/upgrade',
 ];
 
-type VersionMap = Record<string, string>;
 type IncludeSecondariesOptions = { skip: string | string[] } | boolean;
 type CustomSharedConfig = SharedConfig & {
   includeSecondaries?: IncludeSecondariesOptions;
@@ -72,11 +71,10 @@ function readVersionMap(packagePath: string): VersionMap {
 
 function lookupVersion(key: string, projectRoot: string, workspaceRoot: string): string {
 
-  const packageJsonList = findPackageJsonFiles(projectRoot, workspaceRoot);
+  const versionMaps = getVersionMaps(projectRoot, workspaceRoot);
 
-  for (const packagePath of packageJsonList) {
+  for (const versionMap of versionMaps) {
 
-    const versionMap = readVersionMap(packagePath);
     const version = lookupVersionInMap(key, versionMap);
 
     if (version) {
@@ -258,11 +256,10 @@ export function shareAll(
     workspacePath = projectPath;
   }
 
-  const packageJsonList = findPackageJsonFiles(projectPath, workspacePath);
+  const versionMaps = getVersionMaps(projectPath, workspacePath);
   const share: Record<string, unknown> = {};
 
-  for(const packagePath of packageJsonList) {
-    const versions = readVersionMap(packagePath);
+  for(const versions of versionMaps) {
 
     const preparedSkipList = prepareSkipList(skip);
   
