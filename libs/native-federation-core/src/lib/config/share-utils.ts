@@ -70,9 +70,9 @@ function readVersionMap(packagePath: string): VersionMap {
   return versions;
 }
 
-function lookupVersion(key: string, projectRoot: string, workspaceRoot: string): string {
+function lookupVersion(key: string, workspaceRoot: string): string {
 
-  const versionMaps = getVersionMaps(projectRoot, workspaceRoot);
+  const versionMaps = getVersionMaps(workspaceRoot, workspaceRoot);
 
   for (const versionMap of versionMaps) {
 
@@ -292,14 +292,6 @@ export function share(shareObjects: Config, projectPath = ''): Config {
     projectPath = cwd();
   }
 
-  let workspacePath: string | undefined = undefined;
-
-  workspacePath = getConfigContext().workspaceRoot ?? '';
-
-  if (!workspacePath) {
-    workspacePath = projectPath;
-  }
-  
   const packagePath = findPackageJson(projectPath);
 
   // const versions = readVersionMap(packagePath);
@@ -314,7 +306,7 @@ export function share(shareObjects: Config, projectPath = ''): Config {
       shareObject.requiredVersion === 'auto' ||
       (inferVersion && typeof shareObject.requiredVersion === 'undefined')
     ) {
-      const version = lookupVersion(key, projectPath, workspacePath);
+      const version = lookupVersion(key, projectPath);
       
       shareObject.requiredVersion = version;
       shareObject.version = version.replace(/^\D*/, '');

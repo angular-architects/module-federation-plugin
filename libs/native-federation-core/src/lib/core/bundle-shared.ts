@@ -7,7 +7,6 @@ import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 import { logger } from '../utils/logger';
-import { hashFile } from '../utils/hash-file';
 import { normalize } from '../utils/normalize';
 
 export async function bundleShared(
@@ -21,7 +20,6 @@ export async function bundleShared(
     .map((packageName) => getPackageInfo(
       packageName, 
       fedOptions.workspaceRoot,
-      fedOptions.projectRoot ?? fedOptions.workspaceRoot
     ))
     .filter((pi) => !!pi) as PackageInfo[];
 
@@ -110,7 +108,7 @@ export async function bundleShared(
     });
 
     const fullOutputPath = path.join(
-      fedOptions.projectRoot ?? fedOptions.workspaceRoot,
+      fedOptions.workspaceRoot,
       fedOptions.outputPath,
       outFileName
     );

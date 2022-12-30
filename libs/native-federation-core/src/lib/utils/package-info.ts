@@ -58,18 +58,13 @@ export function expandFolders(child: string, parent: string): string[] {
 
 export function getPackageInfo(
   packageName: string,
-  workspaceRoot: string,
-  projectRoot: string
+  workspaceRoot: string
 ): PackageInfo | null {
 
   workspaceRoot = normalize(workspaceRoot, true);
-  projectRoot = normalize(projectRoot, true);
 
-  if (!projectRoot.startsWith(workspaceRoot)) {
-    throw new Error(`Workspace folder ${workspaceRoot} needs to be a parent of the project folder ${projectRoot}`);
-  }
 
-  const packageJsonInfos = getPackageJsonFiles(projectRoot, workspaceRoot);
+  const packageJsonInfos = getPackageJsonFiles(workspaceRoot, workspaceRoot);
 
   for (const info of packageJsonInfos) {
     const cand = _getPackageInfo(packageName, info.directory);

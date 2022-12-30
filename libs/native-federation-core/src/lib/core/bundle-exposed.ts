@@ -22,7 +22,7 @@ export async function bundleExposed(
 
     const localPath = normalize(
       path.join(
-        options.projectRoot ?? options.workspaceRoot, 
+        options.workspaceRoot, 
         config.exposes[key])
     );
 
@@ -79,7 +79,7 @@ export function describeExposed(
   for (const key in config.exposes) {
     const localPath = normalize(
       path.join(
-        options.projectRoot ?? options.workspaceRoot, 
+        options.workspaceRoot, 
         config.exposes[key])
     );
 
