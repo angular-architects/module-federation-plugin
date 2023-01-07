@@ -47,6 +47,7 @@
     "@softarc/native-federation-runtime": "file:softarc-native-federation-runtime-0.9.2-beta.3.tgz",
     "@types/browser-sync": "^2.26.3",
     "@types/cross-spawn": "^6.0.2",
+    "acorn": "^8.8.1",
     "es-module-shims": "^1.5.12",
     "npmlog": "^6.0.2",
     "rollup-plugin-esbuild": "^4.10.1",
