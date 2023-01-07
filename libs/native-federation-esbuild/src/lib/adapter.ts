@@ -21,17 +21,22 @@ export const esBuildAdapter: BuildAdapter = createEsBuildAdapter({
 });
 
 export type ReplacementConfig = {
-  file: string, 
-  tryCompensateMissingExports: boolean
+  file: string
 };
 
 export interface EsBuildAdapterConfig {
   plugins: esbuild.Plugin[];
   fileReplacements?: Record<string, string | ReplacementConfig>
   skipRollup?: boolean,
+  compensateExports?: RegExp[]
 }
 
 export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
+  
+  if (!config.compensateExports) {
+    config.compensateExports = [new RegExp('/react/')];
+  }
+  
   return async (options: BuildAdapterOptions) => {
     const { entryPoint, external, outfile, watch } = options;
 
@@ -43,7 +48,7 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
       await prepareNodePackage(entryPoint, external, tmpFolder, config);
     }
 
-    const r = await esbuild.build({
+    await esbuild.build({
       entryPoints: [isPkg ? tmpFolder : entryPoint],
       external,
       outfile,
@@ -66,27 +71,18 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
       plugins: [...config.plugins],
     });
 
-    postProcess(config, entryPoint, outfile);
+    const normEntryPoint = entryPoint.replace(/\\/g, '/');
+    if (isPkg && config?.compensateExports?.find(regExp => regExp.exec(normEntryPoint))) {
+      logger.verbose('compensate exports for ' + tmpFolder);
+      compensateExports(tmpFolder, outfile);
+    }
+
   };
 }
 
-function postProcess(config: EsBuildAdapterConfig, entryPoint: string, outfile: string) {
-  if (config.fileReplacements) {
-    const replacements = normalize(config.fileReplacements);
-    
-    const normalizedPath = entryPoint.replace(/\\/g, '/');
-    const key = Object.keys(replacements).find(key => normalizedPath.endsWith(key))
-
-    if (key && replacements[key] && replacements[key].tryCompensateMissingExports) {
-      const file = replacements[key].file;
-      compensateExports(file, outfile);
-    }
-  }
-}
-
-function compensateExports(entryPoint: string, outfile: string): void {
+function compensateExports(entryPoint: string, outfile?: string): void {
   const inExports = collectExports(entryPoint);
-  const outExports = collectExports(outfile);
+  const outExports = outfile ? collectExports(outfile) : inExports;
 
   if (!outExports.hasDefaultExport || outExports.hasFurtherExports) {
     return;
@@ -99,7 +95,8 @@ function compensateExports(entryPoint: string, outfile: string): void {
     exports += `export { ${exp}$softarc as ${exp} };\n`;
   }
 
-  fs.appendFileSync(outfile, exports, 'utf-8');
+  const target = outfile ?? entryPoint;
+  fs.appendFileSync(target, exports, 'utf-8');
 }
 
 async function prepareNodePackage(
@@ -135,6 +132,7 @@ async function prepareNodePackage(
     sourcemap: true,
     exports: 'named',
   });
+
 }
 
 function inferePkgName(entryPoint: string) {
@@ -149,7 +147,6 @@ function normalize(config: Record<string, string | ReplacementConfig>): Record<s
     if (typeof config[key] === 'string') {
       result[key] = {
         file: config[key] as string,
-        tryCompensateMissingExports: false
       }
     }
     else {
