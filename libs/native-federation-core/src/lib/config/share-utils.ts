@@ -245,19 +245,17 @@ export function shareAll(
   projectPath = ''
 ): Config | null {
   
-  let workspacePath: string | undefined = undefined;
+  // let workspacePath: string | undefined = undefined;
 
-  if (!projectPath) {
-    projectPath = cwd();
-  }
+  projectPath = inferProjectPath(projectPath);
 
-  workspacePath = getConfigContext().workspaceRoot ?? '';
+  // workspacePath = getConfigContext().workspaceRoot ?? '';
 
-  if (!workspacePath) {
-    workspacePath = projectPath;
-  }
+  // if (!workspacePath) {
+  //   workspacePath = projectPath;
+  // }
 
-  const versionMaps = getVersionMaps(projectPath, workspacePath);
+  const versionMaps = getVersionMaps(projectPath, projectPath);
   const share: Record<string, unknown> = {};
 
   for(const versions of versionMaps) {
@@ -283,14 +281,28 @@ export function shareAll(
   return module.exports.share(share, projectPath);
 }
 
+function inferProjectPath(projectPath: string) {
+  if (!projectPath && getConfigContext().packageJson) {
+    projectPath = path.dirname(getConfigContext().packageJson || '');
+  }
+
+  if (!projectPath && getConfigContext().workspaceRoot) {
+    projectPath = getConfigContext().workspaceRoot || '';
+  }
+
+  if (!projectPath) {
+    projectPath = cwd();
+  }
+  return projectPath;
+}
+
 export function setInferVersion(infer: boolean): void {
   inferVersion = infer;
 }
 
 export function share(shareObjects: Config, projectPath = ''): Config {
-  if (!projectPath) {
-    projectPath = cwd();
-  }
+  
+  projectPath = inferProjectPath(projectPath);
 
   const packagePath = findPackageJson(projectPath);
 

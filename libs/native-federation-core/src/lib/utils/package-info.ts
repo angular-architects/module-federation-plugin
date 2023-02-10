@@ -1,4 +1,3 @@
-import { dir } from 'console';
 import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from './logger';
@@ -62,7 +61,6 @@ export function getPackageInfo(
 ): PackageInfo | null {
 
   workspaceRoot = normalize(workspaceRoot, true);
-
 
   const packageJsonInfos = getPackageJsonFiles(workspaceRoot, workspaceRoot);
 
@@ -187,6 +185,27 @@ export function _getPackageInfo(
   }
   
   cand = mainPkgJson?.exports?.[relSecondaryPath]?.import;
+
+  if (typeof cand === 'object') {
+    if (cand.module) {
+      cand = cand.module;
+    } else if (cand.default) {
+      cand = cand.default;
+    } else {
+      cand = null;
+    }
+  }
+
+  if (cand) {
+    return {
+      entryPoint: path.join(mainPkgPath, cand),
+      packageName,
+      version,
+      esm,
+    };
+  }
+
+  cand = mainPkgJson?.exports?.[relSecondaryPath]?.module;
 
   if (typeof cand === 'object') {
     if (cand.module) {

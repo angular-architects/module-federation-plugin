@@ -278,7 +278,8 @@ Also, the schematics add the following to your `index.html`:
 ```html
 <script type="esms-options">
   {
-      "shimMode": true
+      "shimMode": true,
+      "mapOverrides": true
   }
 </script>
 

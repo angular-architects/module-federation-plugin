@@ -24,15 +24,20 @@ export type ReplacementConfig = {
   file: string
 };
 
+export type Environment = 'dev' | 'prod';
+
 export interface EsBuildAdapterConfig {
   plugins: esbuild.Plugin[];
   fileReplacements?: Record<string, string | ReplacementConfig>
   skipRollup?: boolean,
-  compensateExports?: RegExp[]
+  compensateExports?: RegExp[],
+  loader?: { [ext: string]: esbuild.Loader }
 }
 
 export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
   
+  normalizeConfig(config);
+
   if (!config.compensateExports) {
     config.compensateExports = [new RegExp('/react/')];
   }
@@ -52,6 +57,7 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
       entryPoints: [isPkg ? tmpFolder : entryPoint],
       external,
       outfile,
+      loader: config.loader,
       bundle: true,
       sourcemap: true,
       minify: true,
@@ -78,6 +84,16 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
     }
 
   };
+}
+
+function normalizeConfig(config: EsBuildAdapterConfig) {
+  if (!config.environment) {
+    config.environment = 'dev';
+  }
+
+  if (!config.sourcemap) {
+    config.sourcemap = config.environment === 'dev';
+  }
 }
 
 function compensateExports(entryPoint: string, outfile?: string): void {

@@ -17,14 +17,14 @@ export function collectExports(path: string) {
   let hasDefaultExport = false;
   let hasFurtherExports = false;
   let defaultExportName = "";
-  const exports: string[] = [];
+  const exports = new Set<string>();
 
   traverse(parseTree, (node) => {
     if (
       node.type === "AssignmentExpression" &&
       node?.left?.object?.name === "exports" // &&
     ) {
-      exports.push(node.left.property?.name);
+      exports.add(node.left.property?.name);
       return;
     }
 
@@ -55,7 +55,7 @@ export function collectExports(path: string) {
     hasDefaultExport,
     hasFurtherExports,
     defaultExportName,
-    exports,
+    exports: [...exports],
   };
 }
 

@@ -310,7 +310,8 @@ This library uses Import Maps. As currently not all browsers support this emergi
 ```html
 <script type="esms-options">
   {
-      "shimMode": true
+      "shimMode": true,
+      "mapOverrides": true
   }
 </script>
 

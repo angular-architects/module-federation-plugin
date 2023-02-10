@@ -6,4 +6,5 @@ export interface FederationOptions {
   verbose?: boolean;
   dev?: boolean;
   watch?: boolean;
+  packageJson?: string;
 }
