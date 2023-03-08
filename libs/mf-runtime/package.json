@@ -1,6 +1,10 @@
 {
   "name": "@angular-architects/module-federation-runtime",
   "license": "MIT",
+  "repository": {
+    "type": "GitHub",
+    "url": "https://github.com/angular-architects/module-federation-plugin"
+  },
   "version": "15.0.3",
   "peerDependencies": {
     "@angular/common": ">=15.0.0",

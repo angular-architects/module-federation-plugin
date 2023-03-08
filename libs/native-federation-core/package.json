@@ -2,6 +2,11 @@
   "name": "@softarc/native-federation",
   "version": "1.1.0",
   "type": "commonjs",
+  "license": "MIT",
+  "repository": {
+    "type": "GitHub",
+    "url": "https://github.com/angular-architects/module-federation-plugin"
+  },
   "dependencies": {
     "json5": "^2.2.0",
     "npmlog": "^6.0.2",
