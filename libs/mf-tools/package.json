@@ -2,6 +2,10 @@
   "name": "@angular-architects/module-federation-tools",
   "version": "15.0.3",
   "license": "MIT",
+  "repository": {
+    "type": "GitHub",
+    "url": "https://github.com/angular-architects/module-federation-plugin"
+  },
   "peerDependencies": {
     "@angular/common": ">=15.0.0",
     "@angular/core": ">=15.0.0",
