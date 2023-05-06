@@ -12,7 +12,7 @@ Big thanks to the following people who helped to make this possible:
 
 ## Prequisites
 
-- Angular CLI 12 or higher (13, 14, 15)
+- Angular CLI 12 or higher (13, 14, 15, 16)
 
 ## Motivation 💥
 
@@ -40,6 +40,7 @@ Since Version 1.2, we also provide some advanced features like:
 - Angular 13: @angular-architects/module-federation: ~14.2.0
 - Angular 14: @angular-architects/module-federation: ^14.3.0
 - Angular 15: @angular-architects/module-federation: ^15.0.0
+- Angular 16: @angular-architects/module-federation: ^16.0.0
 
 Beginning with Angular 13, we had to add some changes to adjust to the Angular CLI. Please see the next section for this.
 
