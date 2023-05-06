@@ -24,8 +24,6 @@ export type ReplacementConfig = {
   file: string
 };
 
-export type Environment = 'dev' | 'prod';
-
 export interface EsBuildAdapterConfig {
   plugins: esbuild.Plugin[];
   fileReplacements?: Record<string, string | ReplacementConfig>
@@ -36,8 +34,6 @@ export interface EsBuildAdapterConfig {
 
 export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
   
-  normalizeConfig(config);
-
   if (!config.compensateExports) {
     config.compensateExports = [new RegExp('/react/')];
   }
@@ -50,7 +46,7 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
     const tmpFolder = `node_modules/.tmp/${pkgName}`;
 
     if (isPkg) {
-      await prepareNodePackage(entryPoint, external, tmpFolder, config);
+      await prepareNodePackage(entryPoint, external, tmpFolder, config, !!options.dev);
     }
 
     await esbuild.build({
@@ -59,8 +55,8 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
       outfile,
       loader: config.loader,
       bundle: true,
-      sourcemap: true,
-      minify: true,
+      sourcemap: options.dev,
+      minify: !options.dev,
       watch: !watch
         ? false
         : {
@@ -84,16 +80,6 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
     }
 
   };
-}
-
-function normalizeConfig(config: EsBuildAdapterConfig) {
-  if (!config.environment) {
-    config.environment = 'dev';
-  }
-
-  if (!config.sourcemap) {
-    config.sourcemap = config.environment === 'dev';
-  }
 }
 
 function compensateExports(entryPoint: string, outfile?: string): void {
@@ -120,11 +106,14 @@ async function prepareNodePackage(
   external: string[],
   tmpFolder: string,
   config: EsBuildAdapterConfig,
+  dev: boolean
 ) {
 
   if (config.fileReplacements) {
     entryPoint = replaceEntryPoint(entryPoint, normalize(config.fileReplacements));
   }
+
+  const env = dev ? 'development' : 'production';
 
   const result = await rollup({
     input: entryPoint,
@@ -136,7 +125,7 @@ async function prepareNodePackage(
       replace({
         preventAssignment: true,
         values: {
-          'process.env.NODE_ENV': '"development"',
+          'process.env.NODE_ENV': `"${env}"`,
         },
       }),
     ],
@@ -145,7 +134,7 @@ async function prepareNodePackage(
   await result.write({
     format: 'esm',
     file: tmpFolder,
-    sourcemap: true,
+    sourcemap: dev,
     exports: 'named',
   });
 

@@ -47,10 +47,10 @@ export async function bundleShared(
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
     const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
 
-    // const env = fedOptions.dev ? 'dev' : 'prod';
+    const env = fedOptions.dev ? 'dev' : 'prod';
 
     // const outFileName = `${encName}-${encVersion}-${hash}.js`;
-    const outFileName = `${encName}-${encVersion}.js`;
+    const outFileName = `${encName}-${encVersion}-${env}.js`;
 
     const cachePath = path.join(
       fedOptions.workspaceRoot,
@@ -82,6 +82,7 @@ export async function bundleShared(
           mappedPaths: config.sharedMappings,
           packageName: pi.packageName,
           esm: pi.esm,
+          dev: !!fedOptions.dev,
           kind: 'shared-package',
         });
       } catch (e) {

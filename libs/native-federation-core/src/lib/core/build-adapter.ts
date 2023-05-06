@@ -14,6 +14,7 @@ export interface BuildAdapterOptions {
   mappedPaths: MappedPath[];
   packageName?: string;
   esm?: boolean;
+  dev?: boolean;
   watch?: boolean;
   kind: 'shared-package' | 'shared-mapping' | 'exposed';
 }

@@ -30,6 +30,7 @@ export async function bundleSharedMappings(
         outfile: outFilePath,
         mappedPaths: [],
         watch: fedOptions.watch,
+        dev: !!fedOptions.dev,
         kind: 'shared-mapping',
       });
 

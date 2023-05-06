@@ -1,10 +1,10 @@
 {
   "name": "@angular-architects/module-federation-runtime",
   "license": "MIT",
-  "version": "15.0.3",
+  "version": "16.0.0",
   "peerDependencies": {
-    "@angular/common": ">=15.0.0",
-    "@angular/core": ">=15.0.0"
+    "@angular/common": ">=16.0.0",
+    "@angular/core": ">=16.0.0"
   },
   "dependencies": {
     "tslib": "^2.0.0"

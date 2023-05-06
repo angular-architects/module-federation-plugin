@@ -34,6 +34,7 @@ export async function bundleExposed(
         tsConfigPath: options.tsConfig,
         external: externals,
         outfile: outFilePath,
+        dev: !!options.dev,
         watch: options.watch,
         mappedPaths: config.sharedMappings,
         kind: 'exposed',

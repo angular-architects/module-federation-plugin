@@ -1,6 +1,6 @@
 {
   "name": "@softarc/native-federation-esbuild",
-  "version": "1.1.1-beta.0",
+  "version": "1.1.1",
   "type": "commonjs",
   "dependencies": {
     "@rollup/plugin-commonjs": "^22.0.2",
