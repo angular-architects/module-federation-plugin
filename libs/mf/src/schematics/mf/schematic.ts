@@ -144,51 +144,16 @@ function getWebpackConfigValue(nx: boolean, path: string) {
 
 function nxBuildersAvailable(tree: Tree): boolean {
   if (!tree.exists('nx.json')) return false;
-
-  const packageJson = JSON.parse(tree.read('package.json').toString('utf-8'));
-
-  const version =
-    packageJson?.devDependencies?.['@nrwl/workspace'] ??
-    packageJson?.dependencies?.['@nrwl/workspace'];
-
-  if (!version) return false;
-
-  const minVersion = semver.minVersion(version).raw;
-
-  return semver.satisfies(minVersion, '>=12.9.0');
+  return true;
 }
 
-function infereNxBuilderNames(
-  tree: Tree
-): { dev: string; prod: string } {
-
+function infereNxBuilderNames(tree: Tree): { dev: string; prod: string } {
   const defaultResult = {
-    dev: '@nrwl/angular:webpack-dev-server',
-    prod: '@nrwl/angular:webpack-browser',
+    dev: '@nx/angular:webpack-dev-server',
+    prod: '@nx/angular:webpack-browser',
   };
 
-  const fallbackResult = {
-    dev: '@nrwl/angular:webpack-server',
-    prod: '@nrwl/angular:webpack-browser',
-  };
-
-  if (!tree.exists('nx.json')) return defaultResult;
-
-  const packageJson = JSON.parse(tree.read('package.json').toString('utf-8'));
-
-  const version =
-    packageJson?.devDependencies?.['@nrwl/angular'] ??
-    packageJson?.dependencies?.['@nrwl/angular'];
-
-  if (!version) defaultResult;
-
-  const minVersion = semver.minVersion(version).raw;
-
-  if (semver.satisfies(minVersion, '>=15.0.0')) {
-    return defaultResult;
-  } else {
-    return fallbackResult;
-  }
+  return defaultResult;
 }
 
 async function generateWebpackConfig(
