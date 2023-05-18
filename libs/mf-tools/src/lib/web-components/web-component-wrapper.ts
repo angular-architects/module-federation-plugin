@@ -12,8 +12,15 @@ import {
   loadRemoteModule,
 } from '@angular-architects/module-federation';
 
+export interface MicroFrontendLoadStatusHandler {
+  onLoadStart(): void;
+  onLoadSuccess(): void;
+  onLoadError(): void;
+}
+
 export type WebComponentWrapperOptions = LoadRemoteModuleOptions & {
   elementName: string;
+  microFrontendLoadStatusHandler?: MicroFrontendLoadStatusHandler;
 };
 
 @Component({
@@ -57,6 +64,7 @@ export class WebComponentWrapper implements AfterContentInit, OnChanges {
       this.options ?? (this.route.snapshot.data as WebComponentWrapperOptions);
 
     try {
+      options.microFrontendLoadStatusHandler?.onLoadStart();
       await loadRemoteModule(options);
 
       this.element = document.createElement(options.elementName);
@@ -64,8 +72,10 @@ export class WebComponentWrapper implements AfterContentInit, OnChanges {
       this.setupEvents();
 
       this.vc.nativeElement.appendChild(this.element);
+      options.microFrontendLoadStatusHandler?.onLoadSuccess();
     } catch (error) {
       console.error(error);
+      options.microFrontendLoadStatusHandler?.onLoadError();
     }
   }
 }
