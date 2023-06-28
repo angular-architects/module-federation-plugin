@@ -5,6 +5,7 @@
   "dependencies": {
     "json5": "^2.2.0",
     "npmlog": "^6.0.2",
+    "tslib": "^2.0.0",
     "@softarc/native-federation-runtime": "1.1.1"
   }
 }
