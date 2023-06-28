@@ -10,6 +10,7 @@
     "rollup-plugin-node-externals": "^4.1.1",
     "esbuild": "^0.15.5",
     "npmlog": "^6.0.2",
-    "acorn": "^8.8.1"
+    "acorn": "^8.8.1",
+    "tslib": "^2.0.0"
   }
 }
