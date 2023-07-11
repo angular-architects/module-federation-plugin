@@ -1,6 +1,5 @@
 import crypt = require("crypto");
 import chalk = require("chalk");
-import wordWrap = require("word-wrap");
 
 function correctColor(color: string): string {
   let result = '';
@@ -43,13 +42,27 @@ export function print(prefix: string, prefixSize: number, message: string, error
   const lineSize = process.stdout.columns - prefixSize - 10;
 
   for (const line of lines) {
-    const wrapped = wordWrap(line, { width: lineSize });
-    const sublines = wrapped.split('\n');
-    for (const subline of sublines) {
-      const trimmed = subline.trim();
-      const coloredSubline = error ? chalk.redBright(trimmed) : trimmed;
-      const output = coloredPrefix + coloredSubline;
-      console.log(output);
+    for (const subline of wrap(line, lineSize)) {
+      console.log(`${coloredPrefix}${error ? chalk.redBright(subline) : subline}`);
     }
   }
+}
+
+function* wrap(text: string, width: number): string[] {
+  let line = '';
+
+  for(const word of text.split(/(\S+\s+)/).filter(word => word.length > 0)) {
+      if(line.length + (1 + word.length) > width)
+      {
+        yield line.trimEnd();
+        
+        line = word;
+      }
+      else
+      {
+        line = line + word;
+      }
+  }
+    
+  yield line.trimEnd();
 }
