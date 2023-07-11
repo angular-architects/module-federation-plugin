@@ -48,21 +48,21 @@ export function print(prefix: string, prefixSize: number, message: string, error
   }
 }
 
-function* wrap(text: string, width: number): string[] {
+function* wrap(text: string, width: number): Generator<string, void, never> {
   let line = '';
 
-  for(const word of text.split(/(\S+\s+)/).filter(word => word.length > 0)) {
+  for(const word of text.split(/\s+/)) {
       if(line.length + (1 + word.length) > width)
       {
-        yield line.trimEnd();
+        yield line.trim();
         
         line = word;
       }
       else
       {
-        line = line + word;
+        line = line + ' ' + word;
       }
   }
     
-  yield line.trimEnd();
+  yield line.trim();
 }
