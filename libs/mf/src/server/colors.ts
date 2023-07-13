@@ -51,15 +51,13 @@ export function print(prefix: string, prefixSize: number, message: string, error
 function* wrap(text: string, width: number): Generator<string, void, never> {
   let line = '';
 
-  for(const word of text.split(/\s+/)) {
-      if(line.length + (1 + word.length) > width)
-      {
+  for (const word of text.split(/\s+/)) {
+      if (line.length + (1 + word.length) > width) {
         yield line.trim();
         
         line = word;
       }
-      else
-      {
+      else {
         line = line + ' ' + word;
       }
   }
