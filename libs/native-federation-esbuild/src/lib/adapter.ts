@@ -57,17 +57,6 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
       bundle: true,
       sourcemap: options.dev,
       minify: !options.dev,
-      watch: !watch
-        ? false
-        : {
-            onRebuild: (err) => {
-              if (err) {
-                logger.error('Error rebuilding ' + entryPoint);
-              } else {
-                logger.info('Rebuilt ' + entryPoint);
-              }
-            },
-          },
       format: 'esm',
       target: ['esnext'],
       plugins: [...config.plugins],
