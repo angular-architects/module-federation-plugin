@@ -2,6 +2,12 @@
   "name": "@softarc/native-federation-esbuild",
   "version": "1.1.1",
   "type": "commonjs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/angular-architects/module-federation-plugin",
+    "directory": "libs/native-federation-esbuild"
+  },
   "dependencies": {
     "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-node-resolve": "^13.3.0",

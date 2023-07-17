@@ -1,7 +1,12 @@
 {
   "name": "@softarc/native-federation-runtime",
   "version": "1.1.1",
-  "peerDependencies": {},
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/angular-architects/module-federation-plugin",
+    "directory": "libs/native-federation-runtime"
+  },
   "dependencies": {
     "tslib": "^2.3.0"
   }
