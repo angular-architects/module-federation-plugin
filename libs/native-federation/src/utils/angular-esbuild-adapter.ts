@@ -114,12 +114,6 @@ async function runEsbuild(
   const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
   const target = transformSupportedBrowsersToTargets(browsers);
 
-  const optimizeScripts =
-    (typeof builderOptions.optimization === 'boolean' &&
-      builderOptions.optimization) ||
-    (typeof builderOptions.optimization !== 'boolean' &&
-      builderOptions.optimization.scripts);
-
   return await esbuild.build({
     entryPoints: [entryPoint],
     absWorkingDir,
@@ -158,9 +152,7 @@ async function runEsbuild(
         : []),
     ],
     define: {
-      ...(optimizeScripts
-        ? { ngDevMode: 'false' }
-        : undefined),
+      ngDevMode: 'false',
       ngJitMode: 'false',
     },
   });

@@ -228,6 +228,17 @@ export function _getPackageInfo(
 
   cand = mainPkgJson?.exports?.[relSecondaryPath]?.default;
   if (cand) {
+
+    if (typeof cand === 'object') {
+      if (cand.module) {
+        cand = cand.module;
+      } else if (cand.default) {
+        cand = cand.default;
+      } else {
+        cand = null;
+      }
+    }
+    
     return {
       entryPoint: path.join(mainPkgPath, cand),
       packageName,
