@@ -22,9 +22,7 @@
     "commandCenter.border": "#e7e7e799"
   },
   "peacock.color": "#832561",
-  "eslint.validate": [
-    "json"
-  ],
+  "eslint.validate": ["json"],
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,

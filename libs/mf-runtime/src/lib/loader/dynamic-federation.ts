@@ -164,8 +164,13 @@ export type LoadRemoteModuleManifestOptions = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function loadRemoteModule<T = any>(remoteName: string, exposedModule: string): Promise<T>;
-export async function loadRemoteModule<T = any>(options: LoadRemoteModuleOptions): Promise<T>
+export async function loadRemoteModule<T = any>(
+  remoteName: string,
+  exposedModule: string
+): Promise<T>;
+export async function loadRemoteModule<T = any>(
+  options: LoadRemoteModuleOptions
+): Promise<T>;
 export async function loadRemoteModule<T = any>(
   optionsOrRemoteName: LoadRemoteModuleOptions | string,
   exposedModule?: string
@@ -179,10 +184,9 @@ export async function loadRemoteModule<T = any>(
     options = {
       type: 'manifest',
       remoteName: optionsOrRemoteName,
-      exposedModule: exposedModule
-    }
-  }
-  else {
+      exposedModule: exposedModule,
+    };
+  } else {
     options = optionsOrRemoteName;
   }
 
@@ -246,11 +250,13 @@ export function getManifest<T extends Manifest>(): T {
   return config as T;
 }
 
-export async function initFederation(manifest: string | ManifestFile, skipRemoteEntries = false): Promise<void> {
+export async function initFederation(
+  manifest: string | ManifestFile,
+  skipRemoteEntries = false
+): Promise<void> {
   if (typeof manifest === 'string') {
     return loadManifest(manifest, skipRemoteEntries);
-  }
-  else {
+  } else {
     return setManifest(manifest, skipRemoteEntries);
   }
 }

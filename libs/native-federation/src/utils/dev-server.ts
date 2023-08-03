@@ -3,11 +3,7 @@ import { NfBuilderSchema } from '../builders/build/schema';
 
 let server: browserSync.BrowserSyncInstance;
 
-export function startServer(
-  options: NfBuilderSchema,
-  path: string
-): void {
-
+export function startServer(options: NfBuilderSchema, path: string): void {
   const projectName = options.target.split(':')[0];
 
   server = browserSync.create(projectName);

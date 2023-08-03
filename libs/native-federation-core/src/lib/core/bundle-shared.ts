@@ -16,25 +16,23 @@ export async function bundleShared(
 ): Promise<Array<SharedInfo>> {
   const result: Array<SharedInfo> = [];
 
-  const folder = fedOptions.packageJson ? 
-    path.dirname(fedOptions.packageJson) :
-    fedOptions.workspaceRoot;
+  const folder = fedOptions.packageJson
+    ? path.dirname(fedOptions.packageJson)
+    : fedOptions.workspaceRoot;
 
   const packageInfos = Object.keys(config.shared)
     // .filter((packageName) => !isInSkipList(packageName, PREPARED_DEFAULT_SKIP_LIST))
-    .map((packageName) => getPackageInfo(
-      packageName, 
-      folder,
-    ))
+    .map((packageName) => getPackageInfo(packageName, folder))
     .filter((pi) => !!pi) as PackageInfo[];
 
   let first = true;
   for (const pi of packageInfos) {
-
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
     const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
 
-    const outFileName = fedOptions.dev ? `${encName}-${encVersion}-dev.js` : `${encName}-${encVersion}.js`;
+    const outFileName = fedOptions.dev
+      ? `${encName}-${encVersion}-dev.js`
+      : `${encName}-${encVersion}.js`;
 
     const cachePath = path.join(
       fedOptions.workspaceRoot,

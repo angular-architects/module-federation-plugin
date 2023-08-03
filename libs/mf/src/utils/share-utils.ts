@@ -133,9 +133,8 @@ function getSecondaries(
   packagePath: string,
   key: string,
   shareObject: SharedConfig,
-  exclude = [...DEFAULT_SECONARIES_SKIP_LIST],
+  exclude = [...DEFAULT_SECONARIES_SKIP_LIST]
 ): Record<string, SharedConfig> {
-
   if (typeof includeSecondaries === 'object') {
     if (Array.isArray(includeSecondaries.skip)) {
       exclude = includeSecondaries.skip;
@@ -244,10 +243,10 @@ export function setInferVersion(infer: boolean): void {
 }
 
 export function share(
-  shareObjects: Config, 
+  shareObjects: Config,
   packageJsonPath = '',
-  skip: string[] = DEFAULT_SECONARIES_SKIP_LIST): Config {
-
+  skip: string[] = DEFAULT_SECONARIES_SKIP_LIST
+): Config {
   if (!packageJsonPath) {
     packageJsonPath = cwd();
   }
@@ -288,7 +287,7 @@ export function share(
         packagePath,
         key,
         shareObject,
-        skip,
+        skip
       );
       addSecondaries(secondaries, result);
     }

@@ -21,9 +21,7 @@ export async function bundleExposed(
     const entryPoint = config.exposes[key];
 
     const localPath = normalize(
-      path.join(
-        options.workspaceRoot, 
-        config.exposes[key])
+      path.join(options.workspaceRoot, config.exposes[key])
     );
 
     logger.info(`Bundling exposed module ${entryPoint}`);
@@ -79,9 +77,7 @@ export function describeExposed(
 
   for (const key in config.exposes) {
     const localPath = normalize(
-      path.join(
-        options.workspaceRoot, 
-        config.exposes[key])
+      path.join(options.workspaceRoot, config.exposes[key])
     );
 
     result.push({

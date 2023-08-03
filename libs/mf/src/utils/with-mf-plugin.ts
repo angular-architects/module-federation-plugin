@@ -1,4 +1,9 @@
-import { DEFAULT_SECONARIES_SKIP_LIST, DEFAULT_SKIP_LIST, findRootTsConfigJson, shareAll } from './share-utils';
+import {
+  DEFAULT_SECONARIES_SKIP_LIST,
+  DEFAULT_SKIP_LIST,
+  findRootTsConfigJson,
+  shareAll,
+} from './share-utils';
 import { SharedMappings } from './shared-mappings';
 import { ModifyEntryPlugin } from './modify-entry-plugin';
 
@@ -9,15 +14,15 @@ export function withModuleFederationPlugin(config: unknown) {
   delete config['sharedMappings'];
 
   const skip = [
-    ...DEFAULT_SKIP_LIST, 
+    ...DEFAULT_SKIP_LIST,
     ...DEFAULT_SECONARIES_SKIP_LIST,
-    ...(config['skip'] || [])
+    ...(config['skip'] || []),
   ];
 
   delete config['skip'];
 
   if (sharedMappings) {
-    sharedMappings.filter(m => !skip.includes(m));
+    sharedMappings.filter((m) => !skip.includes(m));
   }
 
   const mappings = new SharedMappings();
@@ -57,7 +62,11 @@ export function withModuleFederationPlugin(config: unknown) {
   };
 }
 
-function setDefaults(config: unknown, mappings: SharedMappings, skip: string[]) {
+function setDefaults(
+  config: unknown,
+  mappings: SharedMappings,
+  skip: string[]
+) {
   if (!config['library']) {
     config['library'] = {
       type: 'module',
@@ -69,11 +78,14 @@ function setDefaults(config: unknown, mappings: SharedMappings, skip: string[]) 
   }
 
   if (!config['shared']) {
-    config['shared'] = shareAll({
-      singleton: true,
-      strictVersion: true,
-      requiredVersion: 'auto',
-    }, skip);
+    config['shared'] = shareAll(
+      {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+      },
+      skip
+    );
   }
 
   if (typeof config['shared'] === 'object') {

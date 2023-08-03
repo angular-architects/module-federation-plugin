@@ -21,23 +21,22 @@ export const esBuildAdapter: BuildAdapter = createEsBuildAdapter({
 });
 
 export type ReplacementConfig = {
-  file: string
+  file: string;
 };
 
 export interface EsBuildAdapterConfig {
   plugins: esbuild.Plugin[];
-  fileReplacements?: Record<string, string | ReplacementConfig>
-  skipRollup?: boolean,
-  compensateExports?: RegExp[],
-  loader?: { [ext: string]: esbuild.Loader }
+  fileReplacements?: Record<string, string | ReplacementConfig>;
+  skipRollup?: boolean;
+  compensateExports?: RegExp[];
+  loader?: { [ext: string]: esbuild.Loader };
 }
 
 export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
-  
   if (!config.compensateExports) {
     config.compensateExports = [new RegExp('/react/')];
   }
-  
+
   return async (options: BuildAdapterOptions) => {
     const { entryPoint, external, outfile, watch } = options;
 
@@ -46,7 +45,13 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
     const tmpFolder = `node_modules/.tmp/${pkgName}`;
 
     if (isPkg) {
-      await prepareNodePackage(entryPoint, external, tmpFolder, config, !!options.dev);
+      await prepareNodePackage(
+        entryPoint,
+        external,
+        tmpFolder,
+        config,
+        !!options.dev
+      );
     }
 
     await esbuild.build({
@@ -63,11 +68,13 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
     });
 
     const normEntryPoint = entryPoint.replace(/\\/g, '/');
-    if (isPkg && config?.compensateExports?.find(regExp => regExp.exec(normEntryPoint))) {
+    if (
+      isPkg &&
+      config?.compensateExports?.find((regExp) => regExp.exec(normEntryPoint))
+    ) {
       logger.verbose('compensate exports for ' + tmpFolder);
       compensateExports(tmpFolder, outfile);
     }
-
   };
 }
 
@@ -97,9 +104,11 @@ async function prepareNodePackage(
   config: EsBuildAdapterConfig,
   dev: boolean
 ) {
-
   if (config.fileReplacements) {
-    entryPoint = replaceEntryPoint(entryPoint, normalize(config.fileReplacements));
+    entryPoint = replaceEntryPoint(
+      entryPoint,
+      normalize(config.fileReplacements)
+    );
   }
 
   const env = dev ? 'development' : 'production';
@@ -126,7 +135,6 @@ async function prepareNodePackage(
     sourcemap: dev,
     exports: 'named',
   });
-
 }
 
 function inferePkgName(entryPoint: string) {
@@ -135,28 +143,34 @@ function inferePkgName(entryPoint: string) {
     .replace(/[^A-Za-z0-9.]/g, '_');
 }
 
-function normalize(config: Record<string, string | ReplacementConfig>): Record<string,ReplacementConfig> {
-  const result: Record<string,ReplacementConfig> = {};
+function normalize(
+  config: Record<string, string | ReplacementConfig>
+): Record<string, ReplacementConfig> {
+  const result: Record<string, ReplacementConfig> = {};
   for (const key in config) {
     if (typeof config[key] === 'string') {
       result[key] = {
         file: config[key] as string,
-      }
-    }
-    else {
+      };
+    } else {
       result[key] = config[key] as ReplacementConfig;
     }
   }
   return result;
 }
 
-function replaceEntryPoint(entryPoint: string, fileReplacements: Record<string, ReplacementConfig>): string {
+function replaceEntryPoint(
+  entryPoint: string,
+  fileReplacements: Record<string, ReplacementConfig>
+): string {
   entryPoint = entryPoint.replace(/\\/g, '/');
- 
-  for(const key in fileReplacements) {
-    entryPoint = entryPoint.replace(new RegExp(`${key}$`), fileReplacements[key].file);
+
+  for (const key in fileReplacements) {
+    entryPoint = entryPoint.replace(
+      new RegExp(`${key}$`),
+      fileReplacements[key].file
+    );
   }
 
   return entryPoint;
 }
-

@@ -63,18 +63,17 @@ export function readWorkspaceDef(): WorkspaceDef {
 
 function toCliWorkspaceDef(def: NxOrCliWorkspaceDef): WorkspaceDef {
   const result: WorkspaceDef = { projects: {} };
-  for(const key in def.projects) {
+  for (const key in def.projects) {
     const project = def.projects[key];
 
     if (typeof project === 'string') {
       const def = path.join(project, 'project.json');
       result.projects[key] = loadProjectDef(def);
-    }
-    else {
+    } else {
       result.projects[key] = project;
     }
   }
-  return result; 
+  return result;
 }
 
 export function readProjectInfos(): ProjectInfo[] {
@@ -100,9 +99,9 @@ function loadProjectDef(projectDef: string): Project {
       def.architect = def.targets;
     }
     return def;
-  }
-  catch {
-    throw new Error(`File ${projectDef} not found. Please start this command from your workspace root.`);
+  } catch {
+    throw new Error(
+      `File ${projectDef} not found. Please start this command from your workspace root.`
+    );
   }
 }
-

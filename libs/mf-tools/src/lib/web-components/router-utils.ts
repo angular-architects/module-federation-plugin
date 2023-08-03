@@ -21,20 +21,18 @@ export function endsWith(prefix: string): UrlMatcher {
 }
 
 export function connectRouter(router: Router, useHash = false): void {
-
-    let url: string;
-    if (!useHash) {
-        url = `${location.pathname.substring(1)}${location.search}`;
-        router.navigateByUrl(url);
-        window.addEventListener('popstate', () => {
-            router.navigateByUrl(url);
-        });
-    }
-    else {
-        url = `${location.hash.substring(1)}${location.search}`;
-        router.navigateByUrl(url);
-        window.addEventListener('hashchange', () => {
-            router.navigateByUrl(url);
-        });
-    }
+  let url: string;
+  if (!useHash) {
+    url = `${location.pathname.substring(1)}${location.search}`;
+    router.navigateByUrl(url);
+    window.addEventListener('popstate', () => {
+      router.navigateByUrl(url);
+    });
+  } else {
+    url = `${location.hash.substring(1)}${location.search}`;
+    router.navigateByUrl(url);
+    window.addEventListener('hashchange', () => {
+      router.navigateByUrl(url);
+    });
+  }
 }

@@ -28,7 +28,9 @@ export const federation = (params: BuildHelperParams) => {
       await federationBuilder.build();
     },
     async configureServer(server: ViteDevServer) {
-      const fedInfoRef: FedInfoRef = { federationInfo: federationBuilder.federationInfo };
+      const fedInfoRef: FedInfoRef = {
+        federationInfo: federationBuilder.federationInfo,
+      };
       await configureDevServer(server, params, fedInfoRef);
     },
     transformIndexHtml(html: string) {
@@ -50,7 +52,7 @@ export const federation = (params: BuildHelperParams) => {
 const configureDevServer = async (
   server: ViteDevServer,
   params: BuildHelperParams,
-  fedInfo: FedInfoRef,
+  fedInfo: FedInfoRef
 ) => {
   await federationBuilder.build();
 
@@ -59,12 +61,18 @@ const configureDevServer = async (
   server.middlewares.use(serveFromDist(dist, fedInfo));
 };
 
-const serveFromDist = (dist: string, fedInfoRef: FedInfoRef): Connect.NextHandleFunction => {
-  
+const serveFromDist = (
+  dist: string,
+  fedInfoRef: FedInfoRef
+): Connect.NextHandleFunction => {
   const fedFiles = new Set([
-    ...fedInfoRef.federationInfo.shared.map(s => path.join('/', s.outFileName)),
-    ...fedInfoRef.federationInfo.exposes.map(e => path.join('/', e.outFileName)),
-    '/remoteEntry.json'
+    ...fedInfoRef.federationInfo.shared.map((s) =>
+      path.join('/', s.outFileName)
+    ),
+    ...fedInfoRef.federationInfo.exposes.map((e) =>
+      path.join('/', e.outFileName)
+    ),
+    '/remoteEntry.json',
   ]);
 
   return (req, res, next) => {

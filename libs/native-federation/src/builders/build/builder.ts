@@ -19,7 +19,11 @@ import { targetFromTargetString } from '@angular-devkit/architect';
 
 import { NfBuilderSchema } from './schema';
 import { lastValueFrom } from 'rxjs';
-import { reloadBrowser, reloadShell, startServer } from '../../utils/dev-server';
+import {
+  reloadBrowser,
+  reloadShell,
+  startServer,
+} from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { updateIndexHtml } from '../../utils/updateIndexHtml';
 

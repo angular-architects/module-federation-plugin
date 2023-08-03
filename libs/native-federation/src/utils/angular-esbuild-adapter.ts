@@ -50,7 +50,11 @@ export function createAngularBuildAdapter(
     // if (kind === 'shared-package') {
     //   await runRollup(entryPoint, external, outfile);
     // } else {
-    if (dev && kind === 'shared-package' && entryPoint.match(fesmFolderRegExp)) {
+    if (
+      dev &&
+      kind === 'shared-package' &&
+      entryPoint.match(fesmFolderRegExp)
+    ) {
       fs.copyFileSync(entryPoint, outfile);
     } else {
       await runEsbuild(

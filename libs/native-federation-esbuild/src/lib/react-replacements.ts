@@ -15,8 +15,8 @@ export const reactReplacements: Record<
       file: 'node_modules/react/cjs/react-jsx-runtime.development.js',
     },
     'node_modules/react-dom/index.js': {
-      file: 'node_modules/react-dom/cjs/react-dom.development.js'
-    }
+      file: 'node_modules/react-dom/cjs/react-dom.development.js',
+    },
   },
   prod: {
     'node_modules/react/index.js': {
@@ -29,7 +29,7 @@ export const reactReplacements: Record<
       file: 'node_modules/react/cjs/react-jsx-runtime.production.min.js',
     },
     'node_modules/react-dom/index.js': {
-      file: 'node_modules/react-dom/cjs/react-dom.production.min.js'
+      file: 'node_modules/react-dom/cjs/react-dom.production.min.js',
     },
   },
 };
