@@ -30,9 +30,6 @@
   "precommit": "format:write",
   "private": true,
   "dependencies": {
-    "@angular-architects/module-federation": "file:angular-architects-module-federation-14.3.10.tgz",
-    "@angular-architects/module-federation-runtime": "file:angular-architects-module-federation-runtime-14.3.10.tgz",
-    "@angular-architects/native-federation": "file:angular-architects-native-federation-0.9.1.tgz",
     "@angular/animations": "16.1.5",
     "@angular/common": "16.1.5",
     "@angular/compiler": "16.1.5",
@@ -43,8 +40,6 @@
     "@angular/router": "16.1.5",
     "@module-federation/vite": "^0.2.6",
     "@rollup/plugin-json": "^6.0.0",
-    "@softarc/native-federation": "file:softarc-native-federation-0.9.2-beta.3.tgz",
-    "@softarc/native-federation-runtime": "file:softarc-native-federation-runtime-0.9.2-beta.3.tgz",
     "@types/browser-sync": "^2.26.3",
     "@types/cross-spawn": "^6.0.2",
     "acorn": "^8.8.1",
