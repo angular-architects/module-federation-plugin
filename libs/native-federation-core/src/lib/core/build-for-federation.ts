@@ -46,4 +46,6 @@ export async function buildForFederation(
 
   writeFederationInfo(federationInfo, fedOptions);
   writeImportMap(sharedInfo, fedOptions);
+
+  return federationInfo;
 }

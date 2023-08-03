@@ -4,14 +4,10 @@ import {
   createBuilder,
 } from '@angular-devkit/architect';
 
-import { buildEsbuildBrowser } from '@angular-devkit/build-angular/src/builders/browser-esbuild/index';
 import { Schema } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
 
 import * as path from 'path';
-import * as fs from 'fs';
-import {
-  setLogLevel,
-} from '@softarc/native-federation/build';
+import { setLogLevel, logger } from '@softarc/native-federation/build';
 
 import { FederationOptions } from '@softarc/native-federation/build';
 import { setBuildAdapter } from '@softarc/native-federation/build';
@@ -22,20 +18,25 @@ import { buildForFederation } from '@softarc/native-federation/build';
 import { targetFromTargetString } from '@angular-devkit/architect';
 
 import { NfBuilderSchema } from './schema';
-import { Observable, lastValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
+import { reloadBrowser, reloadShell, startServer } from '../../utils/dev-server';
+import { RebuildHubs } from '../../utils/rebuild-events';
+import { updateIndexHtml } from '../../utils/updateIndexHtml';
 
 export async function runBuilder(
   nfOptions: NfBuilderSchema,
   context: BuilderContext
 ): Promise<BuilderOutput> {
-
   const target = targetFromTargetString(nfOptions.target);
   const options = (await context.getTargetOptions(target)) as unknown as Schema;
+  const rebuildEvents = new RebuildHubs();
 
-  const adapter = createAngularBuildAdapter(options, context);
+  const adapter = createAngularBuildAdapter(options, context, rebuildEvents);
   setBuildAdapter(adapter);
-  
+
   setLogLevel(options.verbose ? 'verbose' : 'info');
+
+  options.watch = !!nfOptions.dev;
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
@@ -44,6 +45,7 @@ export async function runBuilder(
     tsConfig: options.tsConfig,
     verbose: options.verbose,
     watch: options.watch,
+    dev: !!nfOptions.dev,
   };
 
   const config = await loadFederationConfig(fedOptions);
@@ -51,54 +53,44 @@ export async function runBuilder(
 
   options.externalDependencies = externals.filter((e) => e !== 'tslib');
 
-  // TODO: Use output?
+  const builderRun = await context.scheduleBuilder(
+    '@angular-devkit/build-angular:browser-esbuild',
+    options as any,
+    { target }
+  );
 
-  const builderRun = await context.scheduleBuilder('@angular-devkit/build-angular:browser-esbuild', options as any, { target });
-  // const outputs = buildEsbuildBrowser(options, context as any);
-  // let output;
-  // for await (const o of outputs) { 
-  //   output = o;
-  // }  
- 
+  let first = true;
+  builderRun.output.subscribe(async () => {
+    updateIndexHtml(fedOptions);
+
+    if (first) {
+      await buildForFederation(config, fedOptions, externals);
+    }
+
+    if (first && nfOptions.dev) {
+      startServer(nfOptions, options.outputPath);
+    } else if (!first && nfOptions.dev) {
+      reloadBrowser();
+
+      setTimeout(async () => {
+        logger.info('Rebuilding federation artefacts ...');
+        await Promise.all([
+          rebuildEvents.rebuildMappings.emit(),
+          rebuildEvents.rebuildExposed.emit(),
+        ]);
+        reloadShell(nfOptions.shell);
+      }, nfOptions.rebuildDelay);
+    }
+
+    first = false;
+  });
+
+  // updateIndexHtml(fedOptions);
   const output = await lastValueFrom(builderRun.output as any);
-  await buildForFederation(config, fedOptions, externals);
-
-  updateIndexHtml(fedOptions);
   return output as BuilderOutput;
 }
 
 export default createBuilder(runBuilder);
-
-function updateIndexHtml(fedOptions: FederationOptions) {
-  const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
-  const indexPath = path.join(outputPath, 'index.html');
-  const mainName = fs
-    .readdirSync(outputPath)
-    .find((f) => f.startsWith('main.') && f.endsWith('.js'));
-  const polyfillsName = fs
-    .readdirSync(outputPath)
-    .find((f) => f.startsWith('polyfills.') && f.endsWith('.js'));
-
-  const htmlFragment = `
-<script type="esms-options">
-{
-  "shimMode": true
-}
-</script>
-
-<script type="module" src="${polyfillsName}"></script>
-<script type="module-shim" src="${mainName}"></script>
-`;
-
-  let indexContent = fs.readFileSync(indexPath, 'utf-8');
-  indexContent = indexContent.replace(/<script src="polyfills.*?>/, '');
-  indexContent = indexContent.replace(/<script src="main.*?>/, '');
-  indexContent = indexContent.replace(
-    '</body>',
-    `${htmlFragment}</body>`
-  );
-  fs.writeFileSync(indexPath, indexContent, 'utf-8');
-}
 
 function infereConfigPath(tsConfig: string): string {
   const relProjectPath = path.dirname(tsConfig);
@@ -106,6 +98,3 @@ function infereConfigPath(tsConfig: string): string {
 
   return relConfigPath;
 }
-
-
-

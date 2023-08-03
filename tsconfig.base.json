@@ -7,6 +7,7 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "esModuleInterop": true,
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
@@ -15,6 +16,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@angular-architects/build_angular": ["libs/build-angular/src/index.ts"],
       "@angular-architects/module-federation": ["libs/mf/src/index.ts"],
       "@angular-architects/module-federation-runtime": [
         "libs/mf-runtime/src/index.ts"

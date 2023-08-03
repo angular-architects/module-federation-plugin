@@ -20,15 +20,19 @@ import { getSupportedBrowsers } from '@angular-devkit/build-angular/src/utils/su
 import { Schema as EsBuildBuilderOptions } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
 
 import { createSharedMappingsPlugin } from './shared-mappings-plugin';
-import { runRollup as runRollup } from './rollup';
 import * as fs from 'fs';
 import * as path from 'path';
 
 import { PluginItem, transformAsync } from '@babel/core';
+import { RebuildEvents, RebuildHubs } from './rebuild-events';
+import { BuildKind } from 'libs/native-federation-core/src/lib/core/build-adapter';
+
+const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
 
 export function createAngularBuildAdapter(
   builderOptions: EsBuildBuilderOptions,
-  context: BuilderContext
+  context: BuilderContext,
+  rebuildRequested: RebuildEvents = new RebuildHubs()
 ): BuildAdapter {
   return async (options) => {
     const {
@@ -39,29 +43,36 @@ export function createAngularBuildAdapter(
       mappedPaths,
       kind,
       watch,
+      dev,
     } = options;
 
     // TODO: Do we still need rollup as esbuilt evolved?
     // if (kind === 'shared-package') {
     //   await runRollup(entryPoint, external, outfile);
     // } else {
-    await runEsbuild(
-      builderOptions,
-      context,
-      entryPoint,
-      external,
-      outfile,
-      tsConfigPath,
-      mappedPaths,
-      watch
-    );
-    // }
+    if (dev && kind === 'shared-package' && entryPoint.match(fesmFolderRegExp)) {
+      fs.copyFileSync(entryPoint, outfile);
+    } else {
+      await runEsbuild(
+        builderOptions,
+        context,
+        entryPoint,
+        external,
+        outfile,
+        tsConfigPath,
+        mappedPaths,
+        watch,
+        rebuildRequested,
+        dev,
+        kind
+      );
+    }
     if (kind === 'shared-package' && fs.existsSync(outfile)) {
-      await link(outfile);
+      await link(outfile, dev);
     }
   };
 
-  async function link(outfile: string) {
+  async function link(outfile: string, dev: boolean) {
     const code = fs.readFileSync(outfile, 'utf-8');
 
     try {
@@ -75,10 +86,10 @@ export function createAngularBuildAdapter(
         filename: outfile,
         // inputSourceMap: (useInputSourcemap ? undefined : false) as undefined,
         // sourceMaps: pluginOptions.sourcemap ? 'inline' : false,
-        compact: false,
+        compact: !dev,
         configFile: false,
         babelrc: false,
-        minified: true,
+        minified: !dev,
         browserslistConfigFile: false,
         plugins: [linker],
       });
@@ -106,6 +117,9 @@ async function runEsbuild(
   tsConfigPath: string,
   mappedPaths: MappedPath[],
   watch?: boolean,
+  rebuildRequested: RebuildEvents = new RebuildHubs(),
+  dev?: boolean,
+  kind?: BuildKind,
   plugins: esbuild.Plugin[] | null = null,
   absWorkingDir: string | undefined = undefined,
   logLevel: esbuild.LogLevel = 'warning'
@@ -114,15 +128,15 @@ async function runEsbuild(
   const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
   const target = transformSupportedBrowsersToTargets(browsers);
 
-  return await esbuild.build({
+  const config: esbuild.BuildOptions = {
     entryPoints: [entryPoint],
     absWorkingDir,
     external,
     outfile,
     logLevel,
     bundle: true,
-    sourcemap: true,
-    minify: true,
+    sourcemap: dev,
+    minify: !dev,
     platform: 'browser',
     format: 'esm',
     target: ['esnext'],
@@ -133,14 +147,14 @@ async function runEsbuild(
         //  packages/angular_devkit/build_angular/src/tools/esbuild/compiler-plugin-options.ts
         {
           jit: false,
-          sourcemap: true,
+          sourcemap: dev,
           tsconfig: tsConfigPath,
-          advancedOptimizations: true,
-          thirdPartySourcemaps: true,
+          advancedOptimizations: !dev,
+          thirdPartySourcemaps: false,
         },
         {
-          optimization: true,
-          sourcemap: true,
+          optimization: !dev,
+          sourcemap: dev,
           workspaceRoot: __dirname,
           inlineStyleLanguage: builderOptions.inlineStyleLanguage,
           browsers: browsers,
@@ -152,10 +166,34 @@ async function runEsbuild(
         : []),
     ],
     define: {
-      ngDevMode: 'false',
+      ngDevMode: dev ? 'true' : 'false',
       ngJitMode: 'false',
     },
-  });
+  };
+
+  if (watch) {
+    const ctx = await esbuild.context(config);
+    await ctx.rebuild();
+    registerForRebuilds(kind, rebuildRequested, ctx);
+  } else {
+    await esbuild.build(config);
+  }
+}
+
+function registerForRebuilds(
+  kind: string,
+  rebuildRequested: RebuildEvents,
+  ctx: esbuild.BuildContext<esbuild.BuildOptions>
+) {
+  if (kind === 'exposed') {
+    rebuildRequested.rebuildExposed.register(async () => {
+      await ctx.rebuild();
+    });
+  } else if (kind === 'shared-mapping') {
+    rebuildRequested.rebuildMappings.register(async () => {
+      await ctx.rebuild();
+    });
+  }
 }
 
 export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {

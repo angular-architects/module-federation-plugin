@@ -28,7 +28,8 @@
     "@rollup/plugin-json": "^4.1.0",
     "cross-spawn": "^7.0.3",
     "rollup-plugin-terser": "^7.0.2",
-    "npmlog": "^6.0.2"
+    "npmlog": "^6.0.2",
+    "@types/browser-sync": "^2.26.3"
   },
   "peerDependencies": {
     "@angular/compiler-cli": "*"

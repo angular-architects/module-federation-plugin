@@ -1,3 +1,4 @@
+import { FederationInfo } from '@softarc/native-federation-runtime';
 import { getConfigContext, usePackageJson, useWorkspace } from '../config/configuration-context';
 import { NormalizedFederationConfig } from '../config/federation-config';
 import { BuildAdapter, setBuildAdapter } from './build-adapter';
@@ -14,6 +15,7 @@ export interface BuildHelperParams {
 let externals: string[] = [];
 let config: NormalizedFederationConfig;
 let fedOptions: FederationOptions;
+let fedInfo: FederationInfo;
 
 async function init(params: BuildHelperParams): Promise<void> {
   setBuildAdapter(params.adapter);
@@ -26,12 +28,15 @@ async function init(params: BuildHelperParams): Promise<void> {
 }
 
 async function build(buildParams = defaultBuildParams): Promise<void> {
-  await buildForFederation(config, fedOptions, externals, buildParams);
+  fedInfo = await buildForFederation(config, fedOptions, externals, buildParams);
 }
 
 export const federationBuilder = {
   init,
   build,
+  get federationInfo() {
+    return fedInfo;
+  },
   get externals(): string[] {
     return externals;
   },

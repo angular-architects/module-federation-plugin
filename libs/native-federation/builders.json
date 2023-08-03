@@ -4,7 +4,7 @@
     "build": {
       "implementation": "./src/builders/build/builder",
       "schema": "./src/builders/build/schema.json",
-      "description": "build builder"
+      "description": "native federation builder"
     }
   }
 }

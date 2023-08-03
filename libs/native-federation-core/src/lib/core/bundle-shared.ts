@@ -28,29 +28,13 @@ export async function bundleShared(
     ))
     .filter((pi) => !!pi) as PackageInfo[];
 
-  // logger.notice('Shared packages are only bundled once as they are cached');
-  // logger.notice(
-  //   'Make sure, you skip all unneeded packages in your federation.config.js!'
-  // );
-
-  // const federationConfigPath = path.join(
-  //   fedOptions.workspaceRoot,
-  //   fedOptions.federationConfig
-  // );
-
-  //const hash = hashFile(federationConfigPath);
-
   let first = true;
   for (const pi of packageInfos) {
-    // logger.info('Bundling shared package ' + pi.packageName);
 
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
     const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
 
-    const env = fedOptions.dev ? 'dev' : 'prod';
-
-    // const outFileName = `${encName}-${encVersion}-${hash}.js`;
-    const outFileName = `${encName}-${encVersion}-${env}.js`;
+    const outFileName = fedOptions.dev ? `${encName}-${encVersion}-dev.js` : `${encName}-${encVersion}.js`;
 
     const cachePath = path.join(
       fedOptions.workspaceRoot,
@@ -82,7 +66,7 @@ export async function bundleShared(
           mappedPaths: config.sharedMappings,
           packageName: pi.packageName,
           esm: pi.esm,
-          dev: !!fedOptions.dev,
+          dev: fedOptions.dev,
           kind: 'shared-package',
         });
       } catch (e) {

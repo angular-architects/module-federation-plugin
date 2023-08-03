@@ -1,0 +1,1 @@
+{"version":3,"file":"build-adapter.js","sourceRoot":"","sources":["build-adapter.ts"],"names":[],"mappings":";;;;AAAA,4CAAyC;AAGzC,IAAI,aAAa,GAAiB,GAAS,EAAE;IAC3C,mBAAmB;IACnB,eAAM,CAAC,KAAK,CAAC,4BAA4B,CAAC,CAAC;AAC7C,CAAC,CAAA,CAAC;AAmBF,SAAgB,eAAe,CAAC,YAA0B;IACxD,aAAa,GAAG,YAAY,CAAC;AAC/B,CAAC;AAFD,0CAEC;AAED,SAAgB,eAAe;IAC7B,OAAO,aAAa,CAAC;AACvB,CAAC;AAFD,0CAEC"}

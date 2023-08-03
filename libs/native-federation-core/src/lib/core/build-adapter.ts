@@ -6,6 +6,8 @@ let _buildAdapter: BuildAdapter = async () => {
   logger.error('Please set a BuildAdapter!');
 };
 
+export type BuildKind = 'shared-package' | 'shared-mapping' | 'exposed';
+
 export interface BuildAdapterOptions {
   entryPoint: string;
   tsConfigPath?: string;
@@ -16,7 +18,7 @@ export interface BuildAdapterOptions {
   esm?: boolean;
   dev?: boolean;
   watch?: boolean;
-  kind: 'shared-package' | 'shared-mapping' | 'exposed';
+  kind: BuildKind;
 }
 
 export type BuildAdapter = (options: BuildAdapterOptions) => Promise<void>;

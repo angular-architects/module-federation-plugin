@@ -7,6 +7,25 @@
     "target": {
       "type": "string",
       "description": "target configured for the esbuild builder"
+    },
+    "dev": {
+      "type": "boolean",
+      "description": "Set this to true to start the builder in dev mode",
+      "default": false
+    },
+    "devServerPort": {
+      "type": "number",
+      "default": 4200
+    },
+    "rebuildDelay": {
+      "type": "number",
+      "default": 2000,
+      "description": "The delay for rebuilding federation artefacts. This allows to have more resources for refreshing your micro frontend in the browser."
+    },
+    "shell": {
+      "type": "string",
+      "description": "Experimental",
+      "default": ""
     }
   }
 }
