@@ -8,6 +8,8 @@ call nx build native-federation-core
 call nx build native-federation-runtime
 call nx build native-federation-esbuild
 
+call node post-build.js
+
 call npm publish dist\libs\native-federation-core --registry http://localhost:4873
 call npm publish dist\libs\native-federation --registry http://localhost:4873
 call npm publish dist\libs\native-federation-runtime --registry http://localhost:4873
