@@ -154,7 +154,7 @@ async function runEsbuild(
         },
         {
           optimization: !dev,
-          sourcemap: dev,
+          sourcemap: dev ? 'inline' : false,
           workspaceRoot: __dirname,
           inlineStyleLanguage: builderOptions.inlineStyleLanguage,
           browsers: browsers,
