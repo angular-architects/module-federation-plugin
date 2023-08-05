@@ -57,14 +57,20 @@ export async function runBuilder(
 
   options.externalDependencies = externals.filter((e) => e !== 'tslib');
 
-  const builderRun = await context.scheduleBuilder(
-    '@angular-devkit/build-angular:browser-esbuild',
-    options as any,
-    { target }
-  );
+  // const builderRun = await context.scheduleBuilder(
+  //   '@angular-devkit/build-angular:browser-esbuild',
+  //   options as any,
+  //   { target }
+  // );
+
+  const builderRun = await context.scheduleTarget(target, options as any);
 
   let first = true;
-  builderRun.output.subscribe(async () => {
+  builderRun.output.subscribe(async (output) => {
+    if (!output.success) {
+      return;
+    }
+
     updateIndexHtml(fedOptions);
 
     if (first) {
@@ -83,7 +89,8 @@ export async function runBuilder(
           rebuildEvents.rebuildExposed.emit(),
         ]);
         logger.info('Done!');
-        reloadShell(nfOptions.shell);
+
+        setTimeout(() => reloadShell(nfOptions.shell), 0);
       }, nfOptions.rebuildDelay);
     }
 

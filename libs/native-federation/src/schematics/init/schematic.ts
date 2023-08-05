@@ -117,7 +117,7 @@ function updateWorkspaceConfig(
       target: `${projectName}:esbuild:development`,
       rebuildDelay: 0,
       dev: true,
-      devServerPort: port,
+      port: port,
     },
   };
 
@@ -167,6 +167,11 @@ function normalizeOptions(
     .replace(/\\/g, '/');
 
   const main = projectConfig.architect.build.options.main;
+
+  if (!projectConfig.architect.build.options.polyfills) {
+    projectConfig.architect.build.options.polyfills = [];
+  }
+
   const polyfills = projectConfig.architect.build.options.polyfills;
   return {
     polyfills,

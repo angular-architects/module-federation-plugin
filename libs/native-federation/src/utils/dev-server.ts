@@ -9,12 +9,13 @@ export function startServer(options: NfBuilderSchema, path: string): void {
   server = browserSync.create(projectName);
 
   server.init({
-    port: options.devServerPort,
+    port: options.port || 4200,
     cors: true,
     server: path,
     notify: false,
     single: true,
     ui: false,
+    open: options.open,
   });
 }
 

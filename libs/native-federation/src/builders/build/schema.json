@@ -13,9 +13,15 @@
       "description": "Set this to true to start the builder in dev mode",
       "default": false
     },
-    "devServerPort": {
+    "port": {
       "type": "number",
       "default": 4200
+    },
+    "open": {
+      "type": "boolean",
+      "default": true,
+      "description": "Open browser?",
+      "alias": "o"
     },
     "rebuildDelay": {
       "type": "number",
