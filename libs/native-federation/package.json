@@ -19,6 +19,7 @@
     "@softarc/native-federation": "1.1.1",
     "@softarc/native-federation-runtime": "1.1.1",
     "@types/browser-sync": "^2.26.3",
+    "browser-sync": "^2.29.3",
     "esbuild": "^0.18.12",
     "mrmime": "^1.0.1",
     "npmlog": "^6.0.2",

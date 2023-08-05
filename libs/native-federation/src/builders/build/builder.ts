@@ -82,6 +82,7 @@ export async function runBuilder(
           rebuildEvents.rebuildMappings.emit(),
           rebuildEvents.rebuildExposed.emit(),
         ]);
+        logger.info('Done!');
         reloadShell(nfOptions.shell);
       }, nfOptions.rebuildDelay);
     }

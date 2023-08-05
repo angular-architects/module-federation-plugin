@@ -28,6 +28,7 @@ type NormalizedOptions = {
   manifestPath: string;
   projectConfig: any;
   main: string;
+  port: number;
 };
 
 export default function config(options: MfSchematicSchema): Rule {
@@ -35,15 +36,16 @@ export default function config(options: MfSchematicSchema): Rule {
     const workspaceFileName = getWorkspaceFileName(tree);
     const workspace = JSON.parse(tree.read(workspaceFileName).toString('utf8'));
 
+    const normalized = normalizeOptions(options, workspace);
+
     const {
       polyfills,
       projectName,
       projectRoot,
       projectSourceRoot,
       manifestPath,
-      projectConfig,
       main,
-    } = normalizeOptions(options, workspace);
+    } = normalized;
 
     updatePolyfills(tree, polyfills);
 
@@ -60,7 +62,7 @@ export default function config(options: MfSchematicSchema): Rule {
       options
     );
 
-    updateWorkspaceConfig(projectConfig, tree, workspaceFileName, workspace);
+    updateWorkspaceConfig(tree, normalized, workspace, workspaceFileName);
 
     addPackageJsonDependency(tree, {
       name: 'es-module-shims',
@@ -76,35 +78,47 @@ export default function config(options: MfSchematicSchema): Rule {
 }
 
 function updateWorkspaceConfig(
-  projectConfig: any,
-  tree,
-  workspaceFileName: string,
-  workspace: any
+  tree: Tree,
+  options: NormalizedOptions,
+  workspace: any,
+  workspaceFileName: string
 ) {
+
+  const { projectConfig, projectName, port } = options;
+
   if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
     throw new Error(
       `The project doen't have a build or serve target in angular.json!`
     );
   }
 
-  // TODO: When adding a builder for serve, we
-  //  should set the port
-  // const port = parseInt(options.port);
+  const originalBuild = projectConfig.architect.build;
 
-  // if (isNaN(port)) {
-  //   throw new Error(`Port must be a number!`);
-  // }
-
-  if (!projectConfig.architect.build.options) {
-    projectConfig.architect.build.options = {};
+  if (originalBuild.builder !== '@angular-devkit/build-angular:browser-esbuild') {
+    console.log('Switching project to esbuild ...');
+    originalBuild.builder = '@angular-devkit/build-angular:browser-esbuild';
   }
 
-  if (!projectConfig.architect.serve.options) {
-    projectConfig.architect.serve.options = {};
-  }
+  projectConfig.architect.esbuild = originalBuild;
+  
+  projectConfig.architect.build =  {
+    builder: '@angular-architects/native-federation:build',
+    'options': {
+      'target': `${projectName}:esbuild:production`
+    }
+  };
 
-  projectConfig.architect.build.builder =
-    '@angular-architects/native-federation:build';
+  projectConfig.architect['serve-original'] = projectConfig.architect.serve;
+
+  projectConfig.architect.serve = {
+    builder: '@angular-architects/native-federation:build',
+    options: {
+      target: `${projectName}:esbuild:development`,
+      rebuildDelay: 0,
+      dev: true,
+      devServerPort: port,
+    }
+  };
 
   // projectConfig.architect.serve.builder = serveBuilder;
   // TODO: Register further builders when ready
@@ -119,11 +133,19 @@ function normalizeOptions(
     options.project = workspace.defaultProject;
   }
 
-  if (!options.project) {
+  const projects = Object.keys(workspace.projects);
+
+  if (!options.project && projects.length === 0) {
     throw new Error(
       `No default project found. Please specifiy a project name!`
     );
   }
+
+  if (!options.project) {
+    console.log('Using first configured project as default project: ' + projects[0]);
+    options.project = projects[0];
+  }
+
 
   const projectName = options.project;
   const projectConfig = workspace.projects[projectName];
@@ -152,14 +174,32 @@ function normalizeOptions(
     manifestPath,
     projectConfig,
     main,
+    port: +(options.port || 4200),
   };
 }
 
 function updatePolyfills(tree, polyfills: any) {
+  if (typeof polyfills === 'string') {
+    updatePolyfillsFile(tree, polyfills);
+  }
+  else {
+    updatePolyfillsArray(tree, polyfills);
+  }
+}
+
+function updatePolyfillsFile(tree, polyfills: any) {
   let polyfillsContent = tree.readText(polyfills);
   if (!polyfillsContent.includes('es-module-shims')) {
     polyfillsContent += `\nimport 'es-module-shims';\n`;
     tree.overwrite(polyfills, polyfillsContent);
+  }
+}
+
+function updatePolyfillsArray(tree, polyfills: any) {
+  const polyfillsConfig = polyfills as string[];
+
+  if (!polyfillsConfig.includes('es-module-shims')) {
+    polyfillsConfig.push('es-module-shims');
   }
 }
 
