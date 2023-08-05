@@ -83,7 +83,6 @@ function updateWorkspaceConfig(
   workspace: any,
   workspaceFileName: string
 ) {
-
   const { projectConfig, projectName, port } = options;
 
   if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
@@ -94,18 +93,20 @@ function updateWorkspaceConfig(
 
   const originalBuild = projectConfig.architect.build;
 
-  if (originalBuild.builder !== '@angular-devkit/build-angular:browser-esbuild') {
+  if (
+    originalBuild.builder !== '@angular-devkit/build-angular:browser-esbuild'
+  ) {
     console.log('Switching project to esbuild ...');
     originalBuild.builder = '@angular-devkit/build-angular:browser-esbuild';
   }
 
   projectConfig.architect.esbuild = originalBuild;
-  
-  projectConfig.architect.build =  {
+
+  projectConfig.architect.build = {
     builder: '@angular-architects/native-federation:build',
-    'options': {
-      'target': `${projectName}:esbuild:production`
-    }
+    options: {
+      target: `${projectName}:esbuild:production`,
+    },
   };
 
   projectConfig.architect['serve-original'] = projectConfig.architect.serve;
@@ -117,7 +118,7 @@ function updateWorkspaceConfig(
       rebuildDelay: 0,
       dev: true,
       devServerPort: port,
-    }
+    },
   };
 
   // projectConfig.architect.serve.builder = serveBuilder;
@@ -142,10 +143,11 @@ function normalizeOptions(
   }
 
   if (!options.project) {
-    console.log('Using first configured project as default project: ' + projects[0]);
+    console.log(
+      'Using first configured project as default project: ' + projects[0]
+    );
     options.project = projects[0];
   }
-
 
   const projectName = options.project;
   const projectConfig = workspace.projects[projectName];
@@ -181,8 +183,7 @@ function normalizeOptions(
 function updatePolyfills(tree, polyfills: any) {
   if (typeof polyfills === 'string') {
     updatePolyfillsFile(tree, polyfills);
-  }
-  else {
+  } else {
     updatePolyfillsArray(tree, polyfills);
   }
 }
