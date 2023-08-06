@@ -57,13 +57,14 @@ export async function runBuilder(
 
   options.externalDependencies = externals.filter((e) => e !== 'tslib');
 
-  // const builderRun = await context.scheduleBuilder(
-  //   '@angular-devkit/build-angular:browser-esbuild',
-  //   options as any,
-  //   { target }
-  // );
+  const builderRun = await context.scheduleBuilder(
+    '@angular-devkit/build-angular:browser-esbuild',
+    options as any,
+    { target }
+  );
 
-  const builderRun = await context.scheduleTarget(target, options as any);
+  // TODO: Allow more flexibility?
+  // const builderRun = await context.scheduleTarget(target, options as any);
 
   let first = true;
   builderRun.output.subscribe(async (output) => {
