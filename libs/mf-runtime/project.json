@@ -6,7 +6,7 @@
   "prefix": "angular-architects",
   "targets": {
     "build": {
-      "executor": "@nrwl/angular:package",
+      "executor": "@nx/angular:package",
       "options": {
         "tsConfig": "libs/mf-runtime/tsconfig.lib.json",
         "project": "libs/mf-runtime/ng-package.json"
@@ -18,7 +18,7 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "options": {
         "lintFilePatterns": [
           "libs/mf-runtime/src/**/*.ts",
@@ -28,8 +28,8 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/mf-runtime"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/mf-runtime"],
       "options": {
         "jestConfig": "libs/mf-runtime/jest.config.ts",
         "passWithNoTests": true

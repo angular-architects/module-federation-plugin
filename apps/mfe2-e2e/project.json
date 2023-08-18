@@ -5,12 +5,11 @@
   "projectType": "application",
   "targets": {
     "e2e": {
-      "executor": "@nrwl/cypress:cypress",
+      "executor": "@nx/cypress:cypress",
       "options": {
         "cypressConfig": "apps/mfe2-e2e/cypress.json",
         "devServerTarget": "mfe2:serve:development",
-        "testingType": "e2e",
-        "tsConfig": "apps/mfe2-e2e/tsconfig.json"
+        "testingType": "e2e"
       },
       "configurations": {
         "production": {
@@ -19,7 +18,7 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["apps/mfe2-e2e/**/*.{js,ts}"]

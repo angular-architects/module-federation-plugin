@@ -77,7 +77,7 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "options": {
         "lintFilePatterns": [
           "apps/playground/src/**/*.ts",
@@ -87,8 +87,8 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/playground"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/playground"],
       "options": {
         "jestConfig": "apps/playground/jest.config.ts",
         "passWithNoTests": true

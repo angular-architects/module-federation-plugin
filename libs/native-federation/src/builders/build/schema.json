@@ -1,4 +1,6 @@
 {
+  "version": 2,
+  "outputCapture": "direct-nodejs",
   "$schema": "http://json-schema.org/draft-07/schema",
   "title": "native federation browser builder",
   "description": "builder for native federation browser apps",

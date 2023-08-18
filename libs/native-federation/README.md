@@ -20,6 +20,11 @@ This package was successfully tested with Angular CLI projects and with Nx proje
 
 We will at least provide a new version of this package per Angular major. If necessary, we will also provide packages to adapt to Angular minors. To make the relationship between Angular versions and versions of this package easy for all of us, **we follow Angular's version numbers**. E. g., `@angular-architects/native-federation` 16.1 is intended for Angular 16.1 and upwards.
 
+- Use version 16.1.x for Angular 16.1.x
+- Use version 16.2.x for Angular 16.2.x
+
+We expect the APIs to stabilize so that we only need one major per Angular major in the future.
+
 ## Credits
 
 Big thanks to:

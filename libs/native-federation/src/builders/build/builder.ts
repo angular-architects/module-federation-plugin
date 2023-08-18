@@ -1,3 +1,4 @@
+/* eslint-disable @nx/enforce-module-boundaries */
 import {
   BuilderContext,
   BuilderOutput,
@@ -103,7 +104,7 @@ export async function runBuilder(
   return output as BuilderOutput;
 }
 
-export default createBuilder(runBuilder);
+export default createBuilder(runBuilder) as any;
 
 function infereConfigPath(tsConfig: string): string {
   const relProjectPath = path.dirname(tsConfig);

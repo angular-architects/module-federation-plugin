@@ -5,7 +5,7 @@
       "description": "Split global configuration files into individual project.json files. This migration has been added automatically to the beginning of your migration set to retroactively make them work with the new version of Nx.",
       "cli": "nx",
       "implementation": "./src/migrations/update-15-7-0/split-configuration-into-project-json-files",
-      "package": "@nrwl/workspace",
+      "package": "@nx/workspace",
       "name": "15-7-0-split-configuration-into-project-json-files"
     },
     {
@@ -75,17 +75,17 @@
     {
       "cli": "nx",
       "version": "16.0.0-beta.1",
-      "description": "Replace @nrwl/devkit with @nx/devkit",
+      "description": "Replace @nx/devkit with @nx/devkit",
       "implementation": "./src/migrations/update-16-0-0-add-nx-packages/update-16-0-0-add-nx-packages",
-      "package": "@nrwl/devkit",
+      "package": "@nx/devkit",
       "name": "update-16-0-0-add-nx-packages"
     },
     {
       "version": "14.8.0-beta.0",
-      "description": "Migrates from @nrwl/workspace:run-commands to nx:run-commands",
+      "description": "Migrates from @nx/workspace:run-commands to nx:run-commands",
       "cli": "nx",
       "implementation": "./src/migrations/update-14-8-0/change-run-commands-executor",
-      "package": "@nrwl/workspace",
+      "package": "@nx/workspace",
       "name": "14-8-0-change-run-commands-executor"
     },
     {
@@ -93,15 +93,15 @@
       "description": "Split global configuration files (e.g., workspace.json) into individual project.json files.",
       "cli": "nx",
       "implementation": "./src/migrations/update-15-7-0/split-configuration-into-project-json-files",
-      "package": "@nrwl/workspace",
+      "package": "@nx/workspace",
       "name": "15-7-0-split-configuration-into-project-json-files"
     },
     {
       "cli": "nx",
       "version": "16.0.0-beta.1",
-      "description": "Replace @nrwl/workspace with @nx/workspace",
+      "description": "Replace @nx/workspace with @nx/workspace",
       "implementation": "./src/migrations/update-16-0-0-add-nx-packages/update-16-0-0-add-nx-packages",
-      "package": "@nrwl/workspace",
+      "package": "@nx/workspace",
       "name": "update-16-0-0-add-nx-packages"
     },
     {
@@ -109,7 +109,7 @@
       "description": "Generates a plugin called 'workspace-plugin' containing your workspace generators.",
       "cli": "nx",
       "implementation": "./src/migrations/update-16-0-0/move-workspace-generators-to-local-plugin",
-      "package": "@nrwl/workspace",
+      "package": "@nx/workspace",
       "name": "16-0-0-move-workspace-generators-into-local-plugin"
     },
     {
@@ -117,7 +117,7 @@
       "description": "Fix .babelrc presets if it contains an invalid entry for @nx/web/babel.",
       "cli": "nx",
       "implementation": "./src/migrations/update-16-0-0/fix-invalid-babelrc",
-      "package": "@nrwl/workspace",
+      "package": "@nx/workspace",
       "name": "16-0-0-fix-invalid-babelrc"
     },
     {
@@ -125,7 +125,7 @@
       "version": "14.6.1-beta.0",
       "description": "Change Cypress e2e and component testing presets to use __filename instead of __dirname and include a devServerTarget for component testing.",
       "factory": "./src/migrations/update-14-6-1/update-cypress-configs-presets",
-      "package": "@nrwl/cypress",
+      "package": "@nx/cypress",
       "name": "update-cypress-configs-preset"
     },
     {
@@ -133,7 +133,7 @@
       "version": "14.7.0-beta.0",
       "description": "Update Cypress if using v10 to support latest component testing features",
       "factory": "./src/migrations/update-14-7-0/update-cypress-version-if-10",
-      "package": "@nrwl/cypress",
+      "package": "@nx/cypress",
       "name": "update-cypress-if-v10"
     },
     {
@@ -141,7 +141,7 @@
       "version": "15.0.0-beta.0",
       "description": "Stop hashing cypress spec files and config files for build targets and dependent tasks",
       "factory": "./src/migrations/update-15-0-0/add-cypress-inputs",
-      "package": "@nrwl/cypress",
+      "package": "@nx/cypress",
       "name": "add-cypress-inputs"
     },
     {
@@ -149,7 +149,7 @@
       "version": "15.0.0-beta.4",
       "description": "Update to using cy.mount in the commands.ts file instead of importing mount for each component test file",
       "factory": "./src/migrations/update-15-0-0/update-cy-mount-usage",
-      "package": "@nrwl/cypress",
+      "package": "@nx/cypress",
       "name": "update-cy-mount-usage"
     },
     {
@@ -157,7 +157,7 @@
       "version": "15.1.0-beta.0",
       "description": "Update to Cypress v11. This migration will only update if the workspace is already on v10. https://www.cypress.io/blog/2022/11/04/upcoming-changes-to-component-testing/",
       "factory": "./src/migrations/update-15-1-0/cypress-11",
-      "package": "@nrwl/cypress",
+      "package": "@nx/cypress",
       "name": "update-to-cypress-11"
     },
     {
@@ -165,15 +165,15 @@
       "version": "15.5.0-beta.0",
       "description": "Update to Cypress v12. Cypress 12 contains a handful of breaking changes that might causes tests to start failing that nx cannot directly fix. Read more Cypress 12 changes: https://docs.cypress.io/guides/references/migration-guide#Migrating-to-Cypress-12-0.This migration will only run if you are already using Cypress v11.",
       "factory": "./src/migrations/update-15-5-0/update-to-cypress-12",
-      "package": "@nrwl/cypress",
+      "package": "@nx/cypress",
       "name": "update-to-cypress-12"
     },
     {
       "cli": "nx",
       "version": "16.0.0-beta.1",
-      "description": "Replace @nrwl/cypress with @nx/cypress",
+      "description": "Replace @nx/cypress with @nx/cypress",
       "implementation": "./src/migrations/update-16-0-0-add-nx-packages/update-16-0-0-add-nx-packages",
-      "package": "@nrwl/cypress",
+      "package": "@nx/cypress",
       "name": "update-16-0-0-add-nx-packages"
     },
     {
@@ -181,7 +181,7 @@
       "version": "16.2.0-beta.0",
       "description": "Normalize tsconfig.cy.json files to be located at '<projectRoot>/cypress/tsconfig.json'",
       "implementation": "./src/migrations/update-16-2-0/update-cy-tsconfig",
-      "package": "@nrwl/cypress",
+      "package": "@nx/cypress",
       "name": "update-16-2-0-normalize-tsconfigs"
     },
     {
@@ -189,15 +189,15 @@
       "version": "16.4.0-beta.10",
       "description": "Remove tsconfig.e2e.json and add settings to project tsconfig.json. tsConfigs executor option is now deprecated. The project level tsconfig.json file should be used instead.",
       "implementation": "./src/migrations/update-16-4-0/tsconfig-sourcemaps",
-      "package": "@nrwl/cypress",
+      "package": "@nx/cypress",
       "name": "update-16-3-0-remove-old-tsconfigs"
     },
     {
       "cli": "nx",
       "version": "16.0.0-beta.1",
-      "description": "Replace @nrwl/eslint-plugin-nx with @nx/eslint-plugin",
+      "description": "Replace @nx/eslint-plugin with @nx/eslint-plugin",
       "implementation": "./src/migrations/update-16-0-0-add-nx-packages/update-16-0-0-add-nx-packages",
-      "package": "@nrwl/eslint-plugin-nx",
+      "package": "@nx/eslint-plugin",
       "name": "update-16-0-0-add-nx-packages"
     },
     {
@@ -205,15 +205,15 @@
       "version": "15.8.0-beta.0",
       "description": "Rename .lib.swcrc to .swcrc for better SWC support throughout the workspace",
       "factory": "./src/migrations/update-15-8-0/rename-swcrc-config",
-      "package": "@nrwl/js",
+      "package": "@nx/js",
       "name": "rename-swcrc-config"
     },
     {
       "cli": "nx",
       "version": "16.0.0-beta.1",
-      "description": "Replace @nrwl/js with @nx/js",
+      "description": "Replace @nx/js with @nx/js",
       "implementation": "./src/migrations/update-16-0-0-add-nx-packages/update-16-0-0-add-nx-packages",
-      "package": "@nrwl/js",
+      "package": "@nx/js",
       "name": "update-16-0-0-add-nx-packages"
     },
     {
@@ -221,7 +221,7 @@
       "version": "15.0.0-beta.0",
       "description": "Stop hashing eslint config files for build targets and dependent tasks",
       "factory": "./src/migrations/update-15-0-0/add-eslint-inputs",
-      "package": "@nrwl/linter",
+      "package": "@nx/linter",
       "name": "add-eslint-inputs"
     },
     {
@@ -229,15 +229,15 @@
       "version": "15.7.1-beta.0",
       "description": "Add node_modules to root eslint ignore",
       "factory": "./src/migrations/update-15-7-1/add-eslint-ignore",
-      "package": "@nrwl/linter",
+      "package": "@nx/linter",
       "name": "add-eslint-ignore"
     },
     {
       "cli": "nx",
       "version": "16.0.0-beta.1",
-      "description": "Replace @nrwl/linter with @nx/linter",
+      "description": "Replace @nx/linter with @nx/linter",
       "implementation": "./src/migrations/update-16-0-0-add-nx-packages/update-16-0-0-add-nx-packages",
-      "package": "@nrwl/linter",
+      "package": "@nx/linter",
       "name": "update-16-0-0-add-nx-packages"
     },
     {
@@ -245,7 +245,7 @@
       "version": "15.0.0-beta.0",
       "description": "Migrates executor schema files to v2",
       "factory": "./src/migrations/update-15-0-0/specify-output-capture",
-      "package": "@nrwl/nx-plugin",
+      "package": "@nx/plugin",
       "name": "update-15-0-0"
     },
     {
@@ -253,7 +253,7 @@
       "cli": "nx",
       "description": "Update nx plugin jest configs to support jest 29 changes (https://jestjs.io/docs/upgrading-to-jest29)",
       "factory": "./src/migrations/update-15-9-0/jest-29-configs",
-      "package": "@nrwl/nx-plugin",
+      "package": "@nx/plugin",
       "name": "update-configs-jest-29"
     },
     {
@@ -261,7 +261,7 @@
       "cli": "nx",
       "description": "Update nx plugin jest test files to support jest 29 changes (https://jestjs.io/docs/upgrading-to-jest29)",
       "factory": "./src/migrations/update-15-9-0/jest-29-tests",
-      "package": "@nrwl/nx-plugin",
+      "package": "@nx/plugin",
       "name": "update-tests-jest-29"
     },
     {
@@ -269,15 +269,15 @@
       "cli": "nx",
       "description": "Removes CLI property within schema.json files and moves generators and schematics to the proper root node in migrations.json",
       "factory": "./src/migrations/update-16-0-0/cli-in-schema-json",
-      "package": "@nrwl/nx-plugin",
+      "package": "@nx/plugin",
       "name": "update-remove-cli-prop"
     },
     {
       "cli": "nx",
       "version": "16.0.0-beta.1",
-      "description": "Replace @nrwl/nx-plugin with @nx/plugin",
+      "description": "Replace @nx/plugin with @nx/plugin",
       "implementation": "./src/migrations/update-16-0-0-add-nx-packages/update-16-0-0-add-nx-packages",
-      "package": "@nrwl/nx-plugin",
+      "package": "@nx/plugin",
       "name": "update-16-0-0-add-nx-packages"
     },
     {
@@ -285,7 +285,7 @@
       "version": "16.2.0-beta.0",
       "description": "Replace @nx/plugin:e2e with @nx/jest",
       "implementation": "./src/migrations/update-16-2-0/replace-e2e-executor",
-      "package": "@nrwl/nx-plugin",
+      "package": "@nx/plugin",
       "name": "update-16-2-0-replace-e2e-executor"
     },
     {
@@ -293,7 +293,7 @@
       "cli": "nx",
       "description": "Exclude jest.config.ts from tsconfig where missing.",
       "factory": "./src/migrations/update-14-0-0/update-jest-config-ext",
-      "package": "@nrwl/jest",
+      "package": "@nx/jest",
       "name": "exclude-jest-config-from-ts-config"
     },
     {
@@ -301,7 +301,7 @@
       "cli": "nx",
       "description": "Update jest configs to support jest 28 changes (https://jestjs.io/docs/upgrading-to-jest28#configuration-options)",
       "factory": "./src/migrations/update-14-6-0/update-configs-jest-28",
-      "package": "@nrwl/jest",
+      "package": "@nx/jest",
       "name": "update-configs-jest-28"
     },
     {
@@ -309,7 +309,7 @@
       "cli": "nx",
       "description": "Update jest test files to support jest 28 changes (https://jestjs.io/docs/upgrading-to-jest28)",
       "factory": "./src/migrations/update-14-6-0/update-tests-jest-28",
-      "package": "@nrwl/jest",
+      "package": "@nx/jest",
       "name": "update-tests-jest-28"
     },
     {
@@ -317,7 +317,7 @@
       "cli": "nx",
       "description": "Stop hashing jest spec files and config files for build targets and dependent tasks",
       "factory": "./src/migrations/update-15-0-0/add-jest-inputs",
-      "package": "@nrwl/jest",
+      "package": "@nx/jest",
       "name": "add-jest-inputs"
     },
     {
@@ -325,7 +325,7 @@
       "cli": "nx",
       "description": "Update jest configs to support jest 29 changes (https://jestjs.io/docs/upgrading-to-jest29)",
       "factory": "./src/migrations/update-15-8-0/update-configs-jest-29",
-      "package": "@nrwl/jest",
+      "package": "@nx/jest",
       "name": "update-configs-jest-29"
     },
     {
@@ -333,15 +333,15 @@
       "cli": "nx",
       "description": "Update jest test files to support jest 29 changes (https://jestjs.io/docs/upgrading-to-jest29)",
       "factory": "./src/migrations/update-15-8-0/update-tests-jest-29",
-      "package": "@nrwl/jest",
+      "package": "@nx/jest",
       "name": "update-tests-jest-29"
     },
     {
       "cli": "nx",
       "version": "16.0.0-beta.1",
-      "description": "Replace @nrwl/jest with @nx/jest",
+      "description": "Replace @nx/jest with @nx/jest",
       "implementation": "./src/migrations/update-16-0-0-add-nx-packages/update-16-0-0-add-nx-packages",
-      "package": "@nrwl/jest",
+      "package": "@nx/jest",
       "name": "update-16-0-0-add-nx-packages"
     },
     {
@@ -349,7 +349,7 @@
       "version": "16.5.0-beta.2",
       "description": "Add test-setup.ts to ignored files in production input",
       "implementation": "./src/migrations/update-16-5-0/add-test-setup-to-inputs-ignore",
-      "package": "@nrwl/jest",
+      "package": "@nx/jest",
       "name": "add-test-setup-to-inputs-ignore"
     },
     {
@@ -357,31 +357,31 @@
       "version": "14.7.6-beta.1",
       "description": "Update usages of webpack executors to @nrwl/webpack",
       "factory": "./src/migrations/update-14-7-6/update-webpack-executor",
-      "package": "@nrwl/node",
+      "package": "@nx/node",
       "name": "update-webpack-executor"
     },
     {
       "cli": "nx",
       "version": "16.0.0-beta.1",
-      "description": "Replace @nrwl/node with @nx/node",
+      "description": "Replace @nx/node with @nx/node",
       "implementation": "./src/migrations/update-16-0-0-add-nx-packages/update-16-0-0-add-nx-packages",
-      "package": "@nrwl/node",
+      "package": "@nx/node",
       "name": "update-16-0-0-add-nx-packages"
     },
     {
       "cli": "nx",
       "version": "16.0.0-beta.5",
-      "description": "Replace @nrwl/node:webpack with @nx/node:webpack",
+      "description": "Replace @nx/node:webpack with @nx/node:webpack",
       "implementation": "./src/migrations/update-16-0-0/update-webpack-executor",
-      "package": "@nrwl/node",
+      "package": "@nx/node",
       "name": "update-16-0-0-update-executor"
     },
     {
       "cli": "nx",
       "version": "16.3.1-beta.0",
-      "description": "Replace @nrwl/node:webpack and @nx/node:webpack with @nx/webpack:webpack for all project targets",
+      "description": "Replace @nx/node:webpack and @nx/node:webpack with @nx/webpack:webpack for all project targets",
       "implementation": "./src/migrations/update-16-3-1/update-webpack-executor",
-      "package": "@nrwl/node",
+      "package": "@nx/node",
       "name": "update-16-3-1-update-executor"
     },
     {
@@ -389,7 +389,7 @@
       "version": "16.4.0-beta.8",
       "description": "Replace @nx/node:node with @nx/js:node for all project targets",
       "implementation": "./src/migrations/update-16-4-0/replace-node-executor",
-      "package": "@nrwl/node",
+      "package": "@nx/node",
       "name": "update-16-4-0-replace-node-executor"
     },
     {
@@ -397,7 +397,7 @@
       "version": "15.7.0-beta.1",
       "description": "Install the required angular-devkit packages as we do not directly depend on them anymore",
       "factory": "./src/migrations/update-15-7-0/install-required-packages",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "install-required-packages"
     },
     {
@@ -408,23 +408,23 @@
       },
       "description": "Update the @angular/cli package version to ~14.2.0.",
       "factory": "./src/migrations/update-14-6-0/update-angular-cli",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-angular-cli-version-14-2-0"
     },
     {
       "cli": "nx",
       "version": "15.0.0-beta.0",
-      "description": "Rename @nrwl/angular:webpack-server executor to @nrwl/angular:webpack-dev-server",
+      "description": "Rename @nx/angular:webpack-server executor to @nx/angular:webpack-dev-server",
       "factory": "./src/migrations/update-14-8-0/rename-webpack-server",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "rename-webpack-server-executor"
     },
     {
       "cli": "nx",
       "version": "15.0.0-beta.0",
-      "description": "Update the usages of @nrwl/angular/testing to import jasmine-marbles symbols from jasmine-marbles itself.",
+      "description": "Update the usages of @nx/angular/testing to import jasmine-marbles symbols from jasmine-marbles itself.",
       "factory": "./src/migrations/update-15-0-0/switch-to-jasmine-marbles",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "switch-to-jasmine-marbles"
     },
     {
@@ -432,7 +432,7 @@
       "version": "15.0.0-beta.1",
       "description": "Stop hashing karma spec files and config files for build targets and dependent tasks",
       "factory": "./src/migrations/update-15-0-0/add-karma-inputs",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "add-karma-inputs"
     },
     {
@@ -443,7 +443,7 @@
       },
       "description": "Update the @angular/cli package version to ~15.0.0.",
       "factory": "./src/migrations/update-15-2-0/update-angular-cli",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-angular-cli-version-15-0-0"
     },
     {
@@ -454,7 +454,7 @@
       },
       "description": "Remove browserslist config as it's handled by build-angular",
       "factory": "./src/migrations/update-15-2-0/remove-browserlist-config",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "remove-browserlist-config"
     },
     {
@@ -465,7 +465,7 @@
       },
       "description": "Update typescript target to ES2022",
       "factory": "./src/migrations/update-15-2-0/update-typescript-target",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-typescript-target"
     },
     {
@@ -476,7 +476,7 @@
       },
       "description": "Remove bundleDependencies from server targets",
       "factory": "./src/migrations/update-15-2-0/update-workspace-config",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-workspace-config"
     },
     {
@@ -487,7 +487,7 @@
       },
       "description": "Remove exported `@angular/platform-server` `renderModule` method. The `renderModule` method is now exported by the Angular CLI.",
       "factory": "./src/migrations/update-15-2-0/remove-platform-server-exports",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-platform-server-exports"
     },
     {
@@ -498,7 +498,7 @@
       },
       "description": "Remove no longer needed require calls in Karma builder main file.",
       "factory": "./src/migrations/update-15-2-0/update-karma-main-file",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-karma-main-file"
     },
     {
@@ -509,7 +509,7 @@
       },
       "description": "Update the @angular/cli package version to ~15.1.0.",
       "factory": "./src/migrations/update-15-5-0/update-angular-cli",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-angular-cli-version-15-1-0"
     },
     {
@@ -520,7 +520,7 @@
       },
       "description": "Update the @angular/cli package version to ~15.2.0.",
       "factory": "./src/migrations/update-15-8-0/update-angular-cli",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-angular-cli-version-15-2-0"
     },
     {
@@ -528,7 +528,7 @@
       "version": "15.9.0-beta.3",
       "description": "Update the tsconfig.spec.json to use target es2016 for jest-preset-angular v13",
       "factory": "./src/migrations/update-15-9-0/update-testing-tsconfig",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-tsconfig-spec-jest"
     },
     {
@@ -536,7 +536,7 @@
       "version": "15.9.0-beta.9",
       "description": "Update the file-server executor to use @nrwl/web:file-server",
       "factory": "./src/migrations/update-15-9-0/update-file-server-executor",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-file-server-executor"
     },
     {
@@ -544,15 +544,15 @@
       "version": "16.0.0-beta.1",
       "description": "Replace the deprecated library generator 'simpleModuleName' option from generator defaults with 'simpleName'",
       "factory": "./src/migrations/update-16-0-0/remove-library-generator-simple-module-name-option",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "remove-library-generator-simple-module-name-option"
     },
     {
       "cli": "nx",
       "version": "16.0.0-beta.1",
-      "description": "Replace @nrwl/angular with @nx/angular",
+      "description": "Replace @nx/angular with @nx/angular",
       "implementation": "./src/migrations/update-16-0-0-add-nx-packages/update-16-0-0-add-nx-packages",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-16-0-0-add-nx-packages"
     },
     {
@@ -560,7 +560,7 @@
       "version": "16.0.0-beta.6",
       "description": "Remove protractor as default e2eTestRunner from nxJson and project configurations",
       "implementation": "./src/migrations/update-16-0-0/remove-protractor-defaults",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "remove-protractor-defaults-from-generators"
     },
     {
@@ -568,7 +568,7 @@
       "version": "16.0.0-beta.6",
       "description": "Remove karma as default unitTestRunner from nxJson and project configurations",
       "implementation": "./src/migrations/update-16-0-0/remove-karma-defaults",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "remove-karma-defaults-from-generators"
     },
     {
@@ -579,7 +579,7 @@
       },
       "description": "Remove exported `@angular/platform-server` `renderModule` method. The `renderModule` method is now exported by the Angular CLI.",
       "factory": "./src/migrations/update-16-1-0/remove-render-module-platform-server-exports",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "remove-render-module-platform-server-exports"
     },
     {
@@ -590,7 +590,7 @@
       },
       "description": "Remove 'ngcc' invocation if exists from the 'postinstall' script in package.json.",
       "factory": "./src/migrations/update-16-1-0/remove-ngcc-invocation",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "remove-ngcc-invocation"
     },
     {
@@ -601,7 +601,7 @@
       },
       "description": "Extract the app config for standalone apps",
       "factory": "./src/migrations/update-16-1-0/extract-standalone-config-from-bootstrap",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "extract-app-config-for-standalone"
     },
     {
@@ -612,7 +612,7 @@
       },
       "description": "Update server executors' configuration to disable 'buildOptimizer' for non optimized builds.",
       "factory": "./src/migrations/update-16-1-0/update-server-executor-config",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-server-executor-config"
     },
     {
@@ -623,7 +623,7 @@
       },
       "description": "Update the @angular/cli package version to ~16.0.0.",
       "factory": "./src/migrations/update-16-1-0/update-angular-cli",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-angular-cli-version-16-0-0"
     },
     {
@@ -634,7 +634,7 @@
       },
       "description": "Remove the 'accessibility-' prefix from '@angular-eslint/eslint-plugin-template' rules.",
       "factory": "./src/migrations/update-16-4-0/rename-angular-eslint-accesibility-rules",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "rename-angular-eslint-accesibility-rules"
     },
     {
@@ -645,7 +645,7 @@
       },
       "description": "Update the @angular/cli package version to ~16.1.0.",
       "factory": "./src/migrations/update-16-4-0/update-angular-cli",
-      "package": "@nrwl/angular",
+      "package": "@nx/angular",
       "name": "update-angular-cli-version-16-1-0"
     },
     {

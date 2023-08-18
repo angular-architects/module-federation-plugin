@@ -71,14 +71,14 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "options": {
         "lintFilePatterns": ["apps/mfe2/**/*.ts", "apps/mfe2/**/*.html"]
       }
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/mfe2"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/mfe2"],
       "options": {
         "jestConfig": "apps/mfe2/jest.config.ts",
         "passWithNoTests": true
