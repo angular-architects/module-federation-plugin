@@ -22,11 +22,7 @@
       }
     },
     "type": {
-      "enum": [
-        "host",
-        "dynamic-host",
-        "remote"
-      ],
+      "enum": ["host", "dynamic-host", "remote"],
       "type": "string",
       "default": "remote"
     },

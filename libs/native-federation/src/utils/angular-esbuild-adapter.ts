@@ -15,13 +15,15 @@ import { transformSupportedBrowsersToTargets } from './transform';
 //   transformSupportedBrowsersToTargets
 // } from '@angular-devkit/build-angular/src/tools/esbuild/utils';
 
-
 import { createCompilerPluginOptions } from '@angular-devkit/build-angular/src/tools/esbuild/compiler-plugin-options';
 
-import { findTailwindConfigurationFile } from '@angular-devkit/build-angular/src/utils/tailwind'
+import { findTailwindConfigurationFile } from '@angular-devkit/build-angular/src/utils/tailwind';
 
 import { getSupportedBrowsers } from '@angular-devkit/build-angular/src/utils/supported-browsers';
-import { normalizeOptimization, normalizeSourceMaps } from '@angular-devkit/build-angular/src/utils';
+import {
+  normalizeOptimization,
+  normalizeSourceMaps,
+} from '@angular-devkit/build-angular/src/utils';
 import { createRequire } from 'node:module';
 
 import { Schema as EsBuildBuilderOptions } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
@@ -141,49 +143,58 @@ async function runEsbuild(
 
   const workspaceRoot = context.workspaceRoot;
 
-  const optimizationOptions = normalizeOptimization(builderOptions.optimization);
+  const optimizationOptions = normalizeOptimization(
+    builderOptions.optimization
+  );
   const sourcemapOptions = normalizeSourceMaps(builderOptions.sourceMap);
-  const tailwindConfigurationPath = await findTailwindConfigurationFile(workspaceRoot, projectRoot);
+  const tailwindConfigurationPath = await findTailwindConfigurationFile(
+    workspaceRoot,
+    projectRoot
+  );
 
   const fullProjectRoot = path.join(workspaceRoot, projectRoot);
   const resolver = createRequire(fullProjectRoot + '/');
 
-  const tailwindConfiguration =  tailwindConfigurationPath ? {
-    file: tailwindConfigurationPath,
-    package: resolver.resolve('tailwindcss'),
-  } : undefined;
+  const tailwindConfiguration = tailwindConfigurationPath
+    ? {
+        file: tailwindConfigurationPath,
+        package: resolver.resolve('tailwindcss'),
+      }
+    : undefined;
 
   const outputNames = {
     bundles: '[name]',
-    media: 'media/[name]'
+    media: 'media/[name]',
   };
-  
+
   let fileReplacements: Record<string, string> | undefined;
   if (builderOptions.fileReplacements) {
     for (const replacement of builderOptions.fileReplacements) {
       fileReplacements ??= {};
-      fileReplacements[path.join(workspaceRoot, replacement.replace)] = path.join(
-        workspaceRoot,
-        replacement.with,
-      );
+      fileReplacements[path.join(workspaceRoot, replacement.replace)] =
+        path.join(workspaceRoot, replacement.with);
     }
   }
 
-  
-  const pluginOptions = createCompilerPluginOptions({ 
-    workspaceRoot, 
-    optimizationOptions, 
-    sourcemapOptions, 
-    tsconfig: tsConfigPath, 
-    outputNames, 
-    fileReplacements, 
-    externalDependencies: external,
-    preserveSymlinks: builderOptions.preserveSymlinks, 
-    stylePreprocessorOptions: builderOptions.stylePreprocessorOptions, 
-    advancedOptimizations: !dev, 
-    inlineStyleLanguage: builderOptions.inlineStyleLanguage, 
-    jit: false, 
-    tailwindConfiguration } as any, target, undefined)
+  const pluginOptions = createCompilerPluginOptions(
+    {
+      workspaceRoot,
+      optimizationOptions,
+      sourcemapOptions,
+      tsconfig: tsConfigPath,
+      outputNames,
+      fileReplacements,
+      externalDependencies: external,
+      preserveSymlinks: builderOptions.preserveSymlinks,
+      stylePreprocessorOptions: builderOptions.stylePreprocessorOptions,
+      advancedOptimizations: !dev,
+      inlineStyleLanguage: builderOptions.inlineStyleLanguage,
+      jit: false,
+      tailwindConfiguration,
+    } as any,
+    target,
+    undefined
+  );
 
   const config: esbuild.BuildOptions = {
     entryPoints: [entryPoint],
