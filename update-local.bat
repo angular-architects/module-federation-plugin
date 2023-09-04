@@ -1,7 +1,7 @@
-call npm unpublish @softarc/native-federation@1.1.2 --registry http://localhost:4873
-call npm unpublish @softarc/native-federation-runtime@1.1.2 --registry http://localhost:4873
-call npm unpublish @softarc/native-federation-esbuild@1.1.2 --registry http://localhost:4873
-call npm unpublish @angular-architects/native-federation@16.1.3 --registry http://localhost:4873
+call npm unpublish @softarc/native-federation@2.0.0 --registry http://localhost:4873
+call npm unpublish @softarc/native-federation-runtime@2.0.0 --registry http://localhost:4873
+call npm unpublish @softarc/native-federation-esbuild@2.0.0 --registry http://localhost:4873
+call npm unpublish @angular-architects/native-federation@16.3.0 --registry http://localhost:4873
 
 call nx build native-federation
 call nx build native-federation-core

@@ -1,6 +1,7 @@
 import {
   BuildAdapter,
   BuildAdapterOptions,
+  BuildResult,
   logger,
 } from '@softarc/native-federation/build';
 import * as esbuild from 'esbuild';
@@ -9,6 +10,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import { externals } from 'rollup-plugin-node-externals';
 import { collectExports } from './collect-exports';
 import * as fs from 'fs';
+import path from 'path';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const commonjs = require('@rollup/plugin-commonjs');
@@ -37,27 +39,43 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
     config.compensateExports = [new RegExp('/react/')];
   }
 
-  return async (options: BuildAdapterOptions) => {
-    const { entryPoint, external, outfile, watch } = options;
+  return async (options: BuildAdapterOptions): Promise<BuildResult[]> => {
+    const { entryPoints, external, outdir, hash } = options;
 
-    const isPkg = entryPoint.includes('node_modules');
-    const pkgName = isPkg ? inferePkgName(entryPoint) : '';
-    const tmpFolder = `node_modules/.tmp/${pkgName}`;
+    // TODO: Do we need to prepare packages anymore as esbuild has evolved?
+    
 
-    if (isPkg) {
-      await prepareNodePackage(
-        entryPoint,
-        external,
-        tmpFolder,
-        config,
-        !!options.dev
-      );
+    for (const entryPoint of entryPoints) {
+      const isPkg = entryPoint.fileName.includes('node_modules');
+      const pkgName = isPkg ? inferePkgName(entryPoint.fileName) : '';
+      const tmpFolder = `node_modules/.tmp/${pkgName}`;
+  
+      if (isPkg) {
+        await prepareNodePackage(
+          entryPoint.fileName,
+          external,
+          tmpFolder,
+          config,
+          !!options.dev
+        );
+
+        entryPoint.fileName = tmpFolder;
+      }
+
+
+  
     }
 
-    await esbuild.build({
-      entryPoints: [isPkg ? tmpFolder : entryPoint],
+
+    const ctx = await esbuild.context({
+      entryPoints: entryPoints.map((ep) => ({
+        in: ep.fileName,
+        out: path.parse(ep.outName).name,
+      })),
+      write: false,
+      outdir,
+      entryNames: hash ? '[name]-[hash]' : '[name]',
       external,
-      outfile,
       loader: config.loader,
       bundle: true,
       sourcemap: options.dev,
@@ -67,15 +85,36 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
       plugins: [...config.plugins],
     });
 
-    const normEntryPoint = entryPoint.replace(/\\/g, '/');
-    if (
-      isPkg &&
-      config?.compensateExports?.find((regExp) => regExp.exec(normEntryPoint))
-    ) {
-      logger.verbose('compensate exports for ' + tmpFolder);
-      compensateExports(tmpFolder, outfile);
-    }
+    const result = await ctx.rebuild();
+    const writtenFiles = writeResult(result, outdir);
+    ctx.dispose();
+    return writtenFiles.map((fileName) => ({ fileName }));
+
+    // const normEntryPoint = entryPoint.replace(/\\/g, '/');
+    // if (
+    //   isPkg &&
+    //   config?.compensateExports?.find((regExp) => regExp.exec(normEntryPoint))
+    // ) {
+    //   logger.verbose('compensate exports for ' + tmpFolder);
+    //   compensateExports(tmpFolder, outfile);
+    // }
   };
+}
+
+function writeResult(
+  result: esbuild.BuildResult<esbuild.BuildOptions>,
+  outdir: string
+) {
+  const outputFiles = result.outputFiles || [];
+  const writtenFiles: string[] = [];
+  for (const outFile of outputFiles) {
+    const fileName = path.basename(outFile.path);
+    const filePath = path.join(outdir, fileName);
+    fs.writeFileSync(filePath, outFile.text);
+    writtenFiles.push(filePath);
+  }
+
+  return writtenFiles;
 }
 
 function compensateExports(entryPoint: string, outfile?: string): void {

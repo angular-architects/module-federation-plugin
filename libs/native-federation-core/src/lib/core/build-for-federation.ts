@@ -5,19 +5,18 @@ import { writeImportMap } from './write-import-map';
 import { writeFederationInfo } from './write-federation-info';
 import { bundleShared } from './bundle-shared';
 import {
-  bundleSharedMappings,
+  ArtefactInfo,
+  bundleExposedAndMappings,
+  describeExposed,
   describeSharedMappings,
-} from './bundle-shared-mappings';
-import { bundleExposed, describeExposed } from './bundle-exposed';
+} from './bundle-exposed-and-mappings';
 
 export interface BuildParams {
-  skipMappings: boolean;
-  skipExposed: boolean;
+  skipMappingsAndExposed: boolean;
 }
 
 export const defaultBuildParams: BuildParams = {
-  skipExposed: false,
-  skipMappings: false,
+  skipMappingsAndExposed: false,
 };
 
 export async function buildForFederation(
@@ -26,15 +25,24 @@ export async function buildForFederation(
   externals: string[],
   buildParams = defaultBuildParams
 ) {
-  const exposedInfo = buildParams.skipExposed
+  let artefactInfo: ArtefactInfo | undefined;
+  if (!buildParams.skipMappingsAndExposed) {
+    artefactInfo = await bundleExposedAndMappings(
+      config,
+      fedOptions,
+      externals
+    );
+  }
+
+  const exposedInfo = !artefactInfo
     ? describeExposed(config, fedOptions)
-    : await bundleExposed(config, fedOptions, externals);
+    : artefactInfo.exposes;
 
   const sharedPackageInfo = await bundleShared(config, fedOptions, externals);
 
-  const sharedMappingInfo = buildParams.skipMappings
+  const sharedMappingInfo = !artefactInfo
     ? describeSharedMappings(config, fedOptions)
-    : await bundleSharedMappings(config, fedOptions, externals);
+    : artefactInfo.mappings;
 
   const sharedInfo = [...sharedPackageInfo, ...sharedMappingInfo];
 

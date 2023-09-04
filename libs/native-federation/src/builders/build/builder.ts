@@ -7,6 +7,9 @@ import {
 
 import { Schema } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
 
+import { buildEsbuildBrowser } from '@angular-devkit/build-angular/src/builders/browser-esbuild';
+
+
 import * as path from 'path';
 import { setLogLevel, logger } from '@softarc/native-federation/build';
 
@@ -58,14 +61,20 @@ export async function runBuilder(
 
   options.externalDependencies = externals.filter((e) => e !== 'tslib');
 
+  // for await (const r of buildEsbuildBrowser(options, context as any, { write: false })) {
+  //   const output = r.outputFiles ||[];
+  //   for (const o of output) {
+  //     console.log('got', o.path);
+  //   }
+  // }
+  // eslint-disable-next-line no-constant-condition
+  // if (1===1) return;
+
   const builderRun = await context.scheduleBuilder(
     '@angular-devkit/build-angular:browser-esbuild',
     options as any,
     { target }
   );
-
-  // TODO: Allow more flexibility?
-  // const builderRun = await context.scheduleTarget(target, options as any);
 
   let first = true;
   builderRun.output.subscribe(async (output) => {
@@ -86,10 +95,7 @@ export async function runBuilder(
 
       setTimeout(async () => {
         logger.info('Rebuilding federation artefacts ...');
-        await Promise.all([
-          rebuildEvents.rebuildMappings.emit(),
-          rebuildEvents.rebuildExposed.emit(),
-        ]);
+        await Promise.all([rebuildEvents.rebuild.emit()]);
         logger.info('Done!');
 
         setTimeout(() => reloadShell(nfOptions.shell), 0);

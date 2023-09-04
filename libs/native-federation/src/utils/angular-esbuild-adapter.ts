@@ -34,9 +34,13 @@ import * as path from 'path';
 
 import { PluginItem, transformAsync } from '@babel/core';
 import { RebuildEvents, RebuildHubs } from './rebuild-events';
-import { BuildKind } from 'libs/native-federation-core/src/lib/core/build-adapter';
+import {
+  BuildKind,
+  BuildResult,
+  EntryPoint,
+} from 'libs/native-federation-core/src/lib/core/build-adapter';
 
-const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
+// const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
 
 export function createAngularBuildAdapter(
   builderOptions: EsBuildBuilderOptions,
@@ -45,44 +49,73 @@ export function createAngularBuildAdapter(
 ): BuildAdapter {
   return async (options) => {
     const {
-      entryPoint,
+      entryPoints,
       tsConfigPath,
       external,
-      outfile,
+      outdir,
       mappedPaths,
       kind,
       watch,
       dev,
+      hash,
     } = options;
+
+    const files = await runEsbuild(
+      builderOptions,
+      context,
+      entryPoints,
+      external,
+      outdir,
+      tsConfigPath,
+      mappedPaths,
+      watch,
+      rebuildRequested,
+      dev,
+      kind,
+      hash
+    );
+
+    if (kind === 'shared-package') {
+      const scriptFiles = files.filter(
+        (f) => f.endsWith('.js') || f.endsWith('.mjs')
+      );
+      for (const file of scriptFiles) {
+        link(file, dev);
+      }
+    }
+
+    return files.map((fileName) => ({ fileName } as BuildResult));
 
     // TODO: Do we still need rollup as esbuilt evolved?
     // if (kind === 'shared-package') {
     //   await runRollup(entryPoint, external, outfile);
     // } else {
-    if (
-      dev &&
-      kind === 'shared-package' &&
-      entryPoint.match(fesmFolderRegExp)
-    ) {
-      fs.copyFileSync(entryPoint, outfile);
-    } else {
-      await runEsbuild(
-        builderOptions,
-        context,
-        entryPoint,
-        external,
-        outfile,
-        tsConfigPath,
-        mappedPaths,
-        watch,
-        rebuildRequested,
-        dev,
-        kind
-      );
-    }
-    if (kind === 'shared-package' && fs.existsSync(outfile)) {
-      await link(outfile, dev);
-    }
+
+    //   if (
+    //     dev &&
+    //     kind === 'shared-package' &&
+    //     entryPoint.match(fesmFolderRegExp)
+    //   ) {
+    //     fs.copyFileSync(entryPoint, outfile);
+    //   } else {
+    //     await runEsbuild(
+    //       builderOptions,
+    //       context,
+    //       entryPoint,
+    //       external,
+    //       outfile,
+    //       tsConfigPath,
+    //       mappedPaths,
+    //       watch,
+    //       rebuildRequested,
+    //       dev,
+    //       kind
+    //     );
+    //   }
+    //   if (kind === 'shared-package' && fs.existsSync(outfile)) {
+    //     await link(outfile, dev);
+    //   }
+    // }
   };
 
   async function link(outfile: string, dev: boolean) {
@@ -124,15 +157,16 @@ export function createAngularBuildAdapter(
 async function runEsbuild(
   builderOptions: EsBuildBuilderOptions,
   context: BuilderContext,
-  entryPoint: string,
+  entryPoints: EntryPoint[],
   external: string[],
-  outfile: string,
+  outdir: string,
   tsConfigPath: string,
   mappedPaths: MappedPath[],
   watch?: boolean,
   rebuildRequested: RebuildEvents = new RebuildHubs(),
   dev?: boolean,
   kind?: BuildKind,
+  hash = false,
   plugins: esbuild.Plugin[] | null = null,
   absWorkingDir: string | undefined = undefined,
   logLevel: esbuild.LogLevel = 'warning'
@@ -197,14 +231,23 @@ async function runEsbuild(
   );
 
   const config: esbuild.BuildOptions = {
-    entryPoints: [entryPoint],
+    entryPoints: entryPoints.map((ep) => ({
+      in: ep.fileName,
+      out: path.parse(ep.outName).name,
+    })),
+    outdir,
+    entryNames: hash ? '[name]-[hash]' : '[name]',
+    write: false,
     absWorkingDir,
     external,
-    outfile,
     logLevel,
     bundle: true,
     sourcemap: dev,
     minify: !dev,
+    supported: {
+      'async-await': false,
+      'object-rest-spread': false,
+    },
     platform: 'browser',
     format: 'esm',
     target: ['esnext'],
@@ -238,32 +281,51 @@ async function runEsbuild(
         : []),
     ],
     define: {
-      ngDevMode: dev ? 'true' : 'false',
+      ...(!dev ? { ngDevMode: 'false' } : {}),
       ngJitMode: 'false',
     },
   };
 
+  const ctx = await esbuild.context(config);
+  const result = await ctx.rebuild();
+  const writtenFiles = writeResult(result, outdir);
+
   if (watch) {
-    const ctx = await esbuild.context(config);
-    await ctx.rebuild();
-    registerForRebuilds(kind, rebuildRequested, ctx);
+    registerForRebuilds(kind, rebuildRequested, ctx, entryPoints, outdir, hash);
   } else {
-    await esbuild.build(config);
+    ctx.dispose();
   }
+
+  return writtenFiles;
+}
+
+function writeResult(
+  result: esbuild.BuildResult<esbuild.BuildOptions>,
+  outdir: string
+) {
+  const writtenFiles: string[] = [];
+  for (const outFile of result.outputFiles) {
+    const fileName = path.basename(outFile.path);
+    const filePath = path.join(outdir, fileName);
+    fs.writeFileSync(filePath, outFile.text);
+    writtenFiles.push(filePath);
+  }
+
+  return writtenFiles;
 }
 
 function registerForRebuilds(
-  kind: string,
+  kind: BuildKind,
   rebuildRequested: RebuildEvents,
-  ctx: esbuild.BuildContext<esbuild.BuildOptions>
+  ctx: esbuild.BuildContext<esbuild.BuildOptions>,
+  entryPoints: EntryPoint[],
+  outdir: string,
+  hash: boolean
 ) {
-  if (kind === 'exposed') {
-    rebuildRequested.rebuildExposed.register(async () => {
-      await ctx.rebuild();
-    });
-  } else if (kind === 'shared-mapping') {
-    rebuildRequested.rebuildMappings.register(async () => {
-      await ctx.rebuild();
+  if (kind !== 'shared-package') {
+    rebuildRequested.rebuild.register(async () => {
+      const result = await ctx.rebuild();
+      writeResult(result, outdir);
     });
   }
 }
