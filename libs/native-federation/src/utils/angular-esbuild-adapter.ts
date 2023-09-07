@@ -42,6 +42,14 @@ import {
 
 // const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
 
+export type MemResultHandler = (outfiles: esbuild.OutputFile[]) => void;
+
+let _memResultHandler: MemResultHandler;
+
+export function setMemResultHandler(handler: MemResultHandler): void {
+  _memResultHandler = handler;
+}
+
 export function createAngularBuildAdapter(
   builderOptions: EsBuildBuilderOptions,
   context: BuilderContext,
@@ -288,10 +296,21 @@ async function runEsbuild(
 
   const ctx = await esbuild.context(config);
   const result = await ctx.rebuild();
-  const writtenFiles = writeResult(result, outdir);
+
+  const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
+
+  const writtenFiles = writeResult(result, outdir, memOnly);
 
   if (watch) {
-    registerForRebuilds(kind, rebuildRequested, ctx, entryPoints, outdir, hash);
+    registerForRebuilds(
+      kind,
+      rebuildRequested,
+      ctx,
+      entryPoints,
+      outdir,
+      hash,
+      memOnly
+    );
   } else {
     ctx.dispose();
   }
@@ -301,13 +320,21 @@ async function runEsbuild(
 
 function writeResult(
   result: esbuild.BuildResult<esbuild.BuildOptions>,
-  outdir: string
+  outdir: string,
+  memOnly: boolean
 ) {
   const writtenFiles: string[] = [];
+
+  if (memOnly) {
+    _memResultHandler(result.outputFiles);
+  }
+
   for (const outFile of result.outputFiles) {
     const fileName = path.basename(outFile.path);
     const filePath = path.join(outdir, fileName);
-    fs.writeFileSync(filePath, outFile.text);
+    if (!memOnly) {
+      fs.writeFileSync(filePath, outFile.text);
+    }
     writtenFiles.push(filePath);
   }
 
@@ -320,12 +347,13 @@ function registerForRebuilds(
   ctx: esbuild.BuildContext<esbuild.BuildOptions>,
   entryPoints: EntryPoint[],
   outdir: string,
-  hash: boolean
+  hash: boolean,
+  memOnly: boolean
 ) {
   if (kind !== 'shared-package') {
     rebuildRequested.rebuild.register(async () => {
       const result = await ctx.rebuild();
-      writeResult(result, outdir);
+      writeResult(result, outdir, memOnly);
     });
   }
 }

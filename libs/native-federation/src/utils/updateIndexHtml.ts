@@ -12,6 +12,17 @@ export function updateIndexHtml(fedOptions: FederationOptions) {
     .readdirSync(outputPath)
     .find((f) => f.startsWith('polyfills.') && f.endsWith('.js'));
 
+  let indexContent = fs.readFileSync(indexPath, 'utf-8');
+
+  indexContent = updateScriptTags(indexContent, mainName, polyfillsName);
+  fs.writeFileSync(indexPath, indexContent, 'utf-8');
+}
+
+export function updateScriptTags(
+  indexContent: string,
+  mainName: string,
+  polyfillsName: string
+) {
   const htmlFragment = `
 <script type="esms-options">
 {
@@ -23,9 +34,8 @@ export function updateIndexHtml(fedOptions: FederationOptions) {
 <script type="module-shim" src="${mainName}"></script>
 `;
 
-  let indexContent = fs.readFileSync(indexPath, 'utf-8');
   indexContent = indexContent.replace(/<script src="polyfills.*?>/, '');
   indexContent = indexContent.replace(/<script src="main.*?>/, '');
   indexContent = indexContent.replace('</body>', `${htmlFragment}</body>`);
-  fs.writeFileSync(indexPath, indexContent, 'utf-8');
+  return indexContent;
 }

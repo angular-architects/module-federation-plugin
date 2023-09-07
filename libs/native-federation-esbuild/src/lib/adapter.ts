@@ -43,13 +43,12 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
     const { entryPoints, external, outdir, hash } = options;
 
     // TODO: Do we need to prepare packages anymore as esbuild has evolved?
-    
 
     for (const entryPoint of entryPoints) {
       const isPkg = entryPoint.fileName.includes('node_modules');
       const pkgName = isPkg ? inferePkgName(entryPoint.fileName) : '';
       const tmpFolder = `node_modules/.tmp/${pkgName}`;
-  
+
       if (isPkg) {
         await prepareNodePackage(
           entryPoint.fileName,
@@ -61,11 +60,7 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
 
         entryPoint.fileName = tmpFolder;
       }
-
-
-  
     }
-
 
     const ctx = await esbuild.context({
       entryPoints: entryPoints.map((ep) => ({
