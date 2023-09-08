@@ -15,9 +15,13 @@
       "description": "Set this to true to start the builder in dev mode",
       "default": false
     },
+    "watch": {
+      "type": "boolean",
+      "default": false
+    },
     "port": {
       "type": "number",
-      "default": 4200
+      "default": 0
     },
     "open": {
       "type": "boolean",

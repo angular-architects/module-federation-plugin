@@ -33,7 +33,11 @@ import {
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { updateIndexHtml } from '../../utils/updateIndexHtml';
 import { appendFileSync, existsSync, mkdirSync } from 'fs';
-import { EsBuildResult, MemResults } from '../../utils/mem-resuts';
+import {
+  EsBuildResult,
+  MemResults,
+  NgCliAssetResult,
+} from '../../utils/mem-resuts';
 import { JsonObject } from '@angular-devkit/core';
 
 function log(...args) {
@@ -42,10 +46,10 @@ function log(...args) {
   console.log(args);
 }
 
-export async function runBuilder(
+export async function* runBuilder(
   nfOptions: NfBuilderSchema,
   context: BuilderContext
-): Promise<BuilderOutput> {
+): AsyncIterable<BuilderOutput> {
   const target = targetFromTargetString(nfOptions.target);
   const _options = (await context.getTargetOptions(
     target
@@ -57,14 +61,17 @@ export async function runBuilder(
     builder
   )) as JsonObject & Schema;
 
+  const runServer = !!nfOptions.port;
+  const write = !runServer;
+  const watch = !!runServer || nfOptions.watch;
+
+  options.watch = watch;
   const rebuildEvents = new RebuildHubs();
 
   const adapter = createAngularBuildAdapter(options, context, rebuildEvents);
   setBuildAdapter(adapter);
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
-
-  options.watch = !!nfOptions.dev;
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
@@ -97,12 +104,12 @@ export async function runBuilder(
   // );
 
   const memResults = new MemResults();
-  const write = !nfOptions.dev;
+
   let first = true;
   let lastResult: { success: boolean } | undefined;
 
   if (!existsSync(options.outputPath)) {
-    mkdirSync(options.outputPath);
+    mkdirSync(options.outputPath, { recursive: true });
   }
 
   if (!write) {
@@ -116,6 +123,7 @@ export async function runBuilder(
     write,
   })) {
     lastResult = output;
+    yield output;
 
     if (!output.success) {
       setError('Compilation Error');
@@ -125,23 +133,14 @@ export async function runBuilder(
       setError(null);
     }
 
-    if (!write) {
+    if (!write && output.outputFiles) {
       memResults.add(output.outputFiles.map((file) => new EsBuildResult(file)));
+    }
 
-      // TODO!
-      // '{\n' +
-      // '  "success": true,\n' +
-      // '  "assetFiles": [\n' +
-      // '    {\n' +
-      // '      "source": "C:\\\\temp\\\\native\\\\src\\\\favicon.ico",\n' +
-      // '      "destination": "favicon.ico"\n' +
-      // '    },\n' +
-      // '    {\n' +
-      // '      "source": "C:\\\\temp\\\\native\\\\src\\\\assets\\\\shutterstock_1835092750.jpg",\n' +
-      // '      "destination": "assets\\\\shutterstock_1835092750.jpg"\n' +
-      // '    }\n' +
-      // '  ]\n' +
-      // '}'
+    if (!write && output.assetFiles) {
+      memResults.add(
+        output.assetFiles.map((file) => new NgCliAssetResult(file))
+      );
     }
 
     if (write) {
@@ -152,17 +151,23 @@ export async function runBuilder(
       await buildForFederation(config, fedOptions, externals);
     }
 
-    if (first && nfOptions.dev) {
+    if (first && runServer) {
       startServer(nfOptions, options.outputPath, memResults);
-    } else if (!first && nfOptions.dev) {
-      reloadBrowser();
+    }
 
+    if (!first && runServer) {
+      reloadBrowser();
+    }
+
+    if (!first && watch) {
       setTimeout(async () => {
         logger.info('Rebuilding federation artefacts ...');
         await Promise.all([rebuildEvents.rebuild.emit()]);
         logger.info('Done!');
 
-        setTimeout(() => reloadShell(nfOptions.shell), 0);
+        if (runServer) {
+          setTimeout(() => reloadShell(nfOptions.shell), 0);
+        }
       }, nfOptions.rebuildDelay);
     }
 
@@ -171,7 +176,7 @@ export async function runBuilder(
 
   // updateIndexHtml(fedOptions);
   // const output = await lastValueFrom(builderRun.output as any);
-  return lastResult || { success: false };
+  yield lastResult || { success: false };
 }
 
 export default createBuilder(runBuilder) as any;

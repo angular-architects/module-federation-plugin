@@ -102,10 +102,14 @@ function modifyIndexHtml(content: string, fileNames: string[]): string {
   return index;
 }
 
-function getBody(result: BuildResult, memResults: MemResults): string {
+function getBody(
+  result: BuildResult,
+  memResults: MemResults
+): Uint8Array | Buffer | string {
   const body = result.get();
   if (result.fileName === 'index.html') {
-    return modifyIndexHtml(body, memResults.getFileNames());
+    const content = new TextDecoder().decode(body);
+    return modifyIndexHtml(content, memResults.getFileNames());
   } else {
     return body;
   }

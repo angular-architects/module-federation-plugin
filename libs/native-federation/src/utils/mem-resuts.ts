@@ -1,9 +1,10 @@
 import { OutputFile } from 'esbuild';
 import { basename } from 'path';
+import * as fs from 'fs';
 
 export interface BuildResult {
   fileName: string;
-  get(): string;
+  get(): Uint8Array | Buffer;
 }
 
 export class EsBuildResult implements BuildResult {
@@ -13,8 +14,29 @@ export class EsBuildResult implements BuildResult {
     this.fileName = outputFile.path;
   }
 
-  get(): string {
-    return this.outputFile.text;
+  get(): Uint8Array {
+    return this.outputFile.contents;
+  }
+}
+
+export interface NgCliAssetFile {
+  source: string;
+  destination: string;
+}
+
+export class NgCliAssetResult implements BuildResult {
+  public get fileName(): string {
+    return this.file.source;
+  }
+
+  private file: NgCliAssetFile;
+
+  constructor(private assetFile: NgCliAssetFile) {
+    this.file = assetFile;
+  }
+
+  get(): Buffer {
+    return fs.readFileSync(this.file.source);
   }
 }
 

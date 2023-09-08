@@ -3,10 +3,10 @@ call npm unpublish @softarc/native-federation-runtime@2.0.0 --registry http://lo
 call npm unpublish @softarc/native-federation-esbuild@2.0.0 --registry http://localhost:4873
 call npm unpublish @angular-architects/native-federation@16.3.0 --registry http://localhost:4873
 
-call nx build native-federation
-call nx build native-federation-core
-call nx build native-federation-runtime
-call nx build native-federation-esbuild
+call npx nx build native-federation
+call npx nx build native-federation-core
+call npx nx build native-federation-runtime
+call npx nx build native-federation-esbuild
 
 call node post-build.js
 
