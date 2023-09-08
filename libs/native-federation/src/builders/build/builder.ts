@@ -32,19 +32,13 @@ import {
 } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { updateIndexHtml } from '../../utils/updateIndexHtml';
-import { appendFileSync, existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 import {
   EsBuildResult,
   MemResults,
   NgCliAssetResult,
 } from '../../utils/mem-resuts';
 import { JsonObject } from '@angular-devkit/core';
-
-function log(...args) {
-  const msg = args.join(' ');
-  appendFileSync('c:/temp/log.txt', msg + '\n');
-  console.log(args);
-}
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
@@ -123,7 +117,6 @@ export async function* runBuilder(
     write,
   })) {
     lastResult = output;
-    yield output;
 
     if (!output.success) {
       setError('Compilation Error');
@@ -157,6 +150,10 @@ export async function* runBuilder(
 
     if (!first && runServer) {
       reloadBrowser();
+    }
+
+    if (!runServer) {
+      yield output;
     }
 
     if (!first && watch) {

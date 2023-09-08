@@ -338,6 +338,10 @@ function writeResult(
     writtenFiles.push(filePath);
   }
 
+  if (!memOnly) {
+    // for (const asset of result.outputFiles)
+  }
+
   return writtenFiles;
 }
 

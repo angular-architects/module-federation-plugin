@@ -8,11 +8,11 @@ export interface BuildResult {
 }
 
 export class EsBuildResult implements BuildResult {
-  public fileName: string;
-
-  constructor(private outputFile: OutputFile) {
-    this.fileName = outputFile.path;
+  get fileName() {
+    return basename(this.outputFile.path);
   }
+
+  constructor(private outputFile: OutputFile) {}
 
   get(): Uint8Array {
     return this.outputFile.contents;
@@ -26,7 +26,7 @@ export interface NgCliAssetFile {
 
 export class NgCliAssetResult implements BuildResult {
   public get fileName(): string {
-    return this.file.source;
+    return unify(this.file.destination);
   }
 
   private file: NgCliAssetFile;
@@ -45,7 +45,7 @@ export class MemResults {
 
   public add(result: BuildResult[]): void {
     for (const file of result) {
-      this.map.set(basename(file.fileName), file);
+      this.map.set(file.fileName, file);
     }
   }
 
@@ -56,4 +56,8 @@ export class MemResults {
   public getFileNames(): string[] {
     return [...this.map.keys()];
   }
+}
+
+function unify(path) {
+  return path?.replace(/\\/g, '/');
 }
