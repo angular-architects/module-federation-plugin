@@ -7,6 +7,7 @@ import {
   mergeWith,
   template,
   move,
+  noop,
 } from '@angular-devkit/schematics';
 
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
@@ -51,16 +52,22 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const remoteMap = await generateRemoteMap(workspace, projectName);
 
-    if (options.type === 'dynamic-host') {
+    if (options.type === 'dynamic-host' && !tree.exists(manifestPath)) {
       tree.create(manifestPath, JSON.stringify(remoteMap, null, '\t'));
     }
 
-    const generateRule = await generateFederationConfig(
-      remoteMap,
-      projectRoot,
-      projectSourceRoot,
-      options
-    );
+    const federationConfigPath = path.join(projectRoot, 'federation.config.js');
+
+    const exists = tree.exists(federationConfigPath);
+
+    const generateRule = !exists
+      ? await generateFederationConfig(
+          remoteMap,
+          projectRoot,
+          projectSourceRoot,
+          options
+        )
+      : noop;
 
     updateWorkspaceConfig(tree, normalized, workspace, workspaceFileName);
 
@@ -104,9 +111,17 @@ function updateWorkspaceConfig(
 
   projectConfig.architect.build = {
     builder: '@angular-architects/native-federation:build',
-    options: {
-      target: `${projectName}:esbuild:production`,
+    options: {},
+    configurations: {
+      production: {
+        target: `${projectName}:esbuild:production`,
+      },
+      development: {
+        target: `${projectName}:esbuild:development`,
+        dev: true,
+      },
     },
+    defaultConfiguration: 'production',
   };
 
   projectConfig.architect['serve-original'] = projectConfig.architect.serve;
@@ -120,6 +135,15 @@ function updateWorkspaceConfig(
       port: port,
     },
   };
+
+  const serveSsr = projectConfig.architect['serve-ssr'];
+  if (serveSsr && !serveSsr.options) {
+    serveSsr.options = {};
+  }
+
+  if (serveSsr) {
+    serveSsr.options.port = port;
+  }
 
   // projectConfig.architect.serve.builder = serveBuilder;
   // TODO: Register further builders when ready
