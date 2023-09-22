@@ -45,6 +45,11 @@ export type Options = {
    * Default value true.
    */
   activeLegacyMode?: boolean;
+  /**
+   * Use platformRef.instance.ngZone to run router events
+   * Default value false.
+   */
+  useInstanceNgZone?: boolean;
 };
 
 declare interface BootstrapOptions {
@@ -189,11 +194,14 @@ export function bootstrap<M>(
 
   return getPlatform(options)
     .bootstrapModule(module, options.compilerOptions)
-    .then((ref) => {
+    .then((ref: PlatformRef) => {
       if (options.appType === 'shell') {
         shareShellZone(ref.injector);
       } else if (options.appType === 'microfrontend') {
-        connectMicroFrontendRouter(ref.injector);
+        connectMicroFrontendRouter(
+          ref.injector,
+          options?.useInstanceNgZone ? ref.instance?.ngZone : undefined
+        );
       }
 
       return ref;
@@ -209,7 +217,7 @@ function shareShellZone(injector: Injector) {
   shareNgZone(ngZone);
 }
 
-function connectMicroFrontendRouter(injector: Injector) {
+function connectMicroFrontendRouter(injector: Injector, ngZone: NgZone = undefined) {
   const router = injector.get(Router);
   const useHash = location.href.includes('#');
 
@@ -218,5 +226,5 @@ function connectMicroFrontendRouter(injector: Injector) {
     return;
   }
 
-  connectRouter(router, useHash);
+  connectRouter(router, useHash, ngZone);
 }

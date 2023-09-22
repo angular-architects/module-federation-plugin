@@ -1,4 +1,5 @@
 import { Router, UrlMatcher, UrlSegment } from '@angular/router';
+import { NgZone } from '@angular/core';
 
 export function startsWith(prefix: string): UrlMatcher {
   return (url: UrlSegment[]) => {
@@ -20,19 +21,23 @@ export function endsWith(prefix: string): UrlMatcher {
   };
 }
 
-export function connectRouter(router: Router, useHash = false): void {
+function navigateWithNgZone(router: Router, ngZone: NgZone, url: string) {
+  ngZone.run(() => router.navigateByUrl(url));
+}
+
+export function connectRouter(router: Router, useHash = false, ngZone = undefined): void {
   let url: string;
   if (!useHash) {
     url = `${location.pathname.substring(1)}${location.search}`;
-    router.navigateByUrl(url);
+    !!ngZone ? navigateWithNgZone(router, ngZone, url) : router.navigateByUrl(url);
     window.addEventListener('popstate', () => {
-      router.navigateByUrl(url);
+      !!ngZone ? navigateWithNgZone(router, ngZone, url) : router.navigateByUrl(url);
     });
   } else {
     url = `${location.hash.substring(1)}${location.search}`;
-    router.navigateByUrl(url);
+    !!ngZone ? navigateWithNgZone(router, ngZone, url) : router.navigateByUrl(url);
     window.addEventListener('hashchange', () => {
-      router.navigateByUrl(url);
+      !!ngZone ? navigateWithNgZone(router, ngZone, url) : router.navigateByUrl(url);
     });
   }
 }
