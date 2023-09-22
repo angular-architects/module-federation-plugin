@@ -194,7 +194,7 @@ export function bootstrap<M>(
 
   return getPlatform(options)
     .bootstrapModule(module, options.compilerOptions)
-    .then((ref: PlatformRef) => {
+    .then((ref) => {
       if (options.appType === 'shell') {
         shareShellZone(ref.injector);
       } else if (options.appType === 'microfrontend') {

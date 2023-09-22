@@ -18,4 +18,4 @@ export function runBuilder(
   );
 }
 
-export default createBuilder(runBuilder);
+export default createBuilder(runBuilder) as any;
