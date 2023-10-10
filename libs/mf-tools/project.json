@@ -1,0 +1,40 @@
+{
+  "name": "mf-tools",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/mf-tools/src",
+  "prefix": "angular-architects",
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "options": {
+        "tsConfig": "libs/mf-tools/tsconfig.lib.json",
+        "project": "libs/mf-tools/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/mf-tools/tsconfig.lib.prod.json"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/mf-tools/src/**/*.ts",
+          "libs/mf-tools/src/**/*.html"
+        ]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/mf-tools"],
+      "options": {
+        "jestConfig": "libs/mf-tools/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

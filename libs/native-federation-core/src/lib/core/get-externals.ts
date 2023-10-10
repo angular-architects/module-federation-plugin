@@ -1,5 +1,5 @@
 import { NormalizedFederationConfig } from '../config/federation-config';
-import { isInSkipList, PREPARED_DEFAULT_SKIP_LIST } from './default-skip-list';
+// import { isInSkipList, PREPARED_DEFAULT_SKIP_LIST } from './default-skip-list';
 
 export function getExternals(config: NormalizedFederationConfig) {
   const shared = Object.keys(config.shared);

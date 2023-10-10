@@ -9,7 +9,12 @@ import {
   prepareSkipList,
   SkipList,
 } from '../core/default-skip-list';
-import { findDepPackageJson, findPackageJsonFiles, getVersionMaps, VersionMap } from '../utils/package-info';
+import {
+  findDepPackageJson,
+  findPackageJsonFiles,
+  getVersionMaps,
+  VersionMap,
+} from '../utils/package-info';
 import { getConfigContext } from './configuration-context';
 import { logger } from '../utils/logger';
 
@@ -71,17 +76,14 @@ function readVersionMap(packagePath: string): VersionMap {
 }
 
 function lookupVersion(key: string, workspaceRoot: string): string {
-
   const versionMaps = getVersionMaps(workspaceRoot, workspaceRoot);
 
   for (const versionMap of versionMaps) {
-
     const version = lookupVersionInMap(key, versionMap);
 
     if (version) {
       return version;
     }
-
   }
 
   throw new Error(
@@ -213,7 +215,7 @@ function readConfiguredSecondaries(
       key != '.' &&
       key != './package.json' &&
       !key.endsWith('*') &&
-      (exports[key]['default'] || typeof exports[key] === 'string' )
+      (exports[key]['default'] || typeof exports[key] === 'string')
   );
 
   const result = {} as Record<string, SharedConfig>;
@@ -244,7 +246,6 @@ export function shareAll(
   skip: SkipList = DEFAULT_SKIP_LIST,
   projectPath = ''
 ): Config | null {
-  
   // let workspacePath: string | undefined = undefined;
 
   projectPath = inferProjectPath(projectPath);
@@ -258,19 +259,19 @@ export function shareAll(
   const versionMaps = getVersionMaps(projectPath, projectPath);
   const share: Record<string, unknown> = {};
 
-  for(const versions of versionMaps) {
-
+  for (const versions of versionMaps) {
     const preparedSkipList = prepareSkipList(skip);
-  
+
     for (const key in versions) {
       if (isInSkipList(key, preparedSkipList)) {
         continue;
       }
 
-      const inferVersion = (!config.requiredVersion || config.requiredVersion === 'auto');
-      const requiredVersion = inferVersion ?
-          versions[key] :
-          config.requiredVersion;
+      const inferVersion =
+        !config.requiredVersion || config.requiredVersion === 'auto';
+      const requiredVersion = inferVersion
+        ? versions[key]
+        : config.requiredVersion;
 
       if (!share[key]) {
         share[key] = { ...config, requiredVersion };
@@ -301,7 +302,6 @@ export function setInferVersion(infer: boolean): void {
 }
 
 export function share(shareObjects: Config, projectPath = ''): Config {
-  
   projectPath = inferProjectPath(projectPath);
 
   const packagePath = findPackageJson(projectPath);
@@ -319,7 +319,7 @@ export function share(shareObjects: Config, projectPath = ''): Config {
       (inferVersion && typeof shareObject.requiredVersion === 'undefined')
     ) {
       const version = lookupVersion(key, projectPath);
-      
+
       shareObject.requiredVersion = version;
       shareObject.version = version.replace(/^\D*/, '');
     }
@@ -336,7 +336,6 @@ export function share(shareObjects: Config, projectPath = ''): Config {
     result[key] = shareObject;
 
     if (includeSecondaries) {
-
       const libPackageJson = findDepPackageJson(key, path.dirname(packagePath));
 
       if (!libPackageJson) {

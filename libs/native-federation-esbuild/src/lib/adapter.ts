@@ -1,6 +1,7 @@
 import {
   BuildAdapter,
   BuildAdapterOptions,
+  BuildResult,
   logger,
 } from '@softarc/native-federation/build';
 import * as esbuild from 'esbuild';
@@ -9,6 +10,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import { externals } from 'rollup-plugin-node-externals';
 import { collectExports } from './collect-exports';
 import * as fs from 'fs';
+import path from 'path';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const commonjs = require('@rollup/plugin-commonjs');
@@ -21,65 +23,93 @@ export const esBuildAdapter: BuildAdapter = createEsBuildAdapter({
 });
 
 export type ReplacementConfig = {
-  file: string
+  file: string;
 };
 
 export interface EsBuildAdapterConfig {
   plugins: esbuild.Plugin[];
-  fileReplacements?: Record<string, string | ReplacementConfig>
-  skipRollup?: boolean,
-  compensateExports?: RegExp[],
-  loader?: { [ext: string]: esbuild.Loader }
+  fileReplacements?: Record<string, string | ReplacementConfig>;
+  skipRollup?: boolean;
+  compensateExports?: RegExp[];
+  loader?: { [ext: string]: esbuild.Loader };
 }
 
 export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
-  
   if (!config.compensateExports) {
     config.compensateExports = [new RegExp('/react/')];
   }
-  
-  return async (options: BuildAdapterOptions) => {
-    const { entryPoint, external, outfile, watch } = options;
 
-    const isPkg = entryPoint.includes('node_modules');
-    const pkgName = isPkg ? inferePkgName(entryPoint) : '';
-    const tmpFolder = `node_modules/.tmp/${pkgName}`;
+  return async (options: BuildAdapterOptions): Promise<BuildResult[]> => {
+    const { entryPoints, external, outdir, hash } = options;
 
-    if (isPkg) {
-      await prepareNodePackage(entryPoint, external, tmpFolder, config, !!options.dev);
+    // TODO: Do we need to prepare packages anymore as esbuild has evolved?
+
+    for (const entryPoint of entryPoints) {
+      const isPkg = entryPoint.fileName.includes('node_modules');
+      const pkgName = isPkg ? inferePkgName(entryPoint.fileName) : '';
+      const tmpFolder = `node_modules/.tmp/${pkgName}`;
+
+      if (isPkg) {
+        await prepareNodePackage(
+          entryPoint.fileName,
+          external,
+          tmpFolder,
+          config,
+          !!options.dev
+        );
+
+        entryPoint.fileName = tmpFolder;
+      }
     }
 
-    await esbuild.build({
-      entryPoints: [isPkg ? tmpFolder : entryPoint],
+    const ctx = await esbuild.context({
+      entryPoints: entryPoints.map((ep) => ({
+        in: ep.fileName,
+        out: path.parse(ep.outName).name,
+      })),
+      write: false,
+      outdir,
+      entryNames: hash ? '[name]-[hash]' : '[name]',
       external,
-      outfile,
       loader: config.loader,
       bundle: true,
       sourcemap: options.dev,
       minify: !options.dev,
-      watch: !watch
-        ? false
-        : {
-            onRebuild: (err) => {
-              if (err) {
-                logger.error('Error rebuilding ' + entryPoint);
-              } else {
-                logger.info('Rebuilt ' + entryPoint);
-              }
-            },
-          },
       format: 'esm',
       target: ['esnext'],
       plugins: [...config.plugins],
     });
 
-    const normEntryPoint = entryPoint.replace(/\\/g, '/');
-    if (isPkg && config?.compensateExports?.find(regExp => regExp.exec(normEntryPoint))) {
-      logger.verbose('compensate exports for ' + tmpFolder);
-      compensateExports(tmpFolder, outfile);
-    }
+    const result = await ctx.rebuild();
+    const writtenFiles = writeResult(result, outdir);
+    ctx.dispose();
+    return writtenFiles.map((fileName) => ({ fileName }));
 
+    // const normEntryPoint = entryPoint.replace(/\\/g, '/');
+    // if (
+    //   isPkg &&
+    //   config?.compensateExports?.find((regExp) => regExp.exec(normEntryPoint))
+    // ) {
+    //   logger.verbose('compensate exports for ' + tmpFolder);
+    //   compensateExports(tmpFolder, outfile);
+    // }
   };
+}
+
+function writeResult(
+  result: esbuild.BuildResult<esbuild.BuildOptions>,
+  outdir: string
+) {
+  const outputFiles = result.outputFiles || [];
+  const writtenFiles: string[] = [];
+  for (const outFile of outputFiles) {
+    const fileName = path.basename(outFile.path);
+    const filePath = path.join(outdir, fileName);
+    fs.writeFileSync(filePath, outFile.text);
+    writtenFiles.push(filePath);
+  }
+
+  return writtenFiles;
 }
 
 function compensateExports(entryPoint: string, outfile?: string): void {
@@ -108,9 +138,11 @@ async function prepareNodePackage(
   config: EsBuildAdapterConfig,
   dev: boolean
 ) {
-
   if (config.fileReplacements) {
-    entryPoint = replaceEntryPoint(entryPoint, normalize(config.fileReplacements));
+    entryPoint = replaceEntryPoint(
+      entryPoint,
+      normalize(config.fileReplacements)
+    );
   }
 
   const env = dev ? 'development' : 'production';
@@ -137,7 +169,6 @@ async function prepareNodePackage(
     sourcemap: dev,
     exports: 'named',
   });
-
 }
 
 function inferePkgName(entryPoint: string) {
@@ -146,28 +177,34 @@ function inferePkgName(entryPoint: string) {
     .replace(/[^A-Za-z0-9.]/g, '_');
 }
 
-function normalize(config: Record<string, string | ReplacementConfig>): Record<string,ReplacementConfig> {
-  const result: Record<string,ReplacementConfig> = {};
+function normalize(
+  config: Record<string, string | ReplacementConfig>
+): Record<string, ReplacementConfig> {
+  const result: Record<string, ReplacementConfig> = {};
   for (const key in config) {
     if (typeof config[key] === 'string') {
       result[key] = {
         file: config[key] as string,
-      }
-    }
-    else {
+      };
+    } else {
       result[key] = config[key] as ReplacementConfig;
     }
   }
   return result;
 }
 
-function replaceEntryPoint(entryPoint: string, fileReplacements: Record<string, ReplacementConfig>): string {
+function replaceEntryPoint(
+  entryPoint: string,
+  fileReplacements: Record<string, ReplacementConfig>
+): string {
   entryPoint = entryPoint.replace(/\\/g, '/');
- 
-  for(const key in fileReplacements) {
-    entryPoint = entryPoint.replace(new RegExp(`${key}$`), fileReplacements[key].file);
+
+  for (const key in fileReplacements) {
+    entryPoint = entryPoint.replace(
+      new RegExp(`${key}$`),
+      fileReplacements[key].file
+    );
   }
 
   return entryPoint;
 }
-

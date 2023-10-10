@@ -1,37 +1,70 @@
+/* eslint-disable @nx/enforce-module-boundaries */
 import {
   BuilderContext,
   BuilderOutput,
   createBuilder,
 } from '@angular-devkit/architect';
 
-import { buildEsbuildBrowser } from '@angular-architects/build-angular/src/builders/browser-esbuild/index';
-import { Schema } from '@angular-architects/build-angular/src/builders/browser-esbuild/schema';
-import { ExecutionTransformer } from '@angular-architects/build-angular';
-import * as path from 'path';
-import * as fs from 'fs';
-import {
-  hashFile,
-  logger,
-  NormalizedFederationConfig,
-  setLogLevel,
-} from '@softarc/native-federation/build';
+import { Schema } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
 
-import { BuildOptions } from 'esbuild';
-import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
+import { buildEsbuildBrowser } from '@angular-devkit/build-angular/src/builders/browser-esbuild';
+
+import * as path from 'path';
+import { setLogLevel, logger } from '@softarc/native-federation/build';
+
 import { FederationOptions } from '@softarc/native-federation/build';
 import { setBuildAdapter } from '@softarc/native-federation/build';
-import { AngularEsBuildAdapter } from '../../utils/angular-esbuild-adapter';
+import {
+  createAngularBuildAdapter,
+  setMemResultHandler,
+} from '../../utils/angular-esbuild-adapter';
 import { getExternals } from '@softarc/native-federation/build';
 import { loadFederationConfig } from '@softarc/native-federation/build';
 import { buildForFederation } from '@softarc/native-federation/build';
+import { targetFromTargetString } from '@angular-devkit/architect';
 
-import * as crossSpawn from 'cross-spawn';
+import { NfBuilderSchema } from './schema';
+import {
+  reloadBrowser,
+  reloadShell,
+  setError,
+  startServer,
+} from '../../utils/dev-server';
+import { RebuildHubs } from '../../utils/rebuild-events';
+import { updateIndexHtml } from '../../utils/updateIndexHtml';
+import { existsSync, mkdirSync } from 'fs';
+import {
+  EsBuildResult,
+  MemResults,
+  NgCliAssetResult,
+} from '../../utils/mem-resuts';
+import { JsonObject } from '@angular-devkit/core';
 
-export async function runBuilder(
-  options: Schema,
+export async function* runBuilder(
+  nfOptions: NfBuilderSchema,
   context: BuilderContext
-): Promise<BuilderOutput> {
-  setBuildAdapter(AngularEsBuildAdapter);
+): AsyncIterable<BuilderOutput> {
+  const target = targetFromTargetString(nfOptions.target);
+  const _options = (await context.getTargetOptions(
+    target
+  )) as unknown as JsonObject & Schema;
+
+  const builder = await context.getBuilderNameForTarget(target);
+  const options = (await context.validateOptions(
+    _options,
+    builder
+  )) as JsonObject & Schema;
+
+  const runServer = !!nfOptions.port;
+  const write = !runServer;
+  const watch = !!runServer || nfOptions.watch;
+
+  options.watch = watch;
+  const rebuildEvents = new RebuildHubs();
+
+  const adapter = createAngularBuildAdapter(options, context, rebuildEvents);
+  setBuildAdapter(adapter);
+
   setLogLevel(options.verbose ? 'verbose' : 'info');
 
   const fedOptions: FederationOptions = {
@@ -41,154 +74,109 @@ export async function runBuilder(
     tsConfig: options.tsConfig,
     verbose: options.verbose,
     watch: options.watch,
+    dev: !!nfOptions.dev,
   };
 
   const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);
 
-  runNgccIfNeeded(fedOptions, fedOptions.workspaceRoot);
-
   options.externalDependencies = externals.filter((e) => e !== 'tslib');
-  const output = await build(config, options, context);
 
-  await buildForFederation(config, fedOptions, externals);
+  // for await (const r of buildEsbuildBrowser(options, context as any, { write: false })) {
+  //   const output = r.outputFiles ||[];
+  //   for (const o of output) {
+  //     console.log('got', o.path);
+  //   }
+  // }
+  // eslint-disable-next-line no-constant-condition
+  // if (1===1) return;
 
-  updateIndexHtml(fedOptions);
+  // const builderRun = await context.scheduleBuilder(
+  //   '@angular-devkit/build-angular:browser-esbuild',
+  //   options as any,
+  //   { target }
+  // );
 
-  return output;
-}
+  const memResults = new MemResults();
 
-export default createBuilder(runBuilder);
+  let first = true;
+  let lastResult: { success: boolean } | undefined;
 
-function runNgccIfNeeded(fedOptions: FederationOptions, workspaceRoot: string) {
-  const hash = getLockFileHash(fedOptions);
-  const skip = skipNgcc(hash, workspaceRoot);
-
-  if (!skip) {
-    runNgcc(workspaceRoot);
-    writeNgccLock(hash, workspaceRoot);
-  }
-}
-
-function runNgcc(workspaceRoot: string) {
-  logger.verbose('Running ngcc');
-  const command = getNpxCommand(workspaceRoot);
-  const result = crossSpawn.sync(
-    command,
-    ['ngcc', '--async', '--create-ivy-entry-points', '--first-only'],
-    { stdio: 'inherit' }
-  );
-
-  if (result.status !== 0) {
-    const error = result.error || '';
-    logger.error('Error running ngcc: ' + error);
-  }
-}
-
-function getLockFileHash(fedOptions: FederationOptions) {
-  const lockFileName = getLockFileName(fedOptions.workspaceRoot);
-  const hash = hashFile(lockFileName);
-  return hash;
-}
-
-const NGCC_LOCK_DIR = 'node_modules/.cache/native-federation/ngcc';
-
-function skipNgcc(hash: string, workspaceRoot: string) {
-  const ngccLockFileDir = path.join(workspaceRoot, NGCC_LOCK_DIR);
-  const ngccLockFileName = path.join(ngccLockFileDir, hash + '.lock');
-
-  let exists = false;
-  if (fs.existsSync(ngccLockFileName)) {
-    exists = true;
-  }
-  return exists;
-}
-
-function writeNgccLock(hash: string, workspaceRoot: string) {
-  const ngccLockFileDir = path.join(workspaceRoot, NGCC_LOCK_DIR);
-  const ngccLockFileName = path.join(ngccLockFileDir, hash + '.lock');
-
-  if (!fs.existsSync(ngccLockFileDir)) {
-    fs.mkdirSync(ngccLockFileDir, { recursive: true });
+  if (!existsSync(options.outputPath)) {
+    mkdirSync(options.outputPath, { recursive: true });
   }
 
-  fs.writeFileSync(ngccLockFileName, '');
-}
+  if (!write) {
+    setMemResultHandler((outFiles) => {
+      memResults.add(outFiles.map((f) => new EsBuildResult(f)));
+    });
+  }
 
-function getLockFileName(workspaceRoot: string) {
-  let candPath = '';
-  for (const candLock of ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml']) {
-    candPath = path.join(workspaceRoot, candLock);
-    if (fs.existsSync(candPath)) {
-      break;
+  // builderRun.output.subscribe(async (output) => {
+  for await (const output of buildEsbuildBrowser(options, context as any, {
+    write,
+  })) {
+    lastResult = output;
+
+    if (!output.success) {
+      setError('Compilation Error');
+      reloadBrowser();
+      continue;
+    } else {
+      setError(null);
     }
+
+    if (!write && output.outputFiles) {
+      memResults.add(output.outputFiles.map((file) => new EsBuildResult(file)));
+    }
+
+    if (!write && output.assetFiles) {
+      memResults.add(
+        output.assetFiles.map((file) => new NgCliAssetResult(file))
+      );
+    }
+
+    if (write) {
+      updateIndexHtml(fedOptions);
+    }
+
+    if (first) {
+      await buildForFederation(config, fedOptions, externals);
+    }
+
+    if (first && runServer) {
+      startServer(nfOptions, options.outputPath, memResults);
+    }
+
+    if (!first && runServer) {
+      reloadBrowser();
+    }
+
+    if (!runServer) {
+      yield output;
+    }
+
+    if (!first && watch) {
+      setTimeout(async () => {
+        logger.info('Rebuilding federation artefacts ...');
+        await Promise.all([rebuildEvents.rebuild.emit()]);
+        logger.info('Done!');
+
+        if (runServer) {
+          setTimeout(() => reloadShell(nfOptions.shell), 0);
+        }
+      }, nfOptions.rebuildDelay);
+    }
+
+    first = false;
   }
-  return candPath;
+
+  // updateIndexHtml(fedOptions);
+  // const output = await lastValueFrom(builderRun.output as any);
+  yield lastResult || { success: false };
 }
 
-function getNpxCommand(workspaceRoot: string): string {
-  switch (getLockFileName(workspaceRoot)) {
-    case 'package-lock.json':
-      return 'npx';
-    case 'yarn.lock':
-      return 'yarn';
-    case 'pnpm-lock.yaml':
-      return 'pnpx';
-    default:
-      return 'npx';
-  }
-}
-
-function updateIndexHtml(fedOptions: FederationOptions) {
-  const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
-  const indexPath = path.join(outputPath, 'index.html');
-  const mainName = fs
-    .readdirSync(outputPath)
-    .find((f) => f.startsWith('main.') && f.endsWith('.js'));
-  const polyfillsName = fs
-    .readdirSync(outputPath)
-    .find((f) => f.startsWith('polyfills.') && f.endsWith('.js'));
-
-  const htmlFragment = `
-<script type="esms-options">
-{
-  "shimMode": true
-}
-</script>
-
-<script type="module" src="${polyfillsName}"></script>
-<script type="module-shim" src="${mainName}"></script>
-`;
-
-  const indexContent = fs.readFileSync(indexPath, 'utf-8');
-  const updatedContent = indexContent.replace(
-    '</body>',
-    `${htmlFragment}</body>`
-  );
-  fs.writeFileSync(indexPath, updatedContent, 'utf-8');
-}
-
-async function build(
-  config: NormalizedFederationConfig,
-  options: Schema,
-  context: BuilderContext
-) {
-  const esbuildConfiguration: ExecutionTransformer<BuildOptions> = (
-    options
-  ) => {
-    options.plugins = [
-      ...options.plugins,
-      createSharedMappingsPlugin(config.sharedMappings),
-    ];
-    return options;
-  };
-
-  // TODO: Remove cast to any after updating version
-  const output = await buildEsbuildBrowser(options, context as any, {
-    esbuildConfiguration,
-  });
-  return output;
-}
+export default createBuilder(runBuilder) as any;
 
 function infereConfigPath(tsConfig: string): string {
   const relProjectPath = path.dirname(tsConfig);

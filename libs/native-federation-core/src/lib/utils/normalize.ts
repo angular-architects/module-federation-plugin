@@ -6,11 +6,11 @@ export function normalize(path: string, trailingSlash?: boolean): string {
   }
 
   while (cand.endsWith('/')) {
-    cand = cand.substring(0, cand.length-1);
+    cand = cand.substring(0, cand.length - 1);
   }
 
   if (trailingSlash) {
-    return cand + '/'
+    return cand + '/';
   }
 
   return cand;

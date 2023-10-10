@@ -41,7 +41,13 @@ export class SharedMappings {
     }
 
     for (const key in mappings) {
-      const libPath = path.normalize(path.join(rootPath, mappings[key][0]));
+      const mapping = mappings[key][0];
+
+      if (mapping.includes('*') || key.includes('*')) {
+        continue;
+      }
+
+      const libPath = path.normalize(path.join(rootPath, mapping));
       const version = this.getPackageVersion(libPath);
 
       if (shared.includes(key) || shareAll) {

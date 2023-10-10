@@ -1,0 +1,43 @@
+{
+  "name": "native-federation-runtime",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/native-federation-runtime/src",
+  "prefix": "angular-architects",
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/libs/native-federation-runtime"],
+      "options": {
+        "project": "libs/native-federation-runtime/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/native-federation-runtime/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "libs/native-federation-runtime/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/native-federation-runtime"],
+      "options": {
+        "jestConfig": "libs/native-federation-runtime/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/native-federation-runtime/**/*.ts",
+          "libs/native-federation-runtime/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": []
+}

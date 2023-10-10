@@ -1,0 +1,27 @@
+{
+  "name": "playground-lib",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/playground-lib/src",
+  "prefix": "angular-architects",
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/playground-lib"],
+      "options": {
+        "jestConfig": "libs/playground-lib/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/playground-lib/**/*.ts",
+          "libs/playground-lib/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": []
+}

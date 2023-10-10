@@ -1,28 +1,28 @@
-import * as fs from "fs";
-import { parse } from "acorn";
+import * as fs from 'fs';
+import { parse } from 'acorn';
 
 type Node = any;
 
 type visitFn = (node: Node) => void;
 
 export function collectExports(path: string) {
-  const src = fs.readFileSync(path, "utf8");
+  const src = fs.readFileSync(path, 'utf8');
 
   const parseTree = parse(src, {
-    ecmaVersion: "latest",
+    ecmaVersion: 'latest',
     allowHashBang: true,
-    sourceType: "module",
+    sourceType: 'module',
   });
 
   let hasDefaultExport = false;
   let hasFurtherExports = false;
-  let defaultExportName = "";
+  let defaultExportName = '';
   const exports = new Set<string>();
 
   traverse(parseTree, (node) => {
     if (
-      node.type === "AssignmentExpression" &&
-      node?.left?.object?.name === "exports" // &&
+      node.type === 'AssignmentExpression' &&
+      node?.left?.object?.name === 'exports' // &&
     ) {
       exports.add(node.left.property?.name);
       return;
@@ -32,7 +32,7 @@ export function collectExports(path: string) {
       return;
     }
 
-    if (node.type !== "ExportNamedDeclaration") {
+    if (node.type !== 'ExportNamedDeclaration') {
       return;
     }
 
@@ -63,7 +63,7 @@ function traverse(node: Node, visit: visitFn) {
   visit(node);
   for (const key in node) {
     const prop = node[key];
-    if (prop && typeof prop === "object") {
+    if (prop && typeof prop === 'object') {
       traverse(prop as Node, visit);
     } else if (Array.isArray(prop)) {
       for (const sub of prop) {
@@ -74,8 +74,8 @@ function traverse(node: Node, visit: visitFn) {
 }
 
 function isDefaultExport(exportSpecifier: Node) {
-    return (
-      exportSpecifier.exported?.type === "Identifier" &&
-      exportSpecifier.exported?.name === "default"
-    );
+  return (
+    exportSpecifier.exported?.type === 'Identifier' &&
+    exportSpecifier.exported?.name === 'default'
+  );
 }

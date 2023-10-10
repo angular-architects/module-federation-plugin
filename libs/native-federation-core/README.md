@@ -326,11 +326,11 @@ To make the polyfill to load your EcmaScript modules (bundles) in shim mode, ass
 
 ## React and Other CommonJS Libs
 
-Native Federation uses Web Standards like EcmaScript Modules. Most libs and frameworks support them meanwhile. Unfortunately, React still uses CommonJS (und UMD). We do our best to convert these libs to EcmaScript Modules. In the case of React there are some challenges due to the dynamic way the React bundles use the ``exports`` object. 
+Native Federation uses Web Standards like EcmaScript Modules. Most libs and frameworks support them meanwhile. Unfortunately, React still uses CommonJS (und UMD). We do our best to convert these libs to EcmaScript Modules. In the case of React there are some challenges due to the dynamic way the React bundles use the `exports` object.
 
-As the community is moving to EcmaScrpt Modules, we expect that these issues will vanish over time. In between, we provide some solutions for dealing with CommonJS-based libraries using ``exports`` in a dynamic way.
+As the community is moving to EcmaScrpt Modules, we expect that these issues will vanish over time. In between, we provide some solutions for dealing with CommonJS-based libraries using `exports` in a dynamic way.
 
-One of them is ``fileReplacemnts``:
+One of them is `fileReplacemnts`:
 
 ```javascript
 import { reactReplacements } from '@softarc/native-federation-esbuild/src/lib/react-replacements';
@@ -338,23 +338,23 @@ import { createEsBuildAdapter } from '@softarc/native-federation-esbuild';
 
 [...]
 
-createEsBuildAdapter({ 
+createEsBuildAdapter({
   plugins: [],
   fileReplacements: reactReplacements.prod
 })
 ```
 
-Please note that the adapter comes with ``fileReplacements`` settings for React for both, ``dev`` mode and ``prod`` mode. For similar libraries you can add your own replacements. Also, using the ``compensateExports`` property, you can activate some additional logic for such libraries to make sure the exports are not lost 
+Please note that the adapter comes with `fileReplacements` settings for React for both, `dev` mode and `prod` mode. For similar libraries you can add your own replacements. Also, using the `compensateExports` property, you can activate some additional logic for such libraries to make sure the exports are not lost
 
 ```javascript
-createEsBuildAdapter({ 
+createEsBuildAdapter({
   plugins: [],
   fileReplacements: reactReplacements.prod,
-  compensateExports: [new RegExp('/my-lib/')]
-})
+  compensateExports: [new RegExp('/my-lib/')],
+});
 ```
 
-The default value for ``compensateExports`` is ``[new RegExp('/react/')]``.
+The default value for `compensateExports` is `[new RegExp('/react/')]`.
 
 ## More: Blog Articles
 

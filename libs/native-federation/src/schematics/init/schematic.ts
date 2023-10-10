@@ -7,6 +7,7 @@ import {
   mergeWith,
   template,
   move,
+  noop,
 } from '@angular-devkit/schematics';
 
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
@@ -28,6 +29,7 @@ type NormalizedOptions = {
   manifestPath: string;
   projectConfig: any;
   main: string;
+  port: number;
 };
 
 export default function config(options: MfSchematicSchema): Rule {
@@ -35,32 +37,39 @@ export default function config(options: MfSchematicSchema): Rule {
     const workspaceFileName = getWorkspaceFileName(tree);
     const workspace = JSON.parse(tree.read(workspaceFileName).toString('utf8'));
 
+    const normalized = normalizeOptions(options, workspace);
+
     const {
       polyfills,
       projectName,
       projectRoot,
       projectSourceRoot,
       manifestPath,
-      projectConfig,
       main,
-    } = normalizeOptions(options, workspace);
+    } = normalized;
 
     updatePolyfills(tree, polyfills);
 
     const remoteMap = await generateRemoteMap(workspace, projectName);
 
-    if (options.type === 'dynamic-host') {
+    if (options.type === 'dynamic-host' && !tree.exists(manifestPath)) {
       tree.create(manifestPath, JSON.stringify(remoteMap, null, '\t'));
     }
 
-    const generateRule = await generateFederationConfig(
-      remoteMap,
-      projectRoot,
-      projectSourceRoot,
-      options
-    );
+    const federationConfigPath = path.join(projectRoot, 'federation.config.js');
 
-    updateWorkspaceConfig(projectConfig, tree, workspaceFileName, workspace);
+    const exists = tree.exists(federationConfigPath);
+
+    const generateRule = !exists
+      ? await generateFederationConfig(
+          remoteMap,
+          projectRoot,
+          projectSourceRoot,
+          options
+        )
+      : noop;
+
+    updateWorkspaceConfig(tree, normalized, workspace, workspaceFileName);
 
     addPackageJsonDependency(tree, {
       name: 'es-module-shims',
@@ -76,35 +85,65 @@ export default function config(options: MfSchematicSchema): Rule {
 }
 
 function updateWorkspaceConfig(
-  projectConfig: any,
-  tree,
-  workspaceFileName: string,
-  workspace: any
+  tree: Tree,
+  options: NormalizedOptions,
+  workspace: any,
+  workspaceFileName: string
 ) {
+  const { projectConfig, projectName, port } = options;
+
   if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
     throw new Error(
       `The project doen't have a build or serve target in angular.json!`
     );
   }
 
-  // TODO: When adding a builder for serve, we
-  //  should set the port
-  // const port = parseInt(options.port);
+  const originalBuild = projectConfig.architect.build;
 
-  // if (isNaN(port)) {
-  //   throw new Error(`Port must be a number!`);
-  // }
-
-  if (!projectConfig.architect.build.options) {
-    projectConfig.architect.build.options = {};
+  if (
+    originalBuild.builder !== '@angular-devkit/build-angular:browser-esbuild'
+  ) {
+    console.log('Switching project to esbuild ...');
+    originalBuild.builder = '@angular-devkit/build-angular:browser-esbuild';
   }
 
-  if (!projectConfig.architect.serve.options) {
-    projectConfig.architect.serve.options = {};
+  projectConfig.architect.esbuild = originalBuild;
+
+  projectConfig.architect.build = {
+    builder: '@angular-architects/native-federation:build',
+    options: {},
+    configurations: {
+      production: {
+        target: `${projectName}:esbuild:production`,
+      },
+      development: {
+        target: `${projectName}:esbuild:development`,
+        dev: true,
+      },
+    },
+    defaultConfiguration: 'production',
+  };
+
+  projectConfig.architect['serve-original'] = projectConfig.architect.serve;
+
+  projectConfig.architect.serve = {
+    builder: '@angular-architects/native-federation:build',
+    options: {
+      target: `${projectName}:esbuild:development`,
+      rebuildDelay: 0,
+      dev: true,
+      port: port,
+    },
+  };
+
+  const serveSsr = projectConfig.architect['serve-ssr'];
+  if (serveSsr && !serveSsr.options) {
+    serveSsr.options = {};
   }
 
-  projectConfig.architect.build.builder =
-    '@angular-architects/native-federation:build';
+  if (serveSsr) {
+    serveSsr.options.port = port;
+  }
 
   // projectConfig.architect.serve.builder = serveBuilder;
   // TODO: Register further builders when ready
@@ -119,10 +158,19 @@ function normalizeOptions(
     options.project = workspace.defaultProject;
   }
 
-  if (!options.project) {
+  const projects = Object.keys(workspace.projects);
+
+  if (!options.project && projects.length === 0) {
     throw new Error(
       `No default project found. Please specifiy a project name!`
     );
+  }
+
+  if (!options.project) {
+    console.log(
+      'Using first configured project as default project: ' + projects[0]
+    );
+    options.project = projects[0];
   }
 
   const projectName = options.project;
@@ -143,6 +191,11 @@ function normalizeOptions(
     .replace(/\\/g, '/');
 
   const main = projectConfig.architect.build.options.main;
+
+  if (!projectConfig.architect.build.options.polyfills) {
+    projectConfig.architect.build.options.polyfills = [];
+  }
+
   const polyfills = projectConfig.architect.build.options.polyfills;
   return {
     polyfills,
@@ -152,14 +205,31 @@ function normalizeOptions(
     manifestPath,
     projectConfig,
     main,
+    port: +(options.port || 4200),
   };
 }
 
 function updatePolyfills(tree, polyfills: any) {
+  if (typeof polyfills === 'string') {
+    updatePolyfillsFile(tree, polyfills);
+  } else {
+    updatePolyfillsArray(tree, polyfills);
+  }
+}
+
+function updatePolyfillsFile(tree, polyfills: any) {
   let polyfillsContent = tree.readText(polyfills);
   if (!polyfillsContent.includes('es-module-shims')) {
     polyfillsContent += `\nimport 'es-module-shims';\n`;
     tree.overwrite(polyfills, polyfillsContent);
+  }
+}
+
+function updatePolyfillsArray(tree, polyfills: any) {
+  const polyfillsConfig = polyfills as string[];
+
+  if (!polyfillsConfig.includes('es-module-shims')) {
+    polyfillsConfig.push('es-module-shims');
   }
 }
 

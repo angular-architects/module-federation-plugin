@@ -5,6 +5,11 @@
     "declaration": true,
     "types": ["node"]
   },
-  "include": ["**/*.ts"],
+  "include": [
+    "**/*.ts",
+    "src/lib/core/bundle-exposed.ts.bak",
+    "src/lib/core/bundle-shared.ts",
+    "src/lib/core/bundle-shared-mappings.ts.bak"
+  ],
   "exclude": ["jest.config.ts", "**/*.spec.ts", "**/*.test.ts"]
 }

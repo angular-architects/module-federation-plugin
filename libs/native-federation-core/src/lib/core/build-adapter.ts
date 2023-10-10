@@ -4,22 +4,41 @@ import { MappedPath } from '../utils/mapped-paths';
 let _buildAdapter: BuildAdapter = async () => {
   // TODO: add logger
   logger.error('Please set a BuildAdapter!');
+  return [];
 };
 
+export type BuildKind =
+  | 'shared-package'
+  | 'shared-mapping'
+  | 'exposed'
+  | 'mapping-or-exposed';
+
+export interface EntryPoint {
+  fileName: string;
+  outName: string;
+}
+
 export interface BuildAdapterOptions {
-  entryPoint: string;
+  entryPoints: EntryPoint[];
   tsConfigPath?: string;
   external: Array<string>;
-  outfile: string;
+  outdir: string;
   mappedPaths: MappedPath[];
   packageName?: string;
   esm?: boolean;
   dev?: boolean;
   watch?: boolean;
-  kind: 'shared-package' | 'shared-mapping' | 'exposed';
+  kind: BuildKind;
+  hash: boolean;
 }
 
-export type BuildAdapter = (options: BuildAdapterOptions) => Promise<void>;
+export interface BuildResult {
+  fileName: string;
+}
+
+export type BuildAdapter = (
+  options: BuildAdapterOptions
+) => Promise<BuildResult[]>;
 
 export function setBuildAdapter(buildAdapter: BuildAdapter): void {
   _buildAdapter = buildAdapter;

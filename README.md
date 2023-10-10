@@ -1,3 +1,4 @@
 # @angular-architects/module-federation
 
-- See [readme here](./libs/mf/README.md)
+- [Readme for Module Federation](./libs/mf/README.md)
+- [Readme for Native Federation](./libs/native-federation/README.md)

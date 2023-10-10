@@ -14,96 +14,91 @@ export async function bundleShared(
   fedOptions: FederationOptions,
   externals: string[]
 ): Promise<Array<SharedInfo>> {
-  const result: Array<SharedInfo> = [];
+  const folder = fedOptions.packageJson
+    ? path.dirname(fedOptions.packageJson)
+    : fedOptions.workspaceRoot;
 
-  const folder = fedOptions.packageJson ? 
-    path.dirname(fedOptions.packageJson) :
-    fedOptions.workspaceRoot;
+  const cachePath = path.join(
+    fedOptions.workspaceRoot,
+    'node_modules/.cache/native-federation'
+  );
+
+  fs.mkdirSync(cachePath, { recursive: true });
 
   const packageInfos = Object.keys(config.shared)
     // .filter((packageName) => !isInSkipList(packageName, PREPARED_DEFAULT_SKIP_LIST))
-    .map((packageName) => getPackageInfo(
-      packageName, 
-      folder,
-    ))
+    .map((packageName) => getPackageInfo(packageName, folder))
     .filter((pi) => !!pi) as PackageInfo[];
 
-  // logger.notice('Shared packages are only bundled once as they are cached');
-  // logger.notice(
-  //   'Make sure, you skip all unneeded packages in your federation.config.js!'
-  // );
-
-  // const federationConfigPath = path.join(
-  //   fedOptions.workspaceRoot,
-  //   fedOptions.federationConfig
-  // );
-
-  //const hash = hashFile(federationConfigPath);
-
-  let first = true;
-  for (const pi of packageInfos) {
-    // logger.info('Bundling shared package ' + pi.packageName);
-
+  const allEntryPoints = packageInfos.map((pi) => {
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
     const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
 
-    const env = fedOptions.dev ? 'dev' : 'prod';
+    const outName = fedOptions.dev
+      ? `${encName}-${encVersion}-dev.js`
+      : `${encName}-${encVersion}.js`;
 
-    // const outFileName = `${encName}-${encVersion}-${hash}.js`;
-    const outFileName = `${encName}-${encVersion}-${env}.js`;
+    return { fileName: pi.entryPoint, outName };
+  });
 
-    const cachePath = path.join(
-      fedOptions.workspaceRoot,
-      'node_modules/.cache/native-federation'
+  const fullOutputPath = path.join(
+    fedOptions.workspaceRoot,
+    fedOptions.outputPath
+  );
+
+  const exptedResults = allEntryPoints.map((ep) =>
+    path.join(fullOutputPath, ep.outName)
+  );
+  const entryPoints = allEntryPoints.filter(
+    (ep) => !fs.existsSync(path.join(cachePath, ep.outName))
+  );
+
+  if (entryPoints.length > 0) {
+    logger.info('Preparing shared npm packages');
+    logger.notice('This only needs to be done once, as results are cached');
+    logger.notice(
+      "Skip packages you don't want to share in your federation config"
     );
+  }
 
-    fs.mkdirSync(cachePath, { recursive: true });
+  try {
+    await bundle({
+      entryPoints,
+      tsConfigPath: fedOptions.tsConfig,
+      external: externals,
+      outdir: cachePath,
+      mappedPaths: config.sharedMappings,
+      dev: fedOptions.dev,
+      kind: 'shared-package',
+      hash: false,
+    });
 
-    const cachedFile = path.join(cachePath, outFileName);
+    for (const fileName of exptedResults) {
+      const outFileName = path.basename(fileName);
+      const cachedFile = path.join(cachePath, outFileName);
 
-    if (!fs.existsSync(cachedFile)) {
-      if (first) {
-        logger.notice('Preparing shared npm packages');
-        logger.notice('This only needs to be done once');
-        logger.notice(
-          "Skip packages you don't want to share in your federation config"
-        );
-      }
-      first = false;
-
-      logger.info('Preparing shared package ' + pi.packageName);
-
-      try {
-        await bundle({
-          entryPoint: pi.entryPoint,
-          tsConfigPath: fedOptions.tsConfig,
-          external: externals,
-          outfile: cachedFile,
-          mappedPaths: config.sharedMappings,
-          packageName: pi.packageName,
-          esm: pi.esm,
-          dev: !!fedOptions.dev,
-          kind: 'shared-package',
-        });
-      } catch (e) {
-        logger.error('Error bundling npm package ' + pi.packageName);
-        if (e instanceof Error) {
-          logger.error(e.message);
-        }
-        logger.error('For more information, run in verbose mode');
-        logger.notice(
-          `If you don't need this package, skip it in your federation.config.js!`
-        );
-        logger.verbose(e);
-        continue;
-      }
+      copyFileIfExists(cachedFile, fileName);
+      copySrcMapIfExists(cachedFile, fileName);
     }
+  } catch (e) {
+    logger.error('Error bundling shared npm package ');
+    if (e instanceof Error) {
+      logger.error(e.message);
+    }
+    logger.error('For more information, run in verbose mode');
+    logger.notice(
+      `If you don't need this package, skip it in your federation.config.js!`
+    );
+    logger.verbose(e);
+  }
 
+  const outFileNames = [...exptedResults];
+
+  return packageInfos.map((pi) => {
     const shared = config.shared[pi.packageName];
-
-    result.push({
+    return {
       packageName: pi.packageName,
-      outFileName: outFileName,
+      outFileName: path.basename(outFileNames.shift() || ''),
       requiredVersion: shared.requiredVersion,
       singleton: shared.singleton,
       strictVersion: shared.strictVersion,
@@ -113,19 +108,8 @@ export async function bundleShared(
         : {
             entryPoint: normalize(pi.entryPoint),
           },
-    });
-
-    const fullOutputPath = path.join(
-      fedOptions.workspaceRoot,
-      fedOptions.outputPath,
-      outFileName
-    );
-
-    copyFileIfExists(cachedFile, fullOutputPath);
-    copySrcMapIfExists(cachedFile, fullOutputPath);
-  }
-
-  return result;
+    } as SharedInfo;
+  });
 }
 
 function copyFileIfExists(cachedFile: string, fullOutputPath: string) {

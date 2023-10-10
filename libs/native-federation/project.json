@@ -1,10 +1,11 @@
 {
+  "name": "native-federation",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/native-federation/src",
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/native-federation",
@@ -46,7 +47,7 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
@@ -58,8 +59,8 @@
       }
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/native-federation"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/native-federation"],
       "options": {
         "jestConfig": "libs/native-federation/jest.config.ts",
         "passWithNoTests": true
