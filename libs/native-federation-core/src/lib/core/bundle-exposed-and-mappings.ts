@@ -8,6 +8,7 @@ import {
   lookupInResultMap,
 } from '../utils/build-result-map';
 import { logger } from '../utils/logger';
+import { normalize } from '../utils/normalize';
 
 export interface ArtefactInfo {
   mappings: SharedInfo[];
@@ -64,7 +65,7 @@ export async function bundleExposedAndMappings(
       dev: !fedOptions.dev
         ? undefined
         : {
-            entryPoint: path.normalize(item.fileName),
+            entryPoint: normalize(path.normalize(item.fileName)),
           },
     });
   }
@@ -78,7 +79,9 @@ export async function bundleExposedAndMappings(
       dev: !fedOptions.dev
         ? undefined
         : {
-            entryPoint: item.fileName,
+            entryPoint: normalize(
+              path.join(fedOptions.workspaceRoot, item.fileName)
+            ),
           },
     });
   }
@@ -93,8 +96,8 @@ export function describeExposed(
   const result: Array<ExposesInfo> = [];
 
   for (const key in config.exposes) {
-    const localPath = path.normalize(
-      path.join(options.workspaceRoot, config.exposes[key])
+    const localPath = normalize(
+      path.normalize(path.join(options.workspaceRoot, config.exposes[key]))
     );
 
     result.push({
@@ -128,7 +131,7 @@ export function describeSharedMappings(
       dev: !fedOptions.dev
         ? undefined
         : {
-            entryPoint: path.normalize(m.path),
+            entryPoint: normalize(path.normalize(m.path)),
           },
     });
   }

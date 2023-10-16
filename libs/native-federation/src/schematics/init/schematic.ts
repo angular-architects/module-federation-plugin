@@ -107,6 +107,12 @@ function updateWorkspaceConfig(
     originalBuild.builder = '@angular-devkit/build-angular:browser-esbuild';
   }
 
+  if (originalBuild.options.browser) {
+    const browser = originalBuild.options.browser;
+    delete originalBuild.options.browser;
+    originalBuild.options.main = browser;
+  }
+
   projectConfig.architect.esbuild = originalBuild;
 
   projectConfig.architect.build = {
@@ -190,7 +196,9 @@ function normalizeOptions(
     .join(projectRoot, 'src/assets/federation.manifest.json')
     .replace(/\\/g, '/');
 
-  const main = projectConfig.architect.build.options.main;
+  const main =
+    projectConfig.architect.build.options.main ||
+    projectConfig.architect.build.options.browser;
 
   if (!projectConfig.architect.build.options.polyfills) {
     projectConfig.architect.build.options.polyfills = [];

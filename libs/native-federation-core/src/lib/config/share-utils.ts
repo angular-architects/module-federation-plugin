@@ -232,6 +232,15 @@ function readConfiguredSecondaries(
       continue;
     }
 
+    const entry = getDefaultEntry(exports, key);
+    if (
+      entry?.endsWith('.css') ||
+      entry?.endsWith('.scss') ||
+      entry?.endsWith('.less')
+    ) {
+      continue;
+    }
+
     result[secondaryName] = {
       ...shareObject,
       // import: path.join(libPath, relPath)
@@ -239,6 +248,19 @@ function readConfiguredSecondaries(
   }
 
   return result;
+}
+
+function getDefaultEntry(
+  exports: Record<string, Record<string, string>>,
+  key: string
+) {
+  let entry = '';
+  if (typeof exports[key] === 'string') {
+    entry = exports[key] as unknown as string;
+  } else {
+    entry = exports[key]?.['default'];
+  }
+  return entry;
 }
 
 export function shareAll(
