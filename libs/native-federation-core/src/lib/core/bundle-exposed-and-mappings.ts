@@ -40,7 +40,7 @@ export async function bundleExposedAndMappings(
 
   const result = await bundle({
     entryPoints,
-    outdir: fedOptions.outputPath,
+    outdir: path.join(fedOptions.workspaceRoot, fedOptions.outputPath),
     tsConfigPath: fedOptions.tsConfig,
     external: externals,
     dev: !!fedOptions.dev,
