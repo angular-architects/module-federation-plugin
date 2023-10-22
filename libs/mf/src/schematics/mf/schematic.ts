@@ -26,7 +26,6 @@ import {
   getPackageJsonDependency,
   NodeDependencyType,
 } from '@schematics/angular/utility/dependencies';
-import { serve } from 'esbuild';
 
 export function add(options: MfSchematicSchema): Rule {
   return config(options);
