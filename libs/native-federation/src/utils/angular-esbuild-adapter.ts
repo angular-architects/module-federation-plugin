@@ -7,6 +7,7 @@ import * as esbuild from 'esbuild';
 import { createCompilerPlugin } from '@angular-devkit/build-angular/src/tools/esbuild/angular/compiler-plugin';
 
 import { BuilderContext } from '@angular-devkit/architect';
+import { ApplicationBuilderOptions } from '@angular-devkit/build-angular/src/builders/application';
 
 import { transformSupportedBrowsersToTargets } from './transform';
 
@@ -51,7 +52,7 @@ export function setMemResultHandler(handler: MemResultHandler): void {
 }
 
 export function createAngularBuildAdapter(
-  builderOptions: EsBuildBuilderOptions,
+  builderOptions: ApplicationBuilderOptions,
   context: BuilderContext,
   rebuildRequested: RebuildEvents = new RebuildHubs()
 ): BuildAdapter {
@@ -163,7 +164,7 @@ export function createAngularBuildAdapter(
 }
 
 async function runEsbuild(
-  builderOptions: EsBuildBuilderOptions,
+  builderOptions: ApplicationBuilderOptions,
   context: BuilderContext,
   entryPoints: EntryPoint[],
   external: string[],
@@ -259,35 +260,37 @@ async function runEsbuild(
     platform: 'browser',
     format: 'esm',
     target: ['esnext'],
-    plugins: plugins || [
-      createCompilerPlugin(
-        pluginOptions.pluginOptions,
-        pluginOptions.styleOptions
+    plugins:
+      plugins ||
+      ([
+        createCompilerPlugin(
+          pluginOptions.pluginOptions,
+          pluginOptions.styleOptions
 
-        // TODO: Once available, use helper functions
-        //  for creating these config objects:
-        //  @angular_devkit/build_angular/src/tools/esbuild/compiler-plugin-options.ts
-        // {
-        //   jit: false,
-        //   sourcemap: dev,
-        //   tsconfig: tsConfigPath,
-        //   advancedOptimizations: !dev,
-        //   thirdPartySourcemaps: false,
-        // },
-        // {
-        //   optimization: !dev,
-        //   sourcemap: dev ? 'inline' : false,
-        //   workspaceRoot: __dirname,
-        //   inlineStyleLanguage: builderOptions.inlineStyleLanguage,
-        //   // browsers: browsers,
+          // TODO: Once available, use helper functions
+          //  for creating these config objects:
+          //  @angular_devkit/build_angular/src/tools/esbuild/compiler-plugin-options.ts
+          // {
+          //   jit: false,
+          //   sourcemap: dev,
+          //   tsconfig: tsConfigPath,
+          //   advancedOptimizations: !dev,
+          //   thirdPartySourcemaps: false,
+          // },
+          // {
+          //   optimization: !dev,
+          //   sourcemap: dev ? 'inline' : false,
+          //   workspaceRoot: __dirname,
+          //   inlineStyleLanguage: builderOptions.inlineStyleLanguage,
+          //   // browsers: browsers,
 
-        //   target: target,
-        // }
-      ),
-      ...(mappedPaths && mappedPaths.length > 0
-        ? [createSharedMappingsPlugin(mappedPaths)]
-        : []),
-    ],
+          //   target: target,
+          // }
+        ),
+        ...(mappedPaths && mappedPaths.length > 0
+          ? [createSharedMappingsPlugin(mappedPaths)]
+          : []),
+      ] as any),
     define: {
       ...(!dev ? { ngDevMode: 'false' } : {}),
       ngJitMode: 'false',

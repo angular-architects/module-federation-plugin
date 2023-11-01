@@ -7,10 +7,10 @@ export function updateIndexHtml(fedOptions: FederationOptions) {
   const indexPath = path.join(outputPath, 'index.html');
   const mainName = fs
     .readdirSync(outputPath)
-    .find((f) => f.startsWith('main.') && f.endsWith('.js'));
+    .find((f) => f.startsWith('main-') && f.endsWith('.js'));
   const polyfillsName = fs
     .readdirSync(outputPath)
-    .find((f) => f.startsWith('polyfills.') && f.endsWith('.js'));
+    .find((f) => f.startsWith('polyfills-') && f.endsWith('.js'));
 
   let indexContent = fs.readFileSync(indexPath, 'utf-8');
 

@@ -5,9 +5,13 @@ import {
   createBuilder,
 } from '@angular-devkit/architect';
 
-import { Schema } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
+import { Schema } from '@angular-devkit/build-angular/src/builders/application/schema';
 
 import { buildEsbuildBrowser } from '@angular-devkit/build-angular/src/builders/browser-esbuild';
+import {
+  buildApplication,
+  buildApplicationInternal,
+} from '@angular-devkit/build-angular/src/builders/application';
 
 import * as path from 'path';
 import { setLogLevel, logger } from '@softarc/native-federation/build';
@@ -69,7 +73,7 @@ export async function* runBuilder(
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
-    outputPath: options.outputPath,
+    outputPath: path.join(options.outputPath, 'browser'),
     federationConfig: infereConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose,
@@ -112,8 +116,14 @@ export async function* runBuilder(
     });
   }
 
+  // const logger = context.logger.createChild('inner');
+
+  // context.scheduleTarget()
+  // for await (const x of context.scheduleBuilder(builder, options, {  logger })) {
+
+  // }
   // builderRun.output.subscribe(async (output) => {
-  for await (const output of buildEsbuildBrowser(options, context as any, {
+  for await (const output of buildApplicationInternal(options, context as any, {
     write,
   })) {
     lastResult = output;
