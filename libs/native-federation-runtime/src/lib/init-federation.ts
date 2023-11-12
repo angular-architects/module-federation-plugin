@@ -98,6 +98,10 @@ function processRemoteImports(
       getExternalUrl(shared) ?? joinPaths(baseUrl, shared.outFileName);
     setExternalUrl(shared, outFileName);
     scopedImports[shared.packageName] = outFileName;
+
+    if (shared.dev) {
+      scopedImports['/@id/' + shared.packageName] = outFileName;
+    }
   }
 
   scopes[baseUrl + '/'] = scopedImports;
@@ -123,10 +127,19 @@ function processExposed(
 async function processHostInfo(): Promise<ImportMap> {
   const hostInfo = await loadFederationInfo('./remoteEntry.json');
 
-  const imports = hostInfo.shared.reduce(
-    (acc, cur) => ({ ...acc, [cur.packageName]: './' + cur.outFileName }),
-    {}
-  ) as Imports;
+  const imports: Imports = {};
+
+  for (const info of hostInfo.shared) {
+    imports[info.packageName] = './' + info.outFileName;
+    if (info.dev) {
+      imports['/@id/' + info.packageName] = './' + info.outFileName;
+    }
+  }
+
+  // const imports = hostInfo.shared.reduce(
+  //   (acc, cur) => ({ ...acc, [cur.packageName]: './' + cur.outFileName }),
+  //   {}
+  // ) as Imports;
 
   for (const shared of hostInfo.shared) {
     setExternalUrl(shared, './' + shared.outFileName);

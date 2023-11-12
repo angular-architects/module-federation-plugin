@@ -52,7 +52,7 @@ export function setMemResultHandler(handler: MemResultHandler): void {
 }
 
 export function createAngularBuildAdapter(
-  builderOptions: ApplicationBuilderOptions,
+  builderOptions: ApplicationBuilderOptions | EsBuildBuilderOptions,
   context: BuilderContext,
   rebuildRequested: RebuildEvents = new RebuildHubs()
 ): BuildAdapter {
@@ -164,7 +164,7 @@ export function createAngularBuildAdapter(
 }
 
 async function runEsbuild(
-  builderOptions: ApplicationBuilderOptions,
+  builderOptions: ApplicationBuilderOptions | EsBuildBuilderOptions,
   context: BuilderContext,
   entryPoints: EntryPoint[],
   external: string[],
