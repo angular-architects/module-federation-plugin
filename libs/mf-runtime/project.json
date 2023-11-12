@@ -18,7 +18,7 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "options": {
         "lintFilePatterns": [
           "libs/mf-runtime/src/**/*.ts",
@@ -31,8 +31,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/libs/mf-runtime"],
       "options": {
-        "jestConfig": "libs/mf-runtime/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "libs/mf-runtime/jest.config.ts"
       }
     }
   },

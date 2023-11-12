@@ -47,7 +47,7 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
@@ -62,8 +62,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/libs/native-federation"],
       "options": {
-        "jestConfig": "libs/native-federation/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "libs/native-federation/jest.config.ts"
       }
     }
   },

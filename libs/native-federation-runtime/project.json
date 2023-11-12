@@ -25,12 +25,11 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/libs/native-federation-runtime"],
       "options": {
-        "jestConfig": "libs/native-federation-runtime/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "libs/native-federation-runtime/jest.config.ts"
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "options": {
         "lintFilePatterns": [
           "libs/native-federation-runtime/**/*.ts",

@@ -26,7 +26,6 @@ import {
   getPackageJsonDependency,
   NodeDependencyType,
 } from '@schematics/angular/utility/dependencies';
-import { serve } from 'esbuild';
 
 export function add(options: MfSchematicSchema): Rule {
   return config(options);
@@ -351,11 +350,11 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const dep = getPackageJsonDependency(tree, 'ngx-build-plus');
 
-    if (!dep || !semver.satisfies(dep.version, '>=16.0.0')) {
+    if (!dep || !semver.satisfies(dep.version, '>=17.0.0')) {
       addPackageJsonDependency(tree, {
         name: 'ngx-build-plus',
         type: NodeDependencyType.Dev,
-        version: '^16.0.0',
+        version: '^17.0.0',
         overwrite: true,
       });
 

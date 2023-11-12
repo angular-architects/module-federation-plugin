@@ -1,5 +1,5 @@
 import crypt = require('crypto');
-import chalk = require('chalk');
+import chalk from 'chalk';
 import wordWrap = require('word-wrap');
 
 function correctColor(color: string): string {

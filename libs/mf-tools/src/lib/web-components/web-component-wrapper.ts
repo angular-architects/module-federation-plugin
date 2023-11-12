@@ -10,7 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
   LoadRemoteModuleOptions,
   loadRemoteModule,
-} from '@angular-architects/module-federation';
+} from '@angular-architects/module-federation-runtime';
 
 export type WebComponentWrapperOptions = LoadRemoteModuleOptions & {
   elementName: string;

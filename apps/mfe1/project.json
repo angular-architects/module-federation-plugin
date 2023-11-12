@@ -55,10 +55,10 @@
       "executor": "@angular-devkit/build-angular:dev-server",
       "configurations": {
         "production": {
-          "browserTarget": "mfe1:build:production"
+          "buildTarget": "mfe1:build:production"
         },
         "development": {
-          "browserTarget": "mfe1:build:development"
+          "buildTarget": "mfe1:build:development"
         }
       },
       "defaultConfiguration": "development"
@@ -66,11 +66,11 @@
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
-        "browserTarget": "mfe1:build"
+        "buildTarget": "mfe1:build"
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "options": {
         "lintFilePatterns": ["apps/mfe1/**/*.ts", "apps/mfe1/**/*.html"]
       }
@@ -79,8 +79,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/apps/mfe1"],
       "options": {
-        "jestConfig": "apps/mfe1/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "apps/mfe1/jest.config.ts"
       }
     }
   },
