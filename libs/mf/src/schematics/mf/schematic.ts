@@ -187,6 +187,11 @@ export default function config(options: MfSchematicSchema): Rule {
       options.project = workspace.defaultProject;
     }
 
+    const projectNames = Object.keys(workspace.projects);
+    if (!options.project && projectNames.length > 0) {
+      options.project = projectNames[0];
+    }
+
     if (!options.project) {
       throw new Error(
         `No default project found. Please specifiy a project name!`
@@ -216,7 +221,18 @@ export default function config(options: MfSchematicSchema): Rule {
       .join(projectRoot, 'src/assets/mf.manifest.json')
       .replace(/\\/g, '/');
 
-    const port = parseInt(options.port);
+    const buildConfig = projectConfig?.architect?.build;
+    const isApplicationBuilder =
+      buildConfig?.builder === '@angular-devkit/build-angular:application';
+
+    if (buildConfig?.options?.browser) {
+      buildConfig.options.main = buildConfig.options.browser;
+      delete buildConfig.options.browser;
+      delete buildConfig.options.server;
+      delete buildConfig.options.prerender;
+    }
+
+    const port = parseInt(options.port) || 4200;
     const main = projectConfig.architect.build.options.main;
 
     const relWorkspaceRoot = path.relative(projectRoot, '');
@@ -274,6 +290,8 @@ export default function config(options: MfSchematicSchema): Rule {
 
     if (options.nxBuilders) {
       console.log('Using Nx builders!');
+    } else if (isApplicationBuilder) {
+      console.log('Switching to webpack');
     }
 
     const webpackProperty = options.nxBuilders
