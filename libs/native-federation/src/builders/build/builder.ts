@@ -127,7 +127,7 @@ export async function* runBuilder(
     }
 
     if (!write && output.outputFiles) {
-      memResults.add(output.outputFiles.map((file) => new EsBuildResult(file)));
+      memResults.add(output.outputFiles.map((file) => new EsBuildResult(file as any)));
     }
 
     if (!write && output.assetFiles) {
