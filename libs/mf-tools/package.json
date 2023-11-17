@@ -3,14 +3,9 @@
   "version": "17.0.0",
   "license": "MIT",
   "peerDependencies": {
-    "@angular/common": ">=17.0.0",
-    "@angular/core": ">=17.0.0",
-    "@angular/router": ">=17.0.0",
-    "@angular-architects/module-federation": "^17.0.0",
-    "@angular/platform-browser": ">=17.0.0",
-    "rxjs": ">= 6.0.0"
   },
   "dependencies": {
     "tslib": "^2.0.0"
   }
 }
+

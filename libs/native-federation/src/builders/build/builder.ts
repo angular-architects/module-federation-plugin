@@ -32,7 +32,7 @@ import {
 } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { updateIndexHtml } from '../../utils/updateIndexHtml';
-import { existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync, rmdirSync } from 'fs';
 import {
   EsBuildResult,
   MemResults,
@@ -73,7 +73,7 @@ export async function* runBuilder(
     federationConfig: infereConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose,
-    watch: options.watch,
+    watch: false, // options.watch,
     dev: !!nfOptions.dev,
   };
 
@@ -101,6 +101,10 @@ export async function* runBuilder(
 
   let first = true;
   let lastResult: { success: boolean } | undefined;
+
+  if (existsSync(options.outputPath)) {
+    rmdirSync(options.outputPath, { recursive: true });
+  }
 
   if (!existsSync(options.outputPath)) {
     mkdirSync(options.outputPath, { recursive: true });
@@ -158,8 +162,9 @@ export async function* runBuilder(
 
     if (!first && watch) {
       setTimeout(async () => {
-        logger.info('Rebuilding federation artefacts ...');
-        await Promise.all([rebuildEvents.rebuild.emit()]);
+        // logger.info('Rebuilding federation artefacts ...');
+        // await Promise.all([rebuildEvents.rebuild.emit()]);
+        await buildForFederation(config, fedOptions, externals);
         logger.info('Done!');
 
         if (runServer) {

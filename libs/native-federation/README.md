@@ -22,19 +22,18 @@ We will at least provide a new version of this package per Angular major. If nec
 
 - Use version 16.1.x for Angular 16.1.x
 - Use version 16.2.x for Angular 16.2.x
-
-We expect the APIs to stabilize so that we only need one major per Angular major in the future.
-
+- Use version 17.x for Angular 17.x
+  
 ## Credits
 
 Big thanks to:
 
-- [Zack [Jackson](https://twitter.com/ScriptedAlchemy) for initially coming up with the great idea of Module Federation and its successful mental model
+- [Zack Jackson](https://twitter.com/ScriptedAlchemy) for initially coming up with the great idea of Module Federation and its successful mental model
 - [Tobias Koppers](https://twitter.com/wSokra) for helping to make Module Federation a first class citizen of webpack
-- [Florian [Rappl](https://twitter.com/FlorianRappl) for a good discussion about these topics during a speakers dinner in Nuremberg
+- [Florian Rappl](https://twitter.com/FlorianRappl) for a good discussion about these topics during a speakers dinner in Nuremberg
 - [The Nx Team](https://twitter.com/NxDevTools), esp. [Colum Ferry](https://twitter.com/FerryColum), who seamlessly integrated webpack Module Federation into Nx and hence helped to spread the word about it (Nx + Module Federation === ❤️)
 - [Michael Egger-Zikes](https://twitter.com/MikeZks) for contributing to our Module Federation efforts and brining in valuable feedback
-- The Angular CLI-Team, esp. [Alan Agius](https://twitter.com/AlanAgius4) and [Charles Lyding](https://twitter.com/charleslyding), for their fantastic work on the esbuild builder for Angular
+- The Angular CLI-Team, esp. [Alan Agius](https://twitter.com/AlanAgius4) and Charles Lyding, for their fantastic work on the esbuild builder for Angular
 
 ## Example 🛠️
 

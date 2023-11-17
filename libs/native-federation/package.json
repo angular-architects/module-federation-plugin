@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/native-federation",
-  "version": "16.3.4",
+  "version": "17.0.0",
   "main": "src/index.js",
   "generators": "./collection.json",
   "builders": "./builders.json",
@@ -20,17 +20,11 @@
     "@softarc/native-federation-runtime": "2.0.4",
     "@types/browser-sync": "^2.26.3",
     "browser-sync": "^2.29.3",
-    "esbuild": "^0.18.12",
+    "esbuild": "^0.19.5",
     "mrmime": "^1.0.1",
     "npmlog": "^6.0.2",
     "process": "0.11.10"
   },
   "peerDependencies": {
-    "rxjs": ">=7.0.0",
-    "@angular-devkit/architect": ">=0.1601.7",
-    "@angular-devkit/core": ">=16.0.0",
-    "@angular-devkit/schematics": ">=16.0.0",
-    "@angular-devkit/build-angular": ">=16.0.0",
-    "@angular/compiler-cli": ">=16.0.0"
   }
 }
