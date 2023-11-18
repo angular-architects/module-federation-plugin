@@ -7,6 +7,10 @@ uplinks:
     url: https://registry.npmjs.org/
     maxage: 60m
 
+auth:
+  htpasswd:
+    file: ./htpasswd
+
 packages:
   '**':
     # give all users (including non-authenticated users) full access
