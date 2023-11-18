@@ -15,6 +15,10 @@ export async function loadFederationConfig(
     throw new Error('Expected ' + fullConfigPath);
   }
 
-  const config = (await import(fullConfigPath)) as NormalizedFederationConfig;
-  return config;
-}
+  const fnOrConfig = (await import('file://' + fullConfigPath) as any).default;
+  return Promise.resolve(
+    typeof fnOrConfig === 'function' ?
+      fnOrConfig() :
+      fnOrConfig);
+};
+
