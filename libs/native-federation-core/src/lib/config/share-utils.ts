@@ -1,5 +1,5 @@
-import path = require('path');
-import fs = require('fs');
+import path from 'path';
+import fs from 'fs';
 import { cwd } from 'process';
 import { SharedConfig } from './federation-config';
 import {
