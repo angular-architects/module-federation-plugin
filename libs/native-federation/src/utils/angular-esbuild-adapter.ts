@@ -259,7 +259,7 @@ async function runEsbuild(
     platform: 'browser',
     format: 'esm',
     target: ['esnext'],
-    plugins: plugins || ([
+    plugins: plugins || [
       createCompilerPlugin(
         pluginOptions.pluginOptions,
         pluginOptions.styleOptions
@@ -287,7 +287,7 @@ async function runEsbuild(
       ...(mappedPaths && mappedPaths.length > 0
         ? [createSharedMappingsPlugin(mappedPaths)]
         : []),
-    ] as esbuild.Plugin[]),
+    ],
     define: {
       ...(!dev ? { ngDevMode: 'false' } : {}),
       ngJitMode: 'false',
