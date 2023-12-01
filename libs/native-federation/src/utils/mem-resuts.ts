@@ -1,6 +1,6 @@
 import { OutputFile } from 'esbuild';
-import { basename } from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
 
 export interface BuildResult {
   fileName: string;
@@ -9,10 +9,14 @@ export interface BuildResult {
 
 export class EsBuildResult implements BuildResult {
   get fileName() {
-    return basename(this.outputFile.path);
+    if (this.fullOutDir) {
+      return unify(path.relative(this.fullOutDir, this.outputFile.path));
+    } else {
+      return unify(this.outputFile.path);
+    }
   }
 
-  constructor(private outputFile: OutputFile) {}
+  constructor(private outputFile: OutputFile, private fullOutDir?: string) {}
 
   get(): Uint8Array {
     return this.outputFile.contents;

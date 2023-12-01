@@ -199,6 +199,8 @@ export function _getPackageInfo(
   if (typeof cand === 'object') {
     if (cand.module) {
       cand = cand.module;
+    } else if (cand.import) {
+      cand = cand.import;
     } else if (cand.default) {
       cand = cand.default;
     } else {
@@ -210,6 +212,8 @@ export function _getPackageInfo(
     if (typeof cand === 'object') {
       if (cand.module) {
         cand = cand.module;
+      } else if (cand.import) {
+        cand = cand.import;
       } else if (cand.default) {
         cand = cand.default;
       } else {
@@ -230,6 +234,8 @@ export function _getPackageInfo(
   if (typeof cand === 'object') {
     if (cand.module) {
       cand = cand.module;
+    } else if (cand.import) {
+      cand = cand.import;
     } else if (cand.default) {
       cand = cand.default;
     } else {
@@ -251,6 +257,8 @@ export function _getPackageInfo(
     if (typeof cand === 'object') {
       if (cand.module) {
         cand = cand.module;
+      } else if (cand.import) {
+        cand = cand.import;
       } else if (cand.default) {
         cand = cand.default;
       } else {

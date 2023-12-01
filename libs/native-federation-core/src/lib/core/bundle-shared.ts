@@ -85,10 +85,29 @@ export async function bundleShared(
     if (e instanceof Error) {
       logger.error(e.message);
     }
+
     logger.error('For more information, run in verbose mode');
+
+    logger.notice('');
+    logger.notice('');
+
+    logger.notice('** Important Information: ***');
     logger.notice(
-      `If you don't need this package, skip it in your federation.config.js!`
+      'The error message above shows an issue with bundling a node_module.'
     );
+    logger.notice(
+      'In most cases this is because you (indirectly) shared a Node.js package,'
+    );
+    logger.notice('while Native Federation builds for the browser.');
+    logger.notice(
+      'You can move such packages into devDependencies or skip them in your federation.config.js.'
+    );
+    logger.notice('');
+    logger.notice('More Details: https://bit.ly/nf-issue');
+
+    logger.notice('');
+    logger.notice('');
+
     logger.verbose(e);
   }
 

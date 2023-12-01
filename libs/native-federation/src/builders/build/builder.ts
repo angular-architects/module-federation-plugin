@@ -32,7 +32,7 @@ import {
 } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { updateIndexHtml } from '../../utils/updateIndexHtml';
-import { existsSync, mkdirSync, rmdirSync } from 'fs';
+import { existsSync, mkdirSync, rmSync } from 'fs';
 import {
   EsBuildResult,
   MemResults,
@@ -80,7 +80,15 @@ export async function* runBuilder(
   const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);
 
-  options.externalDependencies = externals.filter((e) => e !== 'tslib');
+  // options.externalDependencies = externals.filter((e) => e !== 'tslib');
+  const plugins = [
+    {
+      name: 'externals',
+      setup(build) {
+        build.initialOptions.external = externals.filter((e) => e !== 'tslib');
+      },
+    },
+  ];
 
   // for await (const r of buildEsbuildBrowser(options, context as any, { write: false })) {
   //   const output = r.outputFiles ||[];
@@ -103,7 +111,7 @@ export async function* runBuilder(
   let lastResult: { success: boolean } | undefined;
 
   if (existsSync(options.outputPath)) {
-    rmdirSync(options.outputPath, { recursive: true });
+    rmSync(options.outputPath, { recursive: true });
   }
 
   if (!existsSync(options.outputPath)) {
@@ -111,15 +119,27 @@ export async function* runBuilder(
   }
 
   if (!write) {
-    setMemResultHandler((outFiles) => {
-      memResults.add(outFiles.map((f) => new EsBuildResult(f)));
+    setMemResultHandler((outFiles, outDir) => {
+      const fullOutDir = outDir
+        ? path.join(fedOptions.workspaceRoot, outDir)
+        : null;
+      memResults.add(outFiles.map((f) => new EsBuildResult(f, fullOutDir)));
     });
   }
 
+  await buildForFederation(config, fedOptions, externals);
+
+  options.deleteOutputPath = false;
+
   // builderRun.output.subscribe(async (output) => {
-  for await (const output of buildEsbuildBrowser(options, context as any, {
-    write,
-  })) {
+  for await (const output of buildEsbuildBrowser(
+    options,
+    context as any,
+    {
+      write,
+    },
+    plugins
+  )) {
     lastResult = output;
 
     if (!output.success) {
@@ -142,10 +162,6 @@ export async function* runBuilder(
 
     if (write) {
       updateIndexHtml(fedOptions);
-    }
-
-    if (first) {
-      await buildForFederation(config, fedOptions, externals);
     }
 
     if (first && runServer) {

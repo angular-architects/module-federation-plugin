@@ -42,7 +42,10 @@ import {
 
 // const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
 
-export type MemResultHandler = (outfiles: esbuild.OutputFile[]) => void;
+export type MemResultHandler = (
+  outfiles: esbuild.OutputFile[],
+  outdir?: string
+) => void;
 
 let _memResultHandler: MemResultHandler;
 
@@ -238,6 +241,8 @@ async function runEsbuild(
     undefined
   );
 
+  pluginOptions.styleOptions.externalDependencies = [];
+
   const config: esbuild.BuildOptions = {
     entryPoints: entryPoints.map((ep) => ({
       in: ep.fileName,
@@ -259,6 +264,7 @@ async function runEsbuild(
     platform: 'browser',
     format: 'esm',
     target: ['esnext'],
+    logLimit: kind === 'shared-package' ? 1 : 0,
     plugins: plugins || [
       createCompilerPlugin(
         pluginOptions.pluginOptions,
@@ -326,7 +332,7 @@ function writeResult(
   const writtenFiles: string[] = [];
 
   if (memOnly) {
-    _memResultHandler(result.outputFiles);
+    _memResultHandler(result.outputFiles, outdir);
   }
 
   for (const outFile of result.outputFiles) {

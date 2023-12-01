@@ -2,10 +2,8 @@
   "name": "@angular-architects/module-federation-tools",
   "version": "17.0.0",
   "license": "MIT",
-  "peerDependencies": {
-  },
+  "peerDependencies": {},
   "dependencies": {
     "tslib": "^2.0.0"
   }
 }
-

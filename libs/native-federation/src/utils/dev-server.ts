@@ -26,7 +26,10 @@ export function startServer(
     open: options.open,
     middleware: [
       function (req, res, next) {
-        const key = req.url.startsWith('/') ? req.url.substring(1) : req.url;
+        const temp = req.url.startsWith('/') ? req.url.substring(1) : req.url;
+        const key =
+          temp.indexOf('?') > -1 ? temp.substring(0, temp.indexOf('?')) : temp;
+
         const result = memResults.get(key);
 
         if (result) {
