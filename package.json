@@ -34,6 +34,7 @@
     "@angular/common": "17.0.2",
     "@angular/compiler": "17.0.2",
     "@angular/core": "17.0.2",
+    "@angular/elements": "^17.0.2",
     "@angular/forms": "17.0.2",
     "@angular/platform-browser": "17.0.2",
     "@angular/platform-browser-dynamic": "17.0.2",
@@ -68,6 +69,7 @@
     "@nx/angular": "17.1.1",
     "@nx/cypress": "17.1.1",
     "@nx/devkit": "17.1.1",
+    "@nx/eslint": "17.1.1",
     "@nx/eslint-plugin": "17.1.1",
     "@nx/jest": "17.1.1",
     "@nx/js": "17.1.1",
@@ -119,8 +121,7 @@
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
     "typescript": "~5.2.0",
-    "verdaccio": "^5.0.4",
-    "@nx/eslint": "17.1.1"
+    "verdaccio": "^5.0.4"
   },
   "nx": {
     "includedScripts": []
