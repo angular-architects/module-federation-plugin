@@ -39,6 +39,7 @@ import {
   NgCliAssetResult,
 } from '../../utils/mem-resuts';
 import { JsonObject } from '@angular-devkit/core';
+import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
@@ -82,6 +83,7 @@ export async function* runBuilder(
 
   // options.externalDependencies = externals.filter((e) => e !== 'tslib');
   const plugins = [
+    createSharedMappingsPlugin(config.sharedMappings),
     {
       name: 'externals',
       setup(build) {

@@ -8,10 +8,9 @@ export function createSharedMappingsPlugin(mappedPaths: MappedPath[]): Plugin {
     setup(build: PluginBuild) {
       build.onResolve({ filter: /^[.]/ }, async (args) => {
         let mappedPath: MappedPath | null = null;
-        if (
-          args.path.includes('playground-lib') &&
-          args.kind === 'import-statement'
-        ) {
+        let isSelf = false;
+
+        if (args.kind === 'import-statement') {
           const importPath = path.join(args.resolveDir, args.path);
           mappedPath = mappedPaths.find((p) =>
             importPath.startsWith(path.dirname(p.path))
@@ -19,6 +18,10 @@ export function createSharedMappingsPlugin(mappedPaths: MappedPath[]): Plugin {
         }
 
         if (mappedPath) {
+          isSelf = args.importer.startsWith(path.dirname(mappedPath.path));
+        }
+
+        if (mappedPath && !isSelf) {
           return {
             path: mappedPath.key,
             external: true,
