@@ -5,9 +5,15 @@ import {
   createBuilder,
 } from '@angular-devkit/architect';
 
-import { Schema } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
+import { Schema } from '@angular-devkit/build-angular/src/builders/application/schema';
 
-import { buildEsbuildBrowser } from '@angular-devkit/build-angular/src/builders/browser-esbuild';
+// import { buildEsbuildBrowser } from '@angular-devkit/build-angular/src/builders/browser-esbuild';
+import { buildApplication } from '@angular-devkit/build-angular/src/builders/application';
+// import { execute as executeDevServer } from '@angular-devkit/build-angular/src/builders/dev-server/builder';
+
+import { serveWithVite } from '@angular-devkit/build-angular/src/builders/dev-server/vite-server';
+import { DevServerBuilderOptions } from '@angular-devkit/build-angular/src/builders/dev-server';
+import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
 import * as path from 'path';
 import { setLogLevel, logger } from '@softarc/native-federation/build';
@@ -45,16 +51,33 @@ export async function* runBuilder(
   nfOptions: NfBuilderSchema,
   context: BuilderContext
 ): AsyncIterable<BuilderOutput> {
-  const target = targetFromTargetString(nfOptions.target);
-  const _options = (await context.getTargetOptions(
+  
+  let target = targetFromTargetString(nfOptions.target);
+  let _options = (await context.getTargetOptions(
     target
   )) as unknown as JsonObject & Schema;
 
-  const builder = await context.getBuilderNameForTarget(target);
-  const options = (await context.validateOptions(
+  let builder = await context.getBuilderNameForTarget(target);
+  let options = (await context.validateOptions(
     _options,
     builder
   )) as JsonObject & Schema;
+
+  const outerOptions = options as DevServerBuilderOptions;
+  const normOuterOptions = nfOptions.dev ? await normalizeOptions(context, context.target.project, outerOptions) : null;
+
+  if (nfOptions.dev) {
+    target = targetFromTargetString(outerOptions.buildTarget);
+    _options = (await context.getTargetOptions(
+      target
+    )) as unknown as JsonObject & Schema;
+  
+    builder = await context.getBuilderNameForTarget(target);
+    options = (await context.validateOptions(
+      _options,
+      builder
+    )) as JsonObject & Schema;
+  }
 
   const runServer = !!nfOptions.port;
   const write = !runServer;
@@ -67,10 +90,12 @@ export async function* runBuilder(
   setBuildAdapter(adapter);
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
+  
+  const outputPath = path.join(options.outputPath, 'browser');
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
-    outputPath: options.outputPath,
+    outputPath: outputPath,
     federationConfig: infereConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose,
@@ -112,12 +137,12 @@ export async function* runBuilder(
   let first = true;
   let lastResult: { success: boolean } | undefined;
 
-  if (existsSync(options.outputPath)) {
-    rmSync(options.outputPath, { recursive: true });
+  if (existsSync(outputPath)) {
+    rmSync(outputPath, { recursive: true });
   }
 
-  if (!existsSync(options.outputPath)) {
-    mkdirSync(options.outputPath, { recursive: true });
+  if (!existsSync(outputPath)) {
+    mkdirSync(outputPath, { recursive: true });
   }
 
   if (!write) {
@@ -133,15 +158,24 @@ export async function* runBuilder(
 
   options.deleteOutputPath = false;
 
+  // const x = buildEsbuildBrowser(
+  //   options,
+  //   context as any,
+  //   {
+  //     write,
+  //   },
+  //   plugins
+  // );
+
+  const appBuilderName = '@angular-devkit/build-angular:application';
+
+  const builderRun = nfOptions.dev ? 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    serveWithVite(normOuterOptions, appBuilderName, context, undefined, { buildPlugins: plugins }) :
+    buildApplication(options, context, plugins);
+
   // builderRun.output.subscribe(async (output) => {
-  for await (const output of buildEsbuildBrowser(
-    options,
-    context as any,
-    {
-      write,
-    },
-    plugins
-  )) {
+  for await (const output of builderRun) {
     lastResult = output;
 
     if (!output.success) {

@@ -27,6 +27,7 @@ import {
 import { createRequire } from 'node:module';
 
 import { Schema as EsBuildBuilderOptions } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
+import { ApplicationBuilderOptions as AppBuilderSchema } from '@angular-devkit/build-angular/src/builders/application';
 
 import { createSharedMappingsPlugin } from './shared-mappings-plugin';
 import * as fs from 'fs';
@@ -54,7 +55,7 @@ export function setMemResultHandler(handler: MemResultHandler): void {
 }
 
 export function createAngularBuildAdapter(
-  builderOptions: EsBuildBuilderOptions,
+  builderOptions: AppBuilderSchema,
   context: BuilderContext,
   rebuildRequested: RebuildEvents = new RebuildHubs()
 ): BuildAdapter {
@@ -166,7 +167,7 @@ export function createAngularBuildAdapter(
 }
 
 async function runEsbuild(
-  builderOptions: EsBuildBuilderOptions,
+  builderOptions: AppBuilderSchema,
   context: BuilderContext,
   entryPoints: EntryPoint[],
   external: string[],
