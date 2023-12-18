@@ -16,6 +16,10 @@ import { DevServerBuilderOptions } from '@angular-devkit/build-angular/src/build
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
 import * as path from 'path';
+import * as fs from 'fs';
+
+import * as mrmime from 'mrmime';
+
 import { setLogLevel, logger } from '@softarc/native-federation/build';
 
 import { FederationOptions } from '@softarc/native-federation/build';
@@ -37,7 +41,7 @@ import {
   startServer,
 } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
-import { updateIndexHtml } from '../../utils/updateIndexHtml';
+import { updateIndexHtml, updateScriptTags } from '../../utils/updateIndexHtml';
 import { existsSync, mkdirSync, rmSync } from 'fs';
 import {
   EsBuildResult,
@@ -46,12 +50,12 @@ import {
 } from '../../utils/mem-resuts';
 import { JsonObject } from '@angular-devkit/core';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
+import { Connect } from 'vite';
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
   context: BuilderContext
 ): AsyncIterable<BuilderOutput> {
-  
   let target = targetFromTargetString(nfOptions.target);
   let _options = (await context.getTargetOptions(
     target
@@ -64,19 +68,19 @@ export async function* runBuilder(
   )) as JsonObject & Schema;
 
   const outerOptions = options as DevServerBuilderOptions;
-  const normOuterOptions = nfOptions.dev ? await normalizeOptions(context, context.target.project, outerOptions) : null;
+  const normOuterOptions = nfOptions.dev
+    ? await normalizeOptions(context, context.target.project, outerOptions)
+    : null;
 
   if (nfOptions.dev) {
     target = targetFromTargetString(outerOptions.buildTarget);
     _options = (await context.getTargetOptions(
       target
     )) as unknown as JsonObject & Schema;
-  
+
     builder = await context.getBuilderNameForTarget(target);
-    options = (await context.validateOptions(
-      _options,
-      builder
-    )) as JsonObject & Schema;
+    options = (await context.validateOptions(_options, builder)) as JsonObject &
+      Schema;
   }
 
   const runServer = !!nfOptions.port;
@@ -90,7 +94,7 @@ export async function* runBuilder(
   setBuildAdapter(adapter);
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
-  
+
   const outputPath = path.join(options.outputPath, 'browser');
 
   const fedOptions: FederationOptions = {
@@ -112,9 +116,38 @@ export async function* runBuilder(
     {
       name: 'externals',
       setup(build) {
+        console.log('setup::')
         build.initialOptions.external = externals.filter((e) => e !== 'tslib');
       },
     },
+    // {
+    //   name: 'resolveId',
+    //   setup(build: PluginBuild) {
+    //     build.
+    //     console.log('resolveId', source, importer, options);
+    //   }
+    // }
+  ];
+
+  const middleware: Connect.NextHandleFunction[] = [
+    (req, res, next) => {
+      const fileName = path.join(fedOptions.workspaceRoot, fedOptions.outputPath, req.url);
+      const exists = fs.existsSync(fileName);
+
+      if (req.url !== '/' && req.url !== '' && exists) {
+        console.log('loading from disk', req.url)
+        const lookup = mrmime.lookup;
+        const mimeType = lookup(path.extname(fileName)) || 'text/javascript';
+        const body = fs.readFileSync(fileName)
+        res.writeHead(200, {
+          'Content-Type': mimeType,
+        });
+        res.end(body);
+      }
+      else {
+        next();
+      }
+    }
   ];
 
   // for await (const r of buildEsbuildBrowser(options, context as any, { write: false })) {
@@ -169,10 +202,15 @@ export async function* runBuilder(
 
   const appBuilderName = '@angular-devkit/build-angular:application';
 
-  const builderRun = nfOptions.dev ? 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    serveWithVite(normOuterOptions, appBuilderName, context, undefined, { buildPlugins: plugins }) :
-    buildApplication(options, context, plugins);
+  const builderRun = nfOptions.dev
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    serveWithVite(normOuterOptions, appBuilderName, context, {
+      indexHtml: transformIndexHtml
+    }, {
+      buildPlugins: plugins,
+      middleware
+    })
+    : buildApplication(options, context, plugins);
 
   // builderRun.output.subscribe(async (output) => {
   for await (const output of builderRun) {
@@ -196,7 +234,7 @@ export async function* runBuilder(
       );
     }
 
-    if (write) {
+    if (write && !nfOptions.dev) {
       updateIndexHtml(fedOptions);
     }
 
@@ -240,4 +278,8 @@ function infereConfigPath(tsConfig: string): string {
   const relConfigPath = path.join(relProjectPath, 'federation.config.js');
 
   return relConfigPath;
+}
+
+function transformIndexHtml(content: string): Promise<string> {
+  return Promise.resolve(updateScriptTags(content, 'main.js', 'polyfills.js'));
 }
