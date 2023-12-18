@@ -55,7 +55,10 @@ export async function* runBuilder(
     _options,
     builder
   )) as JsonObject & Schema;
-  const i18nOptions = createI18nOptions(await context.getProjectMetadata(target.project), options.localize);
+  const i18nOptions = createI18nOptions(
+    await context.getProjectMetadata(target.project),
+    options.localize
+  );
 
   const runServer = !!nfOptions.port;
   const write = !runServer;
