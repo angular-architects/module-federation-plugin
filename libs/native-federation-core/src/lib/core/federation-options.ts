@@ -7,5 +7,5 @@ export interface FederationOptions {
   dev?: boolean;
   watch?: boolean;
   packageJson?: string;
-  locales: string[];
+  locales?: string[];
 }

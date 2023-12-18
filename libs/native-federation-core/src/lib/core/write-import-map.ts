@@ -15,10 +15,22 @@ export function writeImportMap(
   }, {});
 
   const importMap = { imports };
-  const importMapPath = path.join(
-    fedOption.workspaceRoot,
-    fedOption.outputPath,
-    'importmap.json'
-  );
-  fs.writeFileSync(importMapPath, JSON.stringify(importMap, null, 2));
+  if (!fedOption.locales?.length) {
+    const importMapPath = path.join(
+      fedOption.workspaceRoot,
+      fedOption.outputPath,
+      'importmap.json'
+    );
+    fs.writeFileSync(importMapPath, JSON.stringify(importMap, null, 2));
+  } else {
+    for (const locale of fedOption.locales) {
+      const importMapPath = path.join(
+        fedOption.workspaceRoot,
+        fedOption.outputPath,
+        locale,
+        'importmap.json'
+      );
+      fs.writeFileSync(importMapPath, JSON.stringify(importMap, null, 2));
+    }
+  }
 }

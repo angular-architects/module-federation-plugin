@@ -9,6 +9,7 @@ import {
 } from '../utils/build-result-map';
 import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
+import { tryCopyFileToLocales } from '../utils/try-copy-file-to-locales';
 
 export interface ArtefactInfo {
   mappings: SharedInfo[];
@@ -55,9 +56,11 @@ export async function bundleExposedAndMappings(
   const sharedResult: Array<SharedInfo> = [];
 
   for (const item of shared) {
+    const outBaseName = lookupInResultMap(resultMap, item.outName);
+    const outFile = path.join(fedOptions.workspaceRoot, fedOptions.outputPath, outBaseName);
     sharedResult.push({
       packageName: item.key,
-      outFileName: lookupInResultMap(resultMap, item.outName),
+      outFileName: outBaseName,
       requiredVersion: '',
       singleton: true,
       strictVersion: false,
@@ -68,14 +71,17 @@ export async function bundleExposedAndMappings(
             entryPoint: normalize(path.normalize(item.fileName)),
           },
     });
+    tryCopyFileToLocales(outFile, fedOptions);
   }
 
   const exposedResult: Array<ExposesInfo> = [];
 
   for (const item of exposes) {
+    const outBaseName = lookupInResultMap(resultMap, item.outName);
+    const outFile = path.join(fedOptions.workspaceRoot, fedOptions.outputPath, outBaseName);
     exposedResult.push({
       key: item.key,
-      outFileName: lookupInResultMap(resultMap, item.outName),
+      outFileName: outBaseName,
       dev: !fedOptions.dev
         ? undefined
         : {
@@ -84,6 +90,7 @@ export async function bundleExposedAndMappings(
             ),
           },
     });
+    tryCopyFileToLocales(outFile, fedOptions);
   }
 
   return { mappings: sharedResult, exposes: exposedResult };

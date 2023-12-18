@@ -8,6 +8,7 @@ import { FederationOptions } from './federation-options';
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
+import { tryCopyFileToLocales } from '../utils/try-copy-file-to-locales';
 
 export async function bundleShared(
   config: NormalizedFederationConfig,
@@ -77,6 +78,7 @@ export async function bundleShared(
       const outFileName = path.basename(fileName);
       const cachedFile = path.join(cachePath, outFileName);
 
+      tryCopyFileToLocales(cachedFile, fedOptions);
       copyFileIfExists(cachedFile, fileName);
       copySrcMapIfExists(cachedFile, fileName);
     }

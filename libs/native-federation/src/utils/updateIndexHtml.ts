@@ -3,7 +3,18 @@ import * as fs from 'fs';
 import { FederationOptions } from '@softarc/native-federation/build';
 
 export function updateIndexHtml(fedOptions: FederationOptions) {
-  const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
+  if (!fedOptions.locales?.length) {
+    const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
+    updateSingleIndexHtml(outputPath);
+  } else {
+    for (const locale of fedOptions.locales) {
+      const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath, locale);
+      updateSingleIndexHtml(outputPath);
+    }
+  }
+}
+
+export function updateSingleIndexHtml(outputPath: string) {
   const indexPath = path.join(outputPath, 'index.html');
   const mainName = fs
     .readdirSync(outputPath)
