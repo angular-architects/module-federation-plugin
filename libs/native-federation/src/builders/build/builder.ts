@@ -6,6 +6,7 @@ import {
 } from '@angular-devkit/architect';
 
 import { Schema } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
+import { createI18nOptions } from '@angular-devkit/build-angular/src/utils/i18n-options';
 
 import { buildEsbuildBrowser } from '@angular-devkit/build-angular/src/builders/browser-esbuild';
 
@@ -54,6 +55,7 @@ export async function* runBuilder(
     _options,
     builder
   )) as JsonObject & Schema;
+  const i18nOptions = createI18nOptions(await context.getProjectMetadata(target.project), options.localize);
 
   const runServer = !!nfOptions.port;
   const write = !runServer;
@@ -75,6 +77,7 @@ export async function* runBuilder(
     verbose: options.verbose,
     watch: false, // options.watch,
     dev: !!nfOptions.dev,
+    locales: Array.from(i18nOptions.inlineLocales),
   };
 
   const config = await loadFederationConfig(fedOptions);
