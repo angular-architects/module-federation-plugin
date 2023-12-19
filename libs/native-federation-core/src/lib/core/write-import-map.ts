@@ -30,6 +30,7 @@ export function writeImportMap(
         locale,
         'importmap.json'
       );
+      fs.mkdirSync(path.dirname(importMapPath),  { recursive: true });
       fs.writeFileSync(importMapPath, JSON.stringify(importMap, null, 2));
     }
   }

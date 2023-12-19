@@ -21,6 +21,7 @@ export function writeFederationInfo(
         fedOptions.outputPath,
         locale,
         'remoteEntry.json');
+        fs.mkdirSync(path.dirname(metaDataPath),  { recursive: true });
       fs.writeFileSync(metaDataPath, JSON.stringify(federationInfo, null, 2));
     }
   }
