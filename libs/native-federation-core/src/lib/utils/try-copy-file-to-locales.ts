@@ -11,13 +11,13 @@ export function tryCopyFileToLocales(sourceFile: string, fedOptions: FederationO
   const sourceBaseName = path.basename(sourceFile);
   
   for (const locale of fedOptions.locales) {
-    const fullOutputPath = path.join(
+    const destinationFile = path.join(
         fedOptions.workspaceRoot,
         fedOptions.outputPath,
-        locale
+        locale,
+        sourceBaseName
     );
-    const destinationFile = path.join(fullOutputPath, sourceBaseName);
-    fs.mkdirSync(path.dirname(fullOutputPath), { recursive: true });
+    fs.mkdirSync(path.dirname(destinationFile), { recursive: true });
     
     if (fs.existsSync(sourceFile)) {
         fs.copyFileSync(sourceFile, destinationFile);
