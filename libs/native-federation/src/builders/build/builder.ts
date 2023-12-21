@@ -1,4 +1,3 @@
-/* eslint-disable @nx/enforce-module-boundaries */
 import {
   BuilderContext,
   BuilderOutput,
@@ -7,9 +6,7 @@ import {
 
 import { Schema } from '@angular-devkit/build-angular/src/builders/application/schema';
 
-// import { buildEsbuildBrowser } from '@angular-devkit/build-angular/src/builders/browser-esbuild';
 import { buildApplication } from '@angular-devkit/build-angular/src/builders/application';
-// import { execute as executeDevServer } from '@angular-devkit/build-angular/src/builders/dev-server/builder';
 
 import { serveWithVite } from '@angular-devkit/build-angular/src/builders/dev-server/vite-server';
 import { DevServerBuilderOptions } from '@angular-devkit/build-angular/src/builders/dev-server';
@@ -51,6 +48,8 @@ import {
 import { JsonObject } from '@angular-devkit/core';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { Connect } from 'vite';
+import { PluginBuild } from 'esbuild';
+import { FederationInfo } from '@softarc/native-federation-runtime';
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
@@ -110,60 +109,40 @@ export async function* runBuilder(
   const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);
 
-  // options.externalDependencies = externals.filter((e) => e !== 'tslib');
   const plugins = [
     createSharedMappingsPlugin(config.sharedMappings),
     {
       name: 'externals',
-      setup(build) {
-        console.log('setup::')
+      setup(build: PluginBuild) {
         build.initialOptions.external = externals.filter((e) => e !== 'tslib');
       },
     },
-    // {
-    //   name: 'resolveId',
-    //   setup(build: PluginBuild) {
-    //     build.
-    //     console.log('resolveId', source, importer, options);
-    //   }
-    // }
   ];
 
   const middleware: Connect.NextHandleFunction[] = [
     (req, res, next) => {
-      const fileName = path.join(fedOptions.workspaceRoot, fedOptions.outputPath, req.url);
+      const fileName = path.join(
+        fedOptions.workspaceRoot,
+        fedOptions.outputPath,
+        req.url
+      );
       const exists = fs.existsSync(fileName);
 
       if (req.url !== '/' && req.url !== '' && exists) {
-        console.log('loading from disk', req.url)
+        console.log('loading from disk', req.url);
         const lookup = mrmime.lookup;
         const mimeType = lookup(path.extname(fileName)) || 'text/javascript';
-        const body = fs.readFileSync(fileName)
+        const rawBody = fs.readFileSync(fileName, 'utf-8');
+        const body = addDebugInformation(req.url, rawBody);
         res.writeHead(200, {
           'Content-Type': mimeType,
         });
         res.end(body);
-      }
-      else {
+      } else {
         next();
       }
-    }
+    },
   ];
-
-  // for await (const r of buildEsbuildBrowser(options, context as any, { write: false })) {
-  //   const output = r.outputFiles ||[];
-  //   for (const o of output) {
-  //     console.log('got', o.path);
-  //   }
-  // }
-  // eslint-disable-next-line no-constant-condition
-  // if (1===1) return;
-
-  // const builderRun = await context.scheduleBuilder(
-  //   '@angular-devkit/build-angular:browser-esbuild',
-  //   options as any,
-  //   { target }
-  // );
 
   const memResults = new MemResults();
 
@@ -191,25 +170,21 @@ export async function* runBuilder(
 
   options.deleteOutputPath = false;
 
-  // const x = buildEsbuildBrowser(
-  //   options,
-  //   context as any,
-  //   {
-  //     write,
-  //   },
-  //   plugins
-  // );
-
   const appBuilderName = '@angular-devkit/build-angular:application';
 
   const builderRun = nfOptions.dev
-    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    serveWithVite(normOuterOptions, appBuilderName, context, {
-      indexHtml: transformIndexHtml
-    }, {
-      buildPlugins: plugins,
-      middleware
-    })
+    ? serveWithVite(
+        normOuterOptions,
+        appBuilderName,
+        context,
+        {
+          indexHtml: transformIndexHtml,
+        },
+        {
+          buildPlugins: plugins,
+          middleware,
+        }
+      )
     : buildApplication(options, context, plugins);
 
   // builderRun.output.subscribe(async (output) => {
@@ -266,11 +241,10 @@ export async function* runBuilder(
     first = false;
   }
 
-  // updateIndexHtml(fedOptions);
-  // const output = await lastValueFrom(builderRun.output as any);
   yield lastResult || { success: false };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default createBuilder(runBuilder) as any;
 
 function infereConfigPath(tsConfig: string): string {
@@ -282,4 +256,26 @@ function infereConfigPath(tsConfig: string): string {
 
 function transformIndexHtml(content: string): Promise<string> {
   return Promise.resolve(updateScriptTags(content, 'main.js', 'polyfills.js'));
+}
+
+function addDebugInformation(fileName: string, rawBody: string): string {
+  if (fileName !== '/remoteEntry.json') {
+    return rawBody;
+  }
+
+  const remoteEntry = JSON.parse(rawBody) as FederationInfo;
+  const shared = remoteEntry.shared;
+
+  if (!shared) {
+    return rawBody;
+  }
+
+  const sharedForVite = shared.map((s) => ({
+    ...s,
+    packageName: `/@id/${s.packageName}`,
+  }));
+
+  remoteEntry.shared = [...shared, ...sharedForVite];
+
+  return JSON.stringify(remoteEntry, null, 2);
 }
