@@ -5,9 +5,7 @@
   "scripts": {
     "ng": "nx",
     "nx": "nx",
-    "start": "ng serve",
     "build": "nx build mf-runtime --configuration production && nx build mf && nx build mf-tools --configuration production && node post-build.js",
-    "test": "ng test",
     "lint": "nx workspace-lint && ng lint",
     "e2e": "ng e2e",
     "publish:local": "npm publish dist/libs/mf --registry http://localhost:4873 && npm publish dist/libs/mf-runtime --registry http://localhost:4873 && npm publish dist/libs/mf-tools --registry http://localhost:4873",
