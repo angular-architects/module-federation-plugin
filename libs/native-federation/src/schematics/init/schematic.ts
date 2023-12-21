@@ -101,16 +101,24 @@ function updateWorkspaceConfig(
   const originalBuild = projectConfig.architect.build;
 
   if (
-    originalBuild.builder !== '@angular-devkit/build-angular:browser-esbuild'
+    originalBuild.builder !== '@angular-devkit/build-angular:application'
   ) {
-    console.log('Switching project to esbuild ...');
-    originalBuild.builder = '@angular-devkit/build-angular:browser-esbuild';
+    console.log('Switching project to the application builder using esbuild ...');
+    originalBuild.builder = '@angular-devkit/build-angular:application';
+    delete originalBuild.configurations?.development?.buildOptimizer;
+    delete originalBuild.configurations?.development?.vendorChunk;
   }
 
-  if (originalBuild.options.browser) {
-    const browser = originalBuild.options.browser;
-    delete originalBuild.options.browser;
-    originalBuild.options.main = browser;
+  // if (originalBuild.options.browser) {
+  //   const browser = originalBuild.options.browser;
+  //   delete originalBuild.options.browser;
+  //   originalBuild.options.main = browser;
+  // }
+
+  if (originalBuild.options.main) {
+    const main = originalBuild.options.main;
+    delete originalBuild.options.main;
+    originalBuild.options.browser = main;
   }
 
   projectConfig.architect.esbuild = originalBuild;
@@ -130,15 +138,27 @@ function updateWorkspaceConfig(
     defaultConfiguration: 'production',
   };
 
+  const serveProd = projectConfig.architect.serve.configurations?.production;
+  if(serveProd) {
+    serveProd.buildTarget = `${projectName}:esbuild:production`;
+    delete serveProd.browserTarget;
+  }
+
+  const serveDev = projectConfig.architect.serve.configurations?.development;
+  if(serveDev) {
+    serveDev.buildTarget = `${projectName}:esbuild:development`;
+    delete serveDev.browserTarget;
+  }
+
   projectConfig.architect['serve-original'] = projectConfig.architect.serve;
 
   projectConfig.architect.serve = {
     builder: '@angular-architects/native-federation:build',
     options: {
-      target: `${projectName}:esbuild:development`,
+      target: `${projectName}:serve-original:development`,
       rebuildDelay: 0,
       dev: true,
-      port: port,
+      port: 0,
     },
   };
 

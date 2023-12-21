@@ -1,3 +1,7 @@
+import * as path from 'path';
+import * as fs from 'fs';
+import * as mrmime from 'mrmime';
+
 import {
   BuilderContext,
   BuilderOutput,
@@ -11,11 +15,6 @@ import { buildApplication } from '@angular-devkit/build-angular/src/builders/app
 import { serveWithVite } from '@angular-devkit/build-angular/src/builders/dev-server/vite-server';
 import { DevServerBuilderOptions } from '@angular-devkit/build-angular/src/builders/dev-server';
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
-
-import * as path from 'path';
-import * as fs from 'fs';
-
-import * as mrmime from 'mrmime';
 
 import { setLogLevel, logger } from '@softarc/native-federation/build';
 
@@ -129,13 +128,15 @@ export async function* runBuilder(
       const exists = fs.existsSync(fileName);
 
       if (req.url !== '/' && req.url !== '' && exists) {
-        console.log('loading from disk', req.url);
         const lookup = mrmime.lookup;
         const mimeType = lookup(path.extname(fileName)) || 'text/javascript';
         const rawBody = fs.readFileSync(fileName, 'utf-8');
         const body = addDebugInformation(req.url, rawBody);
         res.writeHead(200, {
           'Content-Type': mimeType,
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
+          'Access-Control-Allow-Headers': 'Content-Type'
         });
         res.end(body);
       } else {
@@ -174,17 +175,17 @@ export async function* runBuilder(
 
   const builderRun = nfOptions.dev
     ? serveWithVite(
-        normOuterOptions,
-        appBuilderName,
-        context,
-        {
-          indexHtml: transformIndexHtml,
-        },
-        {
-          buildPlugins: plugins,
-          middleware,
-        }
-      )
+      normOuterOptions,
+      appBuilderName,
+      context,
+      {
+        indexHtml: transformIndexHtml,
+      },
+      {
+        buildPlugins: plugins,
+        middleware,
+      }
+    )
     : buildApplication(options, context, plugins);
 
   // builderRun.output.subscribe(async (output) => {
