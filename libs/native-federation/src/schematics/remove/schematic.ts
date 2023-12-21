@@ -65,11 +65,11 @@ function updateWorkspaceConfig(
 
   if (projectConfig.architect.serve) {
     const conf = projectConfig.architect.serve.configurations;
-    conf.production.browserTarget = conf.production.browserTarget.replace(
+    conf.production.buildTarget = conf.production.buildTarget.replace(
       ':esbuild:',
       ':build:'
     );
-    conf.development.browserTarget = conf.development.browserTarget.replace(
+    conf.development.buildTarget = conf.development.buildTarget.replace(
       ':esbuild:',
       ':build:'
     );

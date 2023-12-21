@@ -113,7 +113,11 @@ export async function* runBuilder(
     {
       name: 'externals',
       setup(build: PluginBuild) {
-        build.initialOptions.external = externals.filter((e) => e !== 'tslib');
+        if (build.initialOptions.platform !== 'node') {
+          build.initialOptions.external = externals.filter(
+            (e) => e !== 'tslib'
+          );
+        }
       },
     },
   ];
@@ -136,7 +140,7 @@ export async function* runBuilder(
           'Content-Type': mimeType,
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-          'Access-Control-Allow-Headers': 'Content-Type'
+          'Access-Control-Allow-Headers': 'Content-Type',
         });
         res.end(body);
       } else {
@@ -175,17 +179,17 @@ export async function* runBuilder(
 
   const builderRun = nfOptions.dev
     ? serveWithVite(
-      normOuterOptions,
-      appBuilderName,
-      context,
-      {
-        indexHtml: transformIndexHtml,
-      },
-      {
-        buildPlugins: plugins,
-        middleware,
-      }
-    )
+        normOuterOptions,
+        appBuilderName,
+        context,
+        {
+          indexHtml: transformIndexHtml,
+        },
+        {
+          buildPlugins: plugins,
+          middleware,
+        }
+      )
     : buildApplication(options, context, plugins);
 
   // builderRun.output.subscribe(async (output) => {

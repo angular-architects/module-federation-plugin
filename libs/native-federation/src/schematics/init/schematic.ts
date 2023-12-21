@@ -100,10 +100,10 @@ function updateWorkspaceConfig(
 
   const originalBuild = projectConfig.architect.build;
 
-  if (
-    originalBuild.builder !== '@angular-devkit/build-angular:application'
-  ) {
-    console.log('Switching project to the application builder using esbuild ...');
+  if (originalBuild.builder !== '@angular-devkit/build-angular:application') {
+    console.log(
+      'Switching project to the application builder using esbuild ...'
+    );
     originalBuild.builder = '@angular-devkit/build-angular:application';
     delete originalBuild.configurations?.development?.buildOptimizer;
     delete originalBuild.configurations?.development?.vendorChunk;
@@ -139,13 +139,13 @@ function updateWorkspaceConfig(
   };
 
   const serveProd = projectConfig.architect.serve.configurations?.production;
-  if(serveProd) {
+  if (serveProd) {
     serveProd.buildTarget = `${projectName}:esbuild:production`;
     delete serveProd.browserTarget;
   }
 
   const serveDev = projectConfig.architect.serve.configurations?.development;
-  if(serveDev) {
+  if (serveDev) {
     serveDev.buildTarget = `${projectName}:esbuild:development`;
     delete serveDev.browserTarget;
   }
