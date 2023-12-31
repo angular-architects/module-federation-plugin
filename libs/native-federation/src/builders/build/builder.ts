@@ -61,6 +61,8 @@ export async function* runBuilder(
   const watch = !!runServer || nfOptions.watch;
 
   options.watch = watch;
+  options.baseHref = nfOptions.baseHref;
+  
   const rebuildEvents = new RebuildHubs();
 
   const adapter = createAngularBuildAdapter(options, context, rebuildEvents);
