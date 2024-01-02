@@ -38,6 +38,19 @@
       "type": "string",
       "description": "Experimental",
       "default": ""
+    },
+    "https": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable SSL for local development"
+    },
+    "cert": {
+      "type": "string",
+      "description": "Path to SSL certificate"
+    },
+    "key": {
+      "type": "string",
+      "description": "Path to SSL certificate key"
     }
   }
 }
