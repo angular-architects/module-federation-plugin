@@ -11,7 +11,10 @@
         "outputPath": "dist/libs/native-federation-esbuild",
         "main": "libs/native-federation-esbuild/src/index.ts",
         "tsConfig": "libs/native-federation-esbuild/tsconfig.lib.json",
-        "assets": ["libs/native-federation-esbuild/*.md"]
+        "assets": [
+          "libs/native-federation-esbuild/*.md",
+          "libs/native-federation-esbuild/LICENSE"
+        ]
       }
     },
     "publish": {

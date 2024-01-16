@@ -222,6 +222,12 @@ async function runEsbuild(
     }
   }
 
+  if (fs.existsSync(path.join(workspaceRoot, 'tsconfig.base.json'))) {
+    tsConfigPath = 'tsconfig.base.json';
+  } else if (fs.existsSync(path.join(workspaceRoot, 'tsconfig.json'))) {
+    tsConfigPath = 'tsconfig.json';
+  }
+
   const pluginOptions = createCompilerPluginOptions(
     {
       workspaceRoot,

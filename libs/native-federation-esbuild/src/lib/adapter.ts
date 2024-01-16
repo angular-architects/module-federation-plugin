@@ -2,7 +2,6 @@ import {
   BuildAdapter,
   BuildAdapterOptions,
   BuildResult,
-  logger,
 } from '@softarc/native-federation/build';
 import * as esbuild from 'esbuild';
 import { rollup } from 'rollup';

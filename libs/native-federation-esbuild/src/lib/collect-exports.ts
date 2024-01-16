@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { parse } from 'acorn';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Node = any;
 
 type visitFn = (node: Node) => void;

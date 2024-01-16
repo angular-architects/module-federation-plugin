@@ -33,6 +33,7 @@
             "output": "tutorial"
           },
           "libs/mf/*.md",
+          "libs/mf/LICENSE",
           {
             "input": "./libs/mf/src",
             "glob": "index.ts",

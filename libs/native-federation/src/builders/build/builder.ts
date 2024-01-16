@@ -107,7 +107,6 @@ export async function* runBuilder(
 
   const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);
-
   const plugins = [
     createSharedMappingsPlugin(config.sharedMappings),
     {

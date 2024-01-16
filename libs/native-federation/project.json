@@ -13,6 +13,7 @@
         "tsConfig": "libs/native-federation/tsconfig.lib.json",
         "assets": [
           "libs/native-federation/*.md",
+          "libs/native-federation/LICENSE",
           {
             "input": "./libs/native-federation/src",
             "glob": "**/!(*.ts)",

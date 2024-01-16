@@ -11,7 +11,10 @@
         "outputPath": "dist/libs/native-federation-core",
         "main": "libs/native-federation-core/src/index.ts",
         "tsConfig": "libs/native-federation-core/tsconfig.lib.json",
-        "assets": ["libs/native-federation-core/*.md"]
+        "assets": [
+          "libs/native-federation-core/*.md",
+          "libs/native-federation-core/LICENSE"
+        ]
       }
     },
     "publish": {
