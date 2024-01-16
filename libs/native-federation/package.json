@@ -10,6 +10,7 @@
     "name": "Manfred Steyer",
     "url": "http://www.angulararchitects.io"
   },
+  "homepage": "https://github.com/angular-architects/module-federation-plugin/tree/main/libs/native-federation",
   "repository": {
     "type": "git",
     "url": "https://github.com/angular-architects/module-federation-plugin"
