@@ -1,11 +1,12 @@
 import { FederationInfo } from './federation-info';
+import { globalCache } from './global-cache';
 
 export type Remote = FederationInfo & {
   baseUrl: string;
 };
 
-const remoteNamesToRemote = new Map<string, Remote>();
-const baseUrlToRemoteNames = new Map<string, string>();
+const remoteNamesToRemote = globalCache.remoteNamesToRemote;
+const baseUrlToRemoteNames = globalCache.baseUrlToRemoteNames;
 
 export function addRemote(remoteName: string, remote: Remote): void {
   remoteNamesToRemote.set(remoteName, remote);
