@@ -55,6 +55,23 @@ export async function* runBuilder(
   context: BuilderContext
 ): AsyncIterable<BuilderOutput> {
   let target = targetFromTargetString(nfOptions.target);
+  
+  if (target.target === 'esbuild') {
+    logger.error('UPDATE NEEDED');
+    logger.error('')
+    logger.error('Since version 17.1, Native Federation uses Angular\'s');
+    logger.error('Application-Builder and its Dev-Server.');
+    logger.error('Please update your project config, e.g. in angular.json');
+    logger.error('');
+    logger.error('This command performs the needed update for default configs:');
+    logger.error('');
+    logger.error('\tng g @angular-architects/native-federation:appbuilder');
+    logger.error('');
+    logger.error('You need to run it once per application to migrate');
+    logger.error('Please find more information here: https://shorturl.at/gADJW');
+    return;
+  }
+  
   let _options = (await context.getTargetOptions(
     target
   )) as unknown as JsonObject & Schema;

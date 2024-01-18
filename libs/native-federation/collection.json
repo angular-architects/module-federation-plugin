@@ -17,6 +17,11 @@
       "factory": "./src/schematics/remove/schematic",
       "schema": "./src/schematics/remove/schema.json",
       "description": "Removes native federation"
+    },
+    "appbuilder": {
+      "factory": "./src/schematics/appbuilder/schematic",
+      "schema": "./src/schematics/appbuilder/schema.json",
+      "description": "Migrates for using the appbuilder"
     }
   }
 }
