@@ -69,18 +69,13 @@ export async function* runBuilder(
     logger.info('Application-Builder and its Dev-Server.');
     logger.info('Please update your project config, e.g. in angular.json');
     logger.info('');
-    logger.info(
-      'This command performs the needed update for default configs:'
-    );
+    logger.info('This command performs the needed update for default configs:');
     logger.info('');
     logger.info('\tng g @angular-architects/native-federation:appbuilder');
     logger.info('');
     logger.info('You need to run it once per application to migrate');
-    logger.info(
-      'Please find more information here: https://shorturl.at/gADJW'
-    );
+    logger.info('Please find more information here: https://shorturl.at/gADJW');
     return;
-
   }
 
   let options = (await context.validateOptions(

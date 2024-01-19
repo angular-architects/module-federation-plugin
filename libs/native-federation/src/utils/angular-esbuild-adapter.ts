@@ -203,9 +203,9 @@ async function runEsbuild(
 
   const tailwindConfiguration = tailwindConfigurationPath
     ? {
-      file: tailwindConfigurationPath,
-      package: resolver.resolve('tailwindcss'),
-    }
+        file: tailwindConfigurationPath,
+        package: resolver.resolve('tailwindcss'),
+      }
     : undefined;
 
   const outputNames = {
@@ -222,7 +222,11 @@ async function runEsbuild(
     }
   }
 
-  tsConfigPath = createTsConfigForFederation(workspaceRoot, tsConfigPath, entryPoints);
+  tsConfigPath = createTsConfigForFederation(
+    workspaceRoot,
+    tsConfigPath,
+    entryPoints
+  );
 
   const pluginOptions = createCompilerPluginOptions(
     {
@@ -335,19 +339,27 @@ function cleanUpTsConfigForFederation(tsConfigPath: string) {
   }
 }
 
-function createTsConfigForFederation(workspaceRoot: string, tsConfigPath: string, entryPoints: EntryPoint[]) {
+function createTsConfigForFederation(
+  workspaceRoot: string,
+  tsConfigPath: string,
+  entryPoints: EntryPoint[]
+) {
   const fullTsConfigPath = path.join(workspaceRoot, tsConfigPath);
   const tsconfigDir = path.dirname(fullTsConfigPath);
 
-  const filtered = entryPoints.filter(ep => !ep.fileName.includes('/node_modules/') && !ep.fileName.startsWith('.')).map(ep => path.relative(tsconfigDir, ep.fileName).replace(/\\\\/g, '/'));
+  const filtered = entryPoints
+    .filter(
+      (ep) =>
+        !ep.fileName.includes('/node_modules/') && !ep.fileName.startsWith('.')
+    )
+    .map((ep) => path.relative(tsconfigDir, ep.fileName).replace(/\\\\/g, '/'));
 
   const tsconfigAsString = fs.readFileSync(fullTsConfigPath, 'utf-8');
   const tsconfigWithoutComments = tsconfigAsString.replace(
-      /\/\*.+?\*\/|\/\/.*(?=[\n\r])/g,
-      ''
+    /\/\*.+?\*\/|\/\/.*(?=[\n\r])/g,
+    ''
   );
   const tsconfig = JSON.parse(tsconfigWithoutComments);
-
 
   if (!tsconfig.include) {
     tsconfig.include = [];

@@ -1,3 +1,15 @@
+# Migrating to Native Federation 17.1
+
+Beginning with version 17.1, Native Federation uses the CLI's Application Builder and Dev Server to keep track with the innovations and performance improvements the CLI team works on.
+
+This requires some changes in the `angular.json`. If you go with a default configuration for Native Federation, the following command takes care of them:
+
+```
+ng g @angular-architects/native-federation:appbuilder
+```
+
+For more advanced cases, please find a diff of the changes needed for this version:
+
 ```diff
  {
         "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
