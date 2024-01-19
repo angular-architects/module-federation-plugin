@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { appendImportMap } from './utils/add-import-map';
 import { processRemoteInfo } from './init-federation';
 import {
   getRemote,
@@ -8,22 +7,20 @@ import {
 } from './model/remotes';
 import { getDirectory, joinPaths } from './utils/path-utils';
 
-declare function importShim<T>(url: string): T;
-
 export type LoadRemoteModuleOptions = {
   remoteEntry?: string;
   remoteName?: string;
   exposedModule: string;
 };
 
-export async function loadRemoteModule<T = any>(
+export async function loadRemoteModule<T extends object = any>(
   options: LoadRemoteModuleOptions
 ): Promise<T>;
-export async function loadRemoteModule<T = any>(
+export async function loadRemoteModule<T extends object = any>(
   remoteName: string,
   exposedModule: string
 ): Promise<T>;
-export async function loadRemoteModule<T = any>(
+export async function loadRemoteModule<T extends object = any>(
   optionsOrRemoteName: LoadRemoteModuleOptions | string,
   exposedModule?: string
 ): Promise<T> {
@@ -47,7 +44,7 @@ export async function loadRemoteModule<T = any>(
   }
 
   const url = joinPaths(remote.baseUrl, exposed.outFileName);
-  const module = await importShim<T>(url);
+  const module = await importShim<T, T>(url);
 
   return module;
 }
@@ -80,7 +77,7 @@ async function ensureRemoteInitialized(
     !isRemoteInitialized(getDirectory(options.remoteEntry))
   ) {
     const importMap = await processRemoteInfo(options.remoteEntry);
-    appendImportMap(importMap);
+    importShim.addImportMap(importMap);
   }
 }
 

@@ -48,7 +48,7 @@
     "npmlog": "^6.0.2",
     "rollup-plugin-esbuild": "^5.0.0",
     "rxjs": "^7.0.0",
-    "semver": "^7.3.5",
+    "semver": "^7.5.4",
     "tslib": "^2.0.0",
     "word-wrap": "^1.2.5",
     "zone.js": "0.14.2"
@@ -66,6 +66,7 @@
     "@nx/angular": "17.1.1",
     "@nx/cypress": "17.1.1",
     "@nx/devkit": "17.1.1",
+    "@nx/eslint": "17.1.1",
     "@nx/eslint-plugin": "17.1.1",
     "@nx/jest": "17.1.1",
     "@nx/js": "17.1.1",
@@ -84,6 +85,7 @@
     "@types/jest": "29.5.11",
     "@types/node": "18.7.1",
     "@types/npmlog": "^4.1.4",
+    "@types/semver": "^7.5.6",
     "@typescript-eslint/eslint-plugin": "6.9.1",
     "@typescript-eslint/parser": "6.9.1",
     "browser-sync": "^2.29.3",
@@ -117,8 +119,7 @@
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
     "typescript": "~5.2.0",
-    "verdaccio": "^5.0.4",
-    "@nx/eslint": "17.1.1"
+    "verdaccio": "^5.0.4"
   },
   "nx": {
     "includedScripts": []
