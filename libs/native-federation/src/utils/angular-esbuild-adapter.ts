@@ -203,9 +203,9 @@ async function runEsbuild(
 
   const tailwindConfiguration = tailwindConfigurationPath
     ? {
-        file: tailwindConfigurationPath,
-        package: resolver.resolve('tailwindcss'),
-      }
+      file: tailwindConfigurationPath,
+      package: resolver.resolve('tailwindcss'),
+    }
     : undefined;
 
   const outputNames = {
@@ -222,11 +222,7 @@ async function runEsbuild(
     }
   }
 
-  if (fs.existsSync(path.join(workspaceRoot, 'tsconfig.base.json'))) {
-    tsConfigPath = 'tsconfig.base.json';
-  } else if (fs.existsSync(path.join(workspaceRoot, 'tsconfig.json'))) {
-    tsConfigPath = 'tsconfig.json';
-  }
+  tsConfigPath = createTsConfigForFederation(workspaceRoot, tsConfigPath, entryPoints);
 
   const pluginOptions = createCompilerPluginOptions(
     {
@@ -328,7 +324,45 @@ async function runEsbuild(
     ctx.dispose();
   }
 
+  cleanUpTsConfigForFederation(tsConfigPath);
+
   return writtenFiles;
+}
+
+function cleanUpTsConfigForFederation(tsConfigPath: string) {
+  if (tsConfigPath.includes('.federation.')) {
+    fs.unlinkSync(tsConfigPath);
+  }
+}
+
+function createTsConfigForFederation(workspaceRoot: string, tsConfigPath: string, entryPoints: EntryPoint[]) {
+  const fullTsConfigPath = path.join(workspaceRoot, tsConfigPath);
+  const tsconfigDir = path.dirname(fullTsConfigPath);
+
+  const filtered = entryPoints.filter(ep => !ep.fileName.includes('/node_modules/') && !ep.fileName.startsWith('.')).map(ep => path.relative(tsconfigDir, ep.fileName).replace(/\\\\/g, '/'));
+
+  const tsconfigAsString = fs.readFileSync(fullTsConfigPath, 'utf-8');
+  const tsconfigWithoutComments = tsconfigAsString.replace(
+      /\/\*.+?\*\/|\/\/.*(?=[\n\r])/g,
+      ''
+  );
+  const tsconfig = JSON.parse(tsconfigWithoutComments);
+
+
+  if (!tsconfig.include) {
+    tsconfig.include = [];
+  }
+
+  for (const ep of filtered) {
+    if (!tsconfig.include.includes(ep)) {
+      tsconfig.include.push(ep);
+    }
+  }
+
+  const tsconfigFedPath = path.join(tsconfigDir, 'tsconfig.federation.json');
+  fs.writeFileSync(tsconfigFedPath, JSON.stringify(tsconfig, null, 2));
+  tsConfigPath = tsconfigFedPath;
+  return tsConfigPath;
 }
 
 function writeResult(

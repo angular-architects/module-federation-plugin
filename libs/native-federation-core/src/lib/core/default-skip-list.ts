@@ -20,6 +20,7 @@ export const DEFAULT_SKIP_LIST: SkipList = [
   '@angular/ssr',
   'express',
   /\/schematics(\/|$)/,
+  /^@nx\/angular/,
   (pkg) => pkg.startsWith('@angular/') && !!pkg.match(/\/testing(\/|$)/),
   (pkg) => pkg.startsWith('@types/'),
 ];

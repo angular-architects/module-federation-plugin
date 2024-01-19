@@ -55,28 +55,34 @@ export async function* runBuilder(
   context: BuilderContext
 ): AsyncIterable<BuilderOutput> {
   let target = targetFromTargetString(nfOptions.target);
-  
-  if (target.target === 'esbuild') {
-    logger.error('UPDATE NEEDED');
-    logger.error('')
-    logger.error('Since version 17.1, Native Federation uses Angular\'s');
-    logger.error('Application-Builder and its Dev-Server.');
-    logger.error('Please update your project config, e.g. in angular.json');
-    logger.error('');
-    logger.error('This command performs the needed update for default configs:');
-    logger.error('');
-    logger.error('\tng g @angular-architects/native-federation:appbuilder');
-    logger.error('');
-    logger.error('You need to run it once per application to migrate');
-    logger.error('Please find more information here: https://shorturl.at/gADJW');
-    return;
-  }
-  
+
   let _options = (await context.getTargetOptions(
     target
   )) as unknown as JsonObject & Schema;
 
   let builder = await context.getBuilderNameForTarget(target);
+
+  if (builder === '@angular-devkit/build-angular:browser-esbuild') {
+    logger.info('.: UPDATE NEEDED :.');
+    logger.info('');
+    logger.info("Since version 17.1, Native Federation uses Angular's");
+    logger.info('Application-Builder and its Dev-Server.');
+    logger.info('Please update your project config, e.g. in angular.json');
+    logger.info('');
+    logger.info(
+      'This command performs the needed update for default configs:'
+    );
+    logger.info('');
+    logger.info('\tng g @angular-architects/native-federation:appbuilder');
+    logger.info('');
+    logger.info('You need to run it once per application to migrate');
+    logger.info(
+      'Please find more information here: https://shorturl.at/gADJW'
+    );
+    return;
+
+  }
+
   let options = (await context.validateOptions(
     _options,
     builder

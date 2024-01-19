@@ -40,20 +40,29 @@ function updateWorkspaceConfig(
   }
 
   if (projectConfig.architect.esbuild) {
-    projectConfig.architect.esbuild.builder = '@angular-devkit/build-angular:application';
-    projectConfig.architect.esbuild.options.browser = projectConfig.architect.esbuild.options.main;
+    projectConfig.architect.esbuild.builder =
+      '@angular-devkit/build-angular:application';
+    projectConfig.architect.esbuild.options.browser =
+      projectConfig.architect.esbuild.options.main;
     delete projectConfig.architect.esbuild.options.main;
   }
 
   if (projectConfig.architect['serve-original']) {
     const target = projectConfig.architect['serve-original'];
     if (target.configurations?.production) {
-      target.configurations.production.buildTarget = target.configurations.production.buildTarget.replace(':build:', ':esbuild:');
+      target.configurations.production.buildTarget =
+        target.configurations.production.buildTarget.replace(
+          ':build:',
+          ':esbuild:'
+        );
     }
     if (target.configurations?.development) {
-      target.configurations.development.buildTarget = target.configurations.development.buildTarget.replace(':build:', ':esbuild:');
+      target.configurations.development.buildTarget =
+        target.configurations.development.buildTarget.replace(
+          ':build:',
+          ':esbuild:'
+        );
     }
-
   }
 
   if (projectConfig.architect.serve) {
