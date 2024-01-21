@@ -7,6 +7,7 @@ This requires some changes in the `angular.json`. If you go with a default confi
 ```
 ng g @angular-architects/native-federation:appbuilder
 ```
+
 You need to run this command for each application using Native Federation.
 
 For more advanced cases, please find a diff of the changes needed for this version:

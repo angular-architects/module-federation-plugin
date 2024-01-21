@@ -63,11 +63,16 @@ export async function* runBuilder(
   let builder = await context.getBuilderNameForTarget(target);
 
   if (builder === '@angular-devkit/build-angular:browser-esbuild') {
-    logger.info('.: UPDATE NEEDED :.');
+    logger.info('.: NATIVE FEDERATION - UPDATE NEEDED :.');
     logger.info('');
     logger.info("Since version 17.1, Native Federation uses Angular's");
     logger.info('Application-Builder and its Dev-Server.');
-    logger.info('Please update your project config, e.g. in angular.json');
+    logger.info('');
+    logger.info('If you are sill on Angular 17.0.x, please update to');
+    logger.info('Angular 17.1.x or downgrade to Native Federation 17.0.x.');
+    logger.info('');
+    logger.info('For working with Native Federation 17.1.x (recommented), ');
+    logger.info('please update your project config, e.g. in angular.json');
     logger.info('');
     logger.info('This command performs the needed update for default configs:');
     logger.info('');
