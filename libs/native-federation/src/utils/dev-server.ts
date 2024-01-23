@@ -24,6 +24,10 @@ export function startServer(
     single: true,
     ui: false,
     open: options.open,
+    https: options.https ? {
+      cert: options.cert,
+      key: options.key
+    } : false,
     middleware: [
       function (req, res, next) {
         const temp = req.url.startsWith('/') ? req.url.substring(1) : req.url;

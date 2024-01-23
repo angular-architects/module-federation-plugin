@@ -8,4 +8,7 @@ export interface NfBuilderSchema extends JsonObject {
   rebuildDelay: number;
   shell: string;
   watch: boolean;
+  https: boolean;
+  cert: string;
+  key: string;
 } // eslint-disable-line
