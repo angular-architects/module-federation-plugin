@@ -13,7 +13,7 @@
   },
   "module": "src/index.js",
   "ES2015": "./src/index.js",
-  "sideEffects": "false",
+  "sideEffects": false,
   "schematics": "./collection.json",
   "builders": "./builders.json",
   "dependencies": {
