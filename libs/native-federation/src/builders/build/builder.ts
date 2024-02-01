@@ -10,7 +10,7 @@ import {
 
 import { Schema } from '@angular-devkit/build-angular/src/builders/application/schema';
 
-import { buildApplication } from '@angular-devkit/build-angular/src/builders/application';
+import { buildApplication, ApplicationBuilderOptions } from '@angular-devkit/build-angular/src/builders/application';
 
 import { serveWithVite } from '@angular-devkit/build-angular/src/builders/dev-server/vite-server';
 import { DevServerBuilderOptions } from '@angular-devkit/build-angular/src/builders/dev-server';
@@ -116,11 +116,21 @@ export async function* runBuilder(
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
 
-  const outputPath = path.join(options.outputPath, 'browser');
+  const outputPath = options.outputPath;
+
+  const outputOptions: Required<Exclude<ApplicationBuilderOptions['outputPath'], string>> = {
+    browser: 'browser',
+    server: 'server',
+    media: 'media',
+    ...(typeof outputPath === 'string' ? undefined : outputPath),
+    base: typeof outputPath === 'string' ? outputPath : outputPath.base
+  }
+
+  const browserOutputPath = path.join(outputOptions.base, outputOptions.browser);
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
-    outputPath: outputPath,
+    outputPath: browserOutputPath,
     federationConfig: infereConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose,
@@ -176,12 +186,12 @@ export async function* runBuilder(
   let first = true;
   let lastResult: { success: boolean } | undefined;
 
-  if (existsSync(outputPath)) {
-    rmSync(outputPath, { recursive: true });
+  if (existsSync(fedOptions.outputPath)) {
+    rmSync(fedOptions.outputPath, { recursive: true });
   }
 
-  if (!existsSync(outputPath)) {
-    mkdirSync(outputPath, { recursive: true });
+  if (!existsSync(fedOptions.outputPath)) {
+    mkdirSync(fedOptions.outputPath, { recursive: true });
   }
 
   if (!write) {
@@ -241,7 +251,7 @@ export async function* runBuilder(
     }
 
     if (first && runServer) {
-      startServer(nfOptions, options.outputPath, memResults);
+      startServer(nfOptions, fedOptions.outputPath, memResults);
     }
 
     if (!first && runServer) {
