@@ -27,7 +27,10 @@ import {
 import { createRequire } from 'node:module';
 
 import { Schema as EsBuildBuilderOptions } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
-import { ApplicationBuilderOptions as AppBuilderSchema, buildApplicationInternal } from '@angular-devkit/build-angular/src/builders/application';
+import {
+  ApplicationBuilderOptions as AppBuilderSchema,
+  buildApplicationInternal,
+} from '@angular-devkit/build-angular/src/builders/application';
 
 import { createSharedMappingsPlugin } from './shared-mappings-plugin';
 import * as fs from 'fs';
@@ -256,7 +259,7 @@ async function runEsbuild(
       'async-await': false,
       'object-rest-spread': false,
     },
-    splitting: (kind === 'mapping-or-exposed'),
+    splitting: kind === 'mapping-or-exposed',
     platform: 'browser',
     format: 'esm',
     target: ['esnext'],
@@ -431,8 +434,8 @@ async function runNgBuild(
   hash = false,
   plugins: esbuild.Plugin[] | null = null,
   absWorkingDir: string | undefined = undefined,
-  logLevel: esbuild.LogLevel = 'warning'): Promise<BuildResult[]> {
-
+  logLevel: esbuild.LogLevel = 'warning'
+): Promise<BuildResult[]> {
   // unfortunately angular doesn't let us specify the out name of the enties. We'll have to map file names post-build.
   const entries = new Set<string>();
   for (const entryPoint of entryPoints) {
@@ -441,46 +444,57 @@ async function runNgBuild(
   // if watch stays enabled then the build will hang at this point...
   // watching build of exposed entries may not be necessary, because you host the app including any exposed things (if reachable)
   const builderOpts: ApplicationBuilderInternalOptions = {
-    ... builderOptions,
+    ...builderOptions,
     watch: false,
     entryPoints: entries,
-    outputHashing: hash ? OutputHashing.Bundles : OutputHashing.None
+    outputHashing: hash ? OutputHashing.Bundles : OutputHashing.None,
   };
-  if (builderOpts.browser) { // we're specifying entries instead of browser
+  if (builderOpts.browser) {
+    // we're specifying entries instead of browser
     delete builderOpts.browser;
   }
 
   const inputPlugins = [
-    ... plugins,
+    ...plugins,
     createSharedMappingsPlugin(mappedPaths),
     {
       name: 'fixExternalsAndSplitting',
       setup(build: esbuild.PluginBuild) {
         if (build.initialOptions.platform !== 'node') {
-          build.initialOptions.external = external.filter(
-            (e) => e !== 'tslib'
-          );
+          build.initialOptions.external = external.filter((e) => e !== 'tslib');
         }
         build.initialOptions.splitting = false;
         build.initialOptions.chunkNames = null;
-      }
-    }
+      },
+    },
   ];
-  const builderRun = await buildApplicationInternal(builderOpts, context, { write: false }, inputPlugins);
+  const builderRun = await buildApplicationInternal(
+    builderOpts,
+    context,
+    { write: false },
+    inputPlugins
+  );
   const result: BuildResult[] = [];
   for await (const output of builderRun) {
     if (!output.success) {
-      logger.error("Building exposed entries failed with: " + output.error);
-      throw new Error("Native federation failed building exposed entries");
+      logger.error('Building exposed entries failed with: ' + output.error);
+      throw new Error('Native federation failed building exposed entries');
     }
     for (const outFile of output.outputFiles) {
       // we were not able to tell angular builder that we expected the entrypoint's out name to be different
       // therefore we must try and map files back, and do the transformation ourselves, when applicable.
-      const name = path.basename(outFile.path).replace(/(?:-[\dA-Z]{8})?\.[a-z]{2,3}$/, '');
-      const entry = entryPoints.find(ep => path.basename(ep.fileName) == name);
+      const name = path
+        .basename(outFile.path)
+        .replace(/(?:-[\dA-Z]{8})?\.[a-z]{2,3}$/, '');
+      const entry = entryPoints.find(
+        (ep) => path.basename(ep.fileName) == name
+      );
       if (entry) {
         // TODO: put hash back
-        const intendedFileName = path.join(path.dirname(outFile.path), entry.outName);
+        const intendedFileName = path.join(
+          path.dirname(outFile.path),
+          entry.outName
+        );
         result.push({ fileName: intendedFileName });
       } else {
         result.push({ fileName: outFile.path });
