@@ -6,7 +6,7 @@ import {
 import * as esbuild from 'esbuild';
 import { createCompilerPlugin } from '@angular-devkit/build-angular/src/tools/esbuild/angular/compiler-plugin';
 
-import { BuilderContext } from '@angular-devkit/architect';
+import { BuilderContext, BuilderOutput } from '@angular-devkit/architect';
 
 import { transformSupportedBrowsersToTargets } from './transform';
 
@@ -45,6 +45,7 @@ import {
 } from 'libs/native-federation-core/src/lib/core/build-adapter';
 import { ApplicationBuilderInternalOptions } from '@angular-devkit/build-angular/src/builders/application/options';
 import { OutputHashing } from '@angular-devkit/build-angular';
+import { BuildOutputFile } from '@angular-devkit/build-angular/src/tools/esbuild/bundler-context';
 
 // const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
 
@@ -301,7 +302,7 @@ async function runEsbuild(
 
   const ctx = await esbuild.context(config);
   const result = await ctx.rebuild();
-
+  // always false
   const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
 
   const writtenFiles = writeResult(result, outdir, memOnly);
@@ -370,7 +371,7 @@ function createTsConfigForFederation(
 }
 
 function writeResult(
-  result: esbuild.BuildResult<esbuild.BuildOptions>,
+  result: Pick<esbuild.BuildResult<esbuild.BuildOptions>, 'outputFiles'>,
   outdir: string,
   memOnly: boolean
 ) {
@@ -468,40 +469,52 @@ async function runNgBuild(
       },
     },
   ];
-  const builderRun = await buildApplicationInternal(
-    builderOpts,
-    context,
-    { write: false },
-    inputPlugins
-  );
-  const result: BuildResult[] = [];
-  for await (const output of builderRun) {
-    if (!output.success) {
-      logger.error('Building exposed entries failed with: ' + output.error);
-      throw new Error('Native federation failed building exposed entries');
-    }
-    for (const outFile of output.outputFiles) {
+  
+  const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
+
+  async function run(): Promise<BuildResult[]> {
+    const builderRun = await buildApplicationInternal(
+      builderOpts,
+      context,
+      { write: false },
+      inputPlugins
+    );
+    let output: BuilderOutput & {
+      outputFiles?: BuildOutputFile[];
+      assetFiles?: { source: string; destination: string }[];
+    };
+    for await (output of builderRun) {
+      if (!output.success) {
+        logger.error('Building exposed entries failed with: ' + output.error);
+        throw new Error('Native federation failed building exposed entries');
+      }
       // we were not able to tell angular builder that we expected the entrypoint's out name to be different
       // therefore we must try and map files back, and do the transformation ourselves, when applicable.
-      const name = path
-        .basename(outFile.path)
-        .replace(/(?:-[\dA-Z]{8})?\.[a-z]{2,3}$/, '');
-      const entry = entryPoints.find(
-        (ep) => path.basename(ep.fileName) == name
-      );
-      if (entry) {
-        // TODO: put hash back
-        const intendedFileName = path.join(
-          path.dirname(outFile.path),
-          entry.outName
+      for (const outFile of output.outputFiles) {
+        const pathBasename = path.basename(outFile.path);
+        const name = pathBasename.replace(/(?:-[\dA-Z]{8})?\.[a-z]{2,3}$/, '');
+        const entry = entryPoints.find(
+          (ep) => path.basename(ep.fileName) == name
         );
-        result.push({ fileName: intendedFileName });
-      } else {
-        result.push({ fileName: outFile.path });
+        if (entry) {
+          const nameHash = pathBasename.substring(
+            pathBasename.lastIndexOf('-'),
+            pathBasename.lastIndexOf('.')
+          );
+          const originalOutName = entry.outName.substring(0, entry.outName.lastIndexOf('.'));
+          outFile.path = path.join(
+            path.dirname(outFile.path),
+            originalOutName + nameHash + '.js'
+          );
+        }
       }
     }
+    // output's outFiles is marked optional. The Angular types aren't helping us here, but we know it's there
+    const writtenFiles = writeResult(output as any, outdir, memOnly);
+    return writtenFiles.map(file => ({ fileName: file }));
   }
-  // TODO: register for rebuild
-  // TODO: write result
-  return result;
+  rebuildRequested.rebuild.register(async () => {
+    await run();
+  });
+  return run();
 }
