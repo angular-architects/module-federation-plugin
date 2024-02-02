@@ -238,7 +238,7 @@ export async function* runBuilder(
     }
 
     if (write && !nfOptions.dev) {
-      prepareBundles(fedOptions, output);
+      prepareBundles(options, fedOptions, output);
     }
 
     if (first && runServer) {

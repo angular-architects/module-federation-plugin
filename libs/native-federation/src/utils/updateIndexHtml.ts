@@ -1,9 +1,14 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { BuildOutputFile } from '@angular-devkit/build-angular/src/tools/esbuild/bundler-context';
+import { FederationOptions } from '@softarc/native-federation/build';
 
-export function updateIndexHtml(file: BuildOutputFile) {
-  const dir = path.dirname(file.fullOutputPath);
+export function updateIndexHtml(fedOptions: FederationOptions, file: BuildOutputFile) {
+  const dir = path.join(
+    fedOptions.workspaceRoot,
+    fedOptions.outputPath,
+    path.dirname(file.path)
+  );
   const mainName = fs
     .readdirSync(dir)
     .find((f) => f.startsWith('main') && f.endsWith('.js'));

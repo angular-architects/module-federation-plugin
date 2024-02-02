@@ -1,20 +1,77 @@
-import { FederationOptions } from "@softarc/native-federation/build";
-import { AngularBuildOutput } from "./angular-esbuild-adapter";
-import { updateIndexHtml } from "./updateIndexHtml";
-import { BuildOutputFile } from "@angular-devkit/build-angular/src/tools/esbuild/bundler-context";
+import { FederationOptions, writeFederationInfo, writeImportMap } from '@softarc/native-federation/build';
+import { AngularBuildOutput } from './angular-esbuild-adapter';
+import { updateIndexHtml } from './updateIndexHtml';
+import { BuildOutputFile, BuildOutputFileType } from '@angular-devkit/build-angular/src/tools/esbuild/bundler-context';
+import { JsonObject } from '@angular-devkit/core';
+import * as path from 'path';
+import * as fs from 'fs';
+import { Schema } from '@angular-devkit/build-angular/src/builders/application/schema';
+import { FederationInfo } from '@softarc/native-federation-runtime';
 
 // assuming that the files have already been written
-export function prepareBundles(fedOptions: FederationOptions, buildOutput: AngularBuildOutput): void {
-    // TODO: at this point we can also copy remoteEntry.json from root next to each index.html
-    // TODO: remoteEntry.json-s that are copied should be transformed because they and exposed entries
-    // go to language folders, but shared files go to dist root.
-    // TODO:? import maps need to be copied and transformed like the remoteEntry-s. They're not used anywhere though.
-    for (const indexFile of getIndexFiles(buildOutput)) {
-        updateIndexHtml(indexFile);
-    }
+export function prepareBundles(
+  options: JsonObject & Schema,
+  fedOptions: FederationOptions,
+  buildOutput: AngularBuildOutput
+): void {
+  
+  const metaDataPath = path.join(
+    fedOptions.workspaceRoot,
+    fedOptions.outputPath,
+    'remoteEntry.json'
+  );
+  const federationInfo = JSON.parse(fs.readFileSync(metaDataPath, 'utf-8')) as FederationInfo;
+
+  for (const indexFile of getIndexFiles(options, buildOutput)) {
+    updateIndexHtml(fedOptions, indexFile);
+    addFederationInfoToBundle(
+      cloneFederationInfo(federationInfo),
+      fedOptions,
+      path.dirname(indexFile.path));
+  }
 }
 
-function getIndexFiles(buildOutput: AngularBuildOutput): BuildOutputFile[] {
-    // TODO: filter also for these files to be in the browser area
-    return buildOutput.outputFiles.filter(file => file.path.endsWith('index.html'));
+function getIndexFiles(
+  options: JsonObject & Schema,
+  buildOutput: AngularBuildOutput): BuildOutputFile[] {
+
+  const indexName = typeof options.index == 'string' 
+    ? path.basename(options.index)
+    : (options.index as any).output || 'index.html';
+    
+  return buildOutput.outputFiles.filter((file) =>
+    file.path.endsWith(indexName) &&
+    file.type == BuildOutputFileType.Browser
+  );
+}
+
+function addFederationInfoToBundle(fedInfo: FederationInfo, fedOptions: FederationOptions, locale: string) {
+  // shared entries are not localized. We don't copy them to locale folders to save space
+  // but this means we have to map the items in federation info, to point up 1 level.
+  // exposed entries need no transformation, they were basenames, and they got localized
+  const newShared = fedInfo.shared.map((share) => ({
+    ...share,
+    outFileName: path.join(
+      '..',
+      share.outFileName
+    )
+  }));
+  fedInfo.shared = newShared;
+  const localizedFedOptions: FederationOptions = {
+    ...fedOptions,
+    outputPath: path.join(
+      fedOptions.outputPath,
+      locale
+    )
+  }
+  writeFederationInfo(fedInfo, localizedFedOptions)
+  writeImportMap(newShared, localizedFedOptions);
+}
+
+function cloneFederationInfo(fedInfo: FederationInfo): FederationInfo {
+  return {
+    name: fedInfo.name,
+    exposes: fedInfo.exposes.map(exp => ({ ...exp })),
+    shared: fedInfo.shared.map(share => ({ ...share }))
+  };
 }

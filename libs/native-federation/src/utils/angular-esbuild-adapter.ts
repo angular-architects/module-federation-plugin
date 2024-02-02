@@ -454,6 +454,9 @@ async function runNgBuild(
     watch: false,
     entryPoints: entries,
     outputHashing: hash ? OutputHashing.Bundles : OutputHashing.None,
+    externalDependencies: [
+      ...builderOptions.externalDependencies,
+      ...external].filter((e) => e !== 'tslib')
   };
   if (builderOpts.browser) {
     // we're specifying entries instead of browser
@@ -464,17 +467,14 @@ async function runNgBuild(
     ...plugins,
     createSharedMappingsPlugin(mappedPaths),
     {
-      name: 'fixExternalsAndSplitting',
+      name: 'fixSplitting',
       setup(build: esbuild.PluginBuild) {
-        if (build.initialOptions.platform !== 'node') {
-          build.initialOptions.external = external.filter((e) => e !== 'tslib');
-        }
         build.initialOptions.splitting = false;
         build.initialOptions.chunkNames = null;
       },
     },
   ];
-  
+
   const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
 
   async function run(): Promise<BuildResult[]> {
@@ -503,7 +503,10 @@ async function runNgBuild(
             pathBasename.lastIndexOf('-'),
             pathBasename.lastIndexOf('.')
           );
-          const originalOutName = entry.outName.substring(0, entry.outName.lastIndexOf('.'));
+          const originalOutName = entry.outName.substring(
+            0,
+            entry.outName.lastIndexOf('.')
+          );
           outFile.path = path.join(
             path.dirname(outFile.path),
             originalOutName + nameHash + '.js'
@@ -513,7 +516,7 @@ async function runNgBuild(
     }
     // output's outFiles is marked optional. The Angular types aren't helping us here, but we know it's there
     const writtenFiles = writeResult(output as any, outdir, memOnly);
-    return writtenFiles.map(file => ({ fileName: file }));
+    return writtenFiles.map((file) => ({ fileName: file }));
   }
   rebuildRequested.rebuild.register(async () => {
     await run();
