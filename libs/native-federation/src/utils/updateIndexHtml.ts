@@ -3,7 +3,10 @@ import * as fs from 'fs';
 import { BuildOutputFile } from '@angular-devkit/build-angular/src/tools/esbuild/bundler-context';
 import { FederationOptions } from '@softarc/native-federation/build';
 
-export function updateIndexHtml(fedOptions: FederationOptions, file: BuildOutputFile) {
+export function updateIndexHtml(
+  fedOptions: FederationOptions,
+  file: BuildOutputFile
+) {
   const dir = path.join(
     fedOptions.workspaceRoot,
     fedOptions.outputPath,

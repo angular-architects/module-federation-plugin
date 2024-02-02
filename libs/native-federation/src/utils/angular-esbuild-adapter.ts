@@ -456,7 +456,8 @@ async function runNgBuild(
     outputHashing: hash ? OutputHashing.Bundles : OutputHashing.None,
     externalDependencies: [
       ...builderOptions.externalDependencies,
-      ...external].filter((e) => e !== 'tslib')
+      ...external,
+    ].filter((e) => e !== 'tslib'),
   };
   if (builderOpts.browser) {
     // we're specifying entries instead of browser
