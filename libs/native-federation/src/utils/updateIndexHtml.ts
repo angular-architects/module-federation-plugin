@@ -1,21 +1,18 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { FederationOptions } from '@softarc/native-federation/build';
+import { BuildOutputFile } from '@angular-devkit/build-angular/src/tools/esbuild/bundler-context';
 
-export function updateIndexHtml(fedOptions: FederationOptions) {
-  const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
-  const indexPath = path.join(outputPath, 'index.html');
+export function updateIndexHtml(file: BuildOutputFile) {
+  const dir = path.dirname(file.fullOutputPath);
   const mainName = fs
-    .readdirSync(outputPath)
+    .readdirSync(dir)
     .find((f) => f.startsWith('main') && f.endsWith('.js'));
   const polyfillsName = fs
-    .readdirSync(outputPath)
+    .readdirSync(dir)
     .find((f) => f.startsWith('polyfills') && f.endsWith('.js'));
 
-  let indexContent = fs.readFileSync(indexPath, 'utf-8');
-
-  indexContent = updateScriptTags(indexContent, mainName, polyfillsName);
-  fs.writeFileSync(indexPath, indexContent, 'utf-8');
+  let indexContent = updateScriptTags(file.text, mainName, polyfillsName);
+  fs.writeFileSync(file.fullOutputPath, indexContent, 'utf-8');
 }
 
 export function updateScriptTags(

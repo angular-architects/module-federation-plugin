@@ -37,7 +37,6 @@ import {
   startServer,
 } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
-import { updateIndexHtml, updateScriptTags } from '../../utils/updateIndexHtml';
 import { existsSync, mkdirSync, rmSync } from 'fs';
 import {
   EsBuildResult,
@@ -49,6 +48,8 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { Connect } from 'vite';
 import { PluginBuild } from 'esbuild';
 import { FederationInfo } from '@softarc/native-federation-runtime';
+import { prepareBundles } from '../../utils/prepare-bundles';
+import { updateScriptTags } from '../../utils/updateIndexHtml';
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
@@ -237,11 +238,7 @@ export async function* runBuilder(
     }
 
     if (write && !nfOptions.dev) {
-      updateIndexHtml(fedOptions); // TODO: pass it the output, and have it find all index.html-s to update
-      // TODO: at this point we can also copy remoteEntry.json from root next to each index.html
-      // TODO: remoteEntry.json-s that are copied should be transformed because they and exposed entries
-      // go to language folders, but shared files go to dist root.
-      // TODO:? import maps need to be copied and transformed like the remoteEntry-s. They're not used anywhere though.
+      prepareBundles(fedOptions, output);
     }
 
     if (first && runServer) {

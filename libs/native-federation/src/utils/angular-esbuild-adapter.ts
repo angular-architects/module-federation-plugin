@@ -60,6 +60,11 @@ export function setMemResultHandler(handler: MemResultHandler): void {
   _memResultHandler = handler;
 }
 
+export type AngularBuildOutput = BuilderOutput & {
+  outputFiles?: BuildOutputFile[];
+  assetFiles?: { source: string; destination: string }[];
+};
+
 export function createAngularBuildAdapter(
   builderOptions: AppBuilderSchema,
   context: BuilderContext,
@@ -479,10 +484,7 @@ async function runNgBuild(
       { write: false },
       inputPlugins
     );
-    let output: BuilderOutput & {
-      outputFiles?: BuildOutputFile[];
-      assetFiles?: { source: string; destination: string }[];
-    };
+    let output: AngularBuildOutput;
     for await (output of builderRun) {
       if (!output.success) {
         logger.error('Building exposed entries failed with: ' + output.error);
