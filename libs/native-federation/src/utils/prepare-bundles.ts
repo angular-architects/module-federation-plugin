@@ -1,7 +1,7 @@
 import {
   FederationOptions,
   writeFederationInfo,
-  writeImportMap
+  writeImportMap,
 } from '@softarc/native-federation/build';
 import { AngularBuildOutput } from './angular-esbuild-adapter';
 import { updateIndexHtml } from './updateIndexHtml';
@@ -21,33 +21,38 @@ export function prepareBundles(
   options: JsonObject & Schema,
   fedOptions: FederationOptions,
   i18nOptions: I18nOptions,
-  buildOutput: AngularBuildOutput
+  buildOutput: AngularBuildOutput,
 ): void {
   const metaDataPath = path.join(
     fedOptions.workspaceRoot,
     fedOptions.outputPath,
-    'remoteEntry.json'
+    'remoteEntry.json',
   );
   const federationInfo = JSON.parse(
-    fs.readFileSync(metaDataPath, 'utf-8')
+    fs.readFileSync(metaDataPath, 'utf-8'),
   ) as FederationInfo;
   const indexFiles = getIndexFiles(
     options,
     fedOptions,
     i18nOptions,
-    buildOutput
+    buildOutput,
   );
   // in case there is only a single locale, just update the index html, the rest is ok.
   if (!i18nOptions.shouldInline) {
     updateIndexHtml(fedOptions, indexFiles[0]);
     return;
   }
-  for (const indexFile of getIndexFiles(options, fedOptions, i18nOptions, buildOutput)) {
+  for (const indexFile of getIndexFiles(
+    options,
+    fedOptions,
+    i18nOptions,
+    buildOutput,
+  )) {
     updateIndexHtml(fedOptions, indexFile);
     addFederationInfoToBundle(
       cloneFederationInfo(federationInfo),
       fedOptions,
-      path.dirname(indexFile.path)
+      path.dirname(indexFile.path),
     );
   }
 }
@@ -56,7 +61,7 @@ function getIndexFiles(
   options: JsonObject & Schema,
   fedOptions: FederationOptions,
   i18nOptions: I18nOptions,
-  buildOutput: AngularBuildOutput
+  buildOutput: AngularBuildOutput,
 ): BuildOutputFile[] {
   const indexName =
     typeof options.index == 'string'
@@ -66,18 +71,18 @@ function getIndexFiles(
   if (buildOutput.outputFiles) {
     return buildOutput.outputFiles.filter(
       (file) =>
-        file.path.endsWith(indexName) && file.type == BuildOutputFileType.Browser
+        file.path.endsWith(indexName) &&
+        file.type == BuildOutputFileType.Browser,
     );
   } else {
     return getIndexBuildOutput(indexName, i18nOptions, fedOptions);
   }
-  
 }
 
 function addFederationInfoToBundle(
   fedInfo: FederationInfo,
   fedOptions: FederationOptions,
-  locale: string
+  locale: string,
 ) {
   // shared entries are not localized. We don't copy them to locale folders to save space
   // but this means we have to map the items in federation info, to point up 1 level.
@@ -103,13 +108,13 @@ function cloneFederationInfo(fedInfo: FederationInfo): FederationInfo {
   };
 }
 
-function getIndexBuildOutput(indexName: string, i18nOptions: I18nOptions, fedOptions: FederationOptions) {
-  
-  return Object.keys(i18nOptions.locales).map(locale => {
-    const pathSegments = [
-      fedOptions.workspaceRoot,
-      fedOptions.outputPath
-    ];
+function getIndexBuildOutput(
+  indexName: string,
+  i18nOptions: I18nOptions,
+  fedOptions: FederationOptions,
+) {
+  return Object.keys(i18nOptions.locales).map((locale) => {
+    const pathSegments = [fedOptions.workspaceRoot, fedOptions.outputPath];
     if (i18nOptions.shouldInline) {
       pathSegments.push(locale);
     }
@@ -117,21 +122,16 @@ function getIndexBuildOutput(indexName: string, i18nOptions: I18nOptions, fedOpt
 
     return {
       type: BuildOutputFileType.Browser,
-      path: i18nOptions.shouldInline
-        ? path.join(locale, indexName)
-        : indexName,
+      path: i18nOptions.shouldInline ? path.join(locale, indexName) : indexName,
       get text() {
-        return fs.readFileSync(
-          path.join(...pathSegments),
-          'utf-8'
-        );
+        return fs.readFileSync(path.join(...pathSegments), 'utf-8');
       },
       // the rest are unused anyway
       contents: new Uint8Array(),
       clone: function clone() {
         return { ...this };
       },
-      hash: ''
-    }
+      hash: '',
+    };
   });
 }

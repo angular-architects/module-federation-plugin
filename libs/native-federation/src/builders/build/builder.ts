@@ -54,16 +54,16 @@ import { createI18nOptions } from '@angular-devkit/build-angular/src/utils/i18n-
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
-  context: BuilderContext
+  context: BuilderContext,
 ): AsyncIterable<BuilderOutput> {
   let target = targetFromTargetString(nfOptions.target);
 
   let _options = (await context.getTargetOptions(
-    target
+    target,
   )) as unknown as JsonObject & Schema;
 
   let builder = await context.getBuilderNameForTarget(target);
-  
+
   if (builder === '@angular-devkit/build-angular:browser-esbuild') {
     logger.info('.: NATIVE FEDERATION - UPDATE NEEDED :.');
     logger.info('');
@@ -87,7 +87,7 @@ export async function* runBuilder(
 
   let options = (await context.validateOptions(
     _options,
-    builder
+    builder,
   )) as JsonObject & Schema;
 
   const outerOptions = options as DevServerBuilderOptions;
@@ -98,7 +98,7 @@ export async function* runBuilder(
   if (nfOptions.dev) {
     target = targetFromTargetString(outerOptions.buildTarget);
     _options = (await context.getTargetOptions(
-      target
+      target,
     )) as unknown as JsonObject & Schema;
 
     builder = await context.getBuilderNameForTarget(target);
@@ -141,7 +141,7 @@ export async function* runBuilder(
       setup(build: PluginBuild) {
         if (build.initialOptions.platform !== 'node') {
           build.initialOptions.external = externals.filter(
-            (e) => e !== 'tslib'
+            (e) => e !== 'tslib',
           );
         }
       },
@@ -153,7 +153,7 @@ export async function* runBuilder(
       const fileName = path.join(
         fedOptions.workspaceRoot,
         fedOptions.outputPath,
-        req.url
+        req.url,
       );
       const exists = fs.existsSync(fileName);
 
@@ -214,7 +214,7 @@ export async function* runBuilder(
         {
           buildPlugins: plugins,
           middleware,
-        }
+        },
       )
     : buildApplication(options, context, plugins);
 
@@ -236,7 +236,7 @@ export async function* runBuilder(
 
     if (!write && output.assetFiles) {
       memResults.add(
-        output.assetFiles.map((file) => new NgCliAssetResult(file))
+        output.assetFiles.map((file) => new NgCliAssetResult(file)),
       );
     }
 

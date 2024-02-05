@@ -51,7 +51,7 @@ import { BuildOutputFile } from '@angular-devkit/build-angular/src/tools/esbuild
 
 export type MemResultHandler = (
   outfiles: esbuild.OutputFile[],
-  outdir?: string
+  outdir?: string,
 ) => void;
 
 let _memResultHandler: MemResultHandler;
@@ -68,7 +68,7 @@ export type AngularBuildOutput = BuilderOutput & {
 export function createAngularBuildAdapter(
   builderOptions: AppBuilderSchema,
   context: BuilderContext,
-  rebuildRequested: RebuildEvents = new RebuildHubs()
+  rebuildRequested: RebuildEvents = new RebuildHubs(),
 ): BuildAdapter {
   return async (options) => {
     const {
@@ -96,19 +96,19 @@ export function createAngularBuildAdapter(
         rebuildRequested,
         dev,
         kind,
-        hash
+        hash,
       );
 
       if (kind === 'shared-package') {
         const scriptFiles = files.filter(
-          (f) => f.endsWith('.js') || f.endsWith('.mjs')
+          (f) => f.endsWith('.js') || f.endsWith('.mjs'),
         );
         for (const file of scriptFiles) {
           link(file, dev);
         }
       }
 
-      return files.map((fileName) => ({ fileName } as BuildResult));
+      return files.map((fileName) => ({ fileName }) as BuildResult);
     } else {
       return await runNgBuild(
         builderOptions,
@@ -122,7 +122,7 @@ export function createAngularBuildAdapter(
         rebuildRequested,
         dev,
         kind,
-        hash
+        hash,
       );
     }
   };
@@ -132,7 +132,7 @@ export function createAngularBuildAdapter(
 
     try {
       const linkerEsm = await loadEsmModule<{ default: PluginItem }>(
-        '@angular/compiler-cli/linker/babel'
+        '@angular/compiler-cli/linker/babel',
       );
 
       const linker = linkerEsm.default;
@@ -178,7 +178,7 @@ async function runEsbuild(
   hash = false,
   plugins: esbuild.Plugin[] | null = null,
   absWorkingDir: string | undefined = undefined,
-  logLevel: esbuild.LogLevel = 'warning'
+  logLevel: esbuild.LogLevel = 'warning',
 ) {
   const projectRoot = path.dirname(tsConfigPath);
   const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
@@ -187,12 +187,12 @@ async function runEsbuild(
   const workspaceRoot = context.workspaceRoot;
 
   const optimizationOptions = normalizeOptimization(
-    builderOptions.optimization
+    builderOptions.optimization,
   );
   const sourcemapOptions = normalizeSourceMaps(builderOptions.sourceMap);
   const tailwindConfigurationPath = await findTailwindConfigurationFile(
     workspaceRoot,
-    projectRoot
+    projectRoot,
   );
 
   const fullProjectRoot = path.join(workspaceRoot, projectRoot);
@@ -222,7 +222,7 @@ async function runEsbuild(
   tsConfigPath = createTsConfigForFederation(
     workspaceRoot,
     tsConfigPath,
-    entryPoints
+    entryPoints,
   );
 
   const pluginOptions = createCompilerPluginOptions(
@@ -242,7 +242,7 @@ async function runEsbuild(
       tailwindConfiguration,
     } as any,
     target,
-    undefined
+    undefined,
   );
 
   pluginOptions.styleOptions.externalDependencies = [];
@@ -273,7 +273,7 @@ async function runEsbuild(
     plugins: plugins || [
       createCompilerPlugin(
         pluginOptions.pluginOptions,
-        pluginOptions.styleOptions
+        pluginOptions.styleOptions,
 
         // TODO: Once available, use helper functions
         //  for creating these config objects:
@@ -320,7 +320,7 @@ async function runEsbuild(
       entryPoints,
       outdir,
       hash,
-      memOnly
+      memOnly,
     );
   } else {
     ctx.dispose();
@@ -340,7 +340,7 @@ function cleanUpTsConfigForFederation(tsConfigPath: string) {
 function createTsConfigForFederation(
   workspaceRoot: string,
   tsConfigPath: string,
-  entryPoints: EntryPoint[]
+  entryPoints: EntryPoint[],
 ) {
   const fullTsConfigPath = path.join(workspaceRoot, tsConfigPath);
   const tsconfigDir = path.dirname(fullTsConfigPath);
@@ -348,14 +348,14 @@ function createTsConfigForFederation(
   const filtered = entryPoints
     .filter(
       (ep) =>
-        !ep.fileName.includes('/node_modules/') && !ep.fileName.startsWith('.')
+        !ep.fileName.includes('/node_modules/') && !ep.fileName.startsWith('.'),
     )
     .map((ep) => path.relative(tsconfigDir, ep.fileName).replace(/\\\\/g, '/'));
 
   const tsconfigAsString = fs.readFileSync(fullTsConfigPath, 'utf-8');
   const tsconfigWithoutComments = tsconfigAsString.replace(
     /\/\*.+?\*\/|\/\/.*(?=[\n\r])/g,
-    ''
+    '',
   );
   const tsconfig = JSON.parse(tsconfigWithoutComments);
 
@@ -378,7 +378,7 @@ function createTsConfigForFederation(
 function writeResult(
   result: Pick<esbuild.BuildResult<esbuild.BuildOptions>, 'outputFiles'>,
   outdir: string,
-  memOnly: boolean
+  memOnly: boolean,
 ) {
   const writtenFiles: string[] = [];
 
@@ -409,7 +409,7 @@ function registerForRebuilds(
   entryPoints: EntryPoint[],
   outdir: string,
   hash: boolean,
-  memOnly: boolean
+  memOnly: boolean,
 ) {
   if (kind !== 'shared-package') {
     rebuildRequested.rebuild.register(async () => {
@@ -421,7 +421,7 @@ function registerForRebuilds(
 
 export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
   return new Function('modulePath', `return import(modulePath);`)(
-    modulePath
+    modulePath,
   ) as Promise<T>;
 }
 
@@ -440,7 +440,7 @@ async function runNgBuild(
   hash = false,
   plugins: esbuild.Plugin[] | null = null,
   absWorkingDir: string | undefined = undefined,
-  logLevel: esbuild.LogLevel = 'warning'
+  logLevel: esbuild.LogLevel = 'warning',
 ): Promise<BuildResult[]> {
   if (!entryPoints.length) {
     return Promise.resolve([]);
@@ -486,7 +486,7 @@ async function runNgBuild(
       builderOpts,
       context,
       { write: false },
-      { codePlugins: inputPlugins }
+      { codePlugins: inputPlugins },
     );
     let output: AngularBuildOutput;
     for await (output of builderRun) {
@@ -500,20 +500,20 @@ async function runNgBuild(
         const pathBasename = path.basename(outFile.path);
         const name = pathBasename.replace(/(?:-[\dA-Z]{8})?\.[a-z]{2,3}$/, '');
         const entry = entryPoints.find(
-          (ep) => path.basename(ep.fileName) == name
+          (ep) => path.basename(ep.fileName) == name,
         );
         if (entry) {
           const nameHash = pathBasename.substring(
             pathBasename.lastIndexOf('-'),
-            pathBasename.lastIndexOf('.')
+            pathBasename.lastIndexOf('.'),
           );
           const originalOutName = entry.outName.substring(
             0,
-            entry.outName.lastIndexOf('.')
+            entry.outName.lastIndexOf('.'),
           );
           outFile.path = path.join(
             path.dirname(outFile.path),
-            originalOutName + nameHash + '.js'
+            originalOutName + nameHash + '.js',
           );
         }
       }

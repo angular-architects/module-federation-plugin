@@ -5,12 +5,12 @@ import { FederationOptions } from '@softarc/native-federation/build';
 
 export function updateIndexHtml(
   fedOptions: FederationOptions,
-  file: BuildOutputFile
+  file: BuildOutputFile,
 ) {
   const dir = path.join(
     fedOptions.workspaceRoot,
     fedOptions.outputPath,
-    path.dirname(file.path)
+    path.dirname(file.path),
   );
   const mainName = fs
     .readdirSync(dir)
@@ -20,13 +20,17 @@ export function updateIndexHtml(
     .find((f) => f.startsWith('polyfills') && f.endsWith('.js'));
 
   let indexContent = updateScriptTags(file.text, mainName, polyfillsName);
-  fs.writeFileSync(path.join(dir, path.basename(file.path)), indexContent, 'utf-8');
+  fs.writeFileSync(
+    path.join(dir, path.basename(file.path)),
+    indexContent,
+    'utf-8',
+  );
 }
 
 export function updateScriptTags(
   indexContent: string,
   mainName: string,
-  polyfillsName: string
+  polyfillsName: string,
 ) {
   const htmlFragment = `
 <script type="esms-options">
