@@ -20,7 +20,7 @@ export function updateIndexHtml(
     .find((f) => f.startsWith('polyfills') && f.endsWith('.js'));
 
   let indexContent = updateScriptTags(file.text, mainName, polyfillsName);
-  fs.writeFileSync(file.fullOutputPath, indexContent, 'utf-8');
+  fs.writeFileSync(path.join(dir, path.basename(file.path)), indexContent, 'utf-8');
 }
 
 export function updateScriptTags(

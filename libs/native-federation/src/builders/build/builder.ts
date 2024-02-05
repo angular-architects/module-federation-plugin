@@ -50,6 +50,7 @@ import { PluginBuild } from 'esbuild';
 import { FederationInfo } from '@softarc/native-federation-runtime';
 import { prepareBundles } from '../../utils/prepare-bundles';
 import { updateScriptTags } from '../../utils/updateIndexHtml';
+import { createI18nOptions } from '@angular-devkit/build-angular/src/utils/i18n-options';
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
@@ -62,7 +63,7 @@ export async function* runBuilder(
   )) as unknown as JsonObject & Schema;
 
   let builder = await context.getBuilderNameForTarget(target);
-
+  
   if (builder === '@angular-devkit/build-angular:browser-esbuild') {
     logger.info('.: NATIVE FEDERATION - UPDATE NEEDED :.');
     logger.info('');
@@ -104,6 +105,8 @@ export async function* runBuilder(
     options = (await context.validateOptions(_options, builder)) as JsonObject &
       Schema;
   }
+  const metadata = await context.getProjectMetadata(context.target.project);
+  const i18nOpts = createI18nOptions(metadata, options.localize);
 
   const runServer = !!nfOptions.port;
   const write = !runServer;
@@ -117,7 +120,7 @@ export async function* runBuilder(
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
 
-  const outputPath = path.join(options.outputPath, 'browser');
+  const outputPath = path.join(options.outputPath as string, 'browser');
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
@@ -238,11 +241,11 @@ export async function* runBuilder(
     }
 
     if (write && !nfOptions.dev) {
-      prepareBundles(options, fedOptions, output);
+      prepareBundles(options, fedOptions, i18nOpts, output);
     }
 
     if (first && runServer) {
-      startServer(nfOptions, options.outputPath, memResults);
+      startServer(nfOptions, options.outputPath as string, memResults);
     }
 
     if (!first && runServer) {

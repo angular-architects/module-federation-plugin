@@ -442,6 +442,9 @@ async function runNgBuild(
   absWorkingDir: string | undefined = undefined,
   logLevel: esbuild.LogLevel = 'warning'
 ): Promise<BuildResult[]> {
+  if (!entryPoints.length) {
+    return Promise.resolve([]);
+  }
   // unfortunately angular doesn't let us specify the out name of the enties. We'll have to map file names post-build.
   const entries = new Set<string>();
   for (const entryPoint of entryPoints) {
@@ -465,13 +468,13 @@ async function runNgBuild(
   }
 
   const inputPlugins = [
-    ...plugins,
+    ...(plugins ?? []),
     createSharedMappingsPlugin(mappedPaths),
     {
       name: 'fixSplitting',
       setup(build: esbuild.PluginBuild) {
         build.initialOptions.splitting = false;
-        build.initialOptions.chunkNames = null;
+        build.initialOptions.chunkNames = '';
       },
     },
   ];
@@ -483,7 +486,7 @@ async function runNgBuild(
       builderOpts,
       context,
       { write: false },
-      inputPlugins
+      { codePlugins: inputPlugins }
     );
     let output: AngularBuildOutput;
     for await (output of builderRun) {
