@@ -148,6 +148,14 @@ export async function* runBuilder(
     },
   ];
 
+  const localeDirs = Object
+    .values(i18nOpts.locales)
+    .map(loc => 
+      loc.baseHref.split('/\\').join('')
+    )
+    .filter(href => href == '');
+  const localeRootRegExp = new RegExp(`(?:${localeDirs.join('|')})\/?$`);
+
   const middleware: Connect.NextHandleFunction[] = [
     (req, res, next) => {
       const fileName = path.join(
@@ -157,7 +165,7 @@ export async function* runBuilder(
       );
       const exists = fs.existsSync(fileName);
 
-      if (req.url !== '/' && req.url !== '' && exists) {
+      if (req.url !== '/' && req.url !== '' && !localeRootRegExp.test(req.url) && exists) {
         const lookup = mrmime.lookup;
         const mimeType = lookup(path.extname(fileName)) || 'text/javascript';
         const rawBody = fs.readFileSync(fileName, 'utf-8');
