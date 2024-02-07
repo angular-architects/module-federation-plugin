@@ -310,7 +310,7 @@ async function runEsbuild(
   // always false
   const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
 
-  const writtenFiles = writeResult(result, outdir, memOnly);
+  const writtenFiles = writeResult(result, outdir, memOnly, kind);
 
   if (watch) {
     registerForRebuilds(
@@ -379,6 +379,7 @@ function writeResult(
   result: Pick<esbuild.BuildResult<esbuild.BuildOptions>, 'outputFiles'>,
   outdir: string,
   memOnly: boolean,
+  kind: BuildKind,
 ) {
   const writtenFiles: string[] = [];
 
@@ -386,10 +387,19 @@ function writeResult(
     _memResultHandler(result.outputFiles, outdir);
   }
 
+  const directoryExists = new Set<string>();
+  const ensureDirectoryExists = (basePath: string) => {
+    if (basePath && !directoryExists.has(basePath)) {
+      fs.mkdirSync(path.join(outdir, basePath), { recursive: true });
+      directoryExists.add(basePath);
+    }
+  };
   for (const outFile of result.outputFiles) {
-    const fileName = path.basename(outFile.path);
+    const fileName =
+      kind != 'mapping-or-exposed' ? path.basename(outFile.path) : outFile.path;
     const filePath = path.join(outdir, fileName);
     if (!memOnly) {
+      ensureDirectoryExists(path.dirname(fileName));
       fs.writeFileSync(filePath, outFile.text);
     }
     writtenFiles.push(filePath);
@@ -414,7 +424,7 @@ function registerForRebuilds(
   if (kind !== 'shared-package') {
     rebuildRequested.rebuild.register(async () => {
       const result = await ctx.rebuild();
-      writeResult(result, outdir, memOnly);
+      writeResult(result, outdir, memOnly, kind);
     });
   }
 }
@@ -498,15 +508,19 @@ async function runNgBuild(
       // therefore we must try and map files back, and do the transformation ourselves, when applicable.
       for (const outFile of output.outputFiles) {
         const pathBasename = path.basename(outFile.path);
-        const name = pathBasename.replace(/(?:-[\dA-Z]{8})?\.[a-z]{2,3}$/, '');
+        const name = path.parse(
+          pathBasename.replace(/(?:-[\dA-Z]{8})?(\.[a-z]{2,3})$/, '$1'),
+        ).name;
         const entry = entryPoints.find(
-          (ep) => path.basename(ep.fileName) == name,
+          (ep) => path.parse(ep.fileName).name == name,
         );
         if (entry) {
-          const nameHash = pathBasename.substring(
-            pathBasename.lastIndexOf('-'),
-            pathBasename.lastIndexOf('.'),
-          );
+          const nameHash = hash
+            ? pathBasename.substring(
+                pathBasename.lastIndexOf('-'),
+                pathBasename.lastIndexOf('.'),
+              )
+            : '';
           const originalOutName = entry.outName.substring(
             0,
             entry.outName.lastIndexOf('.'),
@@ -519,7 +533,7 @@ async function runNgBuild(
       }
     }
     // output's outFiles is marked optional. The Angular types aren't helping us here, but we know it's there
-    const writtenFiles = writeResult(output as any, outdir, memOnly);
+    const writtenFiles = writeResult(output as any, outdir, memOnly, kind);
     return writtenFiles.map((file) => ({ fileName: file }));
   }
   rebuildRequested.rebuild.register(async () => {

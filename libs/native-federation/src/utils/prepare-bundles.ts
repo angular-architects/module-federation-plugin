@@ -112,8 +112,14 @@ function getIndexBuildOutput(
   indexName: string,
   i18nOptions: I18nOptions,
   fedOptions: FederationOptions,
-) {
-  return Object.keys(i18nOptions.locales).map((locale) => {
+): BuildOutputFile[] {
+  var locales: string[];
+  if (i18nOptions.shouldInline) {
+    locales = [...i18nOptions.inlineLocales.keys()];
+  } else {
+    locales = [i18nOptions.sourceLocale];
+  }
+  return locales.map((locale) => {
     const pathSegments = [fedOptions.workspaceRoot, fedOptions.outputPath];
     if (i18nOptions.shouldInline) {
       pathSegments.push(locale);
