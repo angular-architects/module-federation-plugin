@@ -8,4 +8,5 @@ export interface NfBuilderSchema extends JsonObject {
   rebuildDelay: number;
   shell: string;
   watch: boolean;
+  skipHtmlTransform: boolean;
 } // eslint-disable-line

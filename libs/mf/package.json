@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/module-federation",
-  "version": "17.0.0",
+  "version": "17.0.4",
   "license": "MIT",
   "repository": {
     "type": "GitHub",
@@ -13,11 +13,11 @@
   },
   "module": "src/index.js",
   "ES2015": "./src/index.js",
-  "sideEffects": "false",
+  "sideEffects": false,
   "schematics": "./collection.json",
   "builders": "./builders.json",
   "dependencies": {
-    "@angular-architects/module-federation-runtime": "17.0.0",
+    "@angular-architects/module-federation-runtime": "17.0.4",
     "word-wrap": "^1.2.3",
     "callsite": "^1.0.0",
     "node-fetch": "^2.6.7",

@@ -38,6 +38,10 @@
       "type": "string",
       "description": "Experimental",
       "default": ""
+    },
+    "skipHtmlTransform": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

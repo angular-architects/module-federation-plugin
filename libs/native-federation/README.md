@@ -25,13 +25,11 @@ We will at least provide a new version of this package per Angular major. If nec
 - Use version 17.x for Angular 17.x
 - Use version 17.1.x for Angular 17.1+
 
-
 ## Angular Integration
 
-Since 17.1, Native Federation for Angular uses the Angular CLI's ``esbuild``-based **Application Builder** and the CLI's **Dev Server** to keep track with all the innovations and performance-improvements in that space. 
+Since 17.1, Native Federation for Angular uses the Angular CLI's `esbuild`-based **Application Builder** and the CLI's **Dev Server** to keep track with all the innovations and performance-improvements in that space.
 
 Please find some [information for upgrading to 17.1. here](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/migrate-appbuilder.md).
-
 
 ## Credits
 
