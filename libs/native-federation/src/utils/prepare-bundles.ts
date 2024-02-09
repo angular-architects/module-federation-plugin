@@ -22,6 +22,7 @@ export function prepareBundles(
   fedOptions: FederationOptions,
   i18nOptions: I18nOptions,
   buildOutput: AngularBuildOutput,
+  shouldWriteIndex: boolean,
 ): void {
   const metaDataPath = path.join(
     fedOptions.workspaceRoot,
@@ -39,7 +40,9 @@ export function prepareBundles(
   );
   // in case there is only a single locale, just update the index html, the rest is ok.
   if (!i18nOptions.shouldInline) {
-    updateIndexHtml(fedOptions, indexFiles[0]);
+    if (shouldWriteIndex) {
+      updateIndexHtml(fedOptions, indexFiles[0]);
+    }
     return;
   }
   for (const indexFile of getIndexFiles(
@@ -48,11 +51,16 @@ export function prepareBundles(
     i18nOptions,
     buildOutput,
   )) {
-    updateIndexHtml(fedOptions, indexFile);
+    if (shouldWriteIndex) {
+      updateIndexHtml(fedOptions, indexFile);
+    }
+    const locale = path.dirname(indexFile.path);
     addFederationInfoToBundle(
-      cloneFederationInfo(federationInfo),
+      federationInfo,
       fedOptions,
-      path.dirname(indexFile.path),
+      locale,
+      i18nOptions.locales[locale].baseHref,
+      !shouldWriteIndex,
     );
   }
 }
@@ -79,25 +87,59 @@ function getIndexFiles(
   }
 }
 
+function localizeFederationInfo(
+  fedInfo: FederationInfo,
+  devServerMode: boolean,
+  baseHref: string,
+): FederationInfo {
+  // shared entries are not localized. We don't copy them to locale folders to save space
+  // but this means we have to map the items in federation info, to point up 1 level.
+  // exposed entries need no transformation, they were basenames, and they got localized
+  const localizedFedInfo = cloneFederationInfo(fedInfo);
+  const pathCorrection = '../'.repeat(baseHref.split('/').reduce((acc, segment) => (segment != '' ? ++acc: acc), 0));
+  localizedFedInfo.shared = fedInfo.shared.flatMap((share) => 
+    getAliases(share.packageName, baseHref, devServerMode).map((alias) => ({
+      ...share,
+      outFileName: pathCorrection + share.outFileName,
+      packageName: alias
+    }))
+  );
+  return localizedFedInfo;
+}
+
+function getAliases(packageName: string, baseHref: string, devServerMode: boolean): string[] {
+  const aliases = [
+    packageName,
+    baseHref + packageName
+  ];
+  if (devServerMode) {
+    aliases.push(
+      `/@id/${packageName}`,
+      `${baseHref}@id/${packageName}`
+    )
+  }
+  return aliases;
+}
+
 function addFederationInfoToBundle(
   fedInfo: FederationInfo,
   fedOptions: FederationOptions,
   locale: string,
+  baseHref: string,
+  devServerMode: boolean
 ) {
-  // shared entries are not localized. We don't copy them to locale folders to save space
-  // but this means we have to map the items in federation info, to point up 1 level.
-  // exposed entries need no transformation, they were basenames, and they got localized
-  const newShared = fedInfo.shared.map((share) => ({
-    ...share,
-    outFileName: path.join('..', share.outFileName),
-  }));
-  fedInfo.shared = newShared;
+  const localizedFedInfo = localizeFederationInfo(fedInfo, devServerMode, baseHref);
+  const localeOutputPath = path.join(fedOptions.outputPath, locale);
   const localizedFedOptions: FederationOptions = {
     ...fedOptions,
-    outputPath: path.join(fedOptions.outputPath, locale),
+    outputPath: localeOutputPath,
   };
-  writeFederationInfo(fedInfo, localizedFedOptions);
-  writeImportMap(newShared, localizedFedOptions);
+  // in devserver mode these could be the first files going in the output path when building a host
+  if (!fs.existsSync(localeOutputPath)) {
+    fs.mkdirSync(localeOutputPath, { recursive: true });
+  }
+  writeFederationInfo(localizedFedInfo, localizedFedOptions);
+  writeImportMap(localizedFedInfo.shared, localizedFedOptions);
 }
 
 function cloneFederationInfo(fedInfo: FederationInfo): FederationInfo {
