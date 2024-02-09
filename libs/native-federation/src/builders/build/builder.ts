@@ -144,12 +144,7 @@ export async function* runBuilder(
       },
     },
   ];
-  const middleware = [
-    getFederationFilesMiddleware(
-      fedOptions,
-      i18nOpts
-    ),
-  ];
+  const middleware = [getFederationFilesMiddleware(fedOptions, i18nOpts)];
 
   const memResults = new MemResults();
 
@@ -221,8 +216,8 @@ export async function* runBuilder(
       fedOptions,
       i18nOpts,
       output,
-      write && !nfOptions.dev
-    )
+      write && !nfOptions.dev,
+    );
 
     if (first && runServer) {
       startServer(nfOptions, options.outputPath as string, memResults);

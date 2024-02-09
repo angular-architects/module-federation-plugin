@@ -17,11 +17,13 @@ export function updateIndexHtml(
     .find((f) => f.startsWith('main') && f.endsWith('.js'));
   const polyfillsName = fs
     .readdirSync(dir)
-    .find((f) => 
-      f.startsWith('polyfills') &&
-      f.endsWith('.js') &&
-      !fs.readFileSync(path.join(dir, f), 'utf-8')
-        .includes('import"@angular/common/locales/global/')
+    .find(
+      (f) =>
+        f.startsWith('polyfills') &&
+        f.endsWith('.js') &&
+        !fs
+          .readFileSync(path.join(dir, f), 'utf-8')
+          .includes('import"@angular/common/locales/global/'),
     );
 
   let indexContent = updateScriptTags(file.text, mainName, polyfillsName);

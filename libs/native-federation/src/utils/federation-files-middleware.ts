@@ -6,10 +6,9 @@ import { I18nOptions } from '@angular-devkit/build-angular/src/utils/i18n-option
 import { FederationOptions } from '@softarc/native-federation/build';
 
 export function getFederationFilesMiddleware(
-    fedOptions: FederationOptions,
-    i18nOpts: I18nOptions,
+  fedOptions: FederationOptions,
+  i18nOpts: I18nOptions,
 ): Connect.NextHandleFunction {
-
   const localeRootRegExp = getLocaleRootRegexp(i18nOpts);
 
   return (req, res, next) => {
@@ -43,8 +42,9 @@ export function getFederationFilesMiddleware(
 }
 
 function trimHref(baseHref: string): string {
-  return baseHref.split('/')
-    .filter(s => s != '')
+  return baseHref
+    .split('/')
+    .filter((s) => s != '')
     .join('/');
 }
 
@@ -53,12 +53,11 @@ function mapLocaleHrefToDir(i18nOpts: I18nOptions, url: string) {
     return url;
   }
   let startsWithHref: RegExp;
-  const entry = Object.entries(i18nOpts.locales)
-    .find(([, { baseHref }]) => {
-      const href = trimHref(baseHref);
-      startsWithHref = new RegExp(`^(\/?)${href}(\/?.*)$`);
-      return startsWithHref.test(url);
-    });
+  const entry = Object.entries(i18nOpts.locales).find(([, { baseHref }]) => {
+    const href = trimHref(baseHref);
+    startsWithHref = new RegExp(`^(\/?)${href}(\/?.*)$`);
+    return startsWithHref.test(url);
+  });
   if (!entry) {
     return url;
   }

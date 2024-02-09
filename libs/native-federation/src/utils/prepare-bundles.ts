@@ -96,27 +96,30 @@ function localizeFederationInfo(
   // but this means we have to map the items in federation info, to point up 1 level.
   // exposed entries need no transformation, they were basenames, and they got localized
   const localizedFedInfo = cloneFederationInfo(fedInfo);
-  const pathCorrection = '../'.repeat(baseHref.split('/').reduce((acc, segment) => (segment != '' ? ++acc: acc), 0));
-  localizedFedInfo.shared = fedInfo.shared.flatMap((share) => 
+  const pathCorrection = '../'.repeat(
+    baseHref
+      .split('/')
+      .filter((segment) => segment != '')
+      .length,
+  );
+  localizedFedInfo.shared = fedInfo.shared.flatMap((share) =>
     getAliases(share.packageName, baseHref, devServerMode).map((alias) => ({
       ...share,
       outFileName: pathCorrection + share.outFileName,
-      packageName: alias
-    }))
+      packageName: alias,
+    })),
   );
   return localizedFedInfo;
 }
 
-function getAliases(packageName: string, baseHref: string, devServerMode: boolean): string[] {
-  const aliases = [
-    packageName,
-    baseHref + packageName
-  ];
+function getAliases(
+  packageName: string,
+  baseHref: string,
+  devServerMode: boolean,
+): string[] {
+  const aliases = [packageName, baseHref + packageName];
   if (devServerMode) {
-    aliases.push(
-      `/@id/${packageName}`,
-      `${baseHref}@id/${packageName}`
-    )
+    aliases.push(`/@id/${packageName}`, `${baseHref}@id/${packageName}`);
   }
   return aliases;
 }
@@ -126,9 +129,13 @@ function addFederationInfoToBundle(
   fedOptions: FederationOptions,
   locale: string,
   baseHref: string,
-  devServerMode: boolean
+  devServerMode: boolean,
 ) {
-  const localizedFedInfo = localizeFederationInfo(fedInfo, devServerMode, baseHref);
+  const localizedFedInfo = localizeFederationInfo(
+    fedInfo,
+    devServerMode,
+    baseHref,
+  );
   const localeOutputPath = path.join(fedOptions.outputPath, locale);
   const localizedFedOptions: FederationOptions = {
     ...fedOptions,
