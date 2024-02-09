@@ -97,10 +97,7 @@ function localizeFederationInfo(
   // exposed entries need no transformation, they were basenames, and they got localized
   const localizedFedInfo = cloneFederationInfo(fedInfo);
   const pathCorrection = '../'.repeat(
-    baseHref
-      .split('/')
-      .filter((segment) => segment != '')
-      .length,
+    baseHref.split('/').filter((segment) => segment != '').length,
   );
   localizedFedInfo.shared = fedInfo.shared.flatMap((share) =>
     getAliases(share.packageName, baseHref, devServerMode).map((alias) => ({
