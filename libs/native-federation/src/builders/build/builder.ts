@@ -51,12 +51,12 @@ import { getFederationFilesMiddleware } from '../../utils/federation-files-middl
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
-  context: BuilderContext,
+  context: BuilderContext
 ): AsyncIterable<BuilderOutput> {
   let target = targetFromTargetString(nfOptions.target);
 
   let _options = (await context.getTargetOptions(
-    target,
+    target
   )) as unknown as JsonObject & Schema;
 
   let builder = await context.getBuilderNameForTarget(target);
@@ -84,7 +84,7 @@ export async function* runBuilder(
 
   let options = (await context.validateOptions(
     _options,
-    builder,
+    builder
   )) as JsonObject & Schema;
 
   const outerOptions = options as DevServerBuilderOptions;
@@ -95,7 +95,7 @@ export async function* runBuilder(
   if (nfOptions.dev) {
     target = targetFromTargetString(outerOptions.buildTarget);
     _options = (await context.getTargetOptions(
-      target,
+      target
     )) as unknown as JsonObject & Schema;
 
     builder = await context.getBuilderNameForTarget(target);
@@ -138,7 +138,7 @@ export async function* runBuilder(
       setup(build: PluginBuild) {
         if (build.initialOptions.platform !== 'node') {
           build.initialOptions.external = externals.filter(
-            (e) => e !== 'tslib',
+            (e) => e !== 'tslib'
           );
         }
       },
@@ -185,7 +185,7 @@ export async function* runBuilder(
         {
           buildPlugins: plugins,
           middleware,
-        },
+        }
       )
     : buildApplication(options, context, plugins);
 
@@ -207,7 +207,7 @@ export async function* runBuilder(
 
     if (!write && output.assetFiles) {
       memResults.add(
-        output.assetFiles.map((file) => new NgCliAssetResult(file)),
+        output.assetFiles.map((file) => new NgCliAssetResult(file))
       );
     }
 
@@ -216,7 +216,7 @@ export async function* runBuilder(
       fedOptions,
       i18nOpts,
       output,
-      write && !nfOptions.dev,
+      write && !nfOptions.dev
     );
 
     if (first && runServer) {

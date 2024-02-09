@@ -7,7 +7,7 @@ import { FederationOptions } from '@softarc/native-federation/build';
 
 export function getFederationFilesMiddleware(
   fedOptions: FederationOptions,
-  i18nOpts: I18nOptions,
+  i18nOpts: I18nOptions
 ): Connect.NextHandleFunction {
   const localeRootRegExp = getLocaleRootRegexp(i18nOpts);
 
@@ -15,7 +15,7 @@ export function getFederationFilesMiddleware(
     const fileName = path.join(
       fedOptions.workspaceRoot,
       fedOptions.outputPath,
-      mapLocaleHrefToDir(i18nOpts, req.url),
+      mapLocaleHrefToDir(i18nOpts, req.url)
     );
     const exists = fs.existsSync(fileName);
     if (

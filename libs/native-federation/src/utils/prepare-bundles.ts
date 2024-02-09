@@ -22,21 +22,21 @@ export function prepareBundles(
   fedOptions: FederationOptions,
   i18nOptions: I18nOptions,
   buildOutput: AngularBuildOutput,
-  shouldWriteIndex: boolean,
+  shouldWriteIndex: boolean
 ): void {
   const metaDataPath = path.join(
     fedOptions.workspaceRoot,
     fedOptions.outputPath,
-    'remoteEntry.json',
+    'remoteEntry.json'
   );
   const federationInfo = JSON.parse(
-    fs.readFileSync(metaDataPath, 'utf-8'),
+    fs.readFileSync(metaDataPath, 'utf-8')
   ) as FederationInfo;
   const indexFiles = getIndexFiles(
     options,
     fedOptions,
     i18nOptions,
-    buildOutput,
+    buildOutput
   );
   // in case there is only a single locale, just update the index html, the rest is ok.
   if (!i18nOptions.shouldInline) {
@@ -49,7 +49,7 @@ export function prepareBundles(
     options,
     fedOptions,
     i18nOptions,
-    buildOutput,
+    buildOutput
   )) {
     if (shouldWriteIndex) {
       updateIndexHtml(fedOptions, indexFile);
@@ -60,7 +60,7 @@ export function prepareBundles(
       fedOptions,
       locale,
       i18nOptions.locales[locale].baseHref,
-      !shouldWriteIndex,
+      !shouldWriteIndex
     );
   }
 }
@@ -69,7 +69,7 @@ function getIndexFiles(
   options: JsonObject & Schema,
   fedOptions: FederationOptions,
   i18nOptions: I18nOptions,
-  buildOutput: AngularBuildOutput,
+  buildOutput: AngularBuildOutput
 ): BuildOutputFile[] {
   const indexName =
     typeof options.index == 'string'
@@ -80,7 +80,7 @@ function getIndexFiles(
     return buildOutput.outputFiles.filter(
       (file) =>
         file.path.endsWith(indexName) &&
-        file.type == BuildOutputFileType.Browser,
+        file.type == BuildOutputFileType.Browser
     );
   } else {
     return getIndexBuildOutput(indexName, i18nOptions, fedOptions);
@@ -90,21 +90,21 @@ function getIndexFiles(
 function localizeFederationInfo(
   fedInfo: FederationInfo,
   devServerMode: boolean,
-  baseHref: string,
+  baseHref: string
 ): FederationInfo {
   // shared entries are not localized. We don't copy them to locale folders to save space
   // but this means we have to map the items in federation info, to point up 1 level.
   // exposed entries need no transformation, they were basenames, and they got localized
   const localizedFedInfo = cloneFederationInfo(fedInfo);
   const pathCorrection = '../'.repeat(
-    baseHref.split('/').filter((segment) => segment != '').length,
+    baseHref.split('/').filter((segment) => segment != '').length
   );
   localizedFedInfo.shared = fedInfo.shared.flatMap((share) =>
     getAliases(share.packageName, baseHref, devServerMode).map((alias) => ({
       ...share,
       outFileName: pathCorrection + share.outFileName,
       packageName: alias,
-    })),
+    }))
   );
   return localizedFedInfo;
 }
@@ -112,7 +112,7 @@ function localizeFederationInfo(
 function getAliases(
   packageName: string,
   baseHref: string,
-  devServerMode: boolean,
+  devServerMode: boolean
 ): string[] {
   const aliases = [packageName, baseHref + packageName];
   if (devServerMode) {
@@ -126,12 +126,12 @@ function addFederationInfoToBundle(
   fedOptions: FederationOptions,
   locale: string,
   baseHref: string,
-  devServerMode: boolean,
+  devServerMode: boolean
 ) {
   const localizedFedInfo = localizeFederationInfo(
     fedInfo,
     devServerMode,
-    baseHref,
+    baseHref
   );
   const localeOutputPath = path.join(fedOptions.outputPath, locale);
   const localizedFedOptions: FederationOptions = {
@@ -157,7 +157,7 @@ function cloneFederationInfo(fedInfo: FederationInfo): FederationInfo {
 function getIndexBuildOutput(
   indexName: string,
   i18nOptions: I18nOptions,
-  fedOptions: FederationOptions,
+  fedOptions: FederationOptions
 ): BuildOutputFile[] {
   var locales: string[];
   if (i18nOptions.shouldInline) {
@@ -184,6 +184,7 @@ function getIndexBuildOutput(
         return { ...this };
       },
       hash: '',
+      fullOutputPath: ''
     };
   });
 }
