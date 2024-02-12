@@ -11,7 +11,6 @@ import {
 } from '../core/default-skip-list';
 import {
   findDepPackageJson,
-  findPackageJsonFiles,
   getVersionMaps,
   VersionMap,
 } from '../utils/package-info';

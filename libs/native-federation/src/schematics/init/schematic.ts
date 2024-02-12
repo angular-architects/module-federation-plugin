@@ -138,6 +138,10 @@ function updateWorkspaceConfig(
     defaultConfiguration: 'production',
   };
 
+  const serve = projectConfig.architect.serve;
+  serve.options ??= {};
+  serve.options.port = port;
+
   const serveProd = projectConfig.architect.serve.configurations?.production;
   if (serveProd) {
     serveProd.buildTarget = `${projectName}:esbuild:production`;
@@ -274,7 +278,9 @@ function generateRemoteMap(workspace: any, projectName: string) {
       project?.architect?.serve &&
       project?.architect?.build
     ) {
-      const pPort = project.architect.serve.options?.port ?? 4200;
+      const pPort = project.architect['serve-original']?.options?.port ?? 
+        project.architect.serve?.options?.port ??
+        4200;
       result[
         strings.camelize(p)
       ] = `http://localhost:${pPort}/remoteEntry.json`;
