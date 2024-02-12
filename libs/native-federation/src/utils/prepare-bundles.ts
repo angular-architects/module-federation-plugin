@@ -47,7 +47,7 @@ export function prepareBundles(
       federationInfo.shared.push(
         ...federationInfo.shared.map((share) => ({
           ...share,
-          packageName: `/@id/${share.packageName}`
+          packageName: `/@id/${share.packageName}`,
         }))
       );
       writeFederationInfo(federationInfo, fedOptions);
@@ -193,7 +193,7 @@ function getIndexBuildOutput(
         return { ...this };
       },
       hash: '',
-      fullOutputPath: ''
+      fullOutputPath: '',
     };
   });
 }

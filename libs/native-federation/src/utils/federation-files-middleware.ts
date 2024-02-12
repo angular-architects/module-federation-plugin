@@ -42,11 +42,12 @@ export function getFederationFilesMiddleware(
 }
 
 function trimHref(baseHref: string): string {
-  return baseHref
-    ?.split('/')
-    ?.filter((s) => s != '')
-    ?.join('/')
-    ?? '';
+  return (
+    baseHref
+      ?.split('/')
+      ?.filter((s) => s != '')
+      ?.join('/') ?? ''
+  );
 }
 
 function mapLocaleHrefToDir(i18nOpts: I18nOptions, url: string) {
