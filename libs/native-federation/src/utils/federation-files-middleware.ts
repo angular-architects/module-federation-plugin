@@ -43,13 +43,14 @@ export function getFederationFilesMiddleware(
 
 function trimHref(baseHref: string): string {
   return baseHref
-    .split('/')
-    .filter((s) => s != '')
-    .join('/');
+    ?.split('/')
+    ?.filter((s) => s != '')
+    ?.join('/')
+    ?? '';
 }
 
 function mapLocaleHrefToDir(i18nOpts: I18nOptions, url: string) {
-  if (!Object.entries(i18nOpts.locales).length) {
+  if (!Object.entries(i18nOpts.locales).length || !i18nOpts.shouldInline) {
     return url;
   }
   let startsWithHref: RegExp;

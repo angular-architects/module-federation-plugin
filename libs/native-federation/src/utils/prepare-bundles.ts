@@ -38,10 +38,19 @@ export function prepareBundles(
     i18nOptions,
     buildOutput
   );
-  // in case there is only a single locale, just update the index html, the rest is ok.
+  // in case there is only a single locale, just update the index html, or add debug info.
   if (!i18nOptions.shouldInline) {
     if (shouldWriteIndex) {
       updateIndexHtml(fedOptions, indexFiles[0]);
+    } else {
+      // dev server mode
+      federationInfo.shared.push(
+        ...federationInfo.shared.map((share) => ({
+          ...share,
+          packageName: `/@id/${share.packageName}`
+        }))
+      );
+      writeFederationInfo(federationInfo, fedOptions);
     }
     return;
   }
