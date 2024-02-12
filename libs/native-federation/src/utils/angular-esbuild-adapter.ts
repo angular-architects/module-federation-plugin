@@ -496,7 +496,7 @@ async function runNgBuild(
       builderOpts,
       context,
       { write: false },
-      inputPlugins
+      { codePlugins: inputPlugins }
     );
     let output: AngularBuildOutput;
     for await (output of builderRun) {
