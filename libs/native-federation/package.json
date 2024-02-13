@@ -1,6 +1,6 @@
 {
-  "name": "@angular-architects/native-federation",
-  "version": "17.1.6",
+  "name": "@siemens/native-federation",
+  "version": "17.1.7",
   "main": "src/index.js",
   "generators": "./collection.json",
   "builders": "./builders.json",
@@ -13,7 +13,7 @@
   "homepage": "https://github.com/angular-architects/module-federation-plugin/tree/main/libs/native-federation",
   "repository": {
     "type": "git",
-    "url": "https://github.com/angular-architects/module-federation-plugin"
+    "url": "https://code.siemens.com/isw.ui-core/native-federation"
   },
   "dependencies": {
     "@babel/core": "^7.19.0",
