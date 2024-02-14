@@ -1,6 +1,4 @@
 import * as path from 'path';
-import * as fs from 'fs';
-import * as mrmime from 'mrmime';
 
 import {
   BuilderContext,
@@ -37,7 +35,6 @@ import {
   startServer,
 } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
-import { updateIndexHtml, updateScriptTags } from '../../utils/updateIndexHtml';
 import { existsSync, mkdirSync, rmSync } from 'fs';
 import {
   EsBuildResult,
@@ -46,9 +43,11 @@ import {
 } from '../../utils/mem-resuts';
 import { JsonObject } from '@angular-devkit/core';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
-import { Connect } from 'vite';
 import { PluginBuild } from 'esbuild';
-import { FederationInfo } from '@softarc/native-federation-runtime';
+import { prepareBundles } from '../../utils/prepare-bundles';
+import { updateScriptTags } from '../../utils/updateIndexHtml';
+import { createI18nOptions } from '@angular-devkit/build-angular/src/utils/i18n-options';
+import { getFederationFilesMiddleware } from '../../utils/federation-files-middleware';
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
@@ -103,6 +102,8 @@ export async function* runBuilder(
     options = (await context.validateOptions(_options, builder)) as JsonObject &
       Schema;
   }
+  const metadata = await context.getProjectMetadata(context.target.project);
+  const i18nOpts = createI18nOptions(metadata, options.localize);
 
   const runServer = !!nfOptions.port;
   const write = !runServer;
@@ -116,7 +117,7 @@ export async function* runBuilder(
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
 
-  const outputPath = path.join(options.outputPath, 'browser');
+  const outputPath = path.join(options.outputPath as string, 'browser');
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
@@ -143,33 +144,7 @@ export async function* runBuilder(
       },
     },
   ];
-
-  const middleware: Connect.NextHandleFunction[] = [
-    (req, res, next) => {
-      const fileName = path.join(
-        fedOptions.workspaceRoot,
-        fedOptions.outputPath,
-        req.url
-      );
-      const exists = fs.existsSync(fileName);
-
-      if (req.url !== '/' && req.url !== '' && exists) {
-        const lookup = mrmime.lookup;
-        const mimeType = lookup(path.extname(fileName)) || 'text/javascript';
-        const rawBody = fs.readFileSync(fileName, 'utf-8');
-        const body = addDebugInformation(req.url, rawBody);
-        res.writeHead(200, {
-          'Content-Type': mimeType,
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        });
-        res.end(body);
-      } else {
-        next();
-      }
-    },
-  ];
+  const middleware = [getFederationFilesMiddleware(fedOptions, i18nOpts)];
 
   const memResults = new MemResults();
 
@@ -236,12 +211,16 @@ export async function* runBuilder(
       );
     }
 
-    if (write && !nfOptions.dev && !nfOptions.skipHtmlTransform) {
-      updateIndexHtml(fedOptions);
-    }
+    prepareBundles(
+      options,
+      fedOptions,
+      i18nOpts,
+      output,
+      write && !nfOptions.dev && !nfOptions.skipHtmlTransform
+    );
 
     if (first && runServer) {
-      startServer(nfOptions, options.outputPath, memResults);
+      startServer(nfOptions, options.outputPath as string, memResults);
     }
 
     if (!first && runServer) {
@@ -283,26 +262,4 @@ function infereConfigPath(tsConfig: string): string {
 
 function transformIndexHtml(content: string): Promise<string> {
   return Promise.resolve(updateScriptTags(content, 'main.js', 'polyfills.js'));
-}
-
-function addDebugInformation(fileName: string, rawBody: string): string {
-  if (fileName !== '/remoteEntry.json') {
-    return rawBody;
-  }
-
-  const remoteEntry = JSON.parse(rawBody) as FederationInfo;
-  const shared = remoteEntry.shared;
-
-  if (!shared) {
-    return rawBody;
-  }
-
-  const sharedForVite = shared.map((s) => ({
-    ...s,
-    packageName: `/@id/${s.packageName}`,
-  }));
-
-  remoteEntry.shared = [...shared, ...sharedForVite];
-
-  return JSON.stringify(remoteEntry, null, 2);
 }

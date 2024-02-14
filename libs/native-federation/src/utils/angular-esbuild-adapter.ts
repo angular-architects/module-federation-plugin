@@ -6,7 +6,7 @@ import {
 import * as esbuild from 'esbuild';
 import { createCompilerPlugin } from '@angular-devkit/build-angular/src/tools/esbuild/angular/compiler-plugin';
 
-import { BuilderContext } from '@angular-devkit/architect';
+import { BuilderContext, BuilderOutput } from '@angular-devkit/architect';
 
 import { transformSupportedBrowsersToTargets } from './transform';
 
@@ -27,7 +27,10 @@ import {
 import { createRequire } from 'node:module';
 
 import { Schema as EsBuildBuilderOptions } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
-import { ApplicationBuilderOptions as AppBuilderSchema } from '@angular-devkit/build-angular/src/builders/application';
+import {
+  ApplicationBuilderOptions as AppBuilderSchema,
+  buildApplicationInternal,
+} from '@angular-devkit/build-angular/src/builders/application';
 
 import { createSharedMappingsPlugin } from './shared-mappings-plugin';
 import * as fs from 'fs';
@@ -40,6 +43,9 @@ import {
   BuildResult,
   EntryPoint,
 } from 'libs/native-federation-core/src/lib/core/build-adapter';
+import { ApplicationBuilderInternalOptions } from '@angular-devkit/build-angular/src/builders/application/options';
+import { OutputHashing } from '@angular-devkit/build-angular';
+import { BuildOutputFile } from '@angular-devkit/build-angular/src/tools/esbuild/bundler-context';
 
 // const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
 
@@ -53,6 +59,11 @@ let _memResultHandler: MemResultHandler;
 export function setMemResultHandler(handler: MemResultHandler): void {
   _memResultHandler = handler;
 }
+
+export type AngularBuildOutput = BuilderOutput & {
+  outputFiles?: BuildOutputFile[];
+  assetFiles?: { source: string; destination: string }[];
+};
 
 export function createAngularBuildAdapter(
   builderOptions: AppBuilderSchema,
@@ -72,62 +83,48 @@ export function createAngularBuildAdapter(
       hash,
     } = options;
 
-    const files = await runEsbuild(
-      builderOptions,
-      context,
-      entryPoints,
-      external,
-      outdir,
-      tsConfigPath,
-      mappedPaths,
-      watch,
-      rebuildRequested,
-      dev,
-      kind,
-      hash
-    );
-
-    if (kind === 'shared-package') {
-      const scriptFiles = files.filter(
-        (f) => f.endsWith('.js') || f.endsWith('.mjs')
+    if (kind.includes('shared')) {
+      const files = await runEsbuild(
+        builderOptions,
+        context,
+        entryPoints,
+        external,
+        outdir,
+        tsConfigPath,
+        mappedPaths,
+        watch,
+        rebuildRequested,
+        dev,
+        kind,
+        hash
       );
-      for (const file of scriptFiles) {
-        link(file, dev);
+
+      if (kind === 'shared-package') {
+        const scriptFiles = files.filter(
+          (f) => f.endsWith('.js') || f.endsWith('.mjs')
+        );
+        for (const file of scriptFiles) {
+          link(file, dev);
+        }
       }
+
+      return files.map((fileName) => ({ fileName } as BuildResult));
+    } else {
+      return await runNgBuild(
+        builderOptions,
+        context,
+        entryPoints,
+        external,
+        outdir,
+        tsConfigPath,
+        mappedPaths,
+        watch,
+        rebuildRequested,
+        dev,
+        kind,
+        hash
+      );
     }
-
-    return files.map((fileName) => ({ fileName } as BuildResult));
-
-    // TODO: Do we still need rollup as esbuilt evolved?
-    // if (kind === 'shared-package') {
-    //   await runRollup(entryPoint, external, outfile);
-    // } else {
-
-    //   if (
-    //     dev &&
-    //     kind === 'shared-package' &&
-    //     entryPoint.match(fesmFolderRegExp)
-    //   ) {
-    //     fs.copyFileSync(entryPoint, outfile);
-    //   } else {
-    //     await runEsbuild(
-    //       builderOptions,
-    //       context,
-    //       entryPoint,
-    //       external,
-    //       outfile,
-    //       tsConfigPath,
-    //       mappedPaths,
-    //       watch,
-    //       rebuildRequested,
-    //       dev,
-    //       kind
-    //     );
-    //   }
-    //   if (kind === 'shared-package' && fs.existsSync(outfile)) {
-    //     await link(outfile, dev);
-    //   }
-    // }
   };
 
   async function link(outfile: string, dev: boolean) {
@@ -310,10 +307,10 @@ async function runEsbuild(
 
   const ctx = await esbuild.context(config);
   const result = await ctx.rebuild();
-
+  // always false
   const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
 
-  const writtenFiles = writeResult(result, outdir, memOnly);
+  const writtenFiles = writeResult(result, outdir, memOnly, kind);
 
   if (watch) {
     registerForRebuilds(
@@ -379,9 +376,10 @@ function createTsConfigForFederation(
 }
 
 function writeResult(
-  result: esbuild.BuildResult<esbuild.BuildOptions>,
+  result: Pick<esbuild.BuildResult<esbuild.BuildOptions>, 'outputFiles'>,
   outdir: string,
-  memOnly: boolean
+  memOnly: boolean,
+  kind: BuildKind
 ) {
   const writtenFiles: string[] = [];
 
@@ -389,10 +387,19 @@ function writeResult(
     _memResultHandler(result.outputFiles, outdir);
   }
 
+  const directoryExists = new Set<string>();
+  const ensureDirectoryExists = (basePath: string) => {
+    if (basePath && !directoryExists.has(basePath)) {
+      fs.mkdirSync(path.join(outdir, basePath), { recursive: true });
+      directoryExists.add(basePath);
+    }
+  };
   for (const outFile of result.outputFiles) {
-    const fileName = path.basename(outFile.path);
+    const fileName =
+      kind != 'mapping-or-exposed' ? path.basename(outFile.path) : outFile.path;
     const filePath = path.join(outdir, fileName);
     if (!memOnly) {
+      ensureDirectoryExists(path.dirname(fileName));
       fs.writeFileSync(filePath, outFile.text);
     }
     writtenFiles.push(filePath);
@@ -417,7 +424,7 @@ function registerForRebuilds(
   if (kind !== 'shared-package') {
     rebuildRequested.rebuild.register(async () => {
       const result = await ctx.rebuild();
-      writeResult(result, outdir, memOnly);
+      writeResult(result, outdir, memOnly, kind);
     });
   }
 }
@@ -426,4 +433,111 @@ export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
   return new Function('modulePath', `return import(modulePath);`)(
     modulePath
   ) as Promise<T>;
+}
+
+async function runNgBuild(
+  builderOptions: AppBuilderSchema,
+  context: BuilderContext,
+  entryPoints: EntryPoint[],
+  external: string[],
+  outdir: string,
+  tsConfigPath: string,
+  mappedPaths: MappedPath[],
+  watch?: boolean,
+  rebuildRequested: RebuildEvents = new RebuildHubs(),
+  dev?: boolean,
+  kind?: BuildKind,
+  hash = false,
+  plugins: esbuild.Plugin[] | null = null,
+  absWorkingDir: string | undefined = undefined,
+  logLevel: esbuild.LogLevel = 'warning'
+): Promise<BuildResult[]> {
+  if (!entryPoints.length) {
+    return Promise.resolve([]);
+  }
+  // unfortunately angular doesn't let us specify the out name of the enties. We'll have to map file names post-build.
+  const entries = new Set<string>();
+  for (const entryPoint of entryPoints) {
+    entries.add(entryPoint.fileName);
+  }
+  // if watch stays enabled then the build will hang at this point...
+  // watching build of exposed entries may not be necessary, because you host the app including any exposed things (if reachable)
+  const builderOpts: ApplicationBuilderInternalOptions = {
+    ...builderOptions,
+    watch: false,
+    entryPoints: entries,
+    outputHashing: hash ? OutputHashing.Bundles : OutputHashing.None,
+    externalDependencies: [
+      ...builderOptions.externalDependencies,
+      ...external,
+    ].filter((e) => e !== 'tslib'),
+  };
+  if (builderOpts.browser) {
+    // we're specifying entries instead of browser
+    delete builderOpts.browser;
+  }
+
+  const inputPlugins = [
+    ...(plugins ?? []),
+    createSharedMappingsPlugin(mappedPaths),
+    {
+      name: 'fixSplitting',
+      setup(build: esbuild.PluginBuild) {
+        build.initialOptions.splitting = false;
+        build.initialOptions.chunkNames = '';
+      },
+    },
+  ];
+
+  const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
+
+  async function run(): Promise<BuildResult[]> {
+    const builderRun = await buildApplicationInternal(
+      builderOpts,
+      context,
+      { write: false },
+      { codePlugins: inputPlugins }
+    );
+    let output: AngularBuildOutput;
+    for await (output of builderRun) {
+      if (!output.success) {
+        logger.error('Building exposed entries failed with: ' + output.error);
+        throw new Error('Native federation failed building exposed entries');
+      }
+      // we were not able to tell angular builder that we expected the entrypoint's out name to be different
+      // therefore we must try and map files back, and do the transformation ourselves, when applicable.
+      for (const outFile of output.outputFiles) {
+        const pathBasename = path.basename(outFile.path);
+        const name = path.parse(
+          pathBasename.replace(/(?:-[\dA-Z]{8})?(\.[a-z]{2,3})$/, '$1')
+        ).name;
+        const entry = entryPoints.find(
+          (ep) => path.parse(ep.fileName).name == name
+        );
+        if (entry) {
+          const nameHash = hash
+            ? pathBasename.substring(
+                pathBasename.lastIndexOf('-'),
+                pathBasename.lastIndexOf('.')
+              )
+            : '';
+          const originalOutName = entry.outName.substring(
+            0,
+            entry.outName.lastIndexOf('.')
+          );
+          outFile.path = path.join(
+            path.dirname(outFile.path),
+            originalOutName + nameHash + '.js'
+          );
+        }
+      }
+    }
+    // output's outFiles is marked optional. The Angular types aren't helping us here, but we know it's there
+    const writtenFiles = writeResult(output as any, outdir, memOnly, kind);
+    return writtenFiles.map((file) => ({ fileName: file }));
+  }
+  rebuildRequested.rebuild.register(async () => {
+    await run();
+  });
+  return run();
 }
