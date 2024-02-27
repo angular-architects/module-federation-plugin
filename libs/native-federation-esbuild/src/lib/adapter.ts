@@ -104,7 +104,7 @@ function writeResult(
   for (const outFile of outputFiles) {
     const fileName = path.basename(outFile.path);
     const filePath = path.join(outdir, fileName);
-    fs.writeFileSync(filePath, outFile.text);
+    fs.writeFileSync(filePath, outFile.contents);
     writtenFiles.push(filePath);
   }
 
