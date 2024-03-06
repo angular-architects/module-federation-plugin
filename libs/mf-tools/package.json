@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/module-federation-tools",
-  "version": "17.0.4",
+  "version": "17.0.7",
   "license": "MIT",
   "peerDependencies": {},
   "dependencies": {

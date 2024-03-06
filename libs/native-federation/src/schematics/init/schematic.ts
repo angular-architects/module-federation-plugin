@@ -278,7 +278,8 @@ function generateRemoteMap(workspace: any, projectName: string) {
       project?.architect?.serve &&
       project?.architect?.build
     ) {
-      const pPort = project.architect['serve-original']?.options?.port ?? 
+      const pPort =
+        project.architect['serve-original']?.options?.port ??
         project.architect.serve?.options?.port ??
         4200;
       result[

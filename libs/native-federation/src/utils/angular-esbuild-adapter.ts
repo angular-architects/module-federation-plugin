@@ -329,16 +329,16 @@ async function runEsbuild(
     ctx.dispose();
   }
 
-  cleanUpTsConfigForFederation(tsConfigPath);
+  // cleanUpTsConfigForFederation(tsConfigPath);
 
   return writtenFiles;
 }
 
-function cleanUpTsConfigForFederation(tsConfigPath: string) {
-  if (tsConfigPath.includes('.federation.')) {
-    fs.unlinkSync(tsConfigPath);
-  }
-}
+// function cleanUpTsConfigForFederation(tsConfigPath: string) {
+//   if (tsConfigPath.includes('.federation.')) {
+//     fs.unlinkSync(tsConfigPath);
+//   }
+// }
 
 function createTsConfigForFederation(
   workspaceRoot: string,
@@ -372,10 +372,23 @@ function createTsConfigForFederation(
     }
   }
 
+  const content = JSON.stringify(tsconfig, null, 2);
+
   const tsconfigFedPath = path.join(tsconfigDir, 'tsconfig.federation.json');
-  fs.writeFileSync(tsconfigFedPath, JSON.stringify(tsconfig, null, 2));
+  
+  if (!doesFileExist(tsconfigFedPath,content)) {
+    fs.writeFileSync(tsconfigFedPath, JSON.stringify(tsconfig, null, 2));
+  }
   tsConfigPath = tsconfigFedPath;
   return tsConfigPath;
+}
+
+function doesFileExist(path: string, content: string): boolean {
+  if (!fs.existsSync(path)) {
+    return false;
+  }
+  const currentContent = fs.readFileSync(path, 'utf-8');
+  return currentContent === content;
 }
 
 function writeResult(

@@ -204,9 +204,11 @@ export async function* runBuilder(
         normOuterOptions,
         appBuilderName,
         context,
-        nfOptions.skipHtmlTransform ? {} : {
-          indexHtml: transformIndexHtml,
-        },
+        nfOptions.skipHtmlTransform
+          ? {}
+          : {
+              indexHtml: transformIndexHtml,
+            },
         {
           buildPlugins: plugins,
           middleware,
