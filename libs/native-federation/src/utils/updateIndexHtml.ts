@@ -1,8 +1,12 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { FederationOptions } from '@softarc/native-federation/build';
+import { NfBuilderSchema } from '../builders/build/schema';
 
-export function updateIndexHtml(fedOptions: FederationOptions) {
+export function updateIndexHtml(
+  fedOptions: FederationOptions,
+  nfOptions: NfBuilderSchema
+) {
   const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
   const indexPath = path.join(outputPath, 'index.html');
   const mainName = fs
@@ -14,21 +18,28 @@ export function updateIndexHtml(fedOptions: FederationOptions) {
 
   let indexContent = fs.readFileSync(indexPath, 'utf-8');
 
-  indexContent = updateScriptTags(indexContent, mainName, polyfillsName);
+  indexContent = updateScriptTags(
+    indexContent,
+    mainName,
+    polyfillsName,
+    nfOptions
+  );
   fs.writeFileSync(indexPath, indexContent, 'utf-8');
 }
 
 export function updateScriptTags(
   indexContent: string,
   mainName: string,
-  polyfillsName: string
+  polyfillsName: string,
+  nfOptions: NfBuilderSchema
 ) {
+  const esmsOptions = {
+    shimMode: true,
+    ...nfOptions.esmsInitOptions,
+  };
+
   const htmlFragment = `
-<script type="esms-options">
-{
-  "shimMode": true
-}
-</script>
+<script type="esms-options">${JSON.stringify(esmsOptions)}</script>
 
 <script type="module" src="${polyfillsName}"></script>
 <script type="module-shim" src="${mainName}"></script>

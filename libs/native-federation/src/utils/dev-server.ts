@@ -34,7 +34,7 @@ export function startServer(
 
         if (result) {
           const mimeType = lookup(extname(key)) || 'text/javascript';
-          const body = getBody(result, memResults);
+          const body = getBody(result, memResults, options);
           res.writeHead(200, {
             'Content-Type': mimeType,
           });
@@ -77,7 +77,11 @@ export function reloadShell(shellProjectName: string): void {
   }
 }
 
-function modifyIndexHtml(content: string, fileNames: string[]): string {
+function modifyIndexHtml(
+  content: string,
+  fileNames: string[],
+  nfOptions: NfBuilderSchema
+): string {
   if (buildError) {
     const errorHtml = `
     <div style="position: absolute; filter: opacity(80%); top:0; bottom:0; left:0; right:0; padding:20px; background-color:black; color:white; ">
@@ -94,18 +98,19 @@ function modifyIndexHtml(content: string, fileNames: string[]): string {
     (f) => f.startsWith('polyfills.') && f.endsWith('.js')
   );
 
-  const index = updateScriptTags(content, mainName, polyfillsName);
+  const index = updateScriptTags(content, mainName, polyfillsName, nfOptions);
   return index;
 }
 
 function getBody(
   result: BuildResult,
-  memResults: MemResults
+  memResults: MemResults,
+  nfOptions: NfBuilderSchema
 ): Uint8Array | Buffer | string {
   const body = result.get();
   if (result.fileName === 'index.html') {
     const content = new TextDecoder().decode(body);
-    return modifyIndexHtml(content, memResults.getFileNames());
+    return modifyIndexHtml(content, memResults.getFileNames(), nfOptions);
   } else {
     return body;
   }
