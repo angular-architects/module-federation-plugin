@@ -45,8 +45,11 @@ export function updateScriptTags(
 <script type="module-shim" src="${mainName}"></script>
 `;
 
-  indexContent = indexContent.replace(/<script src="polyfills.*?>/, '');
-  indexContent = indexContent.replace(/<script src="main.*?>/, '');
+  indexContent = indexContent.replace(
+    /<script src="polyfills.*?><\/script>/,
+    ''
+  );
+  indexContent = indexContent.replace(/<script src="main.*?><\/script>/, '');
   indexContent = indexContent.replace('</body>', `${htmlFragment}</body>`);
   return indexContent;
 }
