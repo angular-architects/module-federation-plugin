@@ -1,4 +1,5 @@
 import { JsonObject } from '@angular-devkit/core';
+import type { ESMSInitOptions } from 'es-module-shims';
 
 export interface NfBuilderSchema extends JsonObject {
   target: string;
@@ -9,4 +10,5 @@ export interface NfBuilderSchema extends JsonObject {
   shell: string;
   watch: boolean;
   skipHtmlTransform: boolean;
+  esmsInitOptions: ESMSInitOptions;
 } // eslint-disable-line
