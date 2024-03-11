@@ -42,6 +42,13 @@
     "skipHtmlTransform": {
       "type": "boolean",
       "default": false
+    },
+    "esmsInitOptions": {
+      "type": "object",
+      "description": "Options for esms-module-shims https://github.com/guybedford/es-module-shims?tab=readme-ov-file#init-options",
+      "default": {
+        "shimMode": true
+      }
     }
   }
 }

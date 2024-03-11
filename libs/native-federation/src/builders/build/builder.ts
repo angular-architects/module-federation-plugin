@@ -207,7 +207,7 @@ export async function* runBuilder(
         nfOptions.skipHtmlTransform
           ? {}
           : {
-              indexHtml: transformIndexHtml,
+              indexHtml: transformIndexHtml(nfOptions),
             },
         {
           buildPlugins: plugins,
@@ -239,7 +239,7 @@ export async function* runBuilder(
     }
 
     if (write && !nfOptions.dev && !nfOptions.skipHtmlTransform) {
-      updateIndexHtml(fedOptions);
+      updateIndexHtml(fedOptions, nfOptions);
     }
 
     if (first && runServer) {
@@ -283,8 +283,13 @@ function infereConfigPath(tsConfig: string): string {
   return relConfigPath;
 }
 
-function transformIndexHtml(content: string): Promise<string> {
-  return Promise.resolve(updateScriptTags(content, 'main.js', 'polyfills.js'));
+function transformIndexHtml(
+  nfOptions: NfBuilderSchema
+): (content: string) => Promise<string> {
+  return (content: string): Promise<string> =>
+    Promise.resolve(
+      updateScriptTags(content, 'main.js', 'polyfills.js', nfOptions)
+    );
 }
 
 function addDebugInformation(fileName: string, rawBody: string): string {
