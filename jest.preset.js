@@ -12,4 +12,8 @@ module.exports = {
    * More info: https://jestjs.io/docs/upgrading-to-jest29#snapshot-format
    */
   snapshotFormat: { escapeString: true, printBasicPrototype: true },
+  // because of https://github.com/jestjs/jest/issues/4422
+  globals: {
+    Uint8Array: Uint8Array,
+  },
 };
