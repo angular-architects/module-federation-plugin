@@ -296,7 +296,10 @@ export function share(
   return result;
 }
 
-function addSecondaries(secondaries: Record<string, SharedConfig>, result: {}) {
+function addSecondaries(
+  secondaries: Record<string, SharedConfig>,
+  result: object
+) {
   for (const key in secondaries) {
     result[key] = secondaries[key];
   }

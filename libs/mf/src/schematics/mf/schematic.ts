@@ -32,7 +32,7 @@ export function add(options: MfSchematicSchema): Rule {
 }
 
 export function adjustSSR(sourceRoot: string, ssrMappings: string): Rule {
-  return async function (tree, context) {
+  return async function (tree) {
     const server = path.join(sourceRoot, 'server.ts');
 
     if (!tree.exists(server)) {
@@ -70,7 +70,7 @@ const ssrEngine = new Engine();
 }
 
 function makeMainAsync(main: string, options: MfSchematicSchema): Rule {
-  return async function (tree, context) {
+  return async function (tree) {
     const mainPath = path.dirname(main);
     const bootstrapName = path.join(mainPath, 'bootstrap.ts');
 
@@ -149,7 +149,10 @@ function nxBuildersAvailable(tree: Tree): boolean {
 function infereNxBuilderNames(tree: Tree): { dev: string; prod: string } {
   const dep = getPackageJsonDependency(tree, '@nx/angular');
 
-  const useDevServer = dep && dep.version && semver.satisfies(semver.minVersion(dep.version), '>=17.2.0');
+  const useDevServer =
+    dep &&
+    dep.version &&
+    semver.satisfies(semver.minVersion(dep.version), '>=17.2.0');
 
   const defaultResult = {
     dev: useDevServer
@@ -264,8 +267,7 @@ export default function config(options: MfSchematicSchema): Rule {
         projectName,
         remotes,
         relTsConfigPath,
-        projectRoot,
-        port
+        projectRoot
       );
       tree.create(configPath, webpackConfig);
     } else {
