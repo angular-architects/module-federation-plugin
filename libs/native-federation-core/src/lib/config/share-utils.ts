@@ -65,14 +65,15 @@ function findPackageJson(folder: string): string {
   );
 }
 
-function readVersionMap(packagePath: string): VersionMap {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const json = require(packagePath);
-  const versions = {
-    ...json['dependencies'],
-  };
-  return versions;
-}
+// TODO: Unused, to delete?
+// function readVersionMap(packagePath: string): VersionMap {
+//   // eslint-disable-next-line @typescript-eslint/no-var-requires
+//   const json = require(packagePath);
+//   const versions = {
+//     ...json['dependencies'],
+//   };
+//   return versions;
+// }
 
 function lookupVersion(key: string, workspaceRoot: string): string {
   const versionMaps = getVersionMaps(workspaceRoot, workspaceRoot);

@@ -300,7 +300,7 @@ function makeMainAsync(
   options: MfSchematicSchema,
   remoteMap: unknown
 ): Rule {
-  return async function (tree, context) {
+  return async function (tree) {
     const mainPath = path.dirname(main);
     const bootstrapName = path.join(mainPath, 'bootstrap.ts');
 

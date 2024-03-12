@@ -3,7 +3,7 @@ import {
   PlaygroundLibModule,
 } from '@angular-architects/playground-lib';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   standalone: true,
