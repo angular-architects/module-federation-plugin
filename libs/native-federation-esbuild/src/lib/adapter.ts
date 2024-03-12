@@ -7,7 +7,6 @@ import * as esbuild from 'esbuild';
 import { rollup } from 'rollup';
 import resolve from '@rollup/plugin-node-resolve';
 import { externals } from 'rollup-plugin-node-externals';
-import { collectExports } from './collect-exports';
 import * as fs from 'fs';
 import path from 'path';
 
@@ -111,24 +110,25 @@ function writeResult(
   return writtenFiles;
 }
 
-function compensateExports(entryPoint: string, outfile?: string): void {
-  const inExports = collectExports(entryPoint);
-  const outExports = outfile ? collectExports(outfile) : inExports;
-
-  if (!outExports.hasDefaultExport || outExports.hasFurtherExports) {
-    return;
-  }
-  const defaultName = outExports.defaultExportName;
-
-  let exports = '/*Try to compensate missing exports*/\n\n';
-  for (const exp of inExports.exports) {
-    exports += `let ${exp}$softarc = ${defaultName}.${exp};\n`;
-    exports += `export { ${exp}$softarc as ${exp} };\n`;
-  }
-
-  const target = outfile ?? entryPoint;
-  fs.appendFileSync(target, exports, 'utf-8');
-}
+// TODO: Unused, to delete?
+// function compensateExports(entryPoint: string, outfile?: string): void {
+//   const inExports = collectExports(entryPoint);
+//   const outExports = outfile ? collectExports(outfile) : inExports;
+//
+//   if (!outExports.hasDefaultExport || outExports.hasFurtherExports) {
+//     return;
+//   }
+//   const defaultName = outExports.defaultExportName;
+//
+//   let exports = '/*Try to compensate missing exports*/\n\n';
+//   for (const exp of inExports.exports) {
+//     exports += `let ${exp}$softarc = ${defaultName}.${exp};\n`;
+//     exports += `export { ${exp}$softarc as ${exp} };\n`;
+//   }
+//
+//   const target = outfile ?? entryPoint;
+//   fs.appendFileSync(target, exports, 'utf-8');
+// }
 
 async function prepareNodePackage(
   entryPoint: string,

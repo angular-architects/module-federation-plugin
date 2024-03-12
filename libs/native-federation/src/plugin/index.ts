@@ -40,7 +40,7 @@ export const federation = (params: BuildHelperParams) => {
 {
 "shimMode": true
 }
-</script>                    
+</script>
 <script src="polyfills.js" type="module">
 `;
       html = html.replace(/type="module"/g, 'type="module-shim"');
@@ -99,27 +99,29 @@ const serveFromDist = (
   };
 };
 
-const enhanceFile = (fileName: string, src: string): string => {
-  if (fileName.endsWith('remoteEntry.json')) {
-    let remoteEntry = JSON.parse(fs.readFileSync(fileName, 'utf-8'));
-    remoteEntry = {
-      ...remoteEntry,
-      shared: (remoteEntry.shared || []).map((el) => ({
-        ...el,
-        outFileName: el.dev?.entryPoint.includes('/node_modules/')
-          ? el.outFileName
-          : normalize(path.join('@fs', el.dev?.entryPoint || '')),
-      })),
-      exposes: (remoteEntry.exposes || []).map((el) => ({
-        ...el,
-        outFileName: normalize(path.join('@fs', el.dev?.entryPoint || '')),
-      })),
-    };
-    return JSON.stringify(remoteEntry, null, 2);
-  }
-  return src;
-};
+// TODO: Unused, to delete?
+// const enhanceFile = (fileName: string, src: string): string => {
+//   if (fileName.endsWith('remoteEntry.json')) {
+//     let remoteEntry = JSON.parse(fs.readFileSync(fileName, 'utf-8'));
+//     remoteEntry = {
+//       ...remoteEntry,
+//       shared: (remoteEntry.shared || []).map((el) => ({
+//         ...el,
+//         outFileName: el.dev?.entryPoint.includes('/node_modules/')
+//           ? el.outFileName
+//           : normalize(path.join('@fs', el.dev?.entryPoint || '')),
+//       })),
+//       exposes: (remoteEntry.exposes || []).map((el) => ({
+//         ...el,
+//         outFileName: normalize(path.join('@fs', el.dev?.entryPoint || '')),
+//       })),
+//     };
+//     return JSON.stringify(remoteEntry, null, 2);
+//   }
+//   return src;
+// };
 
-const normalize = (path: string): string => {
-  return path.replace(/\\/g, '/');
-};
+// TODO: Unused, to delete?
+// const normalize = (path: string): string => {
+//   return path.replace(/\\/g, '/');
+// };

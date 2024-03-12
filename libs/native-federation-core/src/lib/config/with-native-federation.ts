@@ -1,5 +1,5 @@
 import { getMappedPaths, MappedPath } from '../utils/mapped-paths';
-import { shareAll, share, findRootTsConfigJson } from './share-utils';
+import { shareAll, findRootTsConfigJson } from './share-utils';
 import {
   FederationConfig,
   NormalizedFederationConfig,
