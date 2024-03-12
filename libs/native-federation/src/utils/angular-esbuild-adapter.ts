@@ -26,7 +26,6 @@ import {
 } from '@angular-devkit/build-angular/src/utils';
 import { createRequire } from 'node:module';
 
-import { Schema as EsBuildBuilderOptions } from '@angular-devkit/build-angular/src/builders/browser-esbuild/schema';
 import { ApplicationBuilderOptions as AppBuilderSchema } from '@angular-devkit/build-angular/src/builders/application';
 
 import { createSharedMappingsPlugin } from './shared-mappings-plugin';
@@ -39,7 +38,7 @@ import {
   BuildKind,
   BuildResult,
   EntryPoint,
-} from 'libs/native-federation-core/src/lib/core/build-adapter';
+} from '@softarc/native-federation/src/lib/core/build-adapter';
 
 // const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
 

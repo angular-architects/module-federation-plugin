@@ -6,6 +6,7 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
+        "@typescript-eslint/no-explicit-any": "warn",
         "@nx/enforce-module-boundaries": [
           "error",
           {
@@ -24,7 +25,7 @@
     {
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nx/typescript"],
-      "rules": {}
+      "rules": { "@typescript-eslint/no-explicit-any": "warn" }
     },
     {
       "files": ["*.js", "*.jsx"],

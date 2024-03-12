@@ -32,7 +32,7 @@ export function add(options: MfSchematicSchema): Rule {
 }
 
 export function adjustSSR(sourceRoot: string, ssrMappings: string): Rule {
-  return async function (tree, context) {
+  return async function (tree) {
     const server = path.join(sourceRoot, 'server.ts');
 
     if (!tree.exists(server)) {
@@ -70,7 +70,7 @@ const ssrEngine = new Engine();
 }
 
 function makeMainAsync(main: string, options: MfSchematicSchema): Rule {
-  return async function (tree, context) {
+  return async function (tree) {
     const mainPath = path.dirname(main);
     const bootstrapName = path.join(mainPath, 'bootstrap.ts');
 
@@ -267,8 +267,7 @@ export default function config(options: MfSchematicSchema): Rule {
         projectName,
         remotes,
         relTsConfigPath,
-        projectRoot,
-        port
+        projectRoot
       );
       tree.create(configPath, webpackConfig);
     } else {
