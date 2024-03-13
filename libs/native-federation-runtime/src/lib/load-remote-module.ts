@@ -1,14 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { appendImportMap } from './utils/add-import-map';
 import { processRemoteInfo } from './init-federation';
-import {
-  getRemote,
-  getRemoteNameByBaseUrl,
-  isRemoteInitialized,
-} from './model/remotes';
-import { getDirectory, joinPaths } from './utils/path-utils';
-
-declare function importShim<T>(url: string): T;
+import { getDirectory } from './utils/path-utils';
+import { getRemoteNameByBaseUrl, isRemoteInitialized } from './model/remotes';
 
 export type LoadRemoteModuleOptions = {
   remoteEntry?: string;
@@ -16,39 +8,33 @@ export type LoadRemoteModuleOptions = {
   exposedModule: string;
 };
 
-export async function loadRemoteModule<T = any>(
-  options: LoadRemoteModuleOptions
-): Promise<T>;
-export async function loadRemoteModule<T = any>(
+export async function loadRemoteModule<
+  Default = any,
+  Exports extends object = any
+>(options: LoadRemoteModuleOptions): Promise<{ default: Default } & Exports>;
+export async function loadRemoteModule<
+  Default = any,
+  Exports extends object = any
+>(
   remoteName: string,
   exposedModule: string
-): Promise<T>;
-export async function loadRemoteModule<T = any>(
+): Promise<{ default: Default } & Exports>;
+export async function loadRemoteModule<
+  Default = any,
+  Exports extends object = any
+>(
   optionsOrRemoteName: LoadRemoteModuleOptions | string,
   exposedModule?: string
-): Promise<T> {
+): Promise<{ default: Default } & Exports> {
   const options = normalizeOptions(optionsOrRemoteName, exposedModule);
 
   await ensureRemoteInitialized(options);
 
   const remoteName = getRemoteNameByOptions(options);
-  const remote = getRemote(remoteName);
 
-  if (!remote) {
-    throw new Error('unknown remote ' + remoteName);
-  }
-
-  const exposed = remote.exposes.find((e) => e.key === options.exposedModule);
-
-  if (!exposed) {
-    throw new Error(
-      `Unknown exposed module ${options.exposedModule} in remote ${remoteName}`
-    );
-  }
-
-  const url = joinPaths(remote.baseUrl, exposed.outFileName);
-  const module = await importShim<T>(url);
-
+  const module = await importShim<Default, Exports>(
+    `${remoteName}/${options.exposedModule}`
+  );
   return module;
 }
 
@@ -79,8 +65,7 @@ async function ensureRemoteInitialized(
     options.remoteEntry &&
     !isRemoteInitialized(getDirectory(options.remoteEntry))
   ) {
-    const importMap = await processRemoteInfo(options.remoteEntry);
-    appendImportMap(importMap);
+    await processRemoteInfo(options.remoteEntry);
   }
 }
 

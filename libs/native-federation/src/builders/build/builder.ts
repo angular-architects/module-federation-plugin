@@ -10,7 +10,10 @@ import {
 
 import { Schema } from '@angular-devkit/build-angular/src/builders/application/schema';
 
-import { buildApplication, ApplicationBuilderOptions } from '@angular-devkit/build-angular/src/builders/application';
+import {
+  buildApplication,
+  ApplicationBuilderOptions,
+} from '@angular-devkit/build-angular/src/builders/application';
 
 import { serveWithVite } from '@angular-devkit/build-angular/src/builders/dev-server/vite-server';
 import { DevServerBuilderOptions } from '@angular-devkit/build-angular/src/builders/dev-server';
@@ -49,6 +52,7 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { Connect } from 'vite';
 import { PluginBuild } from 'esbuild';
 import { FederationInfo } from '@softarc/native-federation-runtime';
+import { ImportMap } from '@softarc/native-federation-runtime/lib/model/import-map';
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
@@ -118,15 +122,20 @@ export async function* runBuilder(
 
   const outputPath = options.outputPath;
 
-  const outputOptions: Required<Exclude<ApplicationBuilderOptions['outputPath'], string>> = {
+  const outputOptions: Required<
+    Exclude<ApplicationBuilderOptions['outputPath'], string>
+  > = {
     browser: 'browser',
     server: 'server',
     media: 'media',
     ...(typeof outputPath === 'string' ? undefined : outputPath),
-    base: typeof outputPath === 'string' ? outputPath : outputPath.base
-  }
+    base: typeof outputPath === 'string' ? outputPath : outputPath.base,
+  };
 
-  const browserOutputPath = path.join(outputOptions.base, outputOptions.browser);
+  const browserOutputPath = path.join(
+    outputOptions.base,
+    outputOptions.browser
+  );
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
@@ -303,10 +312,16 @@ function transformIndexHtml(
 }
 
 function addDebugInformation(fileName: string, rawBody: string): string {
-  if (fileName !== '/remoteEntry.json') {
-    return rawBody;
+  if (fileName === '/remoteEntry.json') {
+    return addRemoteEntryDebugInformation(rawBody);
   }
+  if (fileName === '/importmap.json') {
+    return addImportMapDebugInformation(rawBody);
+  }
+  return rawBody;
+}
 
+function addRemoteEntryDebugInformation(rawBody: string): string {
   const remoteEntry = JSON.parse(rawBody) as FederationInfo;
   const shared = remoteEntry.shared;
 
@@ -322,4 +337,25 @@ function addDebugInformation(fileName: string, rawBody: string): string {
   remoteEntry.shared = [...shared, ...sharedForVite];
 
   return JSON.stringify(remoteEntry, null, 2);
+}
+
+function addImportMapDebugInformation(rawBody: string): string {
+  const importMap = JSON.parse(rawBody) as ImportMap;
+  const imports = importMap.imports;
+
+  if (!imports) {
+    return rawBody;
+  }
+
+  const importsForVite = Object.entries(imports).reduce(
+    (acc, [packageName, bundle]) => ({
+      ...acc,
+      [`/@id/${packageName}`]: bundle,
+    }),
+    {}
+  );
+
+  importMap.imports = { ...imports, ...importsForVite };
+
+  return JSON.stringify(importMap, null, 2);
 }
