@@ -1,20 +1,27 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { SharedInfo } from '@softarc/native-federation-runtime';
+import { FederationInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 
 export function writeImportMap(
-  sharedInfo: SharedInfo[],
+  { name, shared, exposes }: FederationInfo,
   fedOption: FederationOptions
 ) {
-  const imports = sharedInfo.reduce((acc, cur) => {
+  const sharedImports = shared.reduce((acc, cur) => {
     return {
       ...acc,
-      [cur.packageName]: cur.outFileName,
+      [cur.packageName]: `./${cur.outFileName}`,
     };
   }, {});
 
-  const importMap = { imports };
+  const exposesImports = exposes.reduce((acc, cur) => {
+    return {
+      ...acc,
+      [`${name}/${cur.key}`]: `./${cur.outFileName}`,
+    };
+  }, {});
+
+  const importMap = { imports: { ...sharedImports, ...exposesImports } };
   const importMapPath = path.join(
     fedOption.workspaceRoot,
     fedOption.outputPath,
