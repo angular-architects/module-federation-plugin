@@ -49,15 +49,7 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": [
-          "libs/native-federation/**/*.ts",
-          "libs/native-federation/generators.json",
-          "libs/native-federation/executors.json",
-          "libs/native-federation/package.json"
-        ]
-      }
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
       "executor": "@nx/jest:jest",
