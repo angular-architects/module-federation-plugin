@@ -2,17 +2,47 @@
   "name": "mfe2",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "sourceRoot": "apps/mfe2/src",
   "prefix": "angular-architects",
+  "sourceRoot": "apps/mfe2/src",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@angular-architects/native-federation:build",
+      "options": {},
+      "configurations": {
+        "production": {
+          "target": "mfe2:esbuild:production"
+        },
+        "development": {
+          "target": "mfe2:esbuild:development",
+          "dev": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-architects/native-federation:build",
+      "options": {
+        "target": "mfe2:serve-original:development",
+        "rebuildDelay": 0,
+        "dev": true,
+        "port": 0
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "buildTarget": "mfe2:build"
+      }
+    },
+    "esbuild": {
+      "executor": "@angular-devkit/build-angular:application",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/mfe2",
         "index": "apps/mfe2/src/index.html",
-        "main": "apps/mfe2/src/main.ts",
-        "polyfills": "apps/mfe2/src/polyfills.ts",
+        "browser": "apps/mfe2/src/main.ts",
+        "polyfills": ["zone.js", "es-module-shims"],
         "tsConfig": "apps/mfe2/tsconfig.app.json",
         "assets": ["apps/mfe2/src/favicon.ico", "apps/mfe2/src/assets"],
         "styles": ["apps/mfe2/src/styles.css"],
@@ -32,54 +62,30 @@
               "maximumError": "4kb"
             }
           ],
-          "fileReplacements": [
-            {
-              "replace": "apps/mfe2/src/environments/environment.ts",
-              "with": "apps/mfe2/src/environments/environment.prod.ts"
-            }
-          ],
           "outputHashing": "all"
         },
         "development": {
-          "buildOptimizer": false,
           "optimization": false,
-          "vendorChunk": true,
           "extractLicenses": false,
-          "sourceMap": true,
-          "namedChunks": true
+          "sourceMap": true
         }
       },
       "defaultConfiguration": "production"
     },
-    "serve": {
+    "serve-original": {
       "executor": "@angular-devkit/build-angular:dev-server",
+      "options": {
+        "port": 4202
+      },
       "configurations": {
         "production": {
-          "buildTarget": "mfe2:build:production"
+          "buildTarget": "mfe2:esbuild:production"
         },
         "development": {
-          "buildTarget": "mfe2:build:development"
+          "buildTarget": "mfe2:esbuild:development"
         }
       },
-      "defaultConfiguration": "development",
-      "options": {}
-    },
-    "extract-i18n": {
-      "executor": "@angular-devkit/build-angular:extract-i18n",
-      "options": {
-        "buildTarget": "mfe2:build"
-      }
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/apps/mfe2"],
-      "options": {
-        "jestConfig": "apps/mfe2/jest.config.ts"
-      }
+      "defaultConfiguration": "development"
     }
-  },
-  "tags": []
+  }
 }
