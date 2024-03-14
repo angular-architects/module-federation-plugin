@@ -18,6 +18,11 @@
     "sharedGlobals": []
   },
   "targetDefaults": {
+    "@angular-architects/native-federation:build": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
     "@angular-devkit/build-angular:application": {
       "cache": true,
       "dependsOn": ["^build"],

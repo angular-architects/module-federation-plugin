@@ -6,6 +6,7 @@
     "declaration": false,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "es2015",
@@ -15,7 +16,6 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@angular-architects/build_angular": ["libs/build-angular/src/index.ts"],
       "@angular-architects/module-federation": ["libs/mf/src/index.ts"],
       "@angular-architects/module-federation-runtime": [
         "libs/mf-runtime/src/index.ts"
@@ -25,6 +25,9 @@
       ],
       "@angular-architects/native-federation": [
         "libs/native-federation/src/index.ts"
+      ],
+      "@angular-architects/native-federation/config": [
+        "libs/native-federation/config.ts"
       ],
       "@angular-architects/playground-lib": [
         "libs/playground-lib/src/index.ts"
