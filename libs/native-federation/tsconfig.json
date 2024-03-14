@@ -6,7 +6,7 @@
     //        "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
-//    "noImplicitReturns": true,
+    //    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true
   },
   "files": [],
