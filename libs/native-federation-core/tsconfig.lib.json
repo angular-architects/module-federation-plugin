@@ -6,10 +6,10 @@
     "types": ["node"]
   },
   "include": [
-    "**/*.ts",
+    "src/**/*.ts",
     "src/lib/core/bundle-exposed.ts.bak",
     "src/lib/core/bundle-shared.ts",
     "src/lib/core/bundle-shared-mappings.ts.bak"
   ],
-  "exclude": ["jest.config.ts", "**/*.spec.ts", "**/*.test.ts"]
+  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

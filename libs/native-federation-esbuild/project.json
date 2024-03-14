@@ -27,17 +27,6 @@
           "target": "build"
         }
       ]
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/native-federation-esbuild"],
-      "options": {
-        "jestConfig": "libs/native-federation-esbuild/jest.config.ts"
-      }
     }
   },
   "tags": []
