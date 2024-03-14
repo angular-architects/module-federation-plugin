@@ -2,8 +2,9 @@
   "name": "playground",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
+  "prefix": "playground",
   "sourceRoot": "apps/playground/src",
-  "prefix": "angular-architects",
+  "tags": [],
   "targets": {
     "demo": {
       "executor": "@angular-architects/native-federation:build",
@@ -12,11 +13,41 @@
     },
     "build": {
       "executor": "@angular-architects/native-federation:build",
+      "options": {},
+      "configurations": {
+        "production": {
+          "target": "playground:esbuild:production"
+        },
+        "development": {
+          "target": "playground:esbuild:development",
+          "dev": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-architects/native-federation:build",
+      "options": {
+        "target": "playground:serve-original:development",
+        "rebuildDelay": 0,
+        "dev": true,
+        "port": 0
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "buildTarget": "playground:build"
+      }
+    },
+    "esbuild": {
+      "executor": "@angular-devkit/build-angular:application",
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/playground",
         "index": "apps/playground/src/index.html",
-        "main": "apps/playground/src/main.ts",
-        "polyfills": "apps/playground/src/polyfills.ts",
+        "browser": "apps/playground/src/main.ts",
+        "polyfills": ["zone.js", "es-module-shims"],
         "tsConfig": "apps/playground/tsconfig.app.json",
         "assets": [
           "apps/playground/src/favicon.ico",
@@ -39,54 +70,30 @@
               "maximumError": "4kb"
             }
           ],
-          "fileReplacements": [
-            {
-              "replace": "apps/playground/src/environments/environment.ts",
-              "with": "apps/playground/src/environments/environment.prod.ts"
-            }
-          ],
           "outputHashing": "all"
         },
         "development": {
-          "buildOptimizer": false,
           "optimization": false,
-          "vendorChunk": true,
           "extractLicenses": false,
-          "sourceMap": true,
-          "namedChunks": true
+          "sourceMap": true
         }
       },
       "defaultConfiguration": "production"
     },
-    "serve": {
+    "serve-original": {
       "executor": "@angular-devkit/build-angular:dev-server",
+      "options": {
+        "port": 4200
+      },
       "configurations": {
         "production": {
-          "buildTarget": "playground:build:production"
+          "buildTarget": "playground:esbuild:production"
         },
         "development": {
-          "buildTarget": "playground:build:development"
+          "buildTarget": "playground:esbuild:development"
         }
       },
       "defaultConfiguration": "development"
-    },
-    "extract-i18n": {
-      "executor": "@angular-devkit/build-angular:extract-i18n",
-      "options": {
-        "buildTarget": "playground:build"
-      }
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/apps/playground"],
-      "options": {
-        "jestConfig": "apps/playground/jest.config.ts"
-      }
     }
-  },
-  "tags": []
+  }
 }
