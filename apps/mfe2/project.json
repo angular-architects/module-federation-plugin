@@ -71,7 +71,10 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint"
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/mfe2/**/*.ts", "apps/mfe2/**/*.html"]
+      }
     },
     "test": {
       "executor": "@nx/jest:jest",

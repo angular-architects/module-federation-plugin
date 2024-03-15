@@ -19,6 +19,9 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/playground-e2e/**/*.{js,ts}"]
+      },
       "outputs": ["{options.outputFile}"]
     }
   },

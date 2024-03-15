@@ -13,7 +13,13 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint"
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/playground-lib/**/*.ts",
+          "libs/playground-lib/**/*.html"
+        ]
+      }
     }
   },
   "tags": []

@@ -19,6 +19,12 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/mf-runtime/src/**/*.ts",
+          "libs/mf-runtime/src/**/*.html"
+        ]
+      },
       "outputs": ["{options.outputFile}"]
     },
     "test": {
