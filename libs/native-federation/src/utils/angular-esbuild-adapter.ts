@@ -375,8 +375,8 @@ function createTsConfigForFederation(
   const content = JSON.stringify(tsconfig, null, 2);
 
   const tsconfigFedPath = path.join(tsconfigDir, 'tsconfig.federation.json');
-  
-  if (!doesFileExist(tsconfigFedPath,content)) {
+
+  if (!doesFileExist(tsconfigFedPath, content)) {
     fs.writeFileSync(tsconfigFedPath, JSON.stringify(tsconfig, null, 2));
   }
   tsConfigPath = tsconfigFedPath;

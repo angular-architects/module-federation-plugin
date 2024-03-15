@@ -149,7 +149,10 @@ function nxBuildersAvailable(tree: Tree): boolean {
 function infereNxBuilderNames(tree: Tree): { dev: string; prod: string } {
   const dep = getPackageJsonDependency(tree, '@nx/angular');
 
-  const useDevServer = dep && dep.version && semver.satisfies(semver.minVersion(dep.version), '>=17.2.0');
+  const useDevServer =
+    dep &&
+    dep.version &&
+    semver.satisfies(semver.minVersion(dep.version), '>=17.2.0');
 
   const defaultResult = {
     dev: useDevServer
