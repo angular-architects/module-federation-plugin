@@ -47,6 +47,15 @@
         ]
       }
     },
+    "post-build": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
+      "outputs": ["{options.outputPath}/src/index.js"],
+      "options": {
+        "cwd": "libs/native-federation",
+        "command": "node post-build.js"
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
@@ -65,7 +74,21 @@
       "options": {
         "jestConfig": "libs/native-federation/jest.config.ts"
       }
+    },
+    "publish": {
+      "dependsOn": ["build", "post-build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs native-federation npm {args.ver} {args.tag}"
+      }
+    },
+    "publish-local": {
+      "dependsOn": ["build", "post-build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs native-federation verdaccio {args.ver}"
+      }
     }
   },
-  "tags": []
+  "tags": ["org:angular-architects", "scope:nf"]
 }

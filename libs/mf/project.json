@@ -4,20 +4,6 @@
   "sourceRoot": "libs/mf/src",
   "projectType": "library",
   "targets": {
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "options": {
-        "lintFilePatterns": ["libs/mf/**/*.ts"]
-      },
-      "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/mf"],
-      "options": {
-        "jestConfig": "libs/mf/jest.config.ts"
-      }
-    },
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
@@ -71,7 +57,47 @@
           }
         ]
       }
+    },
+    "post-build": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{options.outputPath}/src/index.js",
+        "{options.outputPath}/src/nguniversal.ts"
+      ],
+      "options": {
+        "cwd": "libs/mf",
+        "command": "node post-build.js"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/mf/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/mf"],
+      "options": {
+        "jestConfig": "libs/mf/jest.config.ts"
+      }
+    },
+    "publish": {
+      "dependsOn": ["build", "post-build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs mf npm {args.ver} {args.tag}"
+      }
+    },
+    "publish-local": {
+      "dependsOn": ["build", "post-build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs mf verdaccio {args.ver}"
+      }
     }
   },
-  "tags": []
+  "tags": ["org:angular-architects", "scope:mf"]
 }
