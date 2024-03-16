@@ -4,6 +4,11 @@ export function getDirectory(url: string) {
   return parts.join('/');
 }
 
+export function getFile(url: string) {
+  const parts = url.split('/');
+  return parts.pop();
+}
+
 export function joinPaths(path1: string, path2: string): string {
   while (path1.endsWith('/')) {
     path1 = path1.substring(0, path1.length - 1);
