@@ -6,8 +6,6 @@ import {
 } from './model/import-map';
 import { getExternalUrl, setExternalUrl } from './model/externals';
 import { joinPaths, getDirectory } from './utils/path-utils';
-import { addRemote } from './model/remotes';
-import { appendImportMap } from './utils/add-import-map';
 import { FederationInfo } from './model/federation-info';
 
 export async function initFederation(
@@ -22,7 +20,7 @@ export async function initFederation(
   const remotesImportMap = await processRemoteInfos(remotes);
 
   const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
-  appendImportMap(importMap);
+  importShim.addImportMap(importMap);
 
   return importMap;
 }
@@ -66,8 +64,6 @@ export async function processRemoteInfo(
   }
 
   const importMap = createRemoteImportMap(remoteInfo, remoteName, baseUrl);
-  addRemote(remoteName, { ...remoteInfo, baseUrl });
-
   return importMap;
 }
 
