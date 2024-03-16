@@ -5,10 +5,10 @@ import {
   mergeImportMaps,
 } from './model/import-map';
 import { getExternalUrl, setExternalUrl } from './model/externals';
-import { joinPaths, getDirectory } from './utils/path-utils';
+import { joinPaths, getDirectory, getFile } from './utils/path-utils';
 import { addRemote } from './model/remotes';
 import { appendImportMap } from './utils/add-import-map';
-import { FederationInfo } from './model/federation-info';
+import { FederationInfo, SharedInfo } from './model/federation-info';
 
 export async function initFederation(
   remotesOrManifestUrl: Record<string, string> | string = {}
@@ -18,10 +18,7 @@ export async function initFederation(
       ? await loadManifest(remotesOrManifestUrl)
       : remotesOrManifestUrl;
 
-  const hostImportMap = await processHostInfo();
-  const remotesImportMap = await processRemoteInfos(remotes);
-
-  const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
+  const importMap = await processRemoteInfos(remotes);
   appendImportMap(importMap);
 
   return importMap;
@@ -92,16 +89,41 @@ function processRemoteImports(
 ): Scopes {
   const scopes: Scopes = {};
   const scopedImports: Imports = {};
+  const currentImportMap = importShim.getImportMap();
 
   for (const shared of remoteInfo.shared) {
+    const defaultExternalUrl = getDefaultExternalUrl(currentImportMap, shared);
+
+    // Do to process shared if the import already exist in the default list of the importmap
+    if (defaultExternalUrl) {
+      continue;
+    }
+
     const outFileName =
       getExternalUrl(shared) ?? joinPaths(baseUrl, shared.outFileName);
     setExternalUrl(shared, outFileName);
     scopedImports[shared.packageName] = outFileName;
   }
 
-  scopes[baseUrl + '/'] = scopedImports;
+  // Do not create specific scope section for a remote that does not have specific external version
+  if (Object.keys(scopedImports).length > 0) {
+    scopes[baseUrl + '/'] = scopedImports;
+  }
   return scopes;
+}
+
+function getDefaultExternalUrl(
+  hostImports: ImportMap,
+  { packageName, outFileName }: SharedInfo
+) {
+  const hostImportUrlForShared = hostImports?.imports?.[packageName];
+  const sharedUrlBundle = getFile(outFileName);
+
+  return hostImportUrlForShared &&
+    sharedUrlBundle &&
+    hostImportUrlForShared.endsWith(sharedUrlBundle)
+    ? hostImportUrlForShared
+    : null;
 }
 
 function processExposed(
@@ -118,18 +140,4 @@ function processExposed(
   }
 
   return imports;
-}
-
-async function processHostInfo(): Promise<ImportMap> {
-  const hostInfo = await loadFederationInfo('./remoteEntry.json');
-
-  const imports = hostInfo.shared.reduce(
-    (acc, cur) => ({ ...acc, [cur.packageName]: './' + cur.outFileName }),
-    {}
-  ) as Imports;
-
-  for (const shared of hostInfo.shared) {
-    setExternalUrl(shared, './' + shared.outFileName);
-  }
-  return { imports, scopes: {} };
 }

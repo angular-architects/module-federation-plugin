@@ -51,5 +51,14 @@ export function updateScriptTags(
   );
   indexContent = indexContent.replace(/<script src="main.*?><\/script>/, '');
   indexContent = indexContent.replace('</body>', `${htmlFragment}</body>`);
+
+  // add link to importmap.json
+  const scriptTagImportMap =
+    '<script type="importmap-shim" src="./importmap.json"></script>';
+  indexContent = indexContent.replace(
+    '</head>',
+    `${scriptTagImportMap}\n</head>`
+  );
+
   return indexContent;
 }
