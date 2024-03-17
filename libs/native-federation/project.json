@@ -10,6 +10,8 @@
       "options": {
         "outputPath": "dist/libs/native-federation",
         "main": "libs/native-federation/src/index.ts",
+        "additionalEntryPoints": ["libs/native-federation/src/config.ts"],
+        "generateExportsField": true,
         "tsConfig": "libs/native-federation/tsconfig.lib.json",
         "assets": [
           "libs/native-federation/*.md",
