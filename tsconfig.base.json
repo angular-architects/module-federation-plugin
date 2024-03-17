@@ -16,7 +16,6 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@angular-architects/build_angular": ["libs/build-angular/src/index.ts"],
       "@angular-architects/module-federation": ["libs/mf/src/index.ts"],
       "@angular-architects/module-federation-runtime": [
         "libs/mf-runtime/src/index.ts"
@@ -26,6 +25,9 @@
       ],
       "@angular-architects/native-federation": [
         "libs/native-federation/src/index.ts"
+      ],
+      "@angular-architects/native-federation/config": [
+        "libs/native-federation/src/config.ts"
       ],
       "@angular-architects/playground-lib": [
         "libs/playground-lib/src/index.ts"
@@ -40,7 +42,7 @@
         "libs/native-federation-runtime/src/index.ts"
       ],
       "@softarc/native-federation/build": [
-        "libs/native-federation-core/build.ts"
+        "libs/native-federation-core/src/build.ts"
       ]
     }
   },
