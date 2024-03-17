@@ -12,5 +12,11 @@ module.exports = withNativeFederation({
     }),
   },
 
-  sharedMappings: ['@angular-architects/playground-lib'],
+  skip: [
+    'rxjs/ajax',
+    'rxjs/fetch',
+    'rxjs/testing',
+    'rxjs/webSocket',
+    // Add further packages you don't need at runtime
+  ],
 });

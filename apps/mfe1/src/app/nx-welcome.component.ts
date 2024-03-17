@@ -1,9 +1,10 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-
-/* eslint-disable */
+import { Component, ViewEncapsulation } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'angular-architects-nx-welcome',
+  selector: 'mfe1-nx-welcome',
+  standalone: true,
+  imports: [CommonModule],
   template: `
     <!--
      * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -59,7 +60,6 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
         display: block;
         vertical-align: middle;
       }
-
       svg {
         shape-rendering: auto;
         text-rendering: optimizeLegibility;
@@ -73,7 +73,6 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
         overflow: scroll;
         padding: 0.5rem 0.75rem;
       }
-
       .shadow {
         box-shadow: 0 0 #0000, 0 0 #0000, 0 10px 15px -3px rgba(0, 0, 0, 0.1),
           0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -81,7 +80,6 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
       .rounded {
         border-radius: 1.5rem;
       }
-
       .wrapper {
         width: 100%;
       }
@@ -160,7 +158,6 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
         color: rgba(255, 255, 255, 1);
         width: 66.666667%;
       }
-
       #middle-content {
         align-items: flex-start;
         display: grid;
@@ -168,7 +165,6 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
         grid-template-columns: 1fr;
         margin-top: 3.5rem;
       }
-
       #learning-materials {
         padding: 2.5rem 2rem;
       }
@@ -244,11 +240,11 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
       .list-item-link:hover svg:last-child {
         transform: translateX(0.25rem);
       }
-
       #other-links {
       }
       .button-pill {
         padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
         transition-duration: 300ms;
         transition-property: background-color, border-color, color, fill, stroke,
           opacity, box-shadow, transform, filter, backdrop-filter,
@@ -284,20 +280,27 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
       .button-pill:hover {
         color: rgba(255, 255, 255, 1) !important;
       }
-      #nx-console:hover {
+      .nx-console:hover {
         background-color: rgba(0, 122, 204, 1);
       }
-      #nx-console svg {
+      .nx-console svg {
         color: rgba(0, 122, 204, 1);
       }
-
+      .nx-console-jetbrains {
+        margin-top: 2rem;
+      }
+      .nx-console-jetbrains:hover {
+        background-color: rgba(255, 49, 140, 1);
+      }
+      .nx-console-jetbrains svg {
+        color: rgba(255, 49, 140, 1);
+      }
       #nx-repo:hover {
         background-color: rgba(24, 23, 23, 1);
       }
       #nx-repo svg {
         color: rgba(24, 23, 23, 1);
       }
-
       #nx-cloud {
         margin-bottom: 2rem;
         margin-top: 2rem;
@@ -345,10 +348,8 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
       #nx-cloud a:hover {
         text-decoration: underline;
       }
-
       #commands {
         padding: 2.5rem 2rem;
-
         margin-top: 3.5rem;
       }
       #commands h2 {
@@ -398,7 +399,6 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
         margin-right: 1rem;
         width: 1.5rem;
       }
-
       #love {
         color: rgba(107, 114, 128, 1);
         font-size: 0.875rem;
@@ -414,7 +414,6 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
         display: inline;
         margin-top: -0.25rem;
       }
-
       @media screen and (min-width: 768px) {
         #hero {
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -436,7 +435,6 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
             Welcome mfe1 👋
           </h1>
         </div>
-
         <!--  HERO  -->
         <div id="hero" class="rounded">
           <div class="text-container">
@@ -471,7 +469,6 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
             </svg>
           </div>
         </div>
-
         <!--  MIDDLE CONTENT  -->
         <div id="middle-content">
           <div id="learning-materials" class="rounded shadow">
@@ -551,7 +548,7 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
               </svg>
             </a>
             <a
-              href="https://www.youtube.com/c/Nrwl_io/videos?utm_source=nx-project&sub_confirmation=1"
+              href="https://www.youtube.com/@NxDevtools/videos?utm_source=nx-project&sub_confirmation=1"
               target="_blank"
               rel="noreferrer"
               class="list-item-link"
@@ -586,7 +583,7 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
               </svg>
             </a>
             <a
-              href="https://nx.dev/angular-tutorial/01-create-application?utm_source=nx-project"
+              href="https://nx.dev/angular-tutorial/1-code-generation?utm_source=nx-project"
               target="_blank"
               rel="noreferrer"
               class="list-item-link"
@@ -666,8 +663,7 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
           </div>
           <div id="other-links">
             <a
-              id="nx-console"
-              class="button-pill rounded shadow"
+              class="button-pill rounded shadow nx-console"
               href="https://marketplace.visualstudio.com/items?itemName=nrwl.angular-console&utm_source=nx-project"
               target="_blank"
               rel="noreferrer"
@@ -684,28 +680,79 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
                 />
               </svg>
               <span>
-                Install Nx Console
-                <span>Plugin for VSCode</span>
+                Install Nx Console for VSCode
+                <span>The official VSCode extension for Nx.</span>
+              </span>
+            </a>
+            <a
+              class="button-pill rounded shadow nx-console-jetbrains"
+              href="https://plugins.jetbrains.com/plugin/21060-nx-console"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <svg
+                height="48"
+                width="48"
+                viewBox="20 20 60 60"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="m22.5 22.5h60v60h-60z" />
+                <g fill="#fff">
+                  <path d="m29.03 71.25h22.5v3.75h-22.5z" />
+                  <path
+                    d="m28.09 38 1.67-1.58a1.88 1.88 0 0 0 1.47.87c.64 0 1.06-.44 1.06-1.31v-5.98h2.58v6a3.48 3.48 0 0 1 -.87 2.6 3.56 3.56 0 0 1 -2.57.95 3.84 3.84 0 0 1 -3.34-1.55z"
+                  />
+                  <path
+                    d="m36 30h7.53v2.19h-5v1.44h4.49v2h-4.42v1.49h5v2.21h-7.6z"
+                  />
+                  <path d="m47.23 32.29h-2.8v-2.29h8.21v2.27h-2.81v7.1h-2.6z" />
+                  <path
+                    d="m29.13 43.08h4.42a3.53 3.53 0 0 1 2.55.83 2.09 2.09 0 0 1 .6 1.53 2.16 2.16 0 0 1 -1.44 2.09 2.27 2.27 0 0 1 1.86 2.29c0 1.61-1.31 2.59-3.55 2.59h-4.44zm5 2.89c0-.52-.42-.8-1.18-.8h-1.29v1.64h1.24c.79 0 1.25-.26 1.25-.81zm-.9 2.66h-1.57v1.73h1.62c.8 0 1.24-.31 1.24-.86 0-.5-.4-.87-1.27-.87z"
+                  />
+                  <path
+                    d="m38 43.08h4.1a4.19 4.19 0 0 1 3 1 2.93 2.93 0 0 1 .9 2.19 3 3 0 0 1 -1.93 2.89l2.24 3.27h-3l-1.88-2.84h-.87v2.84h-2.56zm4 4.5c.87 0 1.39-.43 1.39-1.11 0-.75-.54-1.12-1.4-1.12h-1.44v2.26z"
+                  />
+                  <path
+                    d="m49.59 43h2.5l4 9.44h-2.79l-.67-1.69h-3.63l-.67 1.69h-2.71zm2.27 5.73-1-2.65-1.06 2.65z"
+                  />
+                  <path d="m56.46 43.05h2.6v9.37h-2.6z" />
+                  <path
+                    d="m60.06 43.05h2.42l3.37 5v-5h2.57v9.37h-2.26l-3.53-5.14v5.14h-2.57z"
+                  />
+                  <path
+                    d="m68.86 51 1.45-1.73a4.84 4.84 0 0 0 3 1.13c.71 0 1.08-.24 1.08-.65 0-.4-.31-.6-1.59-.91-2-.46-3.53-1-3.53-2.93 0-1.74 1.37-3 3.62-3a5.89 5.89 0 0 1 3.86 1.25l-1.26 1.84a4.63 4.63 0 0 0 -2.62-.92c-.63 0-.94.25-.94.6 0 .42.32.61 1.63.91 2.14.46 3.44 1.16 3.44 2.91 0 1.91-1.51 3-3.79 3a6.58 6.58 0 0 1 -4.35-1.5z"
+                  />
+                </g>
+              </svg>
+              <span>
+                Install Nx Console for JetBrains
+                <span
+                  >Available for WebStorm, Intellij IDEA Ultimate and
+                  more!</span
+                >
               </span>
             </a>
             <div id="nx-cloud" class="rounded shadow">
               <div>
                 <svg
-                  viewBox="0 0 120 120"
-                  fill="none"
+                  id="nx-cloud-logo"
+                  role="img"
                   xmlns="http://www.w3.org/2000/svg"
+                  stroke="currentColor"
+                  fill="transparent"
+                  viewBox="0 0 24 24"
                 >
                   <path
-                    d="M120 15V30C103.44 30 90 43.44 90 60C90 76.56 76.56 90 60 90C43.44 90 30 103.44 30 120H15C6.72 120 0 113.28 0 105V15C0 6.72 6.72 0 15 0H105C113.28 0 120 6.72 120 15Z"
-                    fill="#0E2039"
+                    stroke-width="2"
+                    d="M23 3.75V6.5c-3.036 0-5.5 2.464-5.5 5.5s-2.464 5.5-5.5 5.5-5.5 2.464-5.5 5.5H3.75C2.232 23 1 21.768 1 20.25V3.75C1 2.232 2.232 1 3.75 1h16.5C21.768 1 23 2.232 23 3.75Z"
                   />
                   <path
-                    d="M120 30V105C120 113.28 113.28 120 105 120H30C30 103.44 43.44 90 60 90C76.56 90 90 76.56 90 60C90 43.44 103.44 30 120 30Z"
-                    fill="white"
+                    stroke-width="2"
+                    d="M23 6v14.1667C23 21.7307 21.7307 23 20.1667 23H6c0-3.128 2.53867-5.6667 5.6667-5.6667 3.128 0 5.6666-2.5386 5.6666-5.6666C17.3333 8.53867 19.872 6 23 6Z"
                   />
                 </svg>
                 <h2>
-                  NxCloud
+                  Nx Cloud
                   <span> Enable faster CI & better DX </span>
                 </h2>
               </div>
@@ -713,7 +760,7 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
                 You can activate distributed tasks executions and caching by
                 running:
               </p>
-              <pre>nx connect-to-nx-cloud</pre>
+              <pre>nx connect</pre>
               <a
                 href="https://nx.app/?utm_source=nx-project"
                 target="_blank"
@@ -746,7 +793,6 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
             </a>
           </div>
         </div>
-
         <!--  COMMANDS  -->
         <div id="commands" class="rounded shadow">
           <h2>Next steps</h2>
@@ -770,9 +816,27 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
             </summary>
             <pre><span># Generate UI lib</span>
 nx g &#64;nx/angular:lib ui
-
 <span># Add a component</span>
-nx g &#64;nx/angular:component button --project ui</pre>
+nx g &#64;nx/angular:component ui/src/lib/button</pre>
+          </details>
+          <details>
+            <summary>
+              <svg
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              View project details
+            </summary>
+            <pre>nx show project mfe1 --web</pre>
           </details>
           <details>
             <summary>
@@ -812,15 +876,12 @@ nx g &#64;nx/angular:component button --project ui</pre>
             </summary>
             <pre><span># see what&apos;s been affected by changes</span>
 nx affected:graph
-
 <span># run tests for current changes</span>
 nx affected:test
-
 <span># run e2e tests for current changes</span>
 nx affected:e2e</pre>
           </details>
         </div>
-
         <p id="love">
           Carefully crafted with
           <svg
@@ -843,8 +904,4 @@ nx affected:e2e</pre>
   styles: [],
   encapsulation: ViewEncapsulation.None,
 })
-export class NxWelcomeComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class NxWelcomeComponent {}
