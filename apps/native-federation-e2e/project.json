@@ -12,6 +12,9 @@
         "passWithNoTests": false
       },
       "dependsOn": ["native-federation:build"]
+    },
+    "test": {
+      "command": "echo Noop"
     }
   },
   "tags": [],
