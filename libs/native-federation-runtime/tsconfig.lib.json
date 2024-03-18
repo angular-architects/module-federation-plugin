@@ -5,15 +5,13 @@
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
-    "types": [],
-    "target": "ES2022",
-    "useDefineForClassFields": false
+    "types": []
   },
   "exclude": [
+    "src/**/*.spec.ts",
     "src/test-setup.ts",
-    "**/*.spec.ts",
-    "**/*.test.ts",
-    "jest.config.ts"
+    "jest.config.ts",
+    "src/**/*.test.ts"
   ],
-  "include": ["**/*.ts"]
+  "include": ["src/**/*.ts"]
 }

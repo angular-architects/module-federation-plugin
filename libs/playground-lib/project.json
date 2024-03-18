@@ -4,23 +4,6 @@
   "projectType": "library",
   "sourceRoot": "libs/playground-lib/src",
   "prefix": "angular-architects",
-  "targets": {
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/playground-lib"],
-      "options": {
-        "jestConfig": "libs/playground-lib/jest.config.ts"
-      }
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "options": {
-        "lintFilePatterns": [
-          "libs/playground-lib/**/*.ts",
-          "libs/playground-lib/**/*.html"
-        ]
-      }
-    }
-  },
+  "targets": {},
   "tags": []
 }

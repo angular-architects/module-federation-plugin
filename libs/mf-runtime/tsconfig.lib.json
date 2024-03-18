@@ -2,23 +2,16 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "target": "ES2022",
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
-    "types": [],
-    "lib": ["dom", "es2018"],
-    "useDefineForClassFields": false
-  },
-  "angularCompilerOptions": {
-    "enableIvy": true,
-    "compilationMode": "partial"
+    "types": []
   },
   "exclude": [
+    "src/**/*.spec.ts",
     "src/test-setup.ts",
-    "**/*.spec.ts",
-    "**/*.test.ts",
-    "jest.config.ts"
+    "jest.config.ts",
+    "src/**/*.test.ts"
   ],
-  "include": ["**/*.ts"]
+  "include": ["src/**/*.ts"]
 }

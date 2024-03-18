@@ -17,20 +17,6 @@
         ]
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/native-federation-core/**/*.ts"]
-      }
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/native-federation-core"],
-      "options": {
-        "jestConfig": "libs/native-federation-core/jest.config.ts"
-      }
-    },
     "publish": {
       "dependsOn": ["build"],
       "executor": "nx:run-commands",
