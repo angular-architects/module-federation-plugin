@@ -70,20 +70,6 @@
         "command": "node post-build.js"
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "options": {
-        "lintFilePatterns": ["libs/mf/**/*.ts"]
-      },
-      "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/mf"],
-      "options": {
-        "jestConfig": "libs/mf/jest.config.ts"
-      }
-    },
     "publish": {
       "dependsOn": ["build", "post-build"],
       "executor": "nx:run-commands",

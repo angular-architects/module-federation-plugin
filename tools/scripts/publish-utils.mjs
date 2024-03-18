@@ -51,6 +51,7 @@ export function getOutputPath(project) {
   );
 
   outputPath = outputPath.replace('{workspaceRoot}/', '');
+  outputPath = outputPath.replace('{projectRoot}', project.data.root);
 
   console.log(`Use outputPath ${outputPath}`);
 

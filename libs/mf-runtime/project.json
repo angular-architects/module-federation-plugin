@@ -7,33 +7,19 @@
   "targets": {
     "build": {
       "executor": "@nx/angular:package",
-      "outputs": ["{workspaceRoot}/dist/libs/mf-runtime"],
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "tsConfig": "libs/mf-runtime/tsconfig.lib.json",
         "project": "libs/mf-runtime/ng-package.json"
       },
       "configurations": {
         "production": {
           "tsConfig": "libs/mf-runtime/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "libs/mf-runtime/tsconfig.lib.json"
         }
-      }
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "options": {
-        "lintFilePatterns": [
-          "libs/mf-runtime/src/**/*.ts",
-          "libs/mf-runtime/src/**/*.html"
-        ]
       },
-      "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/mf-runtime"],
-      "options": {
-        "jestConfig": "libs/mf-runtime/jest.config.ts"
-      }
+      "defaultConfiguration": "production"
     },
     "publish": {
       "dependsOn": ["build"],

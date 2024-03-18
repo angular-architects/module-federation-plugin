@@ -7,7 +7,7 @@
   "targets": {
     "build": {
       "executor": "@nx/angular:package",
-      "outputs": ["{workspaceRoot}/dist/libs/native-federation-runtime"],
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "project": "libs/native-federation-runtime/ng-package.json"
       },
@@ -20,22 +20,6 @@
         }
       },
       "defaultConfiguration": "production"
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/native-federation-runtime"],
-      "options": {
-        "jestConfig": "libs/native-federation-runtime/jest.config.ts"
-      }
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "options": {
-        "lintFilePatterns": [
-          "libs/native-federation-runtime/**/*.ts",
-          "libs/native-federation-runtime/**/*.html"
-        ]
-      }
     },
     "publish": {
       "dependsOn": ["build"],

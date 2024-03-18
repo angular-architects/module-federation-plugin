@@ -16,4 +16,5 @@ module.exports = {
   globals: {
     Uint8Array: Uint8Array,
   },
+  passWithNoTests: true,
 };
