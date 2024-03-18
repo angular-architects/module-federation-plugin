@@ -14,18 +14,20 @@ export class ModifyEntryPlugin {
       return values.length > 0 ? objFn(values) : {};
     };
     Object.keys(this.config).forEach((key) => {
-      compiler.options.entry[key] = {
-        ...cfgOrRemove(
-          (v) => ({ import: v }),
-          (c) => c.import,
-          key
-        ),
-        ...cfgOrRemove(
-          (v) => ({ dependOn: v }),
-          (c) => c.dependOn,
-          key
-        ),
-      };
+      if (compiler.options.entry[key]) {
+        compiler.options.entry[key] = {
+          ...cfgOrRemove(
+            (v) => ({ import: v }),
+            (c) => c.import,
+            key
+          ),
+          ...cfgOrRemove(
+            (v) => ({ dependOn: v }),
+            (c) => c.dependOn,
+            key
+          )
+        };
+      }
     });
   }
 }
