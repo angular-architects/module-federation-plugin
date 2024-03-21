@@ -237,9 +237,8 @@ So far, we just hardcoded the URLs pointing to our Micro Frontends. However, in 
 
 2. Adjust the shell's `main.ts` (`projects/shell/src/main.ts`) as follows:
 
-   ```typescript
-   import { loadManifest } from '@angular-architects/module-federation';
-   ```
+```typescript
+import { loadManifest } from '@angular-architects/module-federation';
 
 loadManifest('assets/mf.manifest.json')
 .catch((err) => console.error('Error loading remote entries', err))
