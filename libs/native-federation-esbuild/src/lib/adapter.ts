@@ -11,6 +11,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import { externals } from 'rollup-plugin-node-externals';
 import * as fs from 'fs';
 import path from 'path';
+import { collectExports } from './collect-exports';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const commonjs = require('@rollup/plugin-commonjs');
@@ -127,25 +128,24 @@ function writeResult(
   return writtenFiles;
 }
 
-// TODO: Unused, to delete?
-// function compensateExports(entryPoint: string, outfile?: string): void {
-//   const inExports = collectExports(entryPoint);
-//   const outExports = outfile ? collectExports(outfile) : inExports;
-//
-//   if (!outExports.hasDefaultExport || outExports.hasFurtherExports) {
-//     return;
-//   }
-//   const defaultName = outExports.defaultExportName;
-//
-//   let exports = '/*Try to compensate missing exports*/\n\n';
-//   for (const exp of inExports.exports) {
-//     exports += `let ${exp}$softarc = ${defaultName}.${exp};\n`;
-//     exports += `export { ${exp}$softarc as ${exp} };\n`;
-//   }
-//
-//   const target = outfile ?? entryPoint;
-//   fs.appendFileSync(target, exports, 'utf-8');
-// }
+function compensateExports(entryPoint: string, outfile?: string): void {
+  const inExports = collectExports(entryPoint);
+  const outExports = outfile ? collectExports(outfile) : inExports;
+
+  if (!outExports.hasDefaultExport || outExports.hasFurtherExports) {
+    return;
+  }
+  const defaultName = outExports.defaultExportName;
+
+  let exports = '/*Try to compensate missing exports*/\n\n';
+  for (const exp of inExports.exports) {
+    exports += `let ${exp}$softarc = ${defaultName}.${exp};\n`;
+    exports += `export { ${exp}$softarc as ${exp} };\n`;
+  }
+
+  const target = outfile ?? entryPoint;
+  fs.appendFileSync(target, exports, 'utf-8');
+}
 
 async function prepareNodePackage(
   entryPoint: string,
