@@ -17,7 +17,12 @@ export function getFederationFilesMiddleware(
       fedOptions.outputPath,
       mapLocaleHrefToDir(i18nOpts, req.url)
     );
+    console.log('######### request');
+    console.log(req.url);
+    console.log(fileName);
     const exists = fs.existsSync(fileName);
+    console.log(exists);
+    console.log(!localeRootRegExp.test(req.url));
     if (
       req.url !== '/' &&
       req.url !== '' &&
@@ -55,23 +60,32 @@ function mapLocaleHrefToDir(i18nOpts: I18nOptions, url: string) {
     return url;
   }
   let startsWithHref: RegExp;
-  const entry = Object.entries(i18nOpts.locales).find(([, { baseHref }]) => {
+  const entry = Object.entries(i18nOpts.locales).find(([locale, { baseHref }]) => {
     const href = trimHref(baseHref);
-    startsWithHref = new RegExp(`^(\/?)${href}(\/?.*)$`);
+    if (href) {
+      startsWithHref = new RegExp(`^(\/?)${href}(\/?.*)$`);
+    } else {
+      startsWithHref = new RegExp(`^\/?(?:start-page|example)(\/)${locale}(\/.*|)$`);
+    }
     return startsWithHref.test(url);
   });
   if (!entry) {
-    return url;
+    if (url.split('/').length > 2) {
+      return url.replace(/^\/?(?:start-page|example)/, ''); // TODO: WORKAROUND FOR NOW: CUT OFF FIRST SEGMENT
+    } else {
+      return url;
+    }
   }
   const [locale] = entry;
+  url.replace(startsWithHref, `$1${locale}$2`);
   return url.replace(startsWithHref, `$1${locale}$2`);
 }
 
 function getLocaleRootRegexp(i18nOpts: I18nOptions): RegExp {
-  const localeDirs = Object.values(i18nOpts.locales)
-    .map(({ baseHref }) => trimHref(baseHref))
-    .filter((href) => href !== '');
+  const localeDirs = Object.entries(i18nOpts.locales).map(([locale, { baseHref }]) => {
+    return trimHref(baseHref) || locale;
+  }).filter((href) => href !== '');
   return i18nOpts.shouldInline
-    ? new RegExp(`^\/?(?:${localeDirs.join('|')})\/?$`)
+    ? new RegExp(`(?:^|\/)(?:${localeDirs.join('|')})\/?$`)
     : new RegExp(/^\/?$/);
 }
