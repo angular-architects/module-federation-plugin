@@ -1,5 +1,5 @@
 {
-  "name": "@siemens/native-federation",
+  "name": "@dg/native-federation",
   "version": "17.1.7",
   "main": "src/index.js",
   "generators": "./collection.json",
