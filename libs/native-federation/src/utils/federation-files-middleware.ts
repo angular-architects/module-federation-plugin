@@ -17,12 +17,7 @@ export function getFederationFilesMiddleware(
       fedOptions.outputPath,
       mapLocaleHrefToDir(i18nOpts, req.url)
     );
-    console.log('######### request');
-    console.log(req.url);
-    console.log(fileName);
     const exists = fs.existsSync(fileName);
-    console.log(exists);
-    console.log(!localeRootRegExp.test(req.url));
     if (
       req.url !== '/' &&
       req.url !== '' &&
@@ -60,15 +55,19 @@ function mapLocaleHrefToDir(i18nOpts: I18nOptions, url: string) {
     return url;
   }
   let startsWithHref: RegExp;
-  const entry = Object.entries(i18nOpts.locales).find(([locale, { baseHref }]) => {
-    const href = trimHref(baseHref);
-    if (href) {
-      startsWithHref = new RegExp(`^(\/?)${href}(\/?.*)$`);
-    } else {
-      startsWithHref = new RegExp(`^\/?(?:start-page|example)(\/)${locale}(\/.*|)$`);
+  const entry = Object.entries(i18nOpts.locales).find(
+    ([locale, { baseHref }]) => {
+      const href = trimHref(baseHref);
+      if (href) {
+        startsWithHref = new RegExp(`^(\/?)${href}(\/?.*)$`);
+      } else {
+        startsWithHref = new RegExp(
+          `^\/?(?:start-page|example)(\/)${locale}(\/.*|)$`
+        );
+      }
+      return startsWithHref.test(url);
     }
-    return startsWithHref.test(url);
-  });
+  );
   if (!entry) {
     if (url.split('/').length > 2) {
       return url.replace(/^\/?(?:start-page|example)/, ''); // TODO: WORKAROUND FOR NOW: CUT OFF FIRST SEGMENT
@@ -82,9 +81,11 @@ function mapLocaleHrefToDir(i18nOpts: I18nOptions, url: string) {
 }
 
 function getLocaleRootRegexp(i18nOpts: I18nOptions): RegExp {
-  const localeDirs = Object.entries(i18nOpts.locales).map(([locale, { baseHref }]) => {
-    return trimHref(baseHref) || locale;
-  }).filter((href) => href !== '');
+  const localeDirs = Object.entries(i18nOpts.locales)
+    .map(([locale, { baseHref }]) => {
+      return trimHref(baseHref) || locale;
+    })
+    .filter((href) => href !== '');
   return i18nOpts.shouldInline
     ? new RegExp(`(?:^|\/)(?:${localeDirs.join('|')})\/?$`)
     : new RegExp(/^\/?$/);

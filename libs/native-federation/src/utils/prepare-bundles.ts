@@ -53,25 +53,20 @@ export function prepareBundles(
         }))
       );
       writeFederationInfo(federationInfo, fedOptions);
-      const fedOutput = {
-        path: path.join(fedOptions.outputPath, 'remoteEntry.json'),
-        contents: Buffer.from(JSON.stringify(federationInfo, null, 2)),
-        type: BuildOutputFileType.Browser,
-        text: JSON.stringify(federationInfo, null, 2),
-        clone: function close() {
-          return { ...this };
-        },
-        hash: '',
-        fullOutputPath: path.join(
-          fedOptions.workspaceRoot,
-          fedOptions.outputPath,
-          'remoteEntry.json'
-        )
-      };
-      memResults.add([new EsBuildResult(fedOutput, path.join(fedOptions.workspaceRoot, fedOptions.outputPath))]);
+      addFederationInfoToMemResult(fedOptions, federationInfo, memResults);
     }
     return;
   }
+  const originalShares = federationInfo.shared;
+  const originalExposes = federationInfo.exposes;
+  const viteShares = shouldWriteIndex
+    ? []
+    : originalShares.map((share) => ({
+        ...share,
+        packageName: `/@id/${share.packageName}`,
+      }));
+  const localeShares = [];
+  const localeExposes = [];
   for (const indexFile of getIndexFiles(
     options,
     fedOptions,
@@ -90,7 +85,36 @@ export function prepareBundles(
       !shouldWriteIndex,
       memResults
     );
+
+    localeShares.push(
+      ...originalShares.flatMap((share) =>
+        getLocaleAliases(
+          share.packageName,
+          i18nOptions.locales[locale].baseHref,
+          !shouldWriteIndex
+        ).map((alias) => ({
+          ...share,
+          packageName: alias,
+        }))
+      )
+    );
+    localeExposes.push(
+      ...originalExposes.map((exposed) => ({
+        key: `./${locale}/${exposed.key.slice(2)}`,
+        outFileName: `${locale}/${exposed.outFileName}`,
+        dev: exposed.dev,
+      }))
+    );
   }
+  const finalFedInfo: FederationInfo = {
+    name: federationInfo.name,
+    shared: [...originalShares, ...viteShares, ...localeShares],
+    exposes: [...localeExposes],
+  };
+  writeFederationInfo(finalFedInfo, fedOptions);
+  addFederationInfoToMemResult(fedOptions, finalFedInfo, memResults);
+  writeImportMap(finalFedInfo.shared, fedOptions);
+  addImportMapToMemResult(fedOptions, federationInfo, memResults);
 }
 
 function getIndexFiles(
@@ -147,6 +171,21 @@ function getAliases(
   return aliases;
 }
 
+function getLocaleAliases(
+  packageName: string,
+  baseHref: string,
+  devServerMode: boolean
+): string[] {
+  if (baseHref == '') {
+    return [];
+  }
+  const aliases = [baseHref + packageName];
+  if (devServerMode) {
+    aliases.push(`${baseHref}@id/${packageName}`);
+  }
+  return aliases;
+}
+
 function addFederationInfoToBundle(
   fedInfo: FederationInfo,
   fedOptions: FederationOptions,
@@ -171,46 +210,12 @@ function addFederationInfoToBundle(
   }
   writeFederationInfo(localizedFedInfo, localizedFedOptions);
   writeImportMap(localizedFedInfo.shared, localizedFedOptions);
-  const fedOutput = {
-    path: path.join(fedOptions.outputPath, 'remoteEntry.json'),
-    contents: Buffer.from(JSON.stringify(localizedFedInfo, null, 2)),
-    type: BuildOutputFileType.Browser,
-    text: JSON.stringify(localizedFedInfo, null, 2),
-    clone: function close() {
-      return { ...this };
-    },
-    hash: '',
-    fullOutputPath: path.join(
-      fedOptions.workspaceRoot,
-      fedOptions.outputPath,
-      'remoteEntry.json'
-    )
-  };
-  const imports = localizedFedInfo.shared.reduce((acc, cur) => {
-    return {
-      ...acc,
-      [cur.packageName]: cur.outFileName,
-    };
-  }, {});
-
-  const importMap = { imports };
-  const mapOutput = {
-    path: path.join(localizedFedOptions.outputPath, 'importmap.json'),
-    contents: Buffer.from(JSON.stringify(importMap, null, 2)),
-    type: BuildOutputFileType.Browser,
-    text: JSON.stringify(importMap, null, 2),
-    clone: function close() {
-      return { ...this };
-    },
-    hash: '',
-    fullOutputPath: path.join(
-      localizedFedOptions.workspaceRoot,
-      localizedFedOptions.outputPath,
-      'importmap.json'
-    )
-  };
-  memResults.add([new EsBuildResult(fedOutput, path.join(fedOptions.workspaceRoot, localizedFedOptions.outputPath))]);
-  memResults.add([new EsBuildResult(mapOutput, path.join(fedOptions.workspaceRoot, localizedFedOptions.outputPath))]);
+  addFederationInfoToMemResult(
+    localizedFedOptions,
+    localizedFedInfo,
+    memResults
+  );
+  addImportMapToMemResult(localizedFedOptions, localizedFedInfo, memResults);
 }
 
 function cloneFederationInfo(fedInfo: FederationInfo): FederationInfo {
@@ -247,7 +252,7 @@ function getIndexBuildOutput(
       },
       // the rest are unused anyway
       get contents() {
-        return Uint8Array.from(fs.readFileSync(path.join(...pathSegments)))
+        return Uint8Array.from(fs.readFileSync(path.join(...pathSegments)));
       },
       clone: function clone() {
         return { ...this };
@@ -256,4 +261,68 @@ function getIndexBuildOutput(
       fullOutputPath: '',
     };
   });
+}
+
+function addFederationInfoToMemResult(
+  fedOptions: FederationOptions,
+  federationInfo: FederationInfo,
+  memResults: MemResults
+) {
+  const fedOutput = {
+    path: path.join(fedOptions.outputPath, 'remoteEntry.json'),
+    contents: Buffer.from(JSON.stringify(federationInfo, null, 2)),
+    type: BuildOutputFileType.Browser,
+    text: JSON.stringify(federationInfo, null, 2),
+    clone: function close() {
+      return { ...this };
+    },
+    hash: '',
+    fullOutputPath: path.join(
+      fedOptions.workspaceRoot,
+      fedOptions.outputPath,
+      'remoteEntry.json'
+    ),
+  };
+  memResults.add([
+    new EsBuildResult(
+      fedOutput,
+      path.join(fedOptions.workspaceRoot, fedOptions.outputPath)
+    ),
+  ]);
+}
+
+function addImportMapToMemResult(
+  fedOptions: FederationOptions,
+  federationInfo: FederationInfo,
+  memResults: MemResults
+) {
+  const imports = federationInfo.shared.reduce((acc, cur) => {
+    return {
+      ...acc,
+      [cur.packageName]: cur.outFileName,
+    };
+  }, {});
+
+  const importMap = { imports };
+  const mapOutput = {
+    path: path.join(fedOptions.outputPath, 'importmap.json'),
+    contents: Buffer.from(JSON.stringify(importMap, null, 2)),
+    type: BuildOutputFileType.Browser,
+    text: JSON.stringify(importMap, null, 2),
+    clone: function close() {
+      return { ...this };
+    },
+    hash: '',
+    fullOutputPath: path.join(
+      fedOptions.workspaceRoot,
+      fedOptions.outputPath,
+      'importmap.json'
+    ),
+  };
+  memResults.add([
+    new EsBuildResult(
+      mapOutput,
+      path.join(fedOptions.workspaceRoot, fedOptions.outputPath)
+    ),
+  ]);
 }
