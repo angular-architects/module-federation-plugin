@@ -85,9 +85,9 @@ export function readProjectInfos(): ProjectInfo[] {
       ({
         ...workspace.projects[name],
         name,
-        port: workspace.projects[name].architect?.serve?.options?.port,
+        port: workspace.projects[name].architect?.['serve']?.options?.port,
         outputPath:
-          workspace.projects[name].architect?.build?.options?.outputPath,
+          workspace.projects[name].architect?.['build']?.options?.outputPath,
       } as ProjectInfo)
   );
 }

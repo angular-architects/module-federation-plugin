@@ -1,6 +1,6 @@
 {
   "extends": ["../../.eslintrc.base.json"],
-  "ignorePatterns": ["!**/*", "src/lib/core/build-adapter.js"],
+  "ignorePatterns": ["!**/*"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -13,13 +13,6 @@
     {
       "files": ["*.js", "*.jsx"],
       "rules": {}
-    },
-    {
-      "files": ["*.json"],
-      "parser": "jsonc-eslint-parser",
-      "rules": {
-        "@nx/dependency-checks": "warn"
-      }
     }
   ]
 }

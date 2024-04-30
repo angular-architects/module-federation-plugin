@@ -56,25 +56,6 @@
         "command": "node post-build.js"
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": [
-          "libs/native-federation/**/*.ts",
-          "libs/native-federation/generators.json",
-          "libs/native-federation/executors.json",
-          "libs/native-federation/package.json"
-        ]
-      }
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/native-federation"],
-      "options": {
-        "jestConfig": "libs/native-federation/jest.config.ts"
-      }
-    },
     "publish": {
       "dependsOn": ["build", "post-build"],
       "executor": "nx:run-commands",
