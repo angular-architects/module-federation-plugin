@@ -10,7 +10,7 @@ import chalk from 'chalk';
 
 // Executing publish script: node path/to/publish.mjs {project} {registry} {version} {tag}
 // Default "tag" to "next" so we won't publish the "latest" tag by accident.
-const [, , nameArgv, targetRegistry, versionArgv, tagArgv = 'next'] =
+const [, , nameArgv, targetRegistry, versionArgv, tagArgv = 'latest'] =
   process.argv;
 
 const project = getProject(nameArgv);

@@ -1,10 +1,10 @@
 {
   "name": "@softarc/native-federation",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "type": "commonjs",
   "dependencies": {
     "json5": "^2.2.0",
     "npmlog": "^6.0.2",
-    "@softarc/native-federation-runtime": "2.0.8"
+    "@softarc/native-federation-runtime": "2.0.9"
   }
 }
