@@ -34,22 +34,27 @@ async function loadManifest(remotes: string): Promise<Record<string, string>> {
 async function processRemoteInfos(
   remotes: Record<string, string>
 ): Promise<ImportMap> {
-  let importMap: ImportMap = {
-    imports: {},
-    scopes: {},
-  };
-
-  for (const remoteName of Object.keys(remotes)) {
-    try {
-      const url = remotes[remoteName];
-      const remoteMap = await processRemoteInfo(url, remoteName);
-      importMap = mergeImportMaps(importMap, remoteMap);
-    } catch (e) {
-      console.error(
-        `Error loading remote entry for ${remoteName} from file ${remotes[remoteName]}`
-      );
+  const processRemoteInfoPromises = Object.keys(remotes).map(
+    async (remoteName) => {
+      try {
+        const url = remotes[remoteName];
+        return await processRemoteInfo(url, remoteName);
+      } catch (e) {
+        console.error(
+          `Error loading remote entry for ${remoteName} from file ${remotes[remoteName]}`
+        );
+        return null;
+      }
     }
-  }
+  );
+
+  const remoteImportMaps = await Promise.all(processRemoteInfoPromises);
+
+  const importMap = remoteImportMaps.reduce<ImportMap>(
+    (acc, remoteImportMap) =>
+      remoteImportMap ? mergeImportMaps(acc, remoteImportMap) : acc,
+    { imports: {}, scopes: {} }
+  );
 
   return importMap;
 }
