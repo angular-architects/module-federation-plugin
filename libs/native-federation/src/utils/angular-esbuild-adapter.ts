@@ -8,16 +8,10 @@ import * as esbuild from 'esbuild';
 
 import { createCompilerPlugin } from '@angular/build/src/tools/esbuild/angular/compiler-plugin';
 import { createCompilerPluginOptions } from '@angular/build/src/tools/esbuild/compiler-plugin-options';
+import { transformSupportedBrowsersToTargets } from '@angular/build/src/tools/esbuild/utils';
 import { getSupportedBrowsers } from '@angular/build/src/utils/supported-browsers';
 
 import { BuilderContext } from '@angular-devkit/architect';
-
-import { transformSupportedBrowsersToTargets } from './transform';
-
-// TODO: Use this import instead in next version:
-// import {
-//   transformSupportedBrowsersToTargets
-// } from '@angular-devkit/build-angular/src/tools/esbuild/utils';
 
 import { findTailwindConfigurationFile } from '@angular-devkit/build-angular/src/utils/tailwind';
 
