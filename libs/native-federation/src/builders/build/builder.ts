@@ -11,12 +11,12 @@ import {
   createBuilder,
 } from '@angular-devkit/architect';
 
+import { buildApplication } from '@angular-devkit/build-angular';
+
 import {
-  buildApplication
+  executeDevServerBuilder,
+  DevServerBuilderOptions,
 } from '@angular-devkit/build-angular';
-
-
-import { executeDevServerBuilder, DevServerBuilderOptions } from '@angular-devkit/build-angular';
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
 import { setLogLevel, logger } from '@softarc/native-federation/build';
@@ -221,15 +221,15 @@ export async function* runBuilder(
     ? executeDevServerBuilder(
         options,
         context,
-      {indexHtml: nfOptions.skipHtmlTransform
-          ? {}
-          : {              indexHtml: transformIndexHtml(nfOptions)        }},
+        {
+          indexHtml: nfOptions.skipHtmlTransform
+            ? {}
+            : { indexHtml: transformIndexHtml(nfOptions) },
+        },
         {
           buildPlugins: plugins,
           middleware,
-
         }
-
       )
     : buildApplication(options, context, plugins);
 
