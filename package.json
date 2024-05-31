@@ -124,7 +124,7 @@
     "ts-jest": "29.1.1",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
-    "typescript": "~5.2.0",
+    "typescript": "5.4.5",
     "verdaccio": "^5.0.4",
     "word-wrap": "^1.2.5"
   },
