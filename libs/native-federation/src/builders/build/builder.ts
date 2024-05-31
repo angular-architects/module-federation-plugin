@@ -13,7 +13,7 @@ import { Schema } from '@angular-devkit/build-angular/src/builders/application/s
 import {
   buildApplication,
   ApplicationBuilderOptions,
-} from '@angular-devkit/build-angular/src/builders/application';
+} from '@angular-devkit/build-angular';
 
 import { serveWithVite } from '@angular-devkit/build-angular/src/builders/dev-server/vite-server';
 import { DevServerBuilderOptions } from '@angular-devkit/build-angular/src/builders/dev-server';
