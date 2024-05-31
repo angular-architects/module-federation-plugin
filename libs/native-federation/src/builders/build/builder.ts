@@ -2,21 +2,21 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as mrmime from 'mrmime';
 
+import { ApplicationBuilderOptions } from '@angular/build/src/builders/application';
+import { Schema } from '@angular/build/src/builders/application/schema';
+
 import {
   BuilderContext,
   BuilderOutput,
   createBuilder,
 } from '@angular-devkit/architect';
 
-import { Schema } from '@angular-devkit/build-angular/src/builders/application/schema';
-
 import {
-  buildApplication,
-  ApplicationBuilderOptions,
+  buildApplication
 } from '@angular-devkit/build-angular';
 
-import { serveWithVite } from '@angular-devkit/build-angular/src/builders/dev-server/vite-server';
-import { DevServerBuilderOptions } from '@angular-devkit/build-angular/src/builders/dev-server';
+
+import { executeDevServerBuilder, DevServerBuilderOptions } from '@angular-devkit/build-angular';
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
 import { setLogLevel, logger } from '@softarc/native-federation/build';
@@ -215,22 +215,21 @@ export async function* runBuilder(
 
   options.deleteOutputPath = false;
 
-  const appBuilderName = '@angular-devkit/build-angular:application';
-
+  // TODO: Clarify how DevServer needs to be executed. Not sure if its right.
+  // TODO: Clarify if buildApplication is needed `executeDevServerBuilder` seems to choose the correct DevServer
   const builderRun = nfOptions.dev
-    ? serveWithVite(
-        normOuterOptions,
-        appBuilderName,
+    ? executeDevServerBuilder(
+        options,
         context,
-        nfOptions.skipHtmlTransform
+      {indexHtml: nfOptions.skipHtmlTransform
           ? {}
-          : {
-              indexHtml: transformIndexHtml(nfOptions),
-            },
+          : {              indexHtml: transformIndexHtml(nfOptions)        }},
         {
           buildPlugins: plugins,
           middleware,
+
         }
+
       )
     : buildApplication(options, context, plugins);
 
