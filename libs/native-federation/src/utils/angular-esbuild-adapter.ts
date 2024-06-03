@@ -3,42 +3,37 @@ import {
   logger,
   MappedPath,
 } from '@softarc/native-federation/build';
+
 import * as esbuild from 'esbuild';
-import { createCompilerPlugin } from '@angular-devkit/build-angular/src/tools/esbuild/angular/compiler-plugin';
+
+import { createCompilerPlugin } from '@angular/build/src/tools/esbuild/angular/compiler-plugin';
+import { createCompilerPluginOptions } from '@angular/build/src/tools/esbuild/compiler-plugin-options';
+import { transformSupportedBrowsersToTargets } from '@angular/build/src/tools/esbuild/utils';
+import { getSupportedBrowsers } from '@angular/build/src/utils/supported-browsers';
 
 import { BuilderContext } from '@angular-devkit/architect';
 
-import { transformSupportedBrowsersToTargets } from './transform';
-
-// TODO: Use this import instead in next version:
-// import {
-//   transformSupportedBrowsersToTargets
-// } from '@angular-devkit/build-angular/src/tools/esbuild/utils';
-
-import { createCompilerPluginOptions } from '@angular-devkit/build-angular/src/tools/esbuild/compiler-plugin-options';
-
 import { findTailwindConfigurationFile } from '@angular-devkit/build-angular/src/utils/tailwind';
 
-import { getSupportedBrowsers } from '@angular-devkit/build-angular/src/utils/supported-browsers';
 import {
   normalizeOptimization,
   normalizeSourceMaps,
 } from '@angular-devkit/build-angular/src/utils';
 import { createRequire } from 'node:module';
 
-import { ApplicationBuilderOptions as AppBuilderSchema } from '@angular-devkit/build-angular/src/builders/application';
+import { ApplicationBuilderOptions } from '@angular/build/src/builders/application';
 
-import { createSharedMappingsPlugin } from './shared-mappings-plugin';
 import * as fs from 'fs';
 import * as path from 'path';
+import { createSharedMappingsPlugin } from './shared-mappings-plugin';
 
 import { PluginItem, transformAsync } from '@babel/core';
-import { RebuildEvents, RebuildHubs } from './rebuild-events';
 import {
   BuildKind,
   BuildResult,
   EntryPoint,
 } from '@softarc/native-federation/src/lib/core/build-adapter';
+import { RebuildEvents, RebuildHubs } from './rebuild-events';
 
 // const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
 
@@ -54,7 +49,7 @@ export function setMemResultHandler(handler: MemResultHandler): void {
 }
 
 export function createAngularBuildAdapter(
-  builderOptions: AppBuilderSchema,
+  builderOptions: ApplicationBuilderOptions,
   context: BuilderContext,
   rebuildRequested: RebuildEvents = new RebuildHubs()
 ): BuildAdapter {
@@ -166,7 +161,7 @@ export function createAngularBuildAdapter(
 }
 
 async function runEsbuild(
-  builderOptions: AppBuilderSchema,
+  builderOptions: ApplicationBuilderOptions,
   context: BuilderContext,
   entryPoints: EntryPoint[],
   external: string[],
