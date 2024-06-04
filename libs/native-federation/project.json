@@ -36,6 +36,11 @@
           },
           {
             "input": "./libs/native-federation",
+            "glob": "migration-collection.json",
+            "output": "."
+          },
+          {
+            "input": "./libs/native-federation",
             "glob": "executors.json",
             "output": "."
           },

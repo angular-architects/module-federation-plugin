@@ -24,6 +24,7 @@ We will at least provide a new version of this package per Angular major. If nec
 - Use version 16.2.x for Angular 16.2.x
 - Use version 17.x for Angular 17.x
 - Use version 17.1.x for Angular 17.1+
+- Use version 18.x for Angular 18+
 
 ## Angular Integration
 

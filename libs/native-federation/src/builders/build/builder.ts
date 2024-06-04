@@ -11,10 +11,10 @@ import {
   createBuilder,
 } from '@angular-devkit/architect';
 
-import { buildApplication } from '@angular-devkit/build-angular';
+import { buildApplication, buildApplicationInternal } from '@angular/build/src/builders/application';
+import { serveWithVite } from '@angular/build/src/builders/dev-server/vite-server';
 
 import {
-  executeDevServerBuilder,
   DevServerBuilderOptions,
 } from '@angular-devkit/build-angular';
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
@@ -52,6 +52,19 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { Connect } from 'vite';
 import { PluginBuild } from 'esbuild';
 import { FederationInfo } from '@softarc/native-federation-runtime';
+
+function _buildApplication(options, context, pluginsOrExtensions) {
+  let extensions;
+  if (pluginsOrExtensions && Array.isArray(pluginsOrExtensions)) {
+    extensions = {
+      codePlugins: pluginsOrExtensions,
+    };
+  }
+  else {
+    extensions = pluginsOrExtensions;
+  }
+  return buildApplicationInternal(options, context, { write: false }, extensions);
+}
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
@@ -217,20 +230,23 @@ export async function* runBuilder(
 
   // TODO: Clarify how DevServer needs to be executed. Not sure if its right.
   // TODO: Clarify if buildApplication is needed `executeDevServerBuilder` seems to choose the correct DevServer
+
+  const appBuilderName = '@angular-devkit/build-angular:application';
+
   const builderRun = nfOptions.dev
-    ? executeDevServerBuilder(
-        options,
-        context,
-        {
-          indexHtml: nfOptions.skipHtmlTransform
-            ? {}
-            : { indexHtml: transformIndexHtml(nfOptions) },
-        },
-        {
-          buildPlugins: plugins,
-          middleware,
-        }
-      )
+    ? serveWithVite(
+      normOuterOptions,
+      appBuilderName,
+      _buildApplication,
+      context,
+      nfOptions.skipHtmlTransform
+        ? {}
+        : { indexHtml: transformIndexHtml(nfOptions) },
+      {
+        buildPlugins: plugins,
+        middleware,
+      }
+    )
     : buildApplication(options, context, plugins);
 
   // builderRun.output.subscribe(async (output) => {
@@ -259,13 +275,13 @@ export async function* runBuilder(
       updateIndexHtml(fedOptions, nfOptions);
     }
 
-    if (first && runServer) {
-      startServer(nfOptions, fedOptions.outputPath, memResults);
-    }
+    // if (first && runServer) {
+    //   startServer(nfOptions, fedOptions.outputPath, memResults);
+    // }
 
-    if (!first && runServer) {
-      reloadBrowser();
-    }
+    // if (!first && runServer) {
+    //   reloadBrowser();
+    // }
 
     if (!runServer) {
       yield output;

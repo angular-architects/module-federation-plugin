@@ -14,6 +14,8 @@ import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { strings } from '@angular-devkit/core';
 import { MfSchematicSchema } from './schema';
 
+import { patchAngularBuildPackageJson } from '../../utils/patch-angular-build';
+
 import {
   addPackageJsonDependency,
   NodeDependencyType,
@@ -31,6 +33,32 @@ type NormalizedOptions = {
   main: string;
   port: number;
 };
+
+export function updatePackageJson(tree: Tree): void {
+  const packageJson = tree.readJson('package.json');
+
+  const scriptCall = 'node node_modules/@angular-architects/native-federation/src/patch-angular-build.js';
+
+  if (!packageJson['scripts']) {
+    packageJson['scripts'] = {};
+  }
+
+  let postInstall = (packageJson['scripts']?.['postinstall'] || '') as string;
+  if (postInstall?.includes(scriptCall)) {
+    return;
+  }
+
+  if (postInstall) {
+    postInstall += ' && ';
+  }
+
+  postInstall += scriptCall;
+
+  packageJson['scripts']['postinstall'] = postInstall;
+
+  tree.overwrite('package.json', JSON.stringify(packageJson, null, 2));
+
+}
 
 export default function config(options: MfSchematicSchema): Rule {
   return async function (tree, context) {
@@ -71,6 +99,10 @@ export default function config(options: MfSchematicSchema): Rule {
 
     updateWorkspaceConfig(tree, normalized, workspace, workspaceFileName);
 
+    updatePackageJson(tree);
+
+    patchAngularBuild(tree);
+
     addPackageJsonDependency(tree, {
       name: 'es-module-shims',
       type: NodeDependencyType.Default,
@@ -82,6 +114,12 @@ export default function config(options: MfSchematicSchema): Rule {
 
     return chain([generateRule, makeMainAsync(main, options, remoteMap)]);
   };
+}
+
+export function patchAngularBuild(tree) {
+  const packageJson = JSON.parse(tree.read('node_modules/@angular/build/package.json'));
+  patchAngularBuildPackageJson(packageJson);
+  tree.overwrite('node_modules/@angular/build/package.json', JSON.stringify(packageJson, null, 2));
 }
 
 function updateWorkspaceConfig(
@@ -217,7 +255,7 @@ function normalizeOptions(
   );
 
   const manifestPath = path
-    .join(projectRoot, 'src/assets/federation.manifest.json')
+    .join(projectRoot, 'public/federation.manifest.json')
     .replace(/\\/g, '/');
 
   const main =
@@ -316,7 +354,7 @@ function makeMainAsync(
     if (options.type === 'dynamic-host') {
       newMainContent = `import { initFederation } from '@angular-architects/native-federation';
 
-initFederation('/assets/federation.manifest.json')
+initFederation('federation.manifest.json')
   .catch(err => console.error(err))
   .then(_ => import('./bootstrap'))
   .catch(err => console.error(err));
