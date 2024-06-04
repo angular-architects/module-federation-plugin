@@ -37,7 +37,8 @@ type NormalizedOptions = {
 export function updatePackageJson(tree: Tree): void {
   const packageJson = tree.readJson('package.json');
 
-  const scriptCall = 'node node_modules/@angular-architects/native-federation/src/patch-angular-build.js';
+  const scriptCall =
+    'node node_modules/@angular-architects/native-federation/src/patch-angular-build.js';
 
   if (!packageJson['scripts']) {
     packageJson['scripts'] = {};
@@ -57,7 +58,6 @@ export function updatePackageJson(tree: Tree): void {
   packageJson['scripts']['postinstall'] = postInstall;
 
   tree.overwrite('package.json', JSON.stringify(packageJson, null, 2));
-
 }
 
 export default function config(options: MfSchematicSchema): Rule {
@@ -117,9 +117,14 @@ export default function config(options: MfSchematicSchema): Rule {
 }
 
 export function patchAngularBuild(tree) {
-  const packageJson = JSON.parse(tree.read('node_modules/@angular/build/package.json'));
+  const packageJson = JSON.parse(
+    tree.read('node_modules/@angular/build/package.json')
+  );
   patchAngularBuildPackageJson(packageJson);
-  tree.overwrite('node_modules/@angular/build/package.json', JSON.stringify(packageJson, null, 2));
+  tree.overwrite(
+    'node_modules/@angular/build/package.json',
+    JSON.stringify(packageJson, null, 2)
+  );
 }
 
 function updateWorkspaceConfig(

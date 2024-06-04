@@ -11,12 +11,13 @@ import {
   createBuilder,
 } from '@angular-devkit/architect';
 
-import { buildApplication, buildApplicationInternal } from '@angular/build/src/builders/application';
+import {
+  buildApplication,
+  buildApplicationInternal,
+} from '@angular/build/src/builders/application';
 import { serveWithVite } from '@angular/build/src/builders/dev-server/vite-server';
 
-import {
-  DevServerBuilderOptions,
-} from '@angular-devkit/build-angular';
+import { DevServerBuilderOptions } from '@angular-devkit/build-angular';
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
 import { setLogLevel, logger } from '@softarc/native-federation/build';
@@ -59,11 +60,15 @@ function _buildApplication(options, context, pluginsOrExtensions) {
     extensions = {
       codePlugins: pluginsOrExtensions,
     };
-  }
-  else {
+  } else {
     extensions = pluginsOrExtensions;
   }
-  return buildApplicationInternal(options, context, { write: false }, extensions);
+  return buildApplicationInternal(
+    options,
+    context,
+    { write: false },
+    extensions
+  );
 }
 
 export async function* runBuilder(
@@ -235,18 +240,18 @@ export async function* runBuilder(
 
   const builderRun = nfOptions.dev
     ? serveWithVite(
-      normOuterOptions,
-      appBuilderName,
-      _buildApplication,
-      context,
-      nfOptions.skipHtmlTransform
-        ? {}
-        : { indexHtml: transformIndexHtml(nfOptions) },
-      {
-        buildPlugins: plugins,
-        middleware,
-      }
-    )
+        normOuterOptions,
+        appBuilderName,
+        _buildApplication,
+        context,
+        nfOptions.skipHtmlTransform
+          ? {}
+          : { indexHtml: transformIndexHtml(nfOptions) },
+        {
+          buildPlugins: plugins,
+          middleware,
+        }
+      )
     : buildApplication(options, context, plugins);
 
   // builderRun.output.subscribe(async (output) => {

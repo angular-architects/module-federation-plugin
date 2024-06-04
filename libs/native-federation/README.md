@@ -26,6 +26,12 @@ We will at least provide a new version of this package per Angular major. If nec
 - Use version 17.1.x for Angular 17.1+
 - Use version 18.x for Angular 18+
 
+## Updates
+
+You can use ng update for updating Native Federation.
+
+Notes for [updating to version 18](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/docs/update18.md)
+
 ## Angular Integration
 
 Since 17.1, Native Federation for Angular uses the Angular CLI's `esbuild`-based **Application Builder** and the CLI's **Dev Server** to keep track with all the innovations and performance-improvements in that space.
