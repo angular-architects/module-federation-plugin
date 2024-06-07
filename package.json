@@ -44,7 +44,10 @@
     "@angular/platform-browser-dynamic": "17.1.2",
     "@angular/router": "17.1.2",
     "@module-federation/vite": "^0.2.6",
+    "@types/micromatch": "^4.0.7",
     "es-module-shims": "^1.5.12",
+    "fast-glob": "^3.3.2",
+    "micromatch": "^4.0.7",
     "rxjs": "^7.0.0",
     "tslib": "^2.0.0",
     "zone.js": "0.14.2"
