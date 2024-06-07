@@ -5,6 +5,11 @@
   "dependencies": {
     "json5": "^2.2.0",
     "npmlog": "^6.0.2",
-    "@softarc/native-federation-runtime": "2.0.9"
+    "@softarc/native-federation-runtime": "2.0.9",
+    "fast-glob": "^3.3.2",
+    "micromatch": "^4.0.7"
+  },
+  "devDependencies": {
+    "@types/micromatch": "^4.0.7"
   }
 }
