@@ -1,0 +1,27 @@
+{
+  "$schema": "../../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "name": "native-federation",
+  "version": "0.0.1",
+  "schematics": {
+    "ng-add": {
+      "factory": "./src/schematics/init/schematic",
+      "schema": "./src/schematics/init/schema.json",
+      "description": "Initialize an angular project for native federation"
+    },
+    "init": {
+      "factory": "./src/schematics/init/schematic",
+      "schema": "./src/schematics/init/schema.json",
+      "description": "Initialize an angular project for native federation"
+    },
+    "remove": {
+      "factory": "./src/schematics/remove/schematic",
+      "schema": "./src/schematics/remove/schema.json",
+      "description": "Removes native federation"
+    },
+    "appbuilder": {
+      "factory": "./src/schematics/appbuilder/schematic",
+      "schema": "./src/schematics/appbuilder/schema.json",
+      "description": "Migrates for using the appbuilder"
+    }
+  }
+}

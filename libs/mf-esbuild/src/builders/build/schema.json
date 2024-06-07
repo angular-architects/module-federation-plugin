@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "outputCapture": "direct-nodejs",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "native federation browser builder",
+  "description": "builder for native federation browser apps",
+  "type": "object",
+  "properties": {
+    "target": {
+      "type": "string",
+      "description": "target configured for the esbuild builder"
+    },
+    "dev": {
+      "type": "boolean",
+      "description": "Set this to true to start the builder in dev mode",
+      "default": false
+    },
+    "watch": {
+      "type": "boolean",
+      "default": false
+    },
+    "port": {
+      "type": "number",
+      "default": 0
+    },
+    "open": {
+      "type": "boolean",
+      "default": true,
+      "description": "Open browser?",
+      "alias": "o"
+    },
+    "rebuildDelay": {
+      "type": "number",
+      "default": 2000,
+      "description": "The delay for rebuilding federation artefacts. This allows to have more resources for refreshing your micro frontend in the browser."
+    },
+    "shell": {
+      "type": "string",
+      "description": "Experimental",
+      "default": ""
+    },
+    "skipHtmlTransform": {
+      "type": "boolean",
+      "default": false
+    },
+    "esmsInitOptions": {
+      "type": "object",
+      "description": "Options for esms-module-shims https://github.com/guybedford/es-module-shims?tab=readme-ov-file#init-options",
+      "default": {
+        "shimMode": true
+      }
+    }
+  }
+}

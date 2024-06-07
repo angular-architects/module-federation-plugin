@@ -1,0 +1,36 @@
+{
+  "name": "mf-esbuild",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/mf-esbuild/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/mf-esbuild",
+        "main": "libs/mf-esbuild/src/index.ts",
+        "tsConfig": "libs/mf-esbuild/tsconfig.lib.json",
+        "assets": [
+          "libs/mf-esbuild/*.md",
+          {
+            "input": "./libs/mf-esbuild/src",
+            "glob": "**/!(*.ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./libs/mf-esbuild/src",
+            "glob": "**/*.d.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./libs/mf-esbuild",
+            "glob": "*.json",
+            "output": "."
+          }
+        ]
+      }
+    }
+  }
+}

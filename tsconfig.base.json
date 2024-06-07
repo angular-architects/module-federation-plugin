@@ -18,6 +18,9 @@
     "paths": {
       "@angular-architects/build_angular": ["libs/build-angular/src/index.ts"],
       "@angular-architects/module-federation": ["libs/mf/src/index.ts"],
+      "@angular-architects/module-federation-esbuild": [
+        "libs/mf-esbuild/src/index.ts"
+      ],
       "@angular-architects/module-federation-runtime": [
         "libs/mf-runtime/src/index.ts"
       ],

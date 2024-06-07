@@ -116,7 +116,7 @@ export default function config(options: MfSchematicSchema): Rule {
   };
 }
 
-export function patchAngularBuild(tree: Tree) {
+export function patchAngularBuild(tree) {
   const packagePath = 'node_modules/@angular/build/package.json';
   const privatePath = 'node_modules/@angular/build/private.js';
 
@@ -125,20 +125,17 @@ export function patchAngularBuild(tree: Tree) {
   }
 
   const packageJson = JSON.parse(
-    tree.read(packagePath).toString('utf-8')
+    tree.read(packagePath)
   );
   patchAngularBuildPackageJson(packageJson);
   tree.overwrite(
     packagePath,
     JSON.stringify(packageJson, null, 2)
   );
-
-  if (!tree.exists(privatePath)) {
-    tree.create(
-      privatePath,
-      privateEntrySrc
-    );
-  }
+  tree.overwrite(
+    privatePath,
+    privateEntrySrc
+  );
 
 }
 

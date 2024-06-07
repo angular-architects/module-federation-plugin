@@ -1,0 +1,28 @@
+{
+  "name": "@angular-architects/module-federation-esbuild",
+  "version": "0.0.1",
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "mrmime": "^1.0.1",
+    "@angular/build": "18.0.2",
+    "@angular-devkit/architect": "0.1800.2",
+    "@angular-devkit/build-angular": "18.0.2",
+    "@softarc/native-federation": "2.0.9",
+    "@angular-devkit/core": "18.0.2",
+    "vite": "5.2.11",
+    "esbuild": "^0.19.2",
+    "@softarc/native-federation-runtime": "2.0.9",
+    "es-module-shims": "^1.5.12",
+    "@nx/devkit": "19.1.1",
+    "@angular-devkit/schematics": "18.0.2",
+    "@schematics/angular": "18.0.2",
+    "browser-sync": "^3.0.2",
+    "@module-federation/esbuild": "^0.0.0-next-20240530211114"
+  },
+  "builders": "./builders.json",
+  "schematics": "./collection.json",
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts",
+  "private": false
+}
