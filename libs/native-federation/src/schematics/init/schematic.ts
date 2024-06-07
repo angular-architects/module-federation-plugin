@@ -14,7 +14,10 @@ import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { strings } from '@angular-devkit/core';
 import { MfSchematicSchema } from './schema';
 
-import { patchAngularBuildPackageJson, privateEntrySrc } from '../../utils/patch-angular-build';
+import {
+  patchAngularBuildPackageJson,
+  privateEntrySrc,
+} from '../../utils/patch-angular-build';
 
 import {
   addPackageJsonDependency,
@@ -124,22 +127,13 @@ export function patchAngularBuild(tree: Tree) {
     return;
   }
 
-  const packageJson = JSON.parse(
-    tree.read(packagePath).toString('utf-8')
-  );
+  const packageJson = JSON.parse(tree.read(packagePath).toString('utf-8'));
   patchAngularBuildPackageJson(packageJson);
-  tree.overwrite(
-    packagePath,
-    JSON.stringify(packageJson, null, 2)
-  );
+  tree.overwrite(packagePath, JSON.stringify(packageJson, null, 2));
 
   if (!tree.exists(privatePath)) {
-    tree.create(
-      privatePath,
-      privateEntrySrc
-    );
+    tree.create(privatePath, privateEntrySrc);
   }
-
 }
 
 function updateWorkspaceConfig(

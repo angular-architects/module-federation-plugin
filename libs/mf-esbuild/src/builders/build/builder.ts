@@ -33,7 +33,6 @@ import { moduleFederationPlugin } from '@module-federation/esbuild/dist/plugin.c
 // import { moduleFederationPlugin } from '@module-federation/esbuild/plugin';
 // const plugin_cjs_1 = require("@module-federation/esbuild/plugin");
 
-
 import { NfBuilderSchema } from './schema';
 import {
   reloadBrowser,
@@ -147,9 +146,7 @@ export async function* runBuilder(
 
   const config = await import(fullConfigPath);
 
-  const plugins = [
-    moduleFederationPlugin(config)
-  ];
+  const plugins = [moduleFederationPlugin(config)];
 
   // const middleware: Connect.NextHandleFunction[] = [
   //   (req, res, next) => {
@@ -225,7 +222,7 @@ export async function* runBuilder(
       )
     : buildApplication(options, context, plugins as any);
 
-    // return builderRun;
+  // return builderRun;
   // builderRun.output.subscribe(async (output) => {
   for await (const output of builderRun) {
     lastResult = output;
@@ -241,8 +238,6 @@ export async function* runBuilder(
     if (!runServer) {
       yield output;
     }
-
-  
 
     // first = false;
   }
