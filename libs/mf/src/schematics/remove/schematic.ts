@@ -21,21 +21,32 @@ export default function remove(options: RemoveSchema): Rule {
   };
 }
 
-function updateBuildConfig(normalized: { projectConfig: any; projectName: string; }) {
+function updateBuildConfig(normalized: {
+  projectConfig: any;
+  projectName: string;
+}) {
   const build = normalized.projectConfig.architect.build;
   build.builder = '@angular-devkit/build-angular:browser';
   delete build.options.extraWebpackConfig;
+  delete build.options.customWebpackConfig;
+
   const buildProd = build.configurations.production;
   delete buildProd.extraWebpackConfig;
+  delete buildProd.customWebpackConfig;
 }
 
-function updateServeConfig(normalized: { projectConfig: any; projectName: string; }) {
+function updateServeConfig(normalized: {
+  projectConfig: any;
+  projectName: string;
+}) {
   const serve = normalized.projectConfig.architect.serve;
   serve.builder = '@angular-devkit/build-angular:dev-server';
   delete serve.options.extraWebpackConfig;
+  delete serve.options.customWebpackConfig;
 
   const serveProd = serve.configurations.production;
   delete serveProd.extraWebpackConfig;
+  delete serveProd.customWebpackConfig;
 
   const prodTarget = serveProd.browserTarget;
   if (prodTarget) {
@@ -50,11 +61,9 @@ function updateServeConfig(normalized: { projectConfig: any; projectName: string
     delete serveDev.browserTarget;
     serveDev.buildTarget = devTarget;
   }
-
 }
 
 function normalize(options: RemoveSchema, workspace: any) {
-
   if (!options.project) {
     options.project = workspace.defaultProject;
   }
@@ -95,4 +104,3 @@ function removeBootstrap(normalized, tree) {
   tree.overwrite(mainPath, content);
   tree.delete(bootstrapPath);
 }
-

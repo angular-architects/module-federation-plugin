@@ -235,12 +235,18 @@ export default function config(options: MfSchematicSchema): Rule {
       buildConfig?.builder === '@angular-devkit/build-angular:application';
 
     if (isApplicationBuilder) {
-      console.warn(`\nWARNING: This package uses the tradtional webpack-based Module Federation implementation and not the fast new esbuild-based ApplicationBuilder.`)
-      console.warn(`\nFor new projects, consider Native Federation as an alternative: https://shorturl.at/0ZQ0j`)
-      console.warn(`\nHowever, if you want to add a new host or remote to an existing Module Federation-based system, this package is what you are looking for.`)
-      console.warn(`\nDo you want to proceeed: [y] Yes [n] No \n`)
+      console.warn(
+        `\nWARNING: This package uses the tradtional webpack-based Module Federation implementation and not the fast new esbuild-based ApplicationBuilder.`
+      );
+      console.warn(
+        `\nFor new projects, consider Native Federation as an alternative: https://shorturl.at/0ZQ0j`
+      );
+      console.warn(
+        `\nHowever, if you want to add a new host or remote to an existing Module Federation-based system, this package is what you are looking for.`
+      );
+      console.warn(`\nDo you want to proceeed: [y] Yes [n] No \n`);
 
-      for (; ;) {
+      for (;;) {
         const key = await readKey();
         if (key === 'Y' || key === 'y') {
           break;
@@ -249,7 +255,6 @@ export default function config(options: MfSchematicSchema): Rule {
           process.exit(0);
         }
       }
-
     }
 
     if (buildConfig?.options?.browser) {
@@ -436,7 +441,6 @@ async function readKey() {
       process.stdin.pause();
       r(key);
     });
-
   });
 }
 
@@ -546,7 +550,6 @@ export function generateSsrMappings(
 }
 
 function downgradeToWebpack(build: any) {
-
   if (!build.options) {
     return;
   }

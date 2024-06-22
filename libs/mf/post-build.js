@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-
 // const index = fs.readFileSync(path.join(__dirname, 'src/index.ts'), {
 //   encoding: 'utf-8',
 // });
@@ -21,13 +20,9 @@ const path = require('path');
 //   nguniversal
 // );
 
-
-const webpack2 = fs.readFileSync(
-  path.join(__dirname, 'webpack.ts'),
-  {
-    encoding: 'utf-8',
-  }
-);
+const webpack2 = fs.readFileSync(path.join(__dirname, 'webpack.ts'), {
+  encoding: 'utf-8',
+});
 fs.writeFileSync(
   path.join(__dirname, '../../dist/libs/mf/webpack.js'),
   'module.exports = require("./src/webpack.js");'
