@@ -86,7 +86,7 @@ function makeMainAsync(main: string, options: MfSchematicSchema): Rule {
     if (options.type === 'dynamic-host') {
       newMainContent = `import { initFederation } from '@angular-architects/module-federation';
 
-initFederation('/assets/mf.manifest.json')
+initFederation('mf.manifest.json')
   .catch(err => console.error(err))
   .then(_ => import('./bootstrap'))
   .catch(err => console.error(err));
@@ -227,18 +227,40 @@ export default function config(options: MfSchematicSchema): Rule {
       .join(projectRoot, 'webpack.prod.config.js')
       .replace(/\\/g, '/');
     const manifestPath = path
-      .join(projectRoot, 'src/assets/mf.manifest.json')
+      .join(projectRoot, 'public/mf.manifest.json')
       .replace(/\\/g, '/');
 
     const buildConfig = projectConfig?.architect?.build;
     const isApplicationBuilder =
       buildConfig?.builder === '@angular-devkit/build-angular:application';
 
+    if (isApplicationBuilder) {
+      console.warn(`\nWARNING: This package uses the tradtional webpack-based Module Federation implementation and not the fast new esbuild-based ApplicationBuilder.`)
+      console.warn(`\nFor new projects, consider Native Federation as an alternative: https://shorturl.at/0ZQ0j`)
+      console.warn(`\nHowever, if you want to add a new host or remote to an existing Module Federation-based system, this package is what you are looking for.`)
+      console.warn(`\nDo you want to proceeed: [y] Yes [n] No \n`)
+
+      for (; ;) {
+        const key = await readKey();
+        if (key === 'Y' || key === 'y') {
+          break;
+        }
+        if (key === 'N' || key === 'n') {
+          process.exit(0);
+        }
+      }
+
+    }
+
     if (buildConfig?.options?.browser) {
       buildConfig.options.main = buildConfig.options.browser;
       delete buildConfig.options.browser;
       delete buildConfig.options.server;
       delete buildConfig.options.prerender;
+    }
+
+    if (buildConfig?.options?.assets) {
+      updateAssets();
     }
 
     const port = parseInt(options.port) || 4200;
@@ -376,11 +398,11 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const dep = getPackageJsonDependency(tree, 'ngx-build-plus');
 
-    if (!dep || !semver.satisfies(dep.version, '>=17.0.0')) {
+    if (!dep || !semver.satisfies(dep.version, '>=18.0.0')) {
       addPackageJsonDependency(tree, {
         name: 'ngx-build-plus',
         type: NodeDependencyType.Dev,
-        version: '^17.0.0',
+        version: '^18.0.0',
         overwrite: true,
       });
 
@@ -392,7 +414,30 @@ export default function config(options: MfSchematicSchema): Rule {
       makeMainAsync(main, options),
       adjustSSR(projectSourceRoot, ssrMappings),
     ]);
+
+    function updateAssets() {
+      for (const asset of buildConfig.options.assets) {
+        if (typeof asset === 'object' && typeof asset.output === 'undefined') {
+          asset.output = '.';
+        }
+      }
+    }
   };
+}
+
+async function readKey() {
+  return await new Promise((r) => {
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.setEncoding('utf8');
+
+    process.stdin.on('data', (key) => {
+      process.stdin.setRawMode(false);
+      process.stdin.pause();
+      r(key);
+    });
+
+  });
 }
 
 function updateTsConfig(tree, tsConfigName: string) {
@@ -498,4 +543,26 @@ export function generateSsrMappings(
   remotes += '}';
 
   return remotes;
+}
+
+function downgradeToWebpack(build: any) {
+
+  if (!build.options) {
+    return;
+  }
+
+  if (build.options.browser) {
+    build.options.main = build.options.browser;
+    delete build.options.browser;
+  }
+
+  if (!build.options.assets) {
+    return;
+  }
+
+  for (const asset of build.options.assets) {
+    if (typeof asset === 'object' && typeof asset.output === 'undefined') {
+      asset.output = '.';
+    }
+  }
 }

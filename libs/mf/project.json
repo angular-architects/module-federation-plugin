@@ -61,10 +61,6 @@
     "post-build": {
       "dependsOn": ["build"],
       "executor": "nx:run-commands",
-      "outputs": [
-        "{options.outputPath}/src/index.js",
-        "{options.outputPath}/src/nguniversal.ts"
-      ],
       "options": {
         "cwd": "libs/mf",
         "command": "node post-build.js"

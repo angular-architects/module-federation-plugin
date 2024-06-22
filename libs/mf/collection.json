@@ -27,6 +27,11 @@
       "factory": "./src/schematics/boot-async/schematic",
       "schema": "./src/schematics/boot-async/schema.json",
       "description": "Enables or disables async bootstrapping"
+    },
+    "remove": {
+      "factory": "./src/schematics/remove/schematic",
+      "schema": "./src/schematics/remove/schema.json",
+      "description": "Removes Module Federation"
     }
   }
 }
