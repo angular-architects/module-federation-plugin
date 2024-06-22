@@ -44,3 +44,4 @@ migrations.json
 
 # Angular
 .angular
+.vs/module-federation-plugin/v17/.wsuo

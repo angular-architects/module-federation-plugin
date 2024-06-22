@@ -5,6 +5,8 @@ import {
   Input,
   OnChanges,
   ViewChild,
+  Output,
+  EventEmitter
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -25,6 +27,8 @@ export type WebComponentWrapperOptions = LoadRemoteModuleOptions & {
 export class WebComponentWrapper implements AfterContentInit, OnChanges {
   @ViewChild('vc', { read: ElementRef, static: true })
   vc: ElementRef;
+
+  @Output() onError: EventEmitter<unknown> = new EventEmitter();
 
   @Input() options: WebComponentWrapperOptions;
   @Input() props: { [prop: string]: unknown };
@@ -66,6 +70,7 @@ export class WebComponentWrapper implements AfterContentInit, OnChanges {
       this.vc.nativeElement.appendChild(this.element);
     } catch (error) {
       console.error(error);
+      this.onError.emit(error);
     }
   }
 }
