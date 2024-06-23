@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
 
 @Component({
   standalone: true,
-  selector: 'angular-architects-demo',
+  selector: 'mfe1-demo',
   templateUrl: './demo.component.html',
   styleUrls: ['./demo.component.css'],
   imports: [CommonModule, PlaygroundLibModule],
