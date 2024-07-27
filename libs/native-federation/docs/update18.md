@@ -27,7 +27,7 @@ Make sure you have the following `postinstall` script in your `package.json`:
 },
 ```
 
-**Remarks:** This script is just a temporary solution. It won't be necessary in future versions.
+**Remarks:** This script is just a temporary solution. It won't be necessary in future versions. 
 
 Run the `postinstall` script once manually for initialization:
 
