@@ -14,7 +14,10 @@ import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { strings } from '@angular-devkit/core';
 import { MfSchematicSchema } from './schema';
 
-import { patchAngularBuildPackageJson, privateEntrySrc } from '../../utils/patch-angular-build';
+import {
+  patchAngularBuildPackageJson,
+  privateEntrySrc,
+} from '../../utils/patch-angular-build';
 
 import {
   addPackageJsonDependency,
@@ -92,11 +95,11 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const generateRule = !exists
       ? await generateFederationConfig(
-        remoteMap,
-        projectRoot,
-        projectSourceRoot,
-        options
-      )
+          remoteMap,
+          projectRoot,
+          projectSourceRoot,
+          options
+        )
       : noop;
 
     updateWorkspaceConfig(tree, normalized, workspace, workspaceFileName);
@@ -114,7 +117,10 @@ export default function config(options: MfSchematicSchema): Rule {
 
     context.addTask(new NodePackageInstallTask());
 
-    return chain([generateRule, makeMainAsync(main, options, remoteMap, manifestRelPath)]);
+    return chain([
+      generateRule,
+      makeMainAsync(main, options, remoteMap, manifestRelPath),
+    ]);
   };
 }
 
@@ -126,28 +132,15 @@ export function patchAngularBuild(tree: Tree) {
     return;
   }
 
-  const packageJson = JSON.parse(
-    tree.read(packagePath).toString('utf8')
-  );
+  const packageJson = JSON.parse(tree.read(packagePath).toString('utf8'));
   patchAngularBuildPackageJson(packageJson);
-  tree.overwrite(
-    packagePath,
-    JSON.stringify(packageJson, null, 2)
-  );
+  tree.overwrite(packagePath, JSON.stringify(packageJson, null, 2));
 
   if (!tree.exists(privatePath)) {
-    tree.create(
-      privatePath,
-      privateEntrySrc
-    );
+    tree.create(privatePath, privateEntrySrc);
+  } else {
+    tree.overwrite(privatePath, privateEntrySrc);
   }
-  else {
-    tree.overwrite(
-      privatePath,
-      privateEntrySrc
-    );
-  }
-
 }
 
 function updateWorkspaceConfig(
@@ -307,8 +300,8 @@ function normalizeOptions(
 
   if (typeof projectConfig.architect.build.options.polyfills === 'string') {
     projectConfig.architect.build.options.polyfills = [
-      projectConfig.architect.build.options.polyfills
-    ]
+      projectConfig.architect.build.options.polyfills,
+    ];
   }
 
   const polyfills = projectConfig.architect.build.options.polyfills;
@@ -383,7 +376,7 @@ function makeMainAsync(
   main: string,
   options: MfSchematicSchema,
   remoteMap: unknown,
-  manifestRelPath: string,
+  manifestRelPath: string
 ): Rule {
   return async function (tree) {
     const mainPath = path.dirname(main);
