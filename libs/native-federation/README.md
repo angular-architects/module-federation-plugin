@@ -25,10 +25,15 @@ We will at least provide a new version of this package per Angular major. If nec
 - Use version 17.x for Angular 17.x
 - Use version 17.1.x for Angular 17.1+
 - Use version 18.x for Angular 18+
+- Use version 18.1.x for Angular 18.1+
+
+## Migration from Module Federation
+
+If you currently use Angular with Module Federation, you can follow our Migration Guide to migrate to Native Federation and Angular's new fast esbuild-based build system.
 
 ## Updates
 
-You can use ng update for updating Native Federation.
+You can use `ng update` for updating Native Federation.
 
 Notes for [updating to version 18](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/docs/update18.md)
 
