@@ -85,9 +85,5 @@ function normalizeSharedMappings(
     (p) => !isInSkipList(p.key, skip) && !p.key.includes('*')
   );
 
-  if (paths.find((p) => p.key.includes('*'))) {
-    logger.warn('Sharing mapped paths with wildcards (*) not supported');
-  }
-
   return result;
 }

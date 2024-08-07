@@ -1,6 +1,8 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as JSON5 from 'json5';
+import * as glob from 'fast-glob';
+import * as mm from 'micromatch';
 
 export interface MappedPath {
   key: string;
@@ -39,8 +41,7 @@ export function getMappedPaths({
     fs.readFileSync(rootTsConfigPath, { encoding: 'utf-8' })
   );
 
-  const mappings = tsConfig?.compilerOptions?.paths;
-
+  const mappings = resolveWildcardsToPaths(tsConfig?.compilerOptions?.paths);
   if (!mappings) {
     return result;
   }
@@ -57,4 +58,35 @@ export function getMappedPaths({
   }
 
   return result;
+}
+
+function resolveWildcardsToPaths(paths: { [key: string]: string[] }): {
+  [key: string]: string[];
+} {
+  let results = {};
+  for (const key in paths) {
+    const path = paths[key][0];
+    if (path.includes('*')) {
+      const entries = glob.sync(path, { unique: true });
+
+      for (const entry of entries) {
+        if (!entry.includes('index.ts') && !entry.includes('index.js')) {
+          continue;
+        }
+
+        const capturedPath = mm.capture(path, entry);
+        if (!capturedPath) {
+          continue;
+        }
+
+        results = {
+          ...results,
+          [key.replace('*', capturedPath[0])]: [entry],
+        };
+      }
+    } else {
+      results = { ...results, [key]: [path] };
+    }
+  }
+  return results;
 }
