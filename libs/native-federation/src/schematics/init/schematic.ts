@@ -32,6 +32,7 @@ type NormalizedOptions = {
   projectRoot: string;
   projectSourceRoot: string;
   manifestPath: string;
+  manifestRelPath: string;
   projectConfig: any;
   main: string;
   port: number;
@@ -70,7 +71,7 @@ export default function config(options: MfSchematicSchema): Rule {
     const workspaceFileName = getWorkspaceFileName(tree);
     const workspace = JSON.parse(tree.read(workspaceFileName).toString('utf8'));
 
-    const normalized = normalizeOptions(options, workspace);
+    const normalized = normalizeOptions(options, workspace, tree);
 
     const {
       polyfills,
@@ -78,6 +79,7 @@ export default function config(options: MfSchematicSchema): Rule {
       projectRoot,
       projectSourceRoot,
       manifestPath,
+      manifestRelPath,
       main,
     } = normalized;
 
@@ -116,11 +118,14 @@ export default function config(options: MfSchematicSchema): Rule {
 
     context.addTask(new NodePackageInstallTask());
 
-    return chain([generateRule, makeMainAsync(main, options, remoteMap)]);
+    return chain([
+      generateRule,
+      makeMainAsync(main, options, remoteMap, manifestRelPath),
+    ]);
   };
 }
 
-export function patchAngularBuild(tree) {
+export function patchAngularBuild(tree: Tree) {
   const packagePath = 'node_modules/@angular/build/package.json';
   const privatePath = 'node_modules/@angular/build/private.js';
 
@@ -128,10 +133,15 @@ export function patchAngularBuild(tree) {
     return;
   }
 
-  const packageJson = JSON.parse(tree.read(packagePath));
+  const packageJson = JSON.parse(tree.read(packagePath).toString('utf8'));
   patchAngularBuildPackageJson(packageJson);
   tree.overwrite(packagePath, JSON.stringify(packageJson, null, 2));
-  tree.overwrite(privatePath, privateEntrySrc);
+
+  if (!tree.exists(privatePath)) {
+    tree.create(privatePath, privateEntrySrc);
+  } else {
+    tree.overwrite(privatePath, privateEntrySrc);
+  }
 }
 
 function updateWorkspaceConfig(
@@ -159,17 +169,13 @@ function updateWorkspaceConfig(
     delete originalBuild.configurations?.development?.vendorChunk;
   }
 
-  // if (originalBuild.options.browser) {
-  //   const browser = originalBuild.options.browser;
-  //   delete originalBuild.options.browser;
-  //   originalBuild.options.main = browser;
-  // }
-
   if (originalBuild.options.main) {
     const main = originalBuild.options.main;
     delete originalBuild.options.main;
     originalBuild.options.browser = main;
   }
+
+  delete originalBuild.options.commonChunk;
 
   projectConfig.architect.esbuild = originalBuild;
 
@@ -191,6 +197,8 @@ function updateWorkspaceConfig(
   const serve = projectConfig.architect.serve;
   serve.options ??= {};
   serve.options.port = port;
+
+  delete serve.options.commonChunk;
 
   const serveProd = projectConfig.architect.serve.configurations?.production;
   if (serveProd) {
@@ -232,7 +240,8 @@ function updateWorkspaceConfig(
 
 function normalizeOptions(
   options: MfSchematicSchema,
-  workspace: any
+  workspace: any,
+  tree: Tree
 ): NormalizedOptions {
   if (!options.project) {
     options.project = workspace.defaultProject;
@@ -266,9 +275,21 @@ function normalizeOptions(
     '/'
   );
 
-  const manifestPath = path
-    .join(projectRoot, 'public/federation.manifest.json')
+  const publicPath = path.join(projectRoot, 'public').replace(/\\/g, '/');
+
+  let manifestPath = path
+    .join(publicPath, 'federation.manifest.json')
     .replace(/\\/g, '/');
+
+  let manifestRelPath = 'public/federation.manifest.json';
+
+  if (!tree.exists(publicPath)) {
+    manifestPath = path
+      .join(projectRoot, 'src/assets/federation.manifest.json')
+      .replace(/\\/g, '/');
+
+    manifestRelPath = 'assets/federation.manifest.json';
+  }
 
   const main =
     projectConfig.architect.build.options.main ||
@@ -278,6 +299,12 @@ function normalizeOptions(
     projectConfig.architect.build.options.polyfills = [];
   }
 
+  if (typeof projectConfig.architect.build.options.polyfills === 'string') {
+    projectConfig.architect.build.options.polyfills = [
+      projectConfig.architect.build.options.polyfills,
+    ];
+  }
+
   const polyfills = projectConfig.architect.build.options.polyfills;
   return {
     polyfills,
@@ -285,6 +312,7 @@ function normalizeOptions(
     projectRoot,
     projectSourceRoot,
     manifestPath,
+    manifestRelPath,
     projectConfig,
     main,
     port: +(options.port || 4200),
@@ -348,7 +376,8 @@ function generateRemoteMap(workspace: any, projectName: string) {
 function makeMainAsync(
   main: string,
   options: MfSchematicSchema,
-  remoteMap: unknown
+  remoteMap: unknown,
+  manifestRelPath: string
 ): Rule {
   return async function (tree) {
     const mainPath = path.dirname(main);
@@ -366,7 +395,7 @@ function makeMainAsync(
     if (options.type === 'dynamic-host') {
       newMainContent = `import { initFederation } from '@angular-architects/native-federation';
 
-initFederation('federation.manifest.json')
+initFederation('${manifestRelPath}')
   .catch(err => console.error(err))
   .then(_ => import('./bootstrap'))
   .catch(err => console.error(err));
