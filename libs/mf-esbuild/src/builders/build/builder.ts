@@ -29,7 +29,7 @@ import { loadFederationConfig } from '@softarc/native-federation/build';
 import { buildForFederation } from '@softarc/native-federation/build';
 import { targetFromTargetString } from '@angular-devkit/architect';
 
-import { moduleFederationPlugin } from '@module-federation/esbuild/dist/plugin.cjs';
+import { moduleFederationPlugin } from '@module-federation/esbuild/dist/plugin.cjs.js';
 // import { moduleFederationPlugin } from '@module-federation/esbuild/plugin';
 // const plugin_cjs_1 = require("@module-federation/esbuild/plugin");
 
