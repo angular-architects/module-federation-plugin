@@ -39,18 +39,11 @@ export async function bundleShared(
     //   ? `${encName}-${encVersion}-dev.js`
     //   : `${encName}-${encVersion}.js`;
 
-    const hashBase = pi.version + '_' + pi.entryPoint;
-    const hash = crypto.createHash('sha256')
-        .update(hashBase)
-        .digest('base64')
-        .replace(/\//g, '_')
-        .replace(/\+/g, '-')
-        .replace(/=/g, '')
-        .substring(0,10);
-    
+    const hash = calcFileHash(pi);
+
     const outName = fedOptions.dev
-        ? `${encName}.${hash}-dev.js`
-        : `${encName}.${hash}.js`;
+      ? `${encName}.${hash}-dev.js`
+      : `${encName}.${hash}.js`;
 
     return { fileName: pi.entryPoint, outName };
   });
@@ -143,6 +136,19 @@ export async function bundleShared(
           },
     } as SharedInfo;
   });
+}
+
+function calcFileHash(pi: PackageInfo) {
+  const hashBase = pi.version + '_' + pi.entryPoint;
+  const hash = crypto
+    .createHash('sha256')
+    .update(hashBase)
+    .digest('base64')
+    .replace(/\//g, '_')
+    .replace(/\+/g, '-')
+    .replace(/=/g, '')
+    .substring(0, 10);
+  return hash;
 }
 
 function copyFileIfExists(cachedFile: string, fullOutputPath: string) {

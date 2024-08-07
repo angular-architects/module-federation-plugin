@@ -43,6 +43,9 @@
       "type": "boolean",
       "default": false
     },
+    "baseHref": {
+      "type": "string"
+    },
     "esmsInitOptions": {
       "type": "object",
       "description": "Options for esms-module-shims https://github.com/guybedford/es-module-shims?tab=readme-ov-file#init-options",
