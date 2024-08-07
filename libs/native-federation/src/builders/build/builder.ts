@@ -226,7 +226,12 @@ export async function* runBuilder(
     });
   }
 
-  await buildForFederation(config, fedOptions, externals);
+  try {
+    await buildForFederation(config, fedOptions, externals);
+  }
+  catch(e) {
+    process.exit(1);
+  }
 
   options.deleteOutputPath = false;
 

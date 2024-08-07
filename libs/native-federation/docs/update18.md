@@ -17,20 +17,3 @@ Use npm install:
 ```
 npm i @angular-architects/native-federation@^18
 ```
-
-Make sure you have the following `postinstall` script in your `package.json`:
-
-```json
-"scripts": {
-    [...]
-    "postinstall": "node node_modules/@angular-architects/native-federation/src/patch-angular-build.js"
-},
-```
-
-**Remarks:** This script is just a temporary solution. It won't be necessary in future versions.
-
-Run the `postinstall` script once manually for initialization:
-
-```
-npm run postinstall
-```

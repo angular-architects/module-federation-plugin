@@ -45,15 +45,17 @@ export function updatePackageJson(tree: Tree): void {
   }
 
   let postInstall = (packageJson['scripts']?.['postinstall'] || '') as string;
-  if (postInstall?.includes(scriptCall)) {
+  
+  if (!postInstall) {
     return;
   }
-
-  if (postInstall) {
-    postInstall += ' && ';
+  
+  if (postInstall.includes(scriptCall)) {
+    postInstall = postInstall.replace(scriptCall, '');
   }
-
-  postInstall += scriptCall;
+  if (postInstall.endsWith(' && ')) {
+    postInstall = postInstall.substring(0, postInstall.length-4)
+  }
 
   packageJson['scripts']['postinstall'] = postInstall;
 
@@ -99,9 +101,8 @@ export default function config(options: MfSchematicSchema): Rule {
 
     updateWorkspaceConfig(tree, normalized, workspace, workspaceFileName);
 
-    updatePackageJson(tree);
-
-    patchAngularBuild(tree);
+    // updatePackageJson(tree);
+    // patchAngularBuild(tree);
 
     addPackageJsonDependency(tree, {
       name: 'es-module-shims',

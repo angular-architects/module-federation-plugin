@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { lookup } from 'mrmime';
-import { Connect, ViteDevServer } from 'vite';
 import { devExternalsMixin } from './dev-externals-mixin';
 import { filterExternals } from './externals-skip-list';
 import {
@@ -27,7 +26,7 @@ export const federation = (params: BuildHelperParams) => {
     async closeBundle() {
       await federationBuilder.build();
     },
-    async configureServer(server: ViteDevServer) {
+    async configureServer(server) {
       const fedInfoRef: FedInfoRef = {
         federationInfo: federationBuilder.federationInfo,
       };
@@ -50,7 +49,7 @@ export const federation = (params: BuildHelperParams) => {
 };
 
 const configureDevServer = async (
-  server: ViteDevServer,
+  server: any,
   params: BuildHelperParams,
   fedInfo: FedInfoRef
 ) => {
@@ -64,7 +63,7 @@ const configureDevServer = async (
 const serveFromDist = (
   dist: string,
   fedInfoRef: FedInfoRef
-): Connect.NextHandleFunction => {
+) => {
   const fedFiles = new Set([
     ...fedInfoRef.federationInfo.shared.map((s) =>
       path.join('/', s.outFileName)

@@ -43,3 +43,15 @@ The **good message** is: Angular's Package format implemented by ng build for li
 The shareAll helper used by default in the federatio.config.js makes your life far easier as it shares all dependencies found in your `package.json`. To optimize your build times and initial page loads, you can opt-out of sharing specific libraries by adding them to the above-mentioned `skip` list.
 
 While this is an option in most cases, you **need to** skip Node.js libraries as they cannot be compiled for usage within the browser. Examples of such libraries are `@angular/ssr` or `express`.
+
+## Hint: Skip and RegExp
+
+The skip list can contain a RegExp for excluding several entry points starting with the same name. This is especially interesting when using packages that come with several entry points, e.g. my-package/a and my-package/b. To skip all these entry points provided by my-package, you could use:
+
+```typescript
+skip: [
+    'this-package', // string-based entry
+    'that-package', // another string-based one
+    /^my-package/   // RegExp
+]
+```

@@ -6,17 +6,14 @@ import {
 
 import * as esbuild from 'esbuild';
 
-import {} from '@angular/build';
+import {
+  createCompilerPlugin,
+  transformSupportedBrowsersToTargets,
+  getSupportedBrowsers,
+} from '@angular/build/private';
 
-import {} from '@angular/build/private';
-
-import { createCompilerPlugin } from '@angular/build/src/tools/esbuild/angular/compiler-plugin';
-import { createCompilerPluginOptions } from '@angular/build/src/tools/esbuild/compiler-plugin-options';
-import { transformSupportedBrowsersToTargets } from '@angular/build/src/tools/esbuild/utils';
-import { getSupportedBrowsers } from '@angular/build/src/utils/supported-browsers';
-
+import { createCompilerPluginOptions } from './create-compiler-options';
 import { BuilderContext } from '@angular-devkit/architect';
-
 import { findTailwindConfigurationFile } from '@angular-devkit/build-angular/src/utils/tailwind';
 
 import {
@@ -25,7 +22,7 @@ import {
 } from '@angular-devkit/build-angular/src/utils';
 import { createRequire } from 'node:module';
 
-import { ApplicationBuilderOptions } from '@angular/build/src/builders/application';
+import { ApplicationBuilderOptions } from '@angular/build';
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -36,7 +33,8 @@ import {
   BuildKind,
   BuildResult,
   EntryPoint,
-} from '@softarc/native-federation/src/lib/core/build-adapter';
+} from '@softarc/native-federation/build';
+
 import { RebuildEvents, RebuildHubs } from './rebuild-events';
 
 // const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
