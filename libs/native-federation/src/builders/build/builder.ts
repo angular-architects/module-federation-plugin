@@ -228,8 +228,7 @@ export async function* runBuilder(
 
   try {
     await buildForFederation(config, fedOptions, externals);
-  }
-  catch(e) {
+  } catch (e) {
     process.exit(1);
   }
 

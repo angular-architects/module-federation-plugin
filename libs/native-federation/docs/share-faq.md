@@ -50,8 +50,8 @@ The skip list can contain a RegExp for excluding several entry points starting w
 
 ```typescript
 skip: [
-    'this-package', // string-based entry
-    'that-package', // another string-based one
-    /^my-package/   // RegExp
-]
+  'this-package', // string-based entry
+  'that-package', // another string-based one
+  /^my-package/, // RegExp
+];
 ```

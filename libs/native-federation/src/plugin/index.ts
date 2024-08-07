@@ -60,10 +60,7 @@ const configureDevServer = async (
   server.middlewares.use(serveFromDist(dist, fedInfo));
 };
 
-const serveFromDist = (
-  dist: string,
-  fedInfoRef: FedInfoRef
-) => {
+const serveFromDist = (dist: string, fedInfoRef: FedInfoRef) => {
   const fedFiles = new Set([
     ...fedInfoRef.federationInfo.shared.map((s) =>
       path.join('/', s.outFileName)

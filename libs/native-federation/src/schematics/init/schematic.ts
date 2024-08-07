@@ -14,7 +14,10 @@ import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { strings } from '@angular-devkit/core';
 import { MfSchematicSchema } from './schema';
 
-import { patchAngularBuildPackageJson, privateEntrySrc } from '../../utils/patch-angular-build';
+import {
+  patchAngularBuildPackageJson,
+  privateEntrySrc,
+} from '../../utils/patch-angular-build';
 
 import {
   addPackageJsonDependency,
@@ -45,16 +48,16 @@ export function updatePackageJson(tree: Tree): void {
   }
 
   let postInstall = (packageJson['scripts']?.['postinstall'] || '') as string;
-  
+
   if (!postInstall) {
     return;
   }
-  
+
   if (postInstall.includes(scriptCall)) {
     postInstall = postInstall.replace(scriptCall, '');
   }
   if (postInstall.endsWith(' && ')) {
-    postInstall = postInstall.substring(0, postInstall.length-4)
+    postInstall = postInstall.substring(0, postInstall.length - 4);
   }
 
   packageJson['scripts']['postinstall'] = postInstall;
@@ -125,19 +128,10 @@ export function patchAngularBuild(tree) {
     return;
   }
 
-  const packageJson = JSON.parse(
-    tree.read(packagePath)
-  );
+  const packageJson = JSON.parse(tree.read(packagePath));
   patchAngularBuildPackageJson(packageJson);
-  tree.overwrite(
-    packagePath,
-    JSON.stringify(packageJson, null, 2)
-  );
-  tree.overwrite(
-    privatePath,
-    privateEntrySrc
-  );
-
+  tree.overwrite(packagePath, JSON.stringify(packageJson, null, 2));
+  tree.overwrite(privatePath, privateEntrySrc);
 }
 
 function updateWorkspaceConfig(

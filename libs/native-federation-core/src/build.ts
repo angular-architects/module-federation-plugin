@@ -11,7 +11,7 @@ export {
   BuildAdapterOptions,
   BuildResult,
   BuildKind,
-  EntryPoint
+  EntryPoint,
 } from './lib/core/build-adapter';
 export { withNativeFederation } from './lib/config/with-native-federation';
 export { buildForFederation } from './lib/core/build-for-federation';
