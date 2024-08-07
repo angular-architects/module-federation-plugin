@@ -6,6 +6,10 @@ import {
 
 import * as esbuild from 'esbuild';
 
+import {} from '@angular/build';
+
+import {} from '@angular/build/private';
+
 import { createCompilerPlugin } from '@angular/build/src/tools/esbuild/angular/compiler-plugin';
 import { createCompilerPluginOptions } from '@angular/build/src/tools/esbuild/compiler-plugin-options';
 import { transformSupportedBrowsersToTargets } from '@angular/build/src/tools/esbuild/utils';

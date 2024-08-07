@@ -2,20 +2,17 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as mrmime from 'mrmime';
 
-import { ApplicationBuilderOptions } from '@angular/build/src/builders/application';
-import { Schema } from '@angular/build/src/builders/application/schema';
+import { buildApplication, ApplicationBuilderOptions } from '@angular/build';
+import {
+  serveWithVite,
+  buildApplicationInternal,
+} from '@angular/build/private';
 
 import {
   BuilderContext,
   BuilderOutput,
   createBuilder,
 } from '@angular-devkit/architect';
-
-import {
-  buildApplication,
-  buildApplicationInternal,
-} from '@angular/build/src/builders/application';
-import { serveWithVite } from '@angular/build/src/builders/dev-server/vite-server';
 
 import { DevServerBuilderOptions } from '@angular-devkit/build-angular';
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
@@ -50,7 +47,7 @@ import {
 } from '../../utils/mem-resuts';
 import { JsonObject } from '@angular-devkit/core';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
-import { Connect } from 'vite';
+// import { NextHandleFunction } from 'vite';
 import { PluginBuild } from 'esbuild';
 import { FederationInfo } from '@softarc/native-federation-runtime';
 
@@ -79,7 +76,7 @@ export async function* runBuilder(
 
   let _options = (await context.getTargetOptions(
     target
-  )) as unknown as JsonObject & Schema;
+  )) as unknown as JsonObject & ApplicationBuilderOptions;
 
   let builder = await context.getBuilderNameForTarget(target);
 
@@ -107,7 +104,7 @@ export async function* runBuilder(
   let options = (await context.validateOptions(
     _options,
     builder
-  )) as JsonObject & Schema;
+  )) as JsonObject & ApplicationBuilderOptions;
 
   const outerOptions = options as DevServerBuilderOptions;
   const normOuterOptions = nfOptions.dev
@@ -118,11 +115,11 @@ export async function* runBuilder(
     target = targetFromTargetString(outerOptions.buildTarget);
     _options = (await context.getTargetOptions(
       target
-    )) as unknown as JsonObject & Schema;
+    )) as unknown as JsonObject & ApplicationBuilderOptions;
 
     builder = await context.getBuilderNameForTarget(target);
     options = (await context.validateOptions(_options, builder)) as JsonObject &
-      Schema;
+      ApplicationBuilderOptions;
   }
 
   const runServer = !!nfOptions.port;
@@ -180,7 +177,7 @@ export async function* runBuilder(
     },
   ];
 
-  const middleware: Connect.NextHandleFunction[] = [
+  const middleware = [
     (req, res, next) => {
       const fileName = path.join(
         fedOptions.workspaceRoot,
