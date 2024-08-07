@@ -29,7 +29,7 @@ We will at least provide a new version of this package per Angular major. If nec
 
 ## Migration from Module Federation
 
-If you currently use Angular with Module Federation, you can follow our Migration Guide to migrate to Native Federation and Angular's new fast esbuild-based build system.
+If you currently use Angular with Module Federation, you can follow our [Migration Guide](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/docs/migrate.md) to migrate to Native Federation and Angular's new fast esbuild-based build system.
 
 ## Updates
 

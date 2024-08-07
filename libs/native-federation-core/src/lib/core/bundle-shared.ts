@@ -8,6 +8,7 @@ import { FederationOptions } from './federation-options';
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
+import crypto from 'crypto';
 
 export async function bundleShared(
   config: NormalizedFederationConfig,
@@ -32,11 +33,24 @@ export async function bundleShared(
 
   const allEntryPoints = packageInfos.map((pi) => {
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
-    const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
+    // const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
 
+    // const outName = fedOptions.dev
+    //   ? `${encName}-${encVersion}-dev.js`
+    //   : `${encName}-${encVersion}.js`;
+
+    const hashBase = pi.version + '_' + pi.entryPoint;
+    const hash = crypto.createHash('sha256')
+        .update(hashBase)
+        .digest('base64')
+        .replace(/\//g, '_')
+        .replace(/\+/g, '-')
+        .replace(/=/g, '')
+        .substring(0,10);
+    
     const outName = fedOptions.dev
-      ? `${encName}-${encVersion}-dev.js`
-      : `${encName}-${encVersion}.js`;
+        ? `${encName}.${hash}-dev.js`
+        : `${encName}.${hash}.js`;
 
     return { fileName: pi.entryPoint, outName };
   });
