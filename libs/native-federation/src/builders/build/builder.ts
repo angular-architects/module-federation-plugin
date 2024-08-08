@@ -127,7 +127,11 @@ export async function* runBuilder(
   const watch = !!runServer || nfOptions.watch;
 
   options.watch = watch;
-  options.baseHref = nfOptions.baseHref;
+
+  if (nfOptions.baseHref) {
+    options.baseHref = nfOptions.baseHref;
+  }
+
   const rebuildEvents = new RebuildHubs();
 
   const adapter = createAngularBuildAdapter(options, context, rebuildEvents);
@@ -180,18 +184,21 @@ export async function* runBuilder(
 
   const middleware = [
     (req, res, next) => {
+      const url = removeBaseHref(req, options.baseHref);
+
       const fileName = path.join(
         fedOptions.workspaceRoot,
         fedOptions.outputPath,
-        req.url
+        url
       );
+      
       const exists = fs.existsSync(fileName);
 
-      if (req.url !== '/' && req.url !== '' && exists) {
+      if (url !== '/' && url !== '' && exists) {
         const lookup = mrmime.lookup;
         const mimeType = lookup(path.extname(fileName)) || 'text/javascript';
         const rawBody = fs.readFileSync(fileName, 'utf-8');
-        const body = addDebugInformation(req.url, rawBody);
+        const body = addDebugInformation(url, rawBody);
         res.writeHead(200, {
           'Content-Type': mimeType,
           'Access-Control-Allow-Origin': '*',
@@ -315,6 +322,15 @@ export async function* runBuilder(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default createBuilder(runBuilder) as any;
+
+function removeBaseHref(req: any, baseHref?: string) {
+  let url = req.url;
+
+  if (baseHref && url.startsWith(baseHref)) {
+    url = url.substr(baseHref.length);
+  }
+  return url;
+}
 
 function infereConfigPath(tsConfig: string): string {
   const relProjectPath = path.dirname(tsConfig);

@@ -39,7 +39,7 @@ export async function bundleShared(
     //   ? `${encName}-${encVersion}-dev.js`
     //   : `${encName}-${encVersion}.js`;
 
-    const hash = calcFileHash(pi);
+    const hash = calcHash(pi);
 
     const outName = fedOptions.dev
       ? `${encName}.${hash}-dev.js`
@@ -138,7 +138,7 @@ export async function bundleShared(
   });
 }
 
-function calcFileHash(pi: PackageInfo) {
+function calcHash(pi: PackageInfo) {
   const hashBase = pi.version + '_' + pi.entryPoint;
   const hash = crypto
     .createHash('sha256')
