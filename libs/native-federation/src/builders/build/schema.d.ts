@@ -9,4 +9,5 @@ export interface NfBuilderSchema extends JsonObject {
   shell: string;
   watch: boolean;
   skipHtmlTransform: boolean;
+  pathMappings?: [string, string][];
 } // eslint-disable-line

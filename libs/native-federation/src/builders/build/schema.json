@@ -42,6 +42,19 @@
     "skipHtmlTransform": {
       "type": "boolean",
       "default": false
+    },
+    "pathMappings": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "description": "In case baseHref doesn't match nicely to the Angular i18n folder structure you can provide a list of tuples that contain Regex string and a replacement string values. These will map the url's path part to physical location relative to the outputPath. First match applies.",
+      "default": null
     }
   }
 }
