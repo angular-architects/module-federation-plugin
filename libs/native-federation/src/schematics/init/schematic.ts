@@ -77,6 +77,12 @@ export default function config(options: MfSchematicSchema): Rule {
       version: '^1.5.12',
       overwrite: false,
     });
+    addPackageJsonDependency(tree, {
+      name: '@softarc/native-federation-runtime',
+      type: NodeDependencyType.Default,
+      version: '2.0.8',
+      overwrite: false,
+    });
 
     context.addTask(new NodePackageInstallTask());
 
@@ -278,7 +284,8 @@ function generateRemoteMap(workspace: any, projectName: string) {
       project?.architect?.serve &&
       project?.architect?.build
     ) {
-      const pPort = project.architect['serve-original']?.options?.port ?? 
+      const pPort =
+        project.architect['serve-original']?.options?.port ??
         project.architect.serve?.options?.port ??
         4200;
       result[
@@ -313,7 +320,7 @@ function makeMainAsync(
 
     let newMainContent = '';
     if (options.type === 'dynamic-host') {
-      newMainContent = `import { initFederation } from '@angular-architects/native-federation';
+      newMainContent = `import { initFederation } from '@softarc/native-federation-runtime';
 
 initFederation('/assets/federation.manifest.json')
   .catch(err => console.error(err))
@@ -322,7 +329,7 @@ initFederation('/assets/federation.manifest.json')
 `;
     } else if (options.type === 'host') {
       const manifest = JSON.stringify(remoteMap, null, 2).replace(/"/g, "'");
-      newMainContent = `import { initFederation } from '@angular-architects/native-federation';
+      newMainContent = `import { initFederation } from '@softarc/native-federation-runtime';
 
 initFederation(${manifest})
   .catch(err => console.error(err))
@@ -330,7 +337,7 @@ initFederation(${manifest})
   .catch(err => console.error(err));
 `;
     } else {
-      newMainContent = `import { initFederation } from '@angular-architects/native-federation';
+      newMainContent = `import { initFederation } from '@softarc/native-federation-runtime';
 
 initFederation()
   .catch(err => console.error(err))
