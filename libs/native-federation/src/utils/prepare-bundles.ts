@@ -15,6 +15,7 @@ import * as fs from 'fs';
 import { Schema } from '@angular-devkit/build-angular/src/builders/application/schema';
 import { FederationInfo } from '@softarc/native-federation-runtime';
 import { I18nOptions } from '@angular-devkit/build-angular/src/utils/i18n-options';
+import { EsBuildResult, MemResults } from './mem-resuts';
 
 // assuming that the files have already been written
 export function prepareBundles(
@@ -22,7 +23,8 @@ export function prepareBundles(
   fedOptions: FederationOptions,
   i18nOptions: I18nOptions,
   buildOutput: AngularBuildOutput,
-  shouldWriteIndex: boolean
+  shouldWriteIndex: boolean,
+  memResults: MemResults
 ): void {
   const metaDataPath = path.join(
     fedOptions.workspaceRoot,
@@ -51,6 +53,27 @@ export function prepareBundles(
         }))
       );
       writeFederationInfo(federationInfo, fedOptions);
+      const fedOutput = {
+        path: path.join(fedOptions.outputPath, 'remoteEntry.json'),
+        contents: Buffer.from(JSON.stringify(federationInfo, null, 2)),
+        type: BuildOutputFileType.Browser,
+        text: JSON.stringify(federationInfo, null, 2),
+        clone: function close() {
+          return { ...this };
+        },
+        hash: '',
+        fullOutputPath: path.join(
+          fedOptions.workspaceRoot,
+          fedOptions.outputPath,
+          'remoteEntry.json'
+        ),
+      };
+      memResults.add([
+        new EsBuildResult(
+          fedOutput,
+          path.join(fedOptions.workspaceRoot, fedOptions.outputPath)
+        ),
+      ]);
     }
     return;
   }
@@ -69,7 +92,8 @@ export function prepareBundles(
       fedOptions,
       locale,
       i18nOptions.locales[locale].baseHref,
-      !shouldWriteIndex
+      !shouldWriteIndex,
+      memResults
     );
   }
 }
@@ -105,9 +129,7 @@ function localizeFederationInfo(
   // but this means we have to map the items in federation info, to point up 1 level.
   // exposed entries need no transformation, they were basenames, and they got localized
   const localizedFedInfo = cloneFederationInfo(fedInfo);
-  const pathCorrection = '../'.repeat(
-    baseHref.split('/').filter((segment) => segment != '').length
-  );
+  const pathCorrection = '../';
   localizedFedInfo.shared = fedInfo.shared.flatMap((share) =>
     getAliases(share.packageName, baseHref, devServerMode).map((alias) => ({
       ...share,
@@ -135,7 +157,8 @@ function addFederationInfoToBundle(
   fedOptions: FederationOptions,
   locale: string,
   baseHref: string,
-  devServerMode: boolean
+  devServerMode: boolean,
+  memResults: MemResults
 ) {
   const localizedFedInfo = localizeFederationInfo(
     fedInfo,
@@ -153,6 +176,56 @@ function addFederationInfoToBundle(
   }
   writeFederationInfo(localizedFedInfo, localizedFedOptions);
   writeImportMap(localizedFedInfo.shared, localizedFedOptions);
+  const fedOutput = {
+    path: path.join(fedOptions.outputPath, 'remoteEntry.json'),
+    contents: Buffer.from(JSON.stringify(localizedFedInfo, null, 2)),
+    type: BuildOutputFileType.Browser,
+    text: JSON.stringify(localizedFedInfo, null, 2),
+    clone: function close() {
+      return { ...this };
+    },
+    hash: '',
+    fullOutputPath: path.join(
+      fedOptions.workspaceRoot,
+      fedOptions.outputPath,
+      'remoteEntry.json'
+    ),
+  };
+  const imports = localizedFedInfo.shared.reduce((acc, cur) => {
+    return {
+      ...acc,
+      [cur.packageName]: cur.outFileName,
+    };
+  }, {});
+
+  const importMap = { imports };
+  const mapOutput = {
+    path: path.join(localizedFedOptions.outputPath, 'importmap.json'),
+    contents: Buffer.from(JSON.stringify(importMap, null, 2)),
+    type: BuildOutputFileType.Browser,
+    text: JSON.stringify(importMap, null, 2),
+    clone: function close() {
+      return { ...this };
+    },
+    hash: '',
+    fullOutputPath: path.join(
+      localizedFedOptions.workspaceRoot,
+      localizedFedOptions.outputPath,
+      'importmap.json'
+    ),
+  };
+  memResults.add([
+    new EsBuildResult(
+      fedOutput,
+      path.join(fedOptions.workspaceRoot, localizedFedOptions.outputPath)
+    ),
+  ]);
+  memResults.add([
+    new EsBuildResult(
+      mapOutput,
+      path.join(fedOptions.workspaceRoot, localizedFedOptions.outputPath)
+    ),
+  ]);
 }
 
 function cloneFederationInfo(fedInfo: FederationInfo): FederationInfo {
@@ -188,7 +261,9 @@ function getIndexBuildOutput(
         return fs.readFileSync(path.join(...pathSegments), 'utf-8');
       },
       // the rest are unused anyway
-      contents: new Uint8Array(),
+      get contents() {
+        return Uint8Array.from(fs.readFileSync(path.join(...pathSegments)));
+      },
       clone: function clone() {
         return { ...this };
       },

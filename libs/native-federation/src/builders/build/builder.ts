@@ -197,8 +197,12 @@ export async function* runBuilder(
 
     if (!output.success) {
       setError('Compilation Error');
-      reloadBrowser();
-      continue;
+      if (nfOptions.dev) {
+        reloadBrowser();
+        continue;
+      } else {
+        yield output;
+      }
     } else {
       setError(null);
     }
@@ -218,7 +222,8 @@ export async function* runBuilder(
       fedOptions,
       i18nOpts,
       output,
-      write && !nfOptions.dev && !nfOptions.skipHtmlTransform
+      write && !nfOptions.dev && !nfOptions.skipHtmlTransform,
+      memResults
     );
 
     if (first && runServer) {
