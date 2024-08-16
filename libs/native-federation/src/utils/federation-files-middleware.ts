@@ -53,7 +53,9 @@ function trimHref(baseHref: string): string {
 }
 
 function mapLocaleHrefToDir(pathMapper: [RegExp, string][], url: string) {
-  const [matcher, replacement] = pathMapper.find(([matcher]) => matcher.test(url)) ?? [null, null];
+  const [matcher, replacement] = pathMapper.find(([matcher]) =>
+    matcher.test(url)
+  ) ?? [null, null];
   if (!matcher) {
     return url;
   }
@@ -67,19 +69,33 @@ function getLocaleRootRegexp(i18nOpts: I18nOptions): RegExp {
     })
     .filter((href) => href !== '');
   return i18nOpts.shouldInline
-    ? new RegExp(`(?:^|\/)(?:${localeDirs.join('|')})\/?$`)
+    ? new RegExp(`^(?:^|\/)(?:${localeDirs.join('|')})\/?$`)
     : new RegExp(/^\/?$/);
 }
 
-function getPathMapper(i18nOpts: I18nOptions, pathMappings?: [string, string][]): [RegExp, string][] {
+function getPathMapper(
+  i18nOpts: I18nOptions,
+  pathMappings?: [string, string][]
+): [RegExp, string][] {
   if (pathMappings && typeof pathMappings == 'object') {
-    return pathMappings.map(([regexp, replacement]) => [new RegExp(regexp), replacement]);
+    return pathMappings.map(([regexp, replacement]) => [
+      new RegExp(regexp),
+      replacement,
+    ]);
   } else {
-    if (!i18nOpts || !i18nOpts.locales || !Object.entries(i18nOpts.locales).length || !i18nOpts.shouldInline) {
+    if (
+      !i18nOpts ||
+      !i18nOpts.locales ||
+      !Object.entries(i18nOpts.locales).length ||
+      !i18nOpts.shouldInline
+    ) {
       return [];
     }
     return Object.entries(i18nOpts.locales)
       .filter(([, opts]) => opts.baseHref)
-      .map(([loc, opts]) => [new RegExp(`^(\/??)${trimHref(opts.baseHref)}(\/?.*)$`), `$1${loc}$2`]);
+      .map(([loc, opts]) => [
+        new RegExp(`^(\/??)${trimHref(opts.baseHref)}(\/?.*)$`),
+        `$1${loc}$2`,
+      ]);
   }
 }
