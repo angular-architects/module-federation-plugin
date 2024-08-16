@@ -144,7 +144,9 @@ export async function* runBuilder(
       },
     },
   ];
-  const middleware = [getFederationFilesMiddleware(fedOptions, i18nOpts)];
+  const middleware = [
+    getFederationFilesMiddleware(fedOptions, i18nOpts, nfOptions.pathMappings),
+  ];
 
   const memResults = new MemResults();
 

@@ -7,15 +7,17 @@ import { FederationOptions } from '@softarc/native-federation/build';
 
 export function getFederationFilesMiddleware(
   fedOptions: FederationOptions,
-  i18nOpts: I18nOptions
+  i18nOpts: I18nOptions,
+  pathMappings?: [string, string][]
 ): Connect.NextHandleFunction {
   const localeRootRegExp = getLocaleRootRegexp(i18nOpts);
+  const pathMapper = getPathMapper(i18nOpts, pathMappings);
 
   return (req, res, next) => {
     const fileName = path.join(
       fedOptions.workspaceRoot,
       fedOptions.outputPath,
-      mapLocaleHrefToDir(i18nOpts, req.url)
+      mapLocaleHrefToDir(pathMapper, req.url)
     );
     const exists = fs.existsSync(fileName);
     if (
@@ -50,34 +52,14 @@ function trimHref(baseHref: string): string {
   );
 }
 
-function mapLocaleHrefToDir(i18nOpts: I18nOptions, url: string) {
-  if (!Object.entries(i18nOpts.locales).length || !i18nOpts.shouldInline) {
+function mapLocaleHrefToDir(pathMapper: [RegExp, string][], url: string) {
+  const [matcher, replacement] = pathMapper.find(([matcher]) =>
+    matcher.test(url)
+  ) ?? [null, null];
+  if (!matcher) {
     return url;
   }
-  let startsWithHref: RegExp;
-  const entry = Object.entries(i18nOpts.locales).find(
-    ([locale, { baseHref }]) => {
-      const href = trimHref(baseHref);
-      if (href) {
-        startsWithHref = new RegExp(`^(\/?)${href}(\/?.*)$`);
-      } else {
-        startsWithHref = new RegExp(
-          `^\/?(?:start-page|example)(\/)${locale}(\/.*|)$`
-        );
-      }
-      return startsWithHref.test(url);
-    }
-  );
-  if (!entry) {
-    if (url.split('/').length > 2) {
-      return url.replace(/^\/?(?:start-page|example)/, ''); // TODO: WORKAROUND FOR NOW: CUT OFF FIRST SEGMENT
-    } else {
-      return url;
-    }
-  }
-  const [locale] = entry;
-  url.replace(startsWithHref, `$1${locale}$2`);
-  return url.replace(startsWithHref, `$1${locale}$2`);
+  return url.replace(matcher, replacement);
 }
 
 function getLocaleRootRegexp(i18nOpts: I18nOptions): RegExp {
@@ -89,4 +71,31 @@ function getLocaleRootRegexp(i18nOpts: I18nOptions): RegExp {
   return i18nOpts.shouldInline
     ? new RegExp(`^(?:^|\/)(?:${localeDirs.join('|')})\/?$`)
     : new RegExp(/^\/?$/);
+}
+
+function getPathMapper(
+  i18nOpts: I18nOptions,
+  pathMappings?: [string, string][]
+): [RegExp, string][] {
+  if (pathMappings && typeof pathMappings == 'object') {
+    return pathMappings.map(([regexp, replacement]) => [
+      new RegExp(regexp),
+      replacement,
+    ]);
+  } else {
+    if (
+      !i18nOpts ||
+      !i18nOpts.locales ||
+      !Object.entries(i18nOpts.locales).length ||
+      !i18nOpts.shouldInline
+    ) {
+      return [];
+    }
+    return Object.entries(i18nOpts.locales)
+      .filter(([, opts]) => opts.baseHref)
+      .map(([loc, opts]) => [
+        new RegExp(`^(\/??)${trimHref(opts.baseHref)}(\/?.*)$`),
+        `$1${loc}$2`,
+      ]);
+  }
 }
