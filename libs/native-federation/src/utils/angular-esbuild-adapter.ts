@@ -306,7 +306,6 @@ async function runEsbuild(
 
   const ctx = await esbuild.context(config);
   const result = await ctx.rebuild();
-
   const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
 
   const writtenFiles = writeResult(result, outdir, memOnly);
@@ -393,7 +392,6 @@ function writeResult(
   memOnly: boolean
 ) {
   const writtenFiles: string[] = [];
-
   if (memOnly) {
     _memResultHandler(result.outputFiles, outdir);
   }

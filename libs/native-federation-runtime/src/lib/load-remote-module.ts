@@ -29,6 +29,10 @@ export async function loadRemoteModule<T = any>(
 ): Promise<T> {
   const options = normalizeOptions(optionsOrRemoteName, exposedModule);
 
+  // @ts-ignore
+  if (typeof process !== 'undefined' && process.version) {
+    return await import('./init-federation-ssr').then(r => r.loadRemoteModuleSsr<T>(options))
+  }
   await ensureRemoteInitialized(options);
 
   const remoteName = getRemoteNameByOptions(options);

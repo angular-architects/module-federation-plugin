@@ -10,7 +10,9 @@ import {
   describeExposed,
   describeSharedMappings,
 } from './bundle-exposed-and-mappings';
-
+import { bundle } from '../utils/build-utils';
+import * as promisesFs from 'fs/promises'
+import * as path from 'path'
 export interface BuildParams {
   skipMappingsAndExposed: boolean;
 }
@@ -18,6 +20,41 @@ export interface BuildParams {
 export const defaultBuildParams: BuildParams = {
   skipMappingsAndExposed: false,
 };
+
+export async function buildForCustomLoader(
+  config: NormalizedFederationConfig,
+  fedOptions: FederationOptions,
+  buildParams = defaultBuildParams
+) {
+
+  if (!fedOptions.customLoader) throw new Error('No custom loader provided');
+
+
+  const nameCustomLoader = path.parse(fedOptions.customLoader).name;
+
+  await bundle({
+    entryPoints: [{
+      fileName: path.join(fedOptions.workspaceRoot, fedOptions.customLoader),
+      outName: nameCustomLoader,
+    }],
+    tsConfigPath: fedOptions.tsConfig,
+    external: ['fs', 'path', 'url'],
+    outdir: path.join(fedOptions.workspaceRoot, fedOptions.outputPathServer),
+    mappedPaths: config.sharedMappings,
+    dev: fedOptions.dev,
+    kind: 'shared-package',
+    hash: false,
+    esm: true,
+  });
+  await new Promise(resolve => {
+    setTimeout(() => resolve(void 0), 2000)
+  })
+  await promisesFs.rename(
+    path.join(fedOptions.workspaceRoot, fedOptions.outputPathServer, nameCustomLoader) + '.js',
+    path.join(fedOptions.workspaceRoot, fedOptions.outputPathServer, nameCustomLoader) + '.mjs'
+  )
+
+}
 
 export async function buildForFederation(
   config: NormalizedFederationConfig,

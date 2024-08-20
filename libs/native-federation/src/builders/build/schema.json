@@ -52,6 +52,9 @@
       "default": {
         "shimMode": true
       }
+    },
+    "customLoader": {
+      "type": "string"
     }
   }
 }

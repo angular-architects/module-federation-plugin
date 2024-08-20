@@ -20,5 +20,11 @@ export function writeImportMap(
     fedOption.outputPath,
     'importmap.json'
   );
+  const importMapPathServer = path.join(
+    fedOption.workspaceRoot,
+    fedOption.outputPathServer,
+    'importmap.json'
+  );
   fs.writeFileSync(importMapPath, JSON.stringify(importMap, null, 2));
+  fs.writeFileSync(importMapPathServer, JSON.stringify(importMap, null, 2));
 }

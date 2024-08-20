@@ -8,7 +8,10 @@ export function updateIndexHtml(
   nfOptions: NfBuilderSchema
 ) {
   const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
-  const indexPath = path.join(outputPath, 'index.html');
+
+  const indexName = fedOptions.isSrr ? 'index.csr.html' : 'index.html';
+
+  const indexPath = path.join(outputPath, indexName);
   const mainName = fs
     .readdirSync(outputPath)
     .find((f) => f.startsWith('main') && f.endsWith('.js'));
