@@ -1,8 +1,9 @@
-const { withNativeFederation, shareAll } = require('dist/libs/native-federation/src/config.js');
-
+const {
+  withNativeFederation,
+  shareAll,
+} = require('dist/libs/native-federation/src/config.js');
 
 module.exports = withNativeFederation({
-
   name: 'mfe-for-ssr',
 
   exposes: {
@@ -10,7 +11,11 @@ module.exports = withNativeFederation({
   },
 
   shared: {
-    ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+    ...shareAll({
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+    }),
   },
 
   skip: [
@@ -25,9 +30,8 @@ module.exports = withNativeFederation({
     '@softarc/native-federation/build',
     '@module-federation/vite',
     // Add further packages you don't need at runtime
-  ]
+  ],
 
   // Please read our FAQ about sharing libs:
   // https://shorturl.at/jmzH0
-
 });

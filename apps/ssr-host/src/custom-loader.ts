@@ -2,32 +2,44 @@ import {
   getModuleNameByUrl,
   hasRemoteSsr,
   loadModule,
-  setManifestObjectForSsr
+  setManifestObjectForSsr,
 } from '@angular-architects/native-federation';
-import { ImportMap } from "@jspm/import-map";
-import { readFileSync } from 'fs'
+import { ImportMap } from '@jspm/import-map';
+import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-import manifest from './assets/federation.manifest.json'
+import manifest from './assets/federation.manifest.json';
 
-
-setManifestObjectForSsr(manifest)
+setManifestObjectForSsr(manifest);
 
 export type Context = {
   parentURL?: string;
 };
 
-export type NextResolve = (specifier: string, context: Context, nextResolve: NextResolve) => Promise<string | unknown>;
-export type DefaultLoad = (specifier: string, context: Context, defaultLoad: DefaultLoad) => Promise<string | unknown>;
+export type NextResolve = (
+  specifier: string,
+  context: Context,
+  nextResolve: NextResolve
+) => Promise<string | unknown>;
+export type DefaultLoad = (
+  specifier: string,
+  context: Context,
+  defaultLoad: DefaultLoad
+) => Promise<string | unknown>;
 
-const toImportJson = join(dirname(fileURLToPath(import.meta.url)), 'importmap.json')
-const importmapJson = JSON.parse(readFileSync(toImportJson, 'utf8'))
+const toImportJson = join(
+  dirname(fileURLToPath(import.meta.url)),
+  'importmap.json'
+);
+const importmapJson = JSON.parse(readFileSync(toImportJson, 'utf8'));
 
-const importMap = new ImportMap({ map: {}, mapUrl: import.meta.url })
+const importMap = new ImportMap({ map: {}, mapUrl: import.meta.url });
 
-
-const resolveModulePath = (specifier: string, cacheMapPath: string): string | null => {
+const resolveModulePath = (
+  specifier: string,
+  cacheMapPath: string
+): string | null => {
   try {
     return importMap.resolve(specifier, cacheMapPath);
   } catch {
@@ -36,17 +48,20 @@ const resolveModulePath = (specifier: string, cacheMapPath: string): string | nu
 };
 
 export const checkIfNodeProtocol = (modulePath: string) => {
-  const { protocol = "" } = new URL(modulePath);
-  return protocol === "node:";
+  const { protocol = '' } = new URL(modulePath);
+  return protocol === 'node:';
 };
 
 export const checkIfFileProtocol = (modulePath: string) => {
-  const { protocol = "" } = new URL(modulePath);
-  return protocol === "file:";
+  const { protocol = '' } = new URL(modulePath);
+  return protocol === 'file:';
 };
 
-export async function resolve(specifier: string, context: Context, nextResolve: NextResolve) {
-
+export async function resolve(
+  specifier: string,
+  context: Context,
+  nextResolve: NextResolve
+) {
   let { parentURL } = context;
 
   // if (specifier.indexOf('@angular/platform-browser') > -1) {
@@ -59,38 +74,40 @@ export async function resolve(specifier: string, context: Context, nextResolve: 
 
   if (!parentURL) return nextResolve(specifier, context, nextResolve);
   if (hasRemoteSsr(parentURL)) {
-    parentURL = import.meta.url
-    context.parentURL = parentURL
-
+    parentURL = import.meta.url;
+    context.parentURL = parentURL;
   }
-
 
   const modulePath = resolveModulePath(specifier, parentURL);
 
   if (!modulePath) return nextResolve(specifier, context, nextResolve);
-  if (checkIfNodeProtocol(modulePath)) return nextResolve(modulePath, context, nextResolve);
-  if (checkIfFileProtocol(modulePath)) return nextResolve(modulePath, context, nextResolve);
-
+  if (checkIfNodeProtocol(modulePath))
+    return nextResolve(modulePath, context, nextResolve);
+  if (checkIfFileProtocol(modulePath))
+    return nextResolve(modulePath, context, nextResolve);
 
   // console.log('resolve', specifier, importMap.resolve(specifier, parentURL));
   // console.log('resolve',specifier);
   if (hasRemoteSsr(specifier)) {
-
     return {
       url: specifier,
-      shortCircuit: true
+      shortCircuit: true,
     };
   }
 
   return nextResolve(specifier, context, nextResolve);
 }
 
-export async function load(url: string, context: Context, defaultLoad: DefaultLoad) {
+export async function load(
+  url: string,
+  context: Context,
+  defaultLoad: DefaultLoad
+) {
   if (hasRemoteSsr(url)) {
     const [response, moduleName] = await Promise.all([
       await loadModule(url),
-      await getModuleNameByUrl(url)
-    ])
+      await getModuleNameByUrl(url),
+    ]);
 
     return {
       format: 'module',

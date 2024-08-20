@@ -1,18 +1,18 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as mrmime from 'mrmime';
-import * as url from 'url'
+import * as url from 'url';
 
 import { buildApplication, ApplicationBuilderOptions } from '@angular/build';
 import {
   serveWithVite,
-  buildApplicationInternal
+  buildApplicationInternal,
 } from '@angular/build/private';
 
 import {
   BuilderContext,
   BuilderOutput,
-  createBuilder
+  createBuilder,
 } from '@angular-devkit/architect';
 
 import { DevServerBuilderOptions } from '@angular-devkit/build-angular';
@@ -24,11 +24,14 @@ import { FederationOptions } from '@softarc/native-federation/build';
 import { setBuildAdapter } from '@softarc/native-federation/build';
 import {
   createAngularBuildAdapter,
-  setMemResultHandler
+  setMemResultHandler,
 } from '../../utils/angular-esbuild-adapter';
 import { getExternals } from '@softarc/native-federation/build';
 import { loadFederationConfig } from '@softarc/native-federation/build';
-import { buildForFederation, buildForCustomLoader } from '@softarc/native-federation/build';
+import {
+  buildForFederation,
+  buildForCustomLoader,
+} from '@softarc/native-federation/build';
 import { targetFromTargetString } from '@angular-devkit/architect';
 
 import { NfBuilderSchema } from './schema';
@@ -36,7 +39,7 @@ import {
   reloadBrowser,
   reloadShell,
   setError,
-  startServer
+  startServer,
 } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { updateIndexHtml, updateScriptTags } from '../../utils/updateIndexHtml';
@@ -44,20 +47,20 @@ import { existsSync, mkdirSync, rmSync, promises as promisesFs } from 'fs';
 import {
   EsBuildResult,
   MemResults,
-  NgCliAssetResult
+  NgCliAssetResult,
 } from '../../utils/mem-resuts';
 import { JsonObject } from '@angular-devkit/core';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 // import { NextHandleFunction } from 'vite';
 import { PluginBuild } from 'esbuild';
 import { FederationInfo } from '@softarc/native-federation-runtime';
-import {register} from 'node:module'
+import { register } from 'node:module';
 
 function _buildApplication(options, context, pluginsOrExtensions) {
   let extensions;
   if (pluginsOrExtensions && Array.isArray(pluginsOrExtensions)) {
     extensions = {
-      codePlugins: pluginsOrExtensions
+      codePlugins: pluginsOrExtensions,
     };
   } else {
     extensions = pluginsOrExtensions;
@@ -85,7 +88,7 @@ export async function* runBuilder(
   if (builder === '@angular-devkit/build-angular:browser-esbuild') {
     logger.info('.: NATIVE FEDERATION - UPDATE NEEDED :.');
     logger.info('');
-    logger.info('Since version 17.1, Native Federation uses Angular\'s');
+    logger.info("Since version 17.1, Native Federation uses Angular's");
     logger.info('Application-Builder and its Dev-Server.');
     logger.info('');
     logger.info('If you are sill on Angular 17.0.x, please update to');
@@ -150,7 +153,7 @@ export async function* runBuilder(
     server: 'server',
     media: 'media',
     ...(typeof outputPath === 'string' ? undefined : outputPath),
-    base: typeof outputPath === 'string' ? outputPath : outputPath.base
+    base: typeof outputPath === 'string' ? outputPath : outputPath.base,
   };
 
   const browserOutputPath = path.join(
@@ -158,10 +161,7 @@ export async function* runBuilder(
     outputOptions.browser
   );
 
-  const serverOutputPath = path.join(
-    outputOptions.base,
-    outputOptions.server
-  );
+  const serverOutputPath = path.join(outputOptions.base, outputOptions.server);
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
@@ -173,13 +173,12 @@ export async function* runBuilder(
     watch: false, // options.watch,
     dev: !!nfOptions.dev,
     isSrr: !!options.ssr,
-    customLoader: nfOptions.customLoader
+    customLoader: nfOptions.customLoader,
   };
 
   if (fedOptions.isSrr && !nfOptions.customLoader) {
     throw new Error('Should be set custom-loader');
   }
-
 
   const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);
@@ -190,16 +189,13 @@ export async function* runBuilder(
       setup(build) {
         if (build.initialOptions.platform === 'browser') return;
 
-        build.initialOptions.external = externals.filter(
-          (e) => e !== 'tslib'
-        );
-
+        build.initialOptions.external = externals.filter((e) => e !== 'tslib');
 
         build.initialOptions.minifyIdentifiers = false;
 
         build.initialOptions.entryPoints = {
           ...build.initialOptions.entryPoints,
-          ['custom-loader']: nfOptions.customLoader
+          ['custom-loader']: nfOptions.customLoader,
         };
         // build.onEnd(async (result) => {
         //
@@ -231,7 +227,7 @@ export async function* runBuilder(
         //   mainServer.contents = new TextEncoder().encode(resultContent);
         //
         // });
-      }
+      },
     },
     createSharedMappingsPlugin(config.sharedMappings),
     {
@@ -242,9 +238,8 @@ export async function* runBuilder(
             (e) => e !== 'tslib'
           );
         }
-      }
-    }
-
+      },
+    },
   ];
 
   const middleware = [
@@ -268,13 +263,13 @@ export async function* runBuilder(
           'Content-Type': mimeType,
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-          'Access-Control-Allow-Headers': 'Content-Type'
+          'Access-Control-Allow-Headers': 'Content-Type',
         });
         res.end(body);
       } else {
         next();
       }
-    }
+    },
   ];
 
   const memResults = new MemResults();
@@ -306,11 +301,23 @@ export async function* runBuilder(
   }
   if (fedOptions.isSrr && nfOptions.dev) {
     //Need register before run dev server
-    await buildForCustomLoader(config, fedOptions)
-    const nameCustomLoader = nfOptions.customLoader.split('/').at(-1).split('.').at(0);
+    await buildForCustomLoader(config, fedOptions);
+    const nameCustomLoader = nfOptions.customLoader
+      .split('/')
+      .at(-1)
+      .split('.')
+      .at(0);
     const fullNameCustomLoader = `${nameCustomLoader}.mjs`;
-    const parentPath = url.pathToFileURL(path.join(context.workspaceRoot, fedOptions.outputPathServer, fullNameCustomLoader)).toString()
-    register('./'+fullNameCustomLoader , parentPath);
+    const parentPath = url
+      .pathToFileURL(
+        path.join(
+          context.workspaceRoot,
+          fedOptions.outputPathServer,
+          fullNameCustomLoader
+        )
+      )
+      .toString();
+    register('./' + fullNameCustomLoader, parentPath);
   }
 
   options.deleteOutputPath = false;
@@ -321,18 +328,18 @@ export async function* runBuilder(
   const appBuilderName = '@angular-devkit/build-angular:application';
   const builderRun = nfOptions.dev
     ? serveWithVite(
-      normOuterOptions,
-      appBuilderName,
-      _buildApplication,
-      context,
-      nfOptions.skipHtmlTransform
-        ? {}
-        : { indexHtml: transformIndexHtml(nfOptions) },
-      {
-        buildPlugins: plugins,
-        middleware
-      }
-    )
+        normOuterOptions,
+        appBuilderName,
+        _buildApplication,
+        context,
+        nfOptions.skipHtmlTransform
+          ? {}
+          : { indexHtml: transformIndexHtml(nfOptions) },
+        {
+          buildPlugins: plugins,
+          middleware,
+        }
+      )
     : buildApplication(options, context, plugins);
 
   // builderRun.output.subscribe(async (output) => {
@@ -379,7 +386,7 @@ export async function* runBuilder(
         // await Promise.all([rebuildEvents.rebuild.emit()]);
         await buildForFederation(config, fedOptions, externals);
         if (fedOptions.isSrr && nfOptions.dev) {
-          await buildForCustomLoader(config, fedOptions)
+          await buildForCustomLoader(config, fedOptions);
         }
 
         logger.info('Done!');
@@ -438,7 +445,7 @@ function addDebugInformation(fileName: string, rawBody: string): string {
 
   const sharedForVite = shared.map((s) => ({
     ...s,
-    packageName: `/@id/${s.packageName}`
+    packageName: `/@id/${s.packageName}`,
   }));
 
   remoteEntry.shared = [...shared, ...sharedForVite];

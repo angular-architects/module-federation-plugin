@@ -31,7 +31,9 @@ export async function loadRemoteModule<T = any>(
 
   // @ts-ignore
   if (typeof process !== 'undefined' && process.version) {
-    return await import('./init-federation-ssr').then(r => r.loadRemoteModuleSsr<T>(options))
+    return await import('./init-federation-ssr').then((r) =>
+      r.loadRemoteModuleSsr<T>(options)
+    );
   }
   await ensureRemoteInitialized(options);
 

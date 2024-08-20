@@ -40,26 +40,19 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/mfe-for-ssr/jest.config.ts"
       }
     },
     "esbuild": {
       "executor": "@angular-devkit/build-angular:application",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/mfe-for-ssr",
         "index": "apps/mfe-for-ssr/src/index.html",
         "browser": "apps/mfe-for-ssr/src/main.ts",
-        "polyfills": [
-          "zone.js",
-          "es-module-shims"
-        ],
+        "polyfills": ["zone.js", "es-module-shims"],
         "tsConfig": "apps/mfe-for-ssr/tsconfig.app.json",
         "assets": [
           {
@@ -67,9 +60,7 @@
             "input": "apps/mfe-for-ssr/public"
           }
         ],
-        "styles": [
-          "apps/mfe-for-ssr/src/styles.css"
-        ],
+        "styles": ["apps/mfe-for-ssr/src/styles.css"],
         "scripts": []
       },
       "configurations": {

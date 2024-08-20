@@ -1,7 +1,7 @@
 export interface FederationOptions {
   workspaceRoot: string;
   outputPath: string;
-  outputPathServer: string
+  outputPathServer: string;
   federationConfig: string;
   tsConfig?: string;
   verbose?: boolean;
@@ -9,5 +9,5 @@ export interface FederationOptions {
   watch?: boolean;
   packageJson?: string;
   isSrr: boolean;
-  customLoader?: string
+  customLoader?: string;
 }

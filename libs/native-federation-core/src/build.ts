@@ -14,7 +14,10 @@ export {
   EntryPoint,
 } from './lib/core/build-adapter';
 export { withNativeFederation } from './lib/config/with-native-federation';
-export { buildForFederation, buildForCustomLoader } from './lib/core/build-for-federation';
+export {
+  buildForFederation,
+  buildForCustomLoader,
+} from './lib/core/build-for-federation';
 export { bundleExposedAndMappings } from './lib/core/bundle-exposed-and-mappings';
 
 export {
