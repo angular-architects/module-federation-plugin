@@ -2,9 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
   "files": [
     "src/main.ts",
@@ -12,12 +10,6 @@
     "server.ts",
     "src/custom-loader.ts"
   ],
-  "include": [
-    "src/**/*.d.ts",
-    "src/custom-loader.ts"
-  ],
-  "exclude": [
-    "jest.config.ts",
-    "src*.spec.ts"
-  ]
+  "include": ["src/**/*.d.ts", "src/custom-loader.ts"],
+  "exclude": ["jest.config.ts", "src*.spec.ts"]
 }
