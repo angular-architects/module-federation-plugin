@@ -191,7 +191,7 @@ export async function* runBuilder(
         fedOptions.outputPath,
         url
       );
-      
+
       const exists = fs.existsSync(fileName);
 
       if (url !== '/' && url !== '' && exists) {

@@ -283,7 +283,9 @@ function normalizeOptions(
 
   let manifestRelPath = 'public/federation.manifest.json';
 
-  if (!tree.exists(publicPath)) {
+  const hasPublicFolder = tree.getDir(projectRoot).subdirs.map(p => String(p)).includes('public');
+
+  if (!hasPublicFolder) {
     manifestPath = path
       .join(projectRoot, 'src/assets/federation.manifest.json')
       .replace(/\\/g, '/');
