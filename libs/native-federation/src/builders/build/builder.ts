@@ -63,7 +63,6 @@ function _buildApplication(options, context, pluginsOrExtensions) {
   return buildApplicationInternal(
     options,
     context,
-    { write: false },
     extensions
   );
 }
