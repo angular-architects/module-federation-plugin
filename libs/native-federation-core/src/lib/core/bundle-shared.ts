@@ -53,9 +53,19 @@ export async function bundleShared(
     fedOptions.outputPath
   );
 
+  const fullOutputPathServer = path.join(
+    fedOptions.workspaceRoot,
+    fedOptions.outputPathServer
+  );
+
   const exptedResults = allEntryPoints.map((ep) =>
     path.join(fullOutputPath, ep.outName)
   );
+
+  const exptedResultsServer = allEntryPoints.map((ep) =>
+    path.join(fullOutputPathServer, ep.outName)
+  );
+
   const entryPoints = allEntryPoints.filter(
     (ep) => !fs.existsSync(path.join(cachePath, ep.outName))
   );
@@ -81,6 +91,14 @@ export async function bundleShared(
     });
 
     for (const fileName of exptedResults) {
+      const outFileName = path.basename(fileName);
+      const cachedFile = path.join(cachePath, outFileName);
+
+      copyFileIfExists(cachedFile, fileName);
+      copySrcMapIfExists(cachedFile, fileName);
+    }
+
+    for (const fileName of exptedResultsServer) {
       const outFileName = path.basename(fileName);
       const cachedFile = path.join(cachePath, outFileName);
 

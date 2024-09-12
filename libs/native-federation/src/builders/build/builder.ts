@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as mrmime from 'mrmime';
+import * as url from 'url';
 
 import { buildApplication, ApplicationBuilderOptions } from '@angular/build';
 import {
@@ -27,7 +28,10 @@ import {
 } from '../../utils/angular-esbuild-adapter';
 import { getExternals } from '@softarc/native-federation/build';
 import { loadFederationConfig } from '@softarc/native-federation/build';
-import { buildForFederation } from '@softarc/native-federation/build';
+import {
+  buildForFederation,
+  buildForCustomLoader,
+} from '@softarc/native-federation/build';
 import { targetFromTargetString } from '@angular-devkit/architect';
 
 import { NfBuilderSchema } from './schema';
@@ -39,7 +43,7 @@ import {
 } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { updateIndexHtml, updateScriptTags } from '../../utils/updateIndexHtml';
-import { existsSync, mkdirSync, rmSync } from 'fs';
+import { existsSync, mkdirSync, rmSync, promises as promisesFs } from 'fs';
 import {
   EsBuildResult,
   MemResults,
@@ -50,6 +54,7 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 // import { NextHandleFunction } from 'vite';
 import { PluginBuild } from 'esbuild';
 import { FederationInfo } from '@softarc/native-federation-runtime';
+import { register } from 'node:module';
 
 function _buildApplication(options, context, pluginsOrExtensions) {
   let extensions;
@@ -155,19 +160,74 @@ export async function* runBuilder(
     outputOptions.browser
   );
 
+  const serverOutputPath = path.join(outputOptions.base, outputOptions.server);
+
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
     outputPath: browserOutputPath,
+    outputPathServer: serverOutputPath,
     federationConfig: infereConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose,
     watch: false, // options.watch,
     dev: !!nfOptions.dev,
+    isSrr: !!options.ssr,
+    customLoader: nfOptions.customLoader,
   };
+
+  if (fedOptions.isSrr && !nfOptions.customLoader) {
+    throw new Error('Should be set custom-loader');
+  }
 
   const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);
+
   const plugins = [
+    {
+      name: 'entryPointsInterceptor',
+      setup(build) {
+        if (build.initialOptions.platform === 'browser') return;
+
+        build.initialOptions.external = externals.filter((e) => e !== 'tslib');
+
+        build.initialOptions.minifyIdentifiers = false;
+
+        build.initialOptions.entryPoints = {
+          ...build.initialOptions.entryPoints,
+          ['custom-loader']: nfOptions.customLoader,
+        };
+        // build.onEnd(async (result) => {
+        //
+        //   const pathToCustomLoader =
+        //     fedOptions.dev
+        //       ? path.join(context.workspaceRoot, `.angular/vite-root`, context.target.project)
+        //       : path.join(context.workspaceRoot, fedOptions.outputPathServer);
+        //
+        //   const pathToResultCustomLoader = path.join(context.workspaceRoot, fedOptions.outputPathServer);
+        //   const relativePathToResultCustomLoader = path.relative(pathToCustomLoader, pathToResultCustomLoader);
+        //   const nameCustomLoader = nfOptions.customLoader.split('/').at(-1).split('.').at(0);
+        //   const fullNameCustomLoader = `${nameCustomLoader}.mjs`;
+        //
+        //   const replaceStr = relativePathToResultCustomLoader
+        //     ? path.join(relativePathToResultCustomLoader, fullNameCustomLoader)
+        //     : `.${path.sep}${fullNameCustomLoader}`;
+        //   let mainServer = result.outputFiles.find((files) => files.path.endsWith('main.server.mjs'));
+        //
+        //   const regex = /import\s+{?\s*main_server_default\s*}?\s+from\s+["'][^"']*\/([^"']+)["'];/;
+        //   const match = mainServer.text.match(regex);
+        //
+        //   if (match) {
+        //     const modulePath = match[1];
+        //     mainServer = result.outputFiles.find((files) => files.path.endsWith(modulePath));
+        //   }
+        //
+        //   const resultContent = new TextDecoder().decode(mainServer.contents)
+        //     .replace(`./${nameCustomLoader}`, replaceStr);
+        //   mainServer.contents = new TextEncoder().encode(resultContent);
+        //
+        // });
+      },
+    },
     createSharedMappingsPlugin(config.sharedMappings),
     {
       name: 'externals',
@@ -238,6 +298,26 @@ export async function* runBuilder(
   } catch (e) {
     process.exit(1);
   }
+  if (fedOptions.isSrr && nfOptions.dev) {
+    //Need register before run dev server
+    await buildForCustomLoader(config, fedOptions);
+    const nameCustomLoader = nfOptions.customLoader
+      .split('/')
+      .at(-1)
+      .split('.')
+      .at(0);
+    const fullNameCustomLoader = `${nameCustomLoader}.mjs`;
+    const parentPath = url
+      .pathToFileURL(
+        path.join(
+          context.workspaceRoot,
+          fedOptions.outputPathServer,
+          fullNameCustomLoader
+        )
+      )
+      .toString();
+    register('./' + fullNameCustomLoader, parentPath);
+  }
 
   options.deleteOutputPath = false;
 
@@ -245,7 +325,6 @@ export async function* runBuilder(
   // TODO: Clarify if buildApplication is needed `executeDevServerBuilder` seems to choose the correct DevServer
 
   const appBuilderName = '@angular-devkit/build-angular:application';
-
   const builderRun = nfOptions.dev
     ? serveWithVite(
         normOuterOptions,
@@ -305,6 +384,10 @@ export async function* runBuilder(
         // logger.info('Rebuilding federation artefacts ...');
         // await Promise.all([rebuildEvents.rebuild.emit()]);
         await buildForFederation(config, fedOptions, externals);
+        if (fedOptions.isSrr && nfOptions.dev) {
+          await buildForCustomLoader(config, fedOptions);
+        }
+
         logger.info('Done!');
 
         if (runServer) {

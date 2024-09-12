@@ -12,5 +12,11 @@ export function writeFederationInfo(
     fedOptions.outputPath,
     'remoteEntry.json'
   );
+  const metaDataPathServer = path.join(
+    fedOptions.workspaceRoot,
+    fedOptions.outputPathServer,
+    'remoteEntry.json'
+  );
   fs.writeFileSync(metaDataPath, JSON.stringify(federationInfo, null, 2));
+  fs.writeFileSync(metaDataPathServer, JSON.stringify(federationInfo, null, 2));
 }
