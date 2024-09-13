@@ -18,7 +18,8 @@ export async function initFederation(
       ? await loadManifest(remotesOrManifestUrl)
       : remotesOrManifestUrl;
 
-  const hostImportMap = await processHostInfo();
+  const hostInfo = await loadFederationInfo('./remoteEntry.json');
+  const hostImportMap = await processHostInfo(hostInfo);
   const remotesImportMap = await processRemoteInfos(remotes);
 
   const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
@@ -31,7 +32,7 @@ async function loadManifest(remotes: string): Promise<Record<string, string>> {
   return (await fetch(remotes).then((r) => r.json())) as Record<string, string>;
 }
 
-async function processRemoteInfos(
+export async function processRemoteInfos(
   remotes: Record<string, string>
 ): Promise<ImportMap> {
   const processRemoteInfoPromises = Object.keys(remotes).map(
@@ -125,16 +126,15 @@ function processExposed(
   return imports;
 }
 
-async function processHostInfo(): Promise<ImportMap> {
-  const hostInfo = await loadFederationInfo('./remoteEntry.json');
+export async function processHostInfo(hostInfo: FederationInfo, relBundlesPath = './'): Promise<ImportMap> {
 
   const imports = hostInfo.shared.reduce(
-    (acc, cur) => ({ ...acc, [cur.packageName]: './' + cur.outFileName }),
+    (acc, cur) => ({ ...acc, [cur.packageName]: relBundlesPath + cur.outFileName }),
     {}
   ) as Imports;
 
   for (const shared of hostInfo.shared) {
-    setExternalUrl(shared, './' + shared.outFileName);
+    setExternalUrl(shared, relBundlesPath + shared.outFileName);
   }
   return { imports, scopes: {} };
 }

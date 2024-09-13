@@ -35,7 +35,6 @@ import {
   reloadBrowser,
   reloadShell,
   setError,
-  startServer,
 } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { updateIndexHtml, updateScriptTags } from '../../utils/updateIndexHtml';
@@ -60,11 +59,7 @@ function _buildApplication(options, context, pluginsOrExtensions) {
   } else {
     extensions = pluginsOrExtensions;
   }
-  return buildApplicationInternal(
-    options,
-    context,
-    extensions
-  );
+  return buildApplicationInternal(options, context, extensions);
 }
 
 export async function* runBuilder(

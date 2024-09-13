@@ -36,6 +36,9 @@
       "@softarc/native-federation-esbuild": [
         "libs/native-federation-esbuild/src/index.ts"
       ],
+      "@softarc/native-federation-node": [
+        "libs/native-federation-node/src/index.ts"
+      ],
       "@softarc/native-federation-runtime": [
         "libs/native-federation-runtime/src/index.ts"
       ],

@@ -1,0 +1,33 @@
+{
+  "name": "native-federation-node",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/native-federation-node/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "generatorOptions": {
+        "packageRoot": "dist/{projectRoot}",
+        "currentVersionResolver": "git-tag"
+      }
+    }
+  },
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/native-federation-node",
+        "tsConfig": "libs/native-federation-node/tsconfig.lib.json",
+        "packageJson": "libs/native-federation-node/package.json",
+        "main": "libs/native-federation-node/src/index.ts",
+        "assets": ["libs/native-federation-node/*.md"]
+      }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
+    }
+  }
+}

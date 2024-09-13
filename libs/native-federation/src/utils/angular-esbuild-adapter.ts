@@ -37,6 +37,8 @@ import {
 
 import { RebuildEvents, RebuildHubs } from './rebuild-events';
 
+import JSON5 from 'json5';
+
 // const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
 
 export type MemResultHandler = (
@@ -352,11 +354,13 @@ function createTsConfigForFederation(
     .map((ep) => path.relative(tsconfigDir, ep.fileName).replace(/\\\\/g, '/'));
 
   const tsconfigAsString = fs.readFileSync(fullTsConfigPath, 'utf-8');
-  const tsconfigWithoutComments = tsconfigAsString.replace(
-    /\/\*.+?\*\/|\/\/.*(?=[\n\r])/g,
-    ''
-  );
-  const tsconfig = JSON.parse(tsconfigWithoutComments);
+  // const tsconfigWithoutComments = tsconfigAsString.replace(
+  //   /\/\*.+?\*\/|\/\/.*(?=[\n\r])/g,
+  //   ''
+  // );
+
+  
+  const tsconfig = JSON5.parse(tsconfigAsString);
 
   if (!tsconfig.include) {
     tsconfig.include = [];
@@ -368,7 +372,7 @@ function createTsConfigForFederation(
     }
   }
 
-  const content = JSON.stringify(tsconfig, null, 2);
+  const content = JSON5.stringify(tsconfig, null, 2);
 
   const tsconfigFedPath = path.join(tsconfigDir, 'tsconfig.federation.json');
 
