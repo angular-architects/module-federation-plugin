@@ -1,12 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "ES2020",
-    "target": "ES2020",
+    "module": "ES2015",
+    "target": "ES2015",
     "outDir": "../../dist/out-tsc",
     "declaration": true,
     "types": ["node"]
   },
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/lib/node/import-map-store.ts.bak", "src/lib/node/federation-resolver.ts.bak"]
 }

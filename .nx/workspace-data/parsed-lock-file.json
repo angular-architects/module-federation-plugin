@@ -3226,9 +3226,9 @@
       "type": "npm",
       "name": "npm:@types/node",
       "data": {
-        "version": "18.19.24",
+        "version": "18.19.50",
         "packageName": "@types/node",
-        "hash": "sha512-eghAz3gnbQbvnHqB+mgB2ZR3aH6RhdEmHGS48BnV75KceQPHqabkxKI0BbUSsqhqy2Ddhc2xD/VAR9ySZd57Lw=="
+        "hash": "sha512-xonK+NRrMBRtkL1hVCc3G+uXtjh1Al4opBLjqVmipe5ZAaBYWW6cNAiBVZ1BvmkBhep698rP3UM3aRAdSALuhg=="
       }
     },
     "npm:cli-spinners@2.9.2": {
@@ -5877,6 +5877,24 @@
         "hash": "sha512-+9jVqKhRSpsc591z5vX+X5Yyw+he/HCB4iQ/RYxw35CEPaY1gnsNE43nf9n9AaYjAQrTiI/mOwKUKdUs9vf7Xg=="
       }
     },
+    "npm:@softarc/native-federation": {
+      "type": "npm",
+      "name": "npm:@softarc/native-federation",
+      "data": {
+        "version": "2.0.10",
+        "packageName": "@softarc/native-federation",
+        "hash": "sha512-SCjAd8F2nO7VPr9TEadpbqQWI8RHd+9HAYbdjJxKXNtmi9Nz5EnIZshTRgnQlMth59FrKlQ2fyoyRWcmYKNe0g=="
+      }
+    },
+    "npm:@softarc/native-federation-runtime": {
+      "type": "npm",
+      "name": "npm:@softarc/native-federation-runtime",
+      "data": {
+        "version": "2.0.10",
+        "packageName": "@softarc/native-federation-runtime",
+        "hash": "sha512-8CETrqtLkYL1i6bwmqNe/1GwNVQYfayf3b2PSHJ4/n1QR2Dk84RhbpnAPgGVG7XqzRhDYwV2xsJyhVJdWkxQ3A=="
+      }
+    },
     "npm:@swc-node/core": {
       "type": "npm",
       "name": "npm:@swc-node/core",
@@ -6019,6 +6037,15 @@
         "version": "0.1.7",
         "packageName": "@swc/types",
         "hash": "sha512-scHWahbHF0eyj3JsxG9CFJgFdFNaVQCNAimBlT6PzS3n/HptxqREjsm4OH6AN3lYcffZYSPxXW8ua2BEHp0lJQ=="
+      }
+    },
+    "npm:@swc/types": {
+      "type": "npm",
+      "name": "npm:@swc/types",
+      "data": {
+        "version": "0.1.12",
+        "packageName": "@swc/types",
+        "hash": "sha512-wBJA+SdtkbFhHjTMYH+dEH1y4VpfGdAc2Kw/LK09i9bXd/K6j6PkDcFCEzb6iVfZMkPRrl/q0e3toqTAJdkIVA=="
       }
     },
     "npm:@swc/counter": {
@@ -7873,6 +7900,15 @@
         "version": "2.8.0",
         "packageName": "babel-plugin-macros",
         "hash": "sha512-SEP5kJpfGYqYKpBrj5XU3ahw5p5GOHJ0U5ssOSQ/WBVdwkD2Dzlce95exQTs3jOVWPPKLBN2rlEWkCK7dSmLvg=="
+      }
+    },
+    "npm:babel-plugin-macros@3.1.0": {
+      "type": "npm",
+      "name": "npm:babel-plugin-macros@3.1.0",
+      "data": {
+        "version": "3.1.0",
+        "packageName": "babel-plugin-macros",
+        "hash": "sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg=="
       }
     },
     "npm:babel-plugin-polyfill-corejs2": {
@@ -22548,6 +22584,11 @@
       "type": "static"
     },
     {
+      "source": "npm:@module-federation/vite",
+      "target": "npm:@softarc/native-federation",
+      "type": "static"
+    },
+    {
       "source": "npm:@module-federation/webpack-bundler-runtime",
       "target": "npm:@module-federation/runtime",
       "type": "static"
@@ -25178,8 +25219,33 @@
       "type": "static"
     },
     {
+      "source": "npm:@softarc/native-federation",
+      "target": "npm:@softarc/native-federation-runtime",
+      "type": "static"
+    },
+    {
+      "source": "npm:@softarc/native-federation",
+      "target": "npm:json5",
+      "type": "static"
+    },
+    {
+      "source": "npm:@softarc/native-federation",
+      "target": "npm:npmlog",
+      "type": "static"
+    },
+    {
+      "source": "npm:@softarc/native-federation-runtime",
+      "target": "npm:tslib",
+      "type": "static"
+    },
+    {
       "source": "npm:@swc-node/core",
       "target": "npm:@swc/core",
+      "type": "static"
+    },
+    {
+      "source": "npm:@swc-node/core",
+      "target": "npm:@swc/types",
       "type": "static"
     },
     {
@@ -25360,6 +25426,11 @@
     {
       "source": "npm:@swc/helpers",
       "target": "npm:tslib",
+      "type": "static"
+    },
+    {
+      "source": "npm:@swc/types",
+      "target": "npm:@swc/counter",
       "type": "static"
     },
     {
@@ -31818,6 +31889,21 @@
       "type": "static"
     },
     {
+      "source": "npm:babel-plugin-macros@3.1.0",
+      "target": "npm:@babel/runtime",
+      "type": "static"
+    },
+    {
+      "source": "npm:babel-plugin-macros@3.1.0",
+      "target": "npm:cosmiconfig@7.1.0",
+      "type": "static"
+    },
+    {
+      "source": "npm:babel-plugin-macros@3.1.0",
+      "target": "npm:resolve",
+      "type": "static"
+    },
+    {
       "source": "npm:chalk@4.1.2",
       "target": "npm:ansi-styles@4.3.0",
       "type": "static"
@@ -31830,6 +31916,36 @@
     {
       "source": "npm:color-convert@2.0.1",
       "target": "npm:color-name@1.1.4",
+      "type": "static"
+    },
+    {
+      "source": "npm:cosmiconfig@7.1.0",
+      "target": "npm:@types/parse-json",
+      "type": "static"
+    },
+    {
+      "source": "npm:cosmiconfig@7.1.0",
+      "target": "npm:import-fresh",
+      "type": "static"
+    },
+    {
+      "source": "npm:cosmiconfig@7.1.0",
+      "target": "npm:parse-json",
+      "type": "static"
+    },
+    {
+      "source": "npm:cosmiconfig@7.1.0",
+      "target": "npm:path-type",
+      "type": "static"
+    },
+    {
+      "source": "npm:cosmiconfig@7.1.0",
+      "target": "npm:yaml",
+      "type": "static"
+    },
+    {
+      "source": "npm:dedent@1.5.1",
+      "target": "npm:babel-plugin-macros@3.1.0",
       "type": "static"
     },
     {

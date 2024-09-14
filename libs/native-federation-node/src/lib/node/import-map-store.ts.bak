@@ -1,11 +1,11 @@
-import { ImportMap } from "@softarc/native-federation-runtime";
+import { ImportMap } from '@softarc/native-federation-runtime';
 
 let _importMap: ImportMap;
 
 export function setImportMap(importMap: ImportMap): void {
-    _importMap = importMap;
+  _importMap = importMap;
 }
 
 export function getImportMap(): ImportMap {
-   return _importMap;
+  return _importMap;
 }

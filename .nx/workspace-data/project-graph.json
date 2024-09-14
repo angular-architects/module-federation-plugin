@@ -465,6 +465,170 @@
         "implicitDependencies": []
       }
     },
+    "native-federation-node": {
+      "name": "native-federation-node",
+      "type": "lib",
+      "data": {
+        "root": "libs/native-federation-node",
+        "targets": {
+          "lint": {
+            "cache": true,
+            "options": {
+              "cwd": "libs/native-federation-node",
+              "command": "eslint ."
+            },
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.base.json",
+              "{projectRoot}/.eslintrc.json",
+              "{workspaceRoot}/tools/eslint-rules/**/*",
+              {
+                "externalDependencies": [
+                  "eslint"
+                ]
+              }
+            ],
+            "outputs": [
+              "{options.outputFile}"
+            ],
+            "metadata": {
+              "technologies": [
+                "eslint"
+              ],
+              "description": "Runs ESLint on project",
+              "help": {
+                "command": "npx eslint --help",
+                "example": {
+                  "options": {
+                    "max-warnings": 0
+                  }
+                }
+              }
+            },
+            "executor": "nx:run-commands",
+            "configurations": {},
+            "parallelism": true
+          },
+          "test": {
+            "options": {
+              "cwd": "libs/native-federation-node",
+              "command": "jest"
+            },
+            "metadata": {
+              "technologies": [
+                "jest"
+              ],
+              "description": "Run Jest Tests",
+              "help": {
+                "command": "npx jest --help",
+                "example": {
+                  "options": {
+                    "coverage": true
+                  }
+                }
+              }
+            },
+            "cache": true,
+            "inputs": [
+              "default",
+              "^production",
+              "{workspaceRoot}/jest.preset.js",
+              {
+                "externalDependencies": [
+                  "jest"
+                ]
+              }
+            ],
+            "outputs": [
+              "{workspaceRoot}/coverage/libs/native-federation-node"
+            ],
+            "executor": "nx:run-commands",
+            "configurations": {},
+            "parallelism": true
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {
+              "packageRoot": "dist/libs/native-federation-node"
+            },
+            "configurations": {},
+            "parallelism": true
+          },
+          "build": {
+            "executor": "@nx/js:tsc",
+            "outputs": [
+              "{options.outputPath}"
+            ],
+            "options": {
+              "outputPath": "dist/libs/native-federation-node",
+              "tsConfig": "libs/native-federation-node/tsconfig.lib.json",
+              "packageJson": "libs/native-federation-node/package.json",
+              "main": "libs/native-federation-node/src/index.ts",
+              "assets": [
+                "libs/native-federation-node/*.md"
+              ]
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "dependsOn": [
+              "^build"
+            ],
+            "inputs": [
+              "production",
+              "^production"
+            ]
+          },
+          "publish": {
+            "dependsOn": [
+              "build"
+            ],
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "node tools/scripts/publish.mjs native-federation-node npm {args.ver} {args.tag}"
+            },
+            "configurations": {},
+            "parallelism": true
+          },
+          "publish-local": {
+            "dependsOn": [
+              "build"
+            ],
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "node tools/scripts/publish.mjs native-federation-node verdaccio {args.ver}"
+            },
+            "configurations": {},
+            "parallelism": true
+          }
+        },
+        "sourceRoot": "libs/native-federation-node/src",
+        "name": "native-federation-node",
+        "tags": [
+          "npm:public",
+          "org:softarc",
+          "scope:nf"
+        ],
+        "metadata": {
+          "targetGroups": {}
+        },
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "projectType": "library",
+        "release": {
+          "version": {
+            "generatorOptions": {
+              "packageRoot": "dist/{projectRoot}",
+              "currentVersionResolver": "git-tag"
+            }
+          }
+        },
+        "implicitDependencies": []
+      }
+    },
     "native-federation-e2e": {
       "name": "native-federation-e2e",
       "type": "e2e",
@@ -5141,9 +5305,9 @@
       "type": "npm",
       "name": "npm:@types/node",
       "data": {
-        "version": "18.19.24",
+        "version": "18.19.50",
         "packageName": "@types/node",
-        "hash": "sha512-eghAz3gnbQbvnHqB+mgB2ZR3aH6RhdEmHGS48BnV75KceQPHqabkxKI0BbUSsqhqy2Ddhc2xD/VAR9ySZd57Lw=="
+        "hash": "sha512-xonK+NRrMBRtkL1hVCc3G+uXtjh1Al4opBLjqVmipe5ZAaBYWW6cNAiBVZ1BvmkBhep698rP3UM3aRAdSALuhg=="
       }
     },
     "npm:cli-spinners@2.9.2": {
@@ -7792,6 +7956,24 @@
         "hash": "sha512-+9jVqKhRSpsc591z5vX+X5Yyw+he/HCB4iQ/RYxw35CEPaY1gnsNE43nf9n9AaYjAQrTiI/mOwKUKdUs9vf7Xg=="
       }
     },
+    "npm:@softarc/native-federation": {
+      "type": "npm",
+      "name": "npm:@softarc/native-federation",
+      "data": {
+        "version": "2.0.10",
+        "packageName": "@softarc/native-federation",
+        "hash": "sha512-SCjAd8F2nO7VPr9TEadpbqQWI8RHd+9HAYbdjJxKXNtmi9Nz5EnIZshTRgnQlMth59FrKlQ2fyoyRWcmYKNe0g=="
+      }
+    },
+    "npm:@softarc/native-federation-runtime": {
+      "type": "npm",
+      "name": "npm:@softarc/native-federation-runtime",
+      "data": {
+        "version": "2.0.10",
+        "packageName": "@softarc/native-federation-runtime",
+        "hash": "sha512-8CETrqtLkYL1i6bwmqNe/1GwNVQYfayf3b2PSHJ4/n1QR2Dk84RhbpnAPgGVG7XqzRhDYwV2xsJyhVJdWkxQ3A=="
+      }
+    },
     "npm:@swc-node/core": {
       "type": "npm",
       "name": "npm:@swc-node/core",
@@ -7934,6 +8116,15 @@
         "version": "0.1.7",
         "packageName": "@swc/types",
         "hash": "sha512-scHWahbHF0eyj3JsxG9CFJgFdFNaVQCNAimBlT6PzS3n/HptxqREjsm4OH6AN3lYcffZYSPxXW8ua2BEHp0lJQ=="
+      }
+    },
+    "npm:@swc/types": {
+      "type": "npm",
+      "name": "npm:@swc/types",
+      "data": {
+        "version": "0.1.12",
+        "packageName": "@swc/types",
+        "hash": "sha512-wBJA+SdtkbFhHjTMYH+dEH1y4VpfGdAc2Kw/LK09i9bXd/K6j6PkDcFCEzb6iVfZMkPRrl/q0e3toqTAJdkIVA=="
       }
     },
     "npm:@swc/counter": {
@@ -9788,6 +9979,15 @@
         "version": "2.8.0",
         "packageName": "babel-plugin-macros",
         "hash": "sha512-SEP5kJpfGYqYKpBrj5XU3ahw5p5GOHJ0U5ssOSQ/WBVdwkD2Dzlce95exQTs3jOVWPPKLBN2rlEWkCK7dSmLvg=="
+      }
+    },
+    "npm:babel-plugin-macros@3.1.0": {
+      "type": "npm",
+      "name": "npm:babel-plugin-macros@3.1.0",
+      "data": {
+        "version": "3.1.0",
+        "packageName": "babel-plugin-macros",
+        "hash": "sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg=="
       }
     },
     "npm:babel-plugin-polyfill-corejs2": {
@@ -18392,11 +18592,6 @@
     "native-federation-runtime": [
       {
         "source": "native-federation-runtime",
-        "target": "npm:tslib",
-        "type": "static"
-      },
-      {
-        "source": "native-federation-runtime",
         "target": "npm:jest-preset-angular",
         "type": "static"
       }
@@ -18420,6 +18615,13 @@
       {
         "source": "native-federation-core",
         "target": "npm:tslib",
+        "type": "static"
+      }
+    ],
+    "native-federation-node": [
+      {
+        "source": "native-federation-node",
+        "target": "native-federation-runtime",
         "type": "static"
       }
     ],
@@ -18519,6 +18721,11 @@
       {
         "source": "native-federation",
         "target": "npm:@schematics/angular",
+        "type": "static"
+      },
+      {
+        "source": "native-federation",
+        "target": "npm:json5",
         "type": "static"
       }
     ],
@@ -25043,6 +25250,13 @@
         "type": "static"
       }
     ],
+    "npm:@module-federation/vite": [
+      {
+        "source": "npm:@module-federation/vite",
+        "target": "npm:@softarc/native-federation",
+        "type": "static"
+      }
+    ],
     "npm:@module-federation/webpack-bundler-runtime": [
       {
         "source": "npm:@module-federation/webpack-bundler-runtime",
@@ -27660,10 +27874,39 @@
         "type": "static"
       }
     ],
+    "npm:@softarc/native-federation": [
+      {
+        "source": "npm:@softarc/native-federation",
+        "target": "npm:@softarc/native-federation-runtime",
+        "type": "static"
+      },
+      {
+        "source": "npm:@softarc/native-federation",
+        "target": "npm:json5",
+        "type": "static"
+      },
+      {
+        "source": "npm:@softarc/native-federation",
+        "target": "npm:npmlog",
+        "type": "static"
+      }
+    ],
+    "npm:@softarc/native-federation-runtime": [
+      {
+        "source": "npm:@softarc/native-federation-runtime",
+        "target": "npm:tslib",
+        "type": "static"
+      }
+    ],
     "npm:@swc-node/core": [
       {
         "source": "npm:@swc-node/core",
         "target": "npm:@swc/core",
+        "type": "static"
+      },
+      {
+        "source": "npm:@swc-node/core",
+        "target": "npm:@swc/types",
         "type": "static"
       }
     ],
@@ -27856,6 +28099,13 @@
       {
         "source": "npm:@swc/helpers",
         "target": "npm:tslib",
+        "type": "static"
+      }
+    ],
+    "npm:@swc/types": [
+      {
+        "source": "npm:@swc/types",
+        "target": "npm:@swc/counter",
         "type": "static"
       }
     ],
@@ -34152,6 +34402,30 @@
       {
         "source": "npm:jest-circus",
         "target": "npm:stack-utils",
+        "type": "static"
+      }
+    ],
+    "npm:babel-plugin-macros@3.1.0": [
+      {
+        "source": "npm:babel-plugin-macros@3.1.0",
+        "target": "npm:@babel/runtime",
+        "type": "static"
+      },
+      {
+        "source": "npm:babel-plugin-macros@3.1.0",
+        "target": "npm:cosmiconfig@7.1.0",
+        "type": "static"
+      },
+      {
+        "source": "npm:babel-plugin-macros@3.1.0",
+        "target": "npm:resolve",
+        "type": "static"
+      }
+    ],
+    "npm:dedent@1.5.1": [
+      {
+        "source": "npm:dedent@1.5.1",
+        "target": "npm:babel-plugin-macros@3.1.0",
         "type": "static"
       }
     ],

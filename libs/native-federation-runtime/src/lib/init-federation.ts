@@ -126,10 +126,15 @@ function processExposed(
   return imports;
 }
 
-export async function processHostInfo(hostInfo: FederationInfo, relBundlesPath = './'): Promise<ImportMap> {
-
+export async function processHostInfo(
+  hostInfo: FederationInfo,
+  relBundlesPath = './'
+): Promise<ImportMap> {
   const imports = hostInfo.shared.reduce(
-    (acc, cur) => ({ ...acc, [cur.packageName]: relBundlesPath + cur.outFileName }),
+    (acc, cur) => ({
+      ...acc,
+      [cur.packageName]: relBundlesPath + cur.outFileName,
+    }),
     {}
   ) as Imports;
 

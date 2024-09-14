@@ -359,7 +359,6 @@ function createTsConfigForFederation(
   //   ''
   // );
 
-  
   const tsconfig = JSON5.parse(tsconfigAsString);
 
   if (!tsconfig.include) {

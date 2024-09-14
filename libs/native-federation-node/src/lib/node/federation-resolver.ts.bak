@@ -1,7 +1,5 @@
-import { URL } from 'url';
-import { resolveAndComposeImportMap } from '../utils/import-map-utils';
-
-console.log('resolveAndComposeImportMap', resolveAndComposeImportMap);
+import { resolveSpecifier } from '../utils/import-map-loader';
+import { getImportMap } from './import-map-store.ts.bak';
 
 interface ResolveContext {
   conditions: string[];
@@ -26,7 +24,10 @@ interface LoadResult {
 type ResolveFunction = (
   specifier: string,
   context: ResolveContext,
-  defaultResolve: (specifier: string, context: ResolveContext) => Promise<ResolveResult>
+  defaultResolve: (
+    specifier: string,
+    context: ResolveContext
+  ) => Promise<ResolveResult>
 ) => Promise<ResolveResult>;
 
 type LoadFunction = (
@@ -35,10 +36,18 @@ type LoadFunction = (
   defaultLoad: (url: string, context: LoadContext) => Promise<LoadResult>
 ) => Promise<LoadResult>;
 
-export const resolve: ResolveFunction = async (specifier, context, defaultResolve) => {
+export const resolve: ResolveFunction = async (
+  specifier,
+  context,
+  defaultResolve
+) => {
   console.log(`Resolving: ${specifier}`);
-  
-  return defaultResolve(specifier, context);
+
+  const { parentURL = null } = context;
+  const importMap = getImportMap();
+  const importMapUrl = resolveSpecifier(importMap, specifier, parentURL);
+
+  return defaultResolve(importMapUrl ?? specifier, context);
 };
 
 export const load: LoadFunction = async (url, context, defaultLoad) => {

@@ -31,11 +31,7 @@ import { buildForFederation } from '@softarc/native-federation/build';
 import { targetFromTargetString } from '@angular-devkit/architect';
 
 import { NfBuilderSchema } from './schema';
-import {
-  reloadBrowser,
-  reloadShell,
-  setError,
-} from '../../utils/dev-server';
+import { reloadBrowser, reloadShell, setError } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { updateIndexHtml, updateScriptTags } from '../../utils/updateIndexHtml';
 import { existsSync, mkdirSync, rmSync } from 'fs';

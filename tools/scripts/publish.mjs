@@ -34,7 +34,7 @@ if (targetRegistry === 'npm') {
   console.log(`Publish to Verdaccio`);
   // First unpublished to be sure it does not exist
   execSync(
-    `npm unpublish ${packageJsonToPublish.name}@${version} --registry http://localhost:4873`
+    `npm unpublish ${packageJsonToPublish.name}@${version} --registry http://localhost:4873 -f`
   );
   execSync(`npm publish --registry http://localhost:4873`);
 } else {

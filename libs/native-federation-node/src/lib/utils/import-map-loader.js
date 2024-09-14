@@ -1,10 +1,13 @@
 //
-// Taken and adapted from 
-// https://github.com/node-loader/node-loader-import-maps#readme
-// 
+//  Taken and modified from
+//  https://raw.githubusercontent.com/node-loader/
+//
 
 import path from "path";
 import url from "url";
+import { promises as fs } from "fs";
+
+export const IMPORT_MAP_FILE_NAME = "node.importmap";
 
 const baseURL = url.pathToFileURL(process.cwd()) + path.sep;
 
@@ -229,4 +232,101 @@ function sortAndNormalizeScopes(map, baseURL) {
 
 function isPlainObject(obj) {
   return obj === Object(obj) && !Array.isArray(obj);
+}
+
+// ---
+
+
+let importMapPromise = getImportMapPromise();
+
+export async function resolve(specifier, context, defaultResolve) {
+  const { parentURL = null } = context;
+  const importMap = await importMapPromise;
+  let importMapUrl = resolveSpecifier(importMap, specifier, parentURL);
+
+  if (importMapUrl?.startsWith('http://') || importMapUrl?.startsWith('https://')) {
+    importMapUrl = await cacheBundle(importMapUrl);
+  }
+
+  const r = defaultResolve(importMapUrl ?? specifier, context, defaultResolve);
+
+  return r.then(r => {
+    return { ...r, format: 'module' };
+  });
+}
+
+async function cacheBundle(importMapUrl) {
+  const fileName = importMapUrl.replace(/[^a-zA-Z0-9.]/g, '_');
+  const filePath = path.join('./cache', fileName);
+
+  if (!await exists(filePath)) {
+    const res = await fetch(importMapUrl);
+    const source = await res.text();
+    await ensureCacheFolder();
+    await fs.writeFile(filePath, source, 'utf-8');
+  }
+
+  importMapUrl = path.resolve('./' + filePath);
+  return importMapUrl;
+}
+
+async function ensureCacheFolder() {
+  if (!await exists('./cache')) {
+    await fs.mkdir('./cache');
+  }
+}
+
+// export async function load(url, context, defaultLoad) {
+//   return defaultLoad(url, context, defaultLoad);
+// }
+
+async function getImportMapPromise() {
+  const importMapPath = path.resolve(process.cwd(), IMPORT_MAP_FILE_NAME);
+
+  let str;
+  try {
+    // str = await fs.readFile(importMapPath);
+    str = await fs.readFile(IMPORT_MAP_FILE_NAME, {
+      encoding: 'utf-8',
+    });
+    if (!str) {
+      throw new Error('error loading ' + importMapPath);
+    }
+  } catch (err) {
+    return emptyMap();
+  }
+
+  let json;
+  try {
+    json = await JSON.parse(str);
+  } catch (err) {
+    throw Error(
+      `Import map at ${importMapPath} contains invalid json: ${err.message}`
+    );
+  }
+
+  const r = resolveAndComposeImportMap(json);
+  return r;
+}
+
+global.nodeLoader = global.nodeLoader || {};
+
+global.nodeLoader.setImportMapPromise = function setImportMapPromise(promise) {
+  importMapPromise = promise.then((map) => {
+    return resolveAndComposeImportMap(map);
+  });
+};
+
+function emptyMap() {
+  return { imports: {}, scopes: {} };
+}
+
+
+async function exists(path) {
+  try {
+    await fs.access(path);
+    return true;
+  } catch (err) {
+    return false;
+  }
 }

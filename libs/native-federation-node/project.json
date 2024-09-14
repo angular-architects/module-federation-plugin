@@ -11,7 +11,7 @@
       }
     }
   },
-  "tags": [],
+  "tags": ["org:softarc", "scope:nf"],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
@@ -22,6 +22,20 @@
         "packageJson": "libs/native-federation-node/package.json",
         "main": "libs/native-federation-node/src/index.ts",
         "assets": ["libs/native-federation-node/*.md"]
+      }
+    },
+    "publish": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs native-federation-node npm {args.ver} {args.tag}"
+      }
+    },
+    "publish-local": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs native-federation-node verdaccio {args.ver}"
       }
     },
     "nx-release-publish": {
