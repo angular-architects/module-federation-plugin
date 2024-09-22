@@ -1,1 +1,1 @@
-call npm run publish-local:mf
+npm run publish-local:mf

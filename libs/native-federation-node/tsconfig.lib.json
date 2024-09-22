@@ -8,5 +8,9 @@
     "types": ["node"]
   },
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts", "src/lib/node/import-map-store.ts.bak", "src/lib/node/federation-resolver.ts.bak"]
+  "include": [
+    "src/**/*.ts",
+    "src/lib/node/import-map-store.ts.bak",
+    "src/lib/node/federation-resolver.ts.bak"
+  ]
 }

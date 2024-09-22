@@ -163,7 +163,7 @@ export async function* runBuilder(
     {
       name: 'externals',
       setup(build: PluginBuild) {
-        if (build.initialOptions.platform !== 'node') {
+        if (nfOptions.ssr || build.initialOptions.platform !== 'node') {
           build.initialOptions.external = externals.filter(
             (e) => e !== 'tslib'
           );
@@ -232,9 +232,6 @@ export async function* runBuilder(
 
   options.deleteOutputPath = false;
 
-  // TODO: Clarify how DevServer needs to be executed. Not sure if its right.
-  // TODO: Clarify if buildApplication is needed `executeDevServerBuilder` seems to choose the correct DevServer
-
   const appBuilderName = '@angular-devkit/build-angular:application';
 
   const builderRun = nfOptions.dev
@@ -279,22 +276,12 @@ export async function* runBuilder(
       updateIndexHtml(fedOptions, nfOptions);
     }
 
-    // if (first && runServer) {
-    //   startServer(nfOptions, fedOptions.outputPath, memResults);
-    // }
-
-    // if (!first && runServer) {
-    //   reloadBrowser();
-    // }
-
     if (!runServer) {
       yield output;
     }
 
     if (!first && nfOptions.dev) {
       setTimeout(async () => {
-        // logger.info('Rebuilding federation artefacts ...');
-        // await Promise.all([rebuildEvents.rebuild.emit()]);
         await buildForFederation(config, fedOptions, externals);
         logger.info('Done!');
 

@@ -52,6 +52,11 @@
       "default": {
         "shimMode": true
       }
+    },
+    "ssr": {
+      "type": "boolean",
+      "description": "uses federation for ssr in ApplicationBuilder too",
+      "default": false
     }
   }
 }

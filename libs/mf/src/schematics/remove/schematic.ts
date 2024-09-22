@@ -44,18 +44,21 @@ function updateServeConfig(normalized: {
   delete serve.options.extraWebpackConfig;
   delete serve.options.customWebpackConfig;
 
-  const serveProd = serve.configurations.production;
-  delete serveProd.extraWebpackConfig;
-  delete serveProd.customWebpackConfig;
+  const serveProd = serve?.configurations?.production;
 
-  const prodTarget = serveProd.browserTarget;
+  if (serveProd) {
+    delete serveProd.extraWebpackConfig;
+    delete serveProd.customWebpackConfig;
+  }
+  const prodTarget = serveProd?.browserTarget;
+
   if (prodTarget) {
     delete serveProd.browserTarget;
     serveProd.buildTarget = prodTarget;
   }
 
-  const serveDev = serve.configurations.development;
-  const devTarget = serveDev.browserTarget;
+  const serveDev = serve?.configurations?.development;
+  const devTarget = serveDev?.browserTarget;
 
   if (devTarget) {
     delete serveDev.browserTarget;
