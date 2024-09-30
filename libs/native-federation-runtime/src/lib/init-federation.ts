@@ -9,6 +9,8 @@ import { joinPaths, getDirectory } from './utils/path-utils';
 import { addRemote } from './model/remotes';
 import { appendImportMap } from './utils/add-import-map';
 import { FederationInfo } from './model/federation-info';
+import { setHostInfo } from './init-federation-cache';
+import { processRemoteShared } from './process-remote-shared';
 
 export async function initFederation(
   remotesOrManifestUrl: Record<string, string> | string = {}
@@ -19,6 +21,8 @@ export async function initFederation(
       : remotesOrManifestUrl;
 
   const hostInfo = await loadFederationInfo('./remoteEntry.json');
+  setHostInfo(hostInfo);
+
   const hostImportMap = await processHostInfo(hostInfo);
   const remotesImportMap = await processRemoteInfos(remotes);
 
@@ -33,13 +37,14 @@ async function loadManifest(remotes: string): Promise<Record<string, string>> {
 }
 
 export async function processRemoteInfos(
-  remotes: Record<string, string>
+  remotes: Record<string, string>,
+  relBundlePath = './'
 ): Promise<ImportMap> {
   const processRemoteInfoPromises = Object.keys(remotes).map(
     async (remoteName) => {
       try {
         const url = remotes[remoteName];
-        return await processRemoteInfo(url, remoteName);
+        return await processRemoteInfo(url, remoteName, relBundlePath);
       } catch (e) {
         console.error(
           `Error loading remote entry for ${remoteName} from file ${remotes[remoteName]}`
@@ -62,7 +67,8 @@ export async function processRemoteInfos(
 
 export async function processRemoteInfo(
   federationInfoUrl: string,
-  remoteName?: string
+  remoteName?: string,
+  relBundlePath = './'
 ): Promise<ImportMap> {
   const baseUrl = getDirectory(federationInfoUrl);
   const remoteInfo = await loadFederationInfo(federationInfoUrl);
@@ -71,7 +77,7 @@ export async function processRemoteInfo(
     remoteName = remoteInfo.name;
   }
 
-  const importMap = createRemoteImportMap(remoteInfo, remoteName, baseUrl);
+  const importMap = createRemoteImportMap(remoteInfo, remoteName, baseUrl ,relBundlePath);
   addRemote(remoteName, { ...remoteInfo, baseUrl });
 
   return importMap;
@@ -80,10 +86,11 @@ export async function processRemoteInfo(
 function createRemoteImportMap(
   remoteInfo: FederationInfo,
   remoteName: string,
-  baseUrl: string
+  baseUrl: string,
+  relBundlePath = './'
 ): ImportMap {
   const imports = processExposed(remoteInfo, remoteName, baseUrl);
-  const scopes = processRemoteImports(remoteInfo, baseUrl);
+  const scopes = processRemoteImports(remoteInfo, baseUrl, relBundlePath);
   return { imports, scopes };
 }
 
@@ -94,7 +101,8 @@ async function loadFederationInfo(url: string): Promise<FederationInfo> {
 
 function processRemoteImports(
   remoteInfo: FederationInfo,
-  baseUrl: string
+  baseUrl: string,
+  relBundlePath = './'
 ): Scopes {
   const scopes: Scopes = {};
   const scopedImports: Imports = {};
@@ -103,7 +111,12 @@ function processRemoteImports(
     const outFileName =
       getExternalUrl(shared) ?? joinPaths(baseUrl, shared.outFileName);
     setExternalUrl(shared, outFileName);
+
+    // By default, we use the remote's version of the package
     scopedImports[shared.packageName] = outFileName;
+
+    // If the host has a compatible version of the package, use it instead
+    processRemoteShared(scopedImports, shared, relBundlePath);
   }
 
   scopes[baseUrl + '/'] = scopedImports;
