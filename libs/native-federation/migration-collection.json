@@ -8,6 +8,12 @@
       "factory": "./src/schematics/update18/schematic",
       "schema": "./src/schematics/update18/schema.json",
       "description": "migrating to v18"
+    },
+    "updateConfigExtension": {
+      "version": "18",
+      "factory": "./src/schematics/updateConfigExtension/schematic",
+      "schema": "./src/schematics/updateConfigExtension/schema.json",
+      "description": "updating config to support .cjs"
     }
   }
 }
