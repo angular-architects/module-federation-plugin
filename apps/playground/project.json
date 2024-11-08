@@ -59,7 +59,7 @@
       "defaultConfiguration": "production"
     },
     "serve": {
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "executor": "@angular-architects/native-federation:build",
       "configurations": {
         "production": {
           "buildTarget": "playground:build:production"
