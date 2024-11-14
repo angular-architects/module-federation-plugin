@@ -12,14 +12,14 @@ import { FederationInfo } from './model/federation-info';
 
 export async function initFederation(
   remotesOrManifestUrl: Record<string, string> | string = {},
-  hostRemoteEntry: string|false = './remoteEntry.json'
+  o: {hostRemoteEntry:string|false} = {hostRemoteEntry:'./remoteEntry.json'}
 ): Promise<ImportMap> {
   const remotes =
     typeof remotesOrManifestUrl === 'string'
       ? await loadManifest(remotesOrManifestUrl)
       : remotesOrManifestUrl;
 
-  const hostInfo = await loadFederationInfo(hostRemoteEntry);
+  const hostInfo = await loadFederationInfo(o.hostRemoteEntry);
   const hostImportMap = await processHostInfo(hostInfo);
   const remotesImportMap = await processRemoteInfos(remotes);
 
