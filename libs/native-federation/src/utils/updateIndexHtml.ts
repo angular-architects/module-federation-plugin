@@ -8,7 +8,23 @@ export function updateIndexHtml(
   nfOptions: NfBuilderSchema
 ) {
   const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
-  const indexPath = path.join(outputPath, 'index.html');
+  const indexPathCands = [
+    path.join(outputPath,'../server/index.server.html'),
+    path.join(outputPath, 'index.html')
+  ];
+
+  const indexPath = indexPathCands.find((c) =>
+    fs.existsSync(c)
+  );
+
+  if (!indexPath) {
+    console.error(
+      'No index.html found! Searched locations: ',
+      indexPathCands.join(', ')
+    );
+    return;
+  }
+
   const mainName = fs
     .readdirSync(outputPath)
     .find((f) => f.startsWith('main') && f.endsWith('.js'));

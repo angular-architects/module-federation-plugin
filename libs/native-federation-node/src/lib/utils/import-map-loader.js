@@ -1,11 +1,6 @@
-//
-//  Taken and modified from
-//  https://raw.githubusercontent.com/node-loader/
-//
-
-import path from 'path';
-import url from 'url';
-import { promises as fs } from 'fs';
+import path from "path";
+import url from "url";
+import { promises as fs } from "fs";
 
 export const IMPORT_MAP_FILE_NAME = 'node.importmap';
 
@@ -25,7 +20,7 @@ export function resolveSpecifier(importMap, specifier, parentURL) {
   for (let scopePrefix in importMap.scopes) {
     if (
       scopePrefix === currentBaseURL ||
-      (scopePrefix.endsWith('/') && currentBaseURL.startsWith(scopePrefix))
+      (scopePrefix.endsWith("/") && currentBaseURL.startsWith(scopePrefix))
     ) {
       const scopeImportsMatch = resolveImportsMatch(
         normalizedSpecifier,
@@ -61,7 +56,7 @@ function resolveImportsMatch(normalizedSpecifier, specifierMap) {
       }
       return resolutionResult;
     } else if (
-      specifierKey.endsWith('/') &&
+      specifierKey.endsWith("/") &&
       normalizedSpecifier.startsWith(specifierKey)
     ) {
       if (resolutionResult === null) {
@@ -94,7 +89,7 @@ export function resolveAndComposeImportMap(parsed) {
   let sortedAndNormalizedImports = {};
 
   // Step 4
-  if (parsed.hasOwnProperty('imports')) {
+  if (parsed.hasOwnProperty("imports")) {
     // Step 4.1
     if (!isPlainObject(parsed.imports)) {
       throw Error(`Invalid import map - "imports" property must be an object`);
@@ -111,7 +106,7 @@ export function resolveAndComposeImportMap(parsed) {
   let sortedAndNormalizedScopes = {};
 
   // Step 6
-  if (parsed.hasOwnProperty('scopes')) {
+  if (parsed.hasOwnProperty("scopes")) {
     // Step 6.1
     if (!isPlainObject(parsed.scopes)) {
       throw Error(`Invalid import map - "scopes" property must be an object`);
@@ -123,13 +118,13 @@ export function resolveAndComposeImportMap(parsed) {
 
   // Step 7
   const invalidKeys = Object.keys(parsed).filter(
-    (key) => key !== 'imports' && key !== 'scopes'
+    (key) => key !== "imports" && key !== "scopes"
   );
   if (invalidKeys.length > 0) {
     console.warn(
       `Invalid top-level key${
-        invalidKeys.length > 0 ? 's' : ''
-      } in import map - ${invalidKeys.join(', ')}`
+        invalidKeys.length > 0 ? "s" : ""
+      } in import map - ${invalidKeys.join(", ")}`
     );
   }
 
@@ -161,7 +156,7 @@ function sortAndNormalizeSpecifierMap(map, baseURL) {
       continue;
     }
 
-    if (specifierKey.endsWith('/') && !addressURL.endsWith('/')) {
+    if (specifierKey.endsWith("/") && !addressURL.endsWith("/")) {
       console.warn(
         `Invalid URL address for import map specifier '${specifierKey}' - since the specifier ends in slash, so must the address`
       );
@@ -177,7 +172,7 @@ function sortAndNormalizeSpecifierMap(map, baseURL) {
 
 // https://wicg.github.io/import-maps/#normalize-a-specifier-key
 function normalizeSpecifierKey(key) {
-  if (key === '') {
+  if (key === "") {
     console.warn(`Specifier keys in import maps may not be the empty string`);
     return null;
   }
@@ -188,9 +183,9 @@ function normalizeSpecifierKey(key) {
 // https://wicg.github.io/import-maps/#parse-a-url-like-import-specifier
 function parseURLLikeSpecifier(specifier, baseURL) {
   const useBaseUrlAsParent =
-    specifier.startsWith('/') ||
-    specifier.startsWith('./') ||
-    specifier.startsWith('../');
+    specifier.startsWith("/") ||
+    specifier.startsWith("./") ||
+    specifier.startsWith("../");
 
   try {
     return new URL(specifier, useBaseUrlAsParent ? baseURL : undefined).href;
@@ -236,64 +231,47 @@ function isPlainObject(obj) {
 
 // ---
 
+
 let importMapPromise = getImportMapPromise();
 
 export async function resolve(specifier, context, defaultResolve) {
+  
   const { parentURL = null } = context;
   const importMap = await importMapPromise;
-  let importMapUrl = resolveSpecifier(importMap, specifier, parentURL);
+  const importMapUrl = resolveSpecifier(importMap, specifier, parentURL);
 
-  if (
-    importMapUrl?.startsWith('http://') ||
-    importMapUrl?.startsWith('https://')
-  ) {
-    importMapUrl = await cacheBundle(importMapUrl);
-  }
-
-  const r = defaultResolve(importMapUrl ?? specifier, context, defaultResolve);
-
-  return r.then((r) => {
-    return { ...r, format: 'module' };
-  });
+  return defaultResolve(importMapUrl ?? specifier, context, defaultResolve);
 }
 
-async function cacheBundle(importMapUrl) {
-  const fileName = importMapUrl.replace(/[^a-zA-Z0-9.]/g, '_');
-  const filePath = path.join('./cache', fileName);
-
-  if (!(await exists(filePath))) {
-    const res = await fetch(importMapUrl);
+export async function load(url, context, defaultLoad) {
+  
+  // Falls das URL-Schema http oder https ist, holen wir den Inhalt über Fetch
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch module from ${url}`);
+    }
     const source = await res.text();
-    await ensureCacheFolder();
-    await fs.writeFile(filePath, source, 'utf-8');
+    return {
+      shortCircuit: true,
+      format: 'module',  // Wir nehmen an, es handelt sich um ein ESM-Modul
+      source
+    };
   }
 
-  importMapUrl = path.resolve('./' + filePath);
-  return importMapUrl;
-}
+  // Default loader für alle anderen Module
+  context.format = 'module';
 
-async function ensureCacheFolder() {
-  if (!(await exists('./cache'))) {
-    await fs.mkdir('./cache');
-  }
+  return defaultLoad(url, context, defaultLoad);
 }
-
-// export async function load(url, context, defaultLoad) {
-//   return defaultLoad(url, context, defaultLoad);
-// }
 
 async function getImportMapPromise() {
-  const importMapPath = path.resolve(process.cwd(), IMPORT_MAP_FILE_NAME);
+  const relativePath = process.env.IMPORT_MAP_PATH || IMPORT_MAP_FILE_NAME;
+  const importMapPath = path.resolve(process.cwd(), relativePath);
 
   let str;
   try {
-    // str = await fs.readFile(importMapPath);
-    str = await fs.readFile(IMPORT_MAP_FILE_NAME, {
-      encoding: 'utf-8',
-    });
-    if (!str) {
-      throw new Error('error loading ' + importMapPath);
-    }
+    str = await fs.readFile(importMapPath);
   } catch (err) {
     return emptyMap();
   }
@@ -307,8 +285,7 @@ async function getImportMapPromise() {
     );
   }
 
-  const r = resolveAndComposeImportMap(json);
-  return r;
+  return resolveAndComposeImportMap(json);
 }
 
 global.nodeLoader = global.nodeLoader || {};
@@ -321,13 +298,4 @@ global.nodeLoader.setImportMapPromise = function setImportMapPromise(promise) {
 
 function emptyMap() {
   return { imports: {}, scopes: {} };
-}
-
-async function exists(path) {
-  try {
-    await fs.access(path);
-    return true;
-  } catch (err) {
-    return false;
-  }
 }

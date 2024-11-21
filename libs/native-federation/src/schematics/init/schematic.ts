@@ -281,7 +281,7 @@ function normalizeOptions(
     .join(publicPath, 'federation.manifest.json')
     .replace(/\\/g, '/');
 
-  let manifestRelPath = 'public/federation.manifest.json';
+  let manifestRelPath = 'federation.manifest.json';
 
   const hasPublicFolder = tree
     .getDir(projectRoot)
