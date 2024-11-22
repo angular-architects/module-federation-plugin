@@ -1,6 +1,6 @@
-import path from "path";
-import url from "url";
-import { promises as fs } from "fs";
+import path from 'path';
+import url from 'url';
+import { promises as fs } from 'fs';
 
 export const IMPORT_MAP_FILE_NAME = 'node.importmap';
 
@@ -20,7 +20,7 @@ export function resolveSpecifier(importMap, specifier, parentURL) {
   for (let scopePrefix in importMap.scopes) {
     if (
       scopePrefix === currentBaseURL ||
-      (scopePrefix.endsWith("/") && currentBaseURL.startsWith(scopePrefix))
+      (scopePrefix.endsWith('/') && currentBaseURL.startsWith(scopePrefix))
     ) {
       const scopeImportsMatch = resolveImportsMatch(
         normalizedSpecifier,
@@ -56,7 +56,7 @@ function resolveImportsMatch(normalizedSpecifier, specifierMap) {
       }
       return resolutionResult;
     } else if (
-      specifierKey.endsWith("/") &&
+      specifierKey.endsWith('/') &&
       normalizedSpecifier.startsWith(specifierKey)
     ) {
       if (resolutionResult === null) {
@@ -89,7 +89,7 @@ export function resolveAndComposeImportMap(parsed) {
   let sortedAndNormalizedImports = {};
 
   // Step 4
-  if (parsed.hasOwnProperty("imports")) {
+  if (parsed.hasOwnProperty('imports')) {
     // Step 4.1
     if (!isPlainObject(parsed.imports)) {
       throw Error(`Invalid import map - "imports" property must be an object`);
@@ -106,7 +106,7 @@ export function resolveAndComposeImportMap(parsed) {
   let sortedAndNormalizedScopes = {};
 
   // Step 6
-  if (parsed.hasOwnProperty("scopes")) {
+  if (parsed.hasOwnProperty('scopes')) {
     // Step 6.1
     if (!isPlainObject(parsed.scopes)) {
       throw Error(`Invalid import map - "scopes" property must be an object`);
@@ -118,13 +118,13 @@ export function resolveAndComposeImportMap(parsed) {
 
   // Step 7
   const invalidKeys = Object.keys(parsed).filter(
-    (key) => key !== "imports" && key !== "scopes"
+    (key) => key !== 'imports' && key !== 'scopes'
   );
   if (invalidKeys.length > 0) {
     console.warn(
       `Invalid top-level key${
-        invalidKeys.length > 0 ? "s" : ""
-      } in import map - ${invalidKeys.join(", ")}`
+        invalidKeys.length > 0 ? 's' : ''
+      } in import map - ${invalidKeys.join(', ')}`
     );
   }
 
@@ -156,7 +156,7 @@ function sortAndNormalizeSpecifierMap(map, baseURL) {
       continue;
     }
 
-    if (specifierKey.endsWith("/") && !addressURL.endsWith("/")) {
+    if (specifierKey.endsWith('/') && !addressURL.endsWith('/')) {
       console.warn(
         `Invalid URL address for import map specifier '${specifierKey}' - since the specifier ends in slash, so must the address`
       );
@@ -172,7 +172,7 @@ function sortAndNormalizeSpecifierMap(map, baseURL) {
 
 // https://wicg.github.io/import-maps/#normalize-a-specifier-key
 function normalizeSpecifierKey(key) {
-  if (key === "") {
+  if (key === '') {
     console.warn(`Specifier keys in import maps may not be the empty string`);
     return null;
   }
@@ -183,9 +183,9 @@ function normalizeSpecifierKey(key) {
 // https://wicg.github.io/import-maps/#parse-a-url-like-import-specifier
 function parseURLLikeSpecifier(specifier, baseURL) {
   const useBaseUrlAsParent =
-    specifier.startsWith("/") ||
-    specifier.startsWith("./") ||
-    specifier.startsWith("../");
+    specifier.startsWith('/') ||
+    specifier.startsWith('./') ||
+    specifier.startsWith('../');
 
   try {
     return new URL(specifier, useBaseUrlAsParent ? baseURL : undefined).href;
@@ -231,11 +231,9 @@ function isPlainObject(obj) {
 
 // ---
 
-
 let importMapPromise = getImportMapPromise();
 
 export async function resolve(specifier, context, defaultResolve) {
-  
   const { parentURL = null } = context;
   const importMap = await importMapPromise;
   const importMapUrl = resolveSpecifier(importMap, specifier, parentURL);
@@ -244,7 +242,6 @@ export async function resolve(specifier, context, defaultResolve) {
 }
 
 export async function load(url, context, defaultLoad) {
-  
   // Falls das URL-Schema http oder https ist, holen wir den Inhalt über Fetch
   if (url.startsWith('http://') || url.startsWith('https://')) {
     const res = await fetch(url);
@@ -254,8 +251,8 @@ export async function load(url, context, defaultLoad) {
     const source = await res.text();
     return {
       shortCircuit: true,
-      format: 'module',  // Wir nehmen an, es handelt sich um ein ESM-Modul
-      source
+      format: 'module', // Wir nehmen an, es handelt sich um ein ESM-Modul
+      source,
     };
   }
 

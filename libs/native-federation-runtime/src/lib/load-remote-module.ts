@@ -36,26 +36,24 @@ export async function loadRemoteModule<T = any>(
   const remote = getRemote(remoteName);
   const fallback = options.fallback;
 
-  const remoteError = (!remote) ? 'unknown remote ' + remoteName : '';
+  const remoteError = !remote ? 'unknown remote ' + remoteName : '';
 
   if (!remote && !fallback) {
     throw new Error(remoteError);
-  }
-  else if (!remote) {
+  } else if (!remote) {
     logClientError(remoteError);
     return Promise.resolve(fallback);
   }
 
   const exposed = remote.exposes.find((e) => e.key === options.exposedModule);
 
-  const exposedError = (!exposed) ?
-     `Unknown exposed module ${options.exposedModule} in remote ${remoteName}`
-     : '';
+  const exposedError = !exposed
+    ? `Unknown exposed module ${options.exposedModule} in remote ${remoteName}`
+    : '';
 
   if (!exposed && !fallback) {
     throw new Error(exposedError);
-  }
-  else if (!exposed) {
+  } else if (!exposed) {
     logClientError(exposedError);
     return Promise.resolve(fallback);
   }
@@ -65,19 +63,19 @@ export async function loadRemoteModule<T = any>(
   try {
     const module = _import<T>(url);
     return module;
-  }
-  catch(e) {
+  } catch (e) {
     if (fallback) {
       console.error('error loading remote module', e);
       return fallback;
     }
     throw e;
   }
-
 }
 
 function _import<T = any>(url: string) {
-  return typeof importShim !== 'undefined' ? importShim<T>(url) : import(/* @vite-ignore */ url) as T;
+  return typeof importShim !== 'undefined'
+    ? importShim<T>(url)
+    : (import(/* @vite-ignore */ url) as T);
 }
 
 function getRemoteNameByOptions(options: LoadRemoteModuleOptions) {

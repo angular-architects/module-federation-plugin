@@ -9,9 +9,7 @@ import {
   FederationInfo,
 } from '@softarc/native-federation-runtime';
 import { ImportMap, mergeImportMaps } from '@softarc/native-federation-runtime';
-import {
-  IMPORT_MAP_FILE_NAME,
-} from '../utils/import-map-loader';
+import { IMPORT_MAP_FILE_NAME } from '../utils/import-map-loader';
 import { resolver } from '../utils/loader-as-data-url';
 
 export type InitNodeFederationOptions = {
@@ -23,7 +21,7 @@ export type InitNodeFederationOptions = {
 const defaultOptions: InitNodeFederationOptions = {
   remotesOrManifestUrl: {},
   relBundlePath: '../browser',
-  throwIfRemoteNotFound: false
+  throwIfRemoteNotFound: false,
 };
 
 export async function initNodeFederation(
@@ -31,7 +29,7 @@ export async function initNodeFederation(
 ): Promise<void> {
   const mergedOptions = { ...defaultOptions, ...options };
   const importMap = await createNodeImportMap(mergedOptions);
-  
+
   // const normalized = resolveAndComposeImportMap(importMap) as ImportMap;
   // await writeImportMap(normalized);
 
@@ -54,7 +52,7 @@ async function createNodeImportMap(
   const hostInfo = await loadFsFederationInfo(relBundlePath);
   const hostImportMap = await processHostInfo(hostInfo, relBundlePath);
   const remotesImportMap = await processRemoteInfos(remotes, {
-    throwIfRemoteNotFound: options.throwIfRemoteNotFound
+    throwIfRemoteNotFound: options.throwIfRemoteNotFound,
   });
 
   const importMap = mergeImportMaps(hostImportMap, remotesImportMap);

@@ -9,13 +9,11 @@ export function updateIndexHtml(
 ) {
   const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
   const indexPathCands = [
-    path.join(outputPath,'../server/index.server.html'),
-    path.join(outputPath, 'index.html')
+    path.join(outputPath, '../server/index.server.html'),
+    path.join(outputPath, 'index.html'),
   ];
 
-  const indexPath = indexPathCands.find((c) =>
-    fs.existsSync(c)
-  );
+  const indexPath = indexPathCands.find((c) => fs.existsSync(c));
 
   if (!indexPath) {
     console.error(

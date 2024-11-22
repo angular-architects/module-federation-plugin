@@ -22,13 +22,13 @@ export type ShareConfig = {
 };
 
 export type ShareOptions = {
-  singleton: boolean,
+  singleton: boolean;
   requiredVersionPrefix: '^' | '~' | '>' | '>=' | '';
 };
 
 const defaultShareOptions: ShareOptions = {
   singleton: false,
-  requiredVersionPrefix: ''
+  requiredVersionPrefix: '',
 };
 
 export function getShared(options = defaultShareOptions) {
@@ -37,37 +37,38 @@ export function getShared(options = defaultShareOptions) {
   const shared: ShareConfig = {};
 
   const allKeys = [...externals.keys()];
-  const keys = allKeys.filter(k => 
-    !k.startsWith('/@id/')
-    && !k.startsWith('@angular-architects/module-federation')
-    && !k.endsWith('@')
-  )
-  .sort();
+  const keys = allKeys
+    .filter(
+      (k) =>
+        !k.startsWith('/@id/') &&
+        !k.startsWith('@angular-architects/module-federation') &&
+        !k.endsWith('@')
+    )
+    .sort();
 
   for (const key of keys) {
-      const idx = key.lastIndexOf('@');
-      const pkgName = key.substring(0, idx);
-      const version = key.substring(idx + 1);
-      const path = externals.get(key) ?? '';
+    const idx = key.lastIndexOf('@');
+    const pkgName = key.substring(0, idx);
+    const version = key.substring(idx + 1);
+    const path = externals.get(key) ?? '';
 
-      const shareObj: ShareObject = {
-        version,
-        get: async () => {
-          const lib = await (window as any).importShim(path);
-          return () => lib;
-        },
-        shareConfig: {
-          singleton: options.singleton,
-          requiredVersion: options.requiredVersionPrefix + version,
-        },
-      };
+    const shareObj: ShareObject = {
+      version,
+      get: async () => {
+        const lib = await (window as any).importShim(path);
+        return () => lib;
+      },
+      shareConfig: {
+        singleton: options.singleton,
+        requiredVersion: options.requiredVersionPrefix + version,
+      },
+    };
 
-      if (!shared[pkgName]) {
-        shared[pkgName] = [];
-      }
+    if (!shared[pkgName]) {
+      shared[pkgName] = [];
+    }
 
-      shared[pkgName].push(shareObj);
-    
+    shared[pkgName].push(shareObj);
   }
   return shared;
 }

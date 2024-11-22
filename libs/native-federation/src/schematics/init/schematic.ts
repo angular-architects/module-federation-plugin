@@ -26,6 +26,8 @@ import {
 
 import * as path from 'path';
 
+const SSR_VERSION = '^2.0.10';
+
 type NormalizedOptions = {
   polyfills: string;
   projectName: string;
@@ -104,7 +106,22 @@ export default function config(options: MfSchematicSchema): Rule {
         )
       : noop;
 
-    updateWorkspaceConfig(tree, normalized, workspace, workspaceFileName);
+    const ssr = isSsrProject(normalized);
+    const server = ssr ? getSsrFilePath(normalized) : '';
+
+    if (ssr) {
+      console.log('SSR detected ...');
+      console.log('Activating CORS ...');
+
+      addPackageJsonDependency(tree, {
+        name: 'cors',
+        type: NodeDependencyType.Default,
+        version: '^2.8.5',
+        overwrite: false,
+      });
+    }
+
+    updateWorkspaceConfig(tree, normalized, workspace, workspaceFileName, ssr);
 
     // updatePackageJson(tree);
     // patchAngularBuild(tree);
@@ -116,13 +133,29 @@ export default function config(options: MfSchematicSchema): Rule {
       overwrite: false,
     });
 
+    addPackageJsonDependency(tree, {
+      name: '@softarc/native-federation-node',
+      type: NodeDependencyType.Default,
+      version: SSR_VERSION,
+      overwrite: true,
+    });
+
     context.addTask(new NodePackageInstallTask());
 
     return chain([
       generateRule,
       makeMainAsync(main, options, remoteMap, manifestRelPath),
+      ssr ? makeServerAsync(server, options, remoteMap, manifestRelPath): noop()
     ]);
   };
+}
+
+function isSsrProject(normalized: NormalizedOptions) {
+  return !!normalized.projectConfig?.architect?.build.options?.ssr;
+}
+
+function getSsrFilePath(normalized: NormalizedOptions): string {
+  return normalized.projectConfig.architect.build.options.ssr.entry;
 }
 
 export function patchAngularBuild(tree: Tree) {
@@ -148,7 +181,8 @@ function updateWorkspaceConfig(
   tree: Tree,
   options: NormalizedOptions,
   workspace: any,
-  workspaceFileName: string
+  workspaceFileName: string,
+  ssr: boolean,
 ) {
   const { projectConfig, projectName, port } = options;
 
@@ -193,6 +227,11 @@ function updateWorkspaceConfig(
     },
     defaultConfiguration: 'production',
   };
+
+  if (ssr) {
+    projectConfig.architect.build.options.ssr = true;
+    projectConfig.architect.esbuild.options.prerender = false;
+  }
 
   const serve = projectConfig.architect.serve;
   serve.options ??= {};
@@ -425,6 +464,86 @@ initFederation()
     }
 
     tree.overwrite(main, newMainContent);
+  };
+}
+
+function makeServerAsync(
+  server: string,
+  options: MfSchematicSchema,
+  remoteMap: unknown,
+  manifestRelPath: string
+): Rule {
+  return async function (tree) {
+    const mainPath = path.dirname(server);
+    const bootstrapName = path.join(mainPath, 'bootstrap-server.ts');
+
+    if (tree.exists(bootstrapName)) {
+      console.info(`${bootstrapName} already exists.`);
+      return;
+    }
+
+    const mainContent = tree.read(server).toString('utf8');
+    const updatedContent = (`import cors from 'cors';\n` + mainContent)
+      .replace(
+        `const port = process.env['PORT'] || 4000`,
+        `const port = process.env['PORT'] || ${options.port || 4000}`)
+      .replace(
+        `  server.set('view engine', 'html');`,
+        `  server.use(cors())\n  server.set('view engine', 'html');`
+      );
+
+    tree.create(bootstrapName, updatedContent);
+
+    let newMainContent = '';
+    if (options.type === 'dynamic-host') {
+      newMainContent = `import { initNodeFederation } from '@softarc/native-federation-node';
+
+console.log('Starting SSR for Shell');
+
+(async () => {
+
+  await initNodeFederation({
+    remotesOrManifestUrl: '../browser/federation.manifest.json',
+    relBundlePath: '../browser/',
+  });
+  
+  await import('./bootstrap-server');
+
+})();
+`;
+    } else if (options.type === 'host') {
+      const manifest = JSON.stringify(remoteMap, null, 2).replace(/"/g, "'");
+      newMainContent = `import { initNodeFederation } from '@softarc/native-federation-node';
+
+console.log('Starting SSR for Shell');
+
+(async () => {
+
+  await initNodeFederation({
+    remotesOrManifestUrl: ${manifest},
+    relBundlePath: '../browser/',
+  });
+  
+  await import('./bootstrap-server');
+
+})();
+`;
+    } else {
+      newMainContent = `import { initNodeFederation } from '@softarc/native-federation-node';
+
+(async () => {
+
+  await initNodeFederation({
+    relBundlePath: '../browser/'
+  });
+  
+  await import('./bootstrap-server');
+
+})();
+`;
+    }
+
+    tree.overwrite(server, newMainContent);
   };
 }
 
