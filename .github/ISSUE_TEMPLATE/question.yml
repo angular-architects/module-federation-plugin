@@ -1,0 +1,23 @@
+name: Question / Help
+description: Ask a question or request help
+
+body:
+  - type: dropdown
+    id: affected-packages
+    attributes:
+      label: For which library do you need help?
+      options:
+        - native-federation
+        - module-federation
+        - other
+      multiple: true
+    validations:
+      required: true
+
+  - type: textarea
+    id: information
+    attributes:
+      label: Question
+      description: What do you need help with?
+    validations:
+      required: true
