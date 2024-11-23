@@ -145,7 +145,9 @@ export default function config(options: MfSchematicSchema): Rule {
     return chain([
       generateRule,
       makeMainAsync(main, options, remoteMap, manifestRelPath),
-      ssr ? makeServerAsync(server, options, remoteMap, manifestRelPath): noop()
+      ssr
+        ? makeServerAsync(server, options, remoteMap, manifestRelPath)
+        : noop(),
     ]);
   };
 }
@@ -182,7 +184,7 @@ function updateWorkspaceConfig(
   options: NormalizedOptions,
   workspace: any,
   workspaceFileName: string,
-  ssr: boolean,
+  ssr: boolean
 ) {
   const { projectConfig, projectName, port } = options;
 
@@ -486,7 +488,8 @@ function makeServerAsync(
     const updatedContent = (`import cors from 'cors';\n` + mainContent)
       .replace(
         `const port = process.env['PORT'] || 4000`,
-        `const port = process.env['PORT'] || ${options.port || 4000}`)
+        `const port = process.env['PORT'] || ${options.port || 4000}`
+      )
       .replace(
         `  server.set('view engine', 'html');`,
         `  server.use(cors())\n  server.set('view engine', 'html');`

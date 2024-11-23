@@ -96,7 +96,7 @@ export async function* runBuilder(
     builder
   )) as JsonObject & ApplicationBuilderOptions;
 
-  const outerOptions = options as DevServerBuilderOptions;
+  const outerOptions = options as any;
   const normOuterOptions = nfOptions.dev
     ? await normalizeOptions(context, context.target.project, outerOptions)
     : null;
@@ -246,11 +246,13 @@ export async function* runBuilder(
           ? {}
           : { indexHtml: transformIndexHtml(nfOptions) },
         {
-          buildPlugins: plugins,
+          buildPlugins: plugins as any,
           middleware,
         }
       )
-    : buildApplication(options, context, plugins);
+    : buildApplication(options, context, {
+        codePlugins: plugins as any,
+      });
 
   // builderRun.output.subscribe(async (output) => {
   for await (const output of builderRun) {
