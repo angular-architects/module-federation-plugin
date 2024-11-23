@@ -269,7 +269,7 @@ async function runEsbuild(
     splitting: kind === 'mapping-or-exposed',
     platform: 'browser',
     format: 'esm',
-    target: ['esnext'],
+    target: target,
     logLimit: kind === 'shared-package' ? 1 : 0,
     plugins: plugins || [
       createCompilerPlugin(
