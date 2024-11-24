@@ -1,0 +1,37 @@
+name: Feature Request
+description: Submit a Request For Consideration
+
+body:
+  - type: dropdown
+    id: affected-packages
+    attributes:
+      label: For which library do you have a feature request?
+      options:
+        - native-federation
+        - module-federation
+        - other
+      multiple: true
+    validations:
+      required: true
+
+  - type: textarea
+    id: information
+    attributes:
+      label: Information
+      description: What feature would you like to see added?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe any alternatives/workarounds you're currently using
+
+  - type: checkboxes
+    id: assistance
+    attributes:
+      label: I would be willing to submit a PR to fix this issue
+      description: Assistance is provided if you need help submitting a pull request
+      options:
+        - label: 'Yes'
+        - label: 'No'
