@@ -3,7 +3,6 @@ export default {
   displayName: 'mfe2',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  globals: {},
   coverageDirectory: '../../coverage/apps/mfe2',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
