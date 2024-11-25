@@ -58,23 +58,15 @@
         ]
       }
     },
-    "post-build": {
-      "dependsOn": ["build"],
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "libs/mf",
-        "command": "node post-build.js"
-      }
-    },
     "publish": {
-      "dependsOn": ["build", "post-build"],
+      "dependsOn": ["build"],
       "executor": "nx:run-commands",
       "options": {
         "command": "node tools/scripts/publish.mjs mf npm {args.ver} {args.tag}"
       }
     },
     "publish-local": {
-      "dependsOn": ["build", "post-build"],
+      "dependsOn": ["build"],
       "executor": "nx:run-commands",
       "options": {
         "command": "node tools/scripts/publish.mjs mf verdaccio {args.ver}"
