@@ -269,6 +269,8 @@ Some optional flags are offered to provide options for custom behavior of the `b
   - Those versions introduced new features on how to share the Platform in the window object.
   - This allows to use the `bootstrap()` function even in such cases, where the same version is packed into different micro frontend bundles.
 
+The `WebComponentWrapper` component exposes the `onError` Output which is emitted if there is an error during loading of remote element into DOM
+
 ## More about the underlying ideas
 
 Please find more information on the underlying ideas in this [blog article](https://www.angulararchitects.io/aktuelles/multi-framework-and-version-micro-frontends-with-module-federation-the-good-the-bad-the-ugly).
