@@ -156,6 +156,8 @@ export async function* runBuilder(
     dev: !!nfOptions.dev,
   };
 
+  const activateSsr = nfOptions.ssr && !nfOptions.dev;
+
   const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);
   const plugins = [
@@ -163,7 +165,7 @@ export async function* runBuilder(
     {
       name: 'externals',
       setup(build: PluginBuild) {
-        if (nfOptions.ssr || build.initialOptions.platform !== 'node') {
+        if (activateSsr || build.initialOptions.platform !== 'node') {
           build.initialOptions.external = externals.filter(
             (e) => e !== 'tslib'
           );

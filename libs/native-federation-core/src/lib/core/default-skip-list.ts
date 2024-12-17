@@ -6,6 +6,7 @@ export const DEFAULT_SKIP_LIST: SkipList = [
   '@softarc/native-federation-runtime',
   '@softarc/native-federation',
   '@softarc/native-federation-core',
+  '@softarc/native-federation-node',
   '@softarc/native-federation-esbuild',
   '@angular-architects/native-federation',
   '@angular-architects/native-federation-runtime',

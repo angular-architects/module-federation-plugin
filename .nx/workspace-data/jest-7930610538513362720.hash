@@ -151,7 +151,7 @@
       }
     }
   },
-  "17742104216018725284": {
+  "5275701408683536543": {
     "targets": {
       "test": {
         "command": "jest",
@@ -188,7 +188,7 @@
       }
     }
   },
-  "216234189815126262": {
+  "16851522382390731075": {
     "targets": {
       "test": {
         "command": "jest",
@@ -226,7 +226,7 @@
       }
     }
   },
-  "8608016122623592479": {
+  "5017192967800933020": {
     "targets": {
       "test": {
         "command": "jest",
@@ -264,7 +264,7 @@
       }
     }
   },
-  "9550422112233488466": {
+  "5425290656722442928": {
     "targets": {
       "test": {
         "command": "jest",
@@ -302,7 +302,7 @@
       }
     }
   },
-  "13886747823149775686": {
+  "2063744111068097992": {
     "targets": {
       "test": {
         "command": "jest",
@@ -416,7 +416,7 @@
       }
     }
   },
-  "16426370927210889922": {
+  "11633085051497561706": {
     "targets": {
       "test": {
         "command": "jest",
@@ -454,7 +454,7 @@
       }
     }
   },
-  "1450262948732724115": {
+  "7348687232702793154": {
     "targets": {
       "test": {
         "command": "jest",
@@ -530,7 +530,7 @@
       }
     }
   },
-  "8189576064832227344": {
+  "17671810645557487665": {
     "targets": {
       "test": {
         "command": "jest",
@@ -567,1469 +567,7 @@
       }
     }
   },
-  "2944951818089190439": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-runtime"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-runtime"
-        ]
-      }
-    }
-  },
-  "13018401773402097411": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "16921654958351032696": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "2910926844095458975": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "7069874950065542930": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "1094646529618950090": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "8878335159333895788": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "928304215141053677": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "2786113304614778353": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "9602408064190641291": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "6064198064012499179": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "11086198812248749417": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "16702168142128888833": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "3055925306007999380": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "18294379889295794623": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "399320900921045016": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "10467256761902482990": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "13495017963714239679": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "3978836947164103263": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "15374498128512274490": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "17457451208088463126": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "13535690808580190498": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "16269556010498843985": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "10552069668780961226": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "12120829353580495371": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "1142148367727015886": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "12878428899506280479": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "10133766108726941759": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "7165490152469660702": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "8085233525682404557": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "12086330597191432166": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "14150121368475548275": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "5674776966179679921": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "3641793765688158192": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "2005978862807499446": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "10637082313910851817": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "2849261723471622015": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "1254264528732599707": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "6991586680170342551": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "10065871029388951915": {
+  "11564667922215833718": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2067,7 +605,269 @@
       }
     }
   },
-  "6496603965186190251": {
+  "14223133879811508402": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "7092032148718160263": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation"
+        ]
+      }
+    }
+  },
+  "5599300540574493825": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "3617749610206523121": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation"
+        ]
+      }
+    }
+  },
+  "13720745890716299029": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "12906294738771006357": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-core"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-core"
+        ]
+      }
+    }
+  },
+  "11380209019466223013": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "7584079550262623601": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2105,7 +905,1844 @@
       }
     }
   },
-  "12745352797559841028": {
+  "2073776988345681406": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "868027455013144135": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "4255988598606168199": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "1075270078382107979": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "7016144624510465900": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "13898993222868526910": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "483513453014447846": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "7267534080643310743": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "10754034697183406657": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "16189267542087904197": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "9690250706865806648": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "17220443343633881555": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "4504612018491684399": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "12345312697437562856": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "4828334423476220846": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "13327460379154394538": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "17001725393488066094": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "8288091881658265435": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "17123736868141535743": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "11939462840654472852": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "6510995235795297530": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "13830635773256451740": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "14653572816346109895": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "5208279925378233149": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "13403379436171767613": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "11024750966155474067": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "17626310313714389942": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "1059965255770919396": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "16828669208599054312": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "7610823120164248814": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "10070236085196895481": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "7926569793647200591": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "9738143036453167820": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "10857435112910705450": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "10963266852678335765": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "18135953027675131680": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "8542958028198387273": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "2291129677186744906": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "11050493557112620252": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "17670151511969734996": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "14661087380864766559": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "5585652925087085102": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "16723001938727996613": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "9319680960529627065": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "7308610839461648763": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "11164408864911158700": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "3665615626468119911": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "14399965631427279665": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "libs/native-federation-node"
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          "{workspaceRoot}/jest.preset.js",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/libs/native-federation-node"
+        ]
+      }
+    }
+  },
+  "14540460863332713657": {
+    "targets": {
+      "test": {
+        "command": "jest",
+        "options": {
+          "cwd": "."
+        },
+        "metadata": {
+          "technologies": [
+            "jest"
+          ],
+          "description": "Run Jest Tests",
+          "help": {
+            "command": "npx jest --help",
+            "example": {
+              "options": {
+                "coverage": true
+              }
+            }
+          }
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^production",
+          {
+            "externalDependencies": [
+              "jest"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/coverage"
+        ]
+      }
+    }
+  },
+  "963909300517675496": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2143,7 +2780,7 @@
       }
     }
   },
-  "9422219622888037718": {
+  "12454846580783754023": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2180,87 +2817,12 @@
       }
     }
   },
-  "14734023211076379854": {
+  "12631359121060858631": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "2878781866459921565": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "17341206666247686204": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation-runtime"
         },
         "metadata": {
           "technologies": [
@@ -2288,12 +2850,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation-runtime"
         ]
       }
     }
   },
-  "11479237588479353366": {
+  "12544945324176092865": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2330,12 +2892,12 @@
       }
     }
   },
-  "13834722404412045103": {
+  "15952632592625578444": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation-runtime"
         },
         "metadata": {
           "technologies": [
@@ -2363,12 +2925,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation-runtime"
         ]
       }
     }
   },
-  "15692359988176483198": {
+  "1986897252875141290": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2405,12 +2967,12 @@
       }
     }
   },
-  "5649391943468220884": {
+  "8075844331635599522": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation-runtime"
         },
         "metadata": {
           "technologies": [
@@ -2438,12 +3000,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation-runtime"
         ]
       }
     }
   },
-  "16330459199973973813": {
+  "3022756489765395978": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2480,12 +3042,12 @@
       }
     }
   },
-  "17748377448730236129": {
+  "7855990854242561766": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation-runtime"
         },
         "metadata": {
           "technologies": [
@@ -2513,12 +3075,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation-runtime"
         ]
       }
     }
   },
-  "12110139128358147748": {
+  "3205908936363083941": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2555,12 +3117,12 @@
       }
     }
   },
-  "8502036790229916684": {
+  "1795647319221150306": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation-runtime"
         },
         "metadata": {
           "technologies": [
@@ -2588,12 +3150,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation-runtime"
         ]
       }
     }
   },
-  "5853346357950327": {
+  "16635314878530761779": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2630,12 +3192,12 @@
       }
     }
   },
-  "17263773979879493305": {
+  "17170258969694727356": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation-runtime"
         },
         "metadata": {
           "technologies": [
@@ -2663,12 +3225,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation-runtime"
         ]
       }
     }
   },
-  "15400684330503763119": {
+  "6781800401951115892": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2705,12 +3267,12 @@
       }
     }
   },
-  "6801574384373780177": {
+  "9818740717279135278": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation-runtime"
         },
         "metadata": {
           "technologies": [
@@ -2738,12 +3300,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation-runtime"
         ]
       }
     }
   },
-  "16271505262507940300": {
+  "11328672125213398748": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2780,7 +3342,7 @@
       }
     }
   },
-  "17901929958720528200": {
+  "3893536591407143769": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2818,7 +3380,7 @@
       }
     }
   },
-  "12591760057247897605": {
+  "10290229032792163471": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2855,7 +3417,7 @@
       }
     }
   },
-  "1192185732252802841": {
+  "13682114053165766631": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2893,7 +3455,7 @@
       }
     }
   },
-  "18385659996597414252": {
+  "7226966733226798327": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2930,7 +3492,7 @@
       }
     }
   },
-  "15673646329433681314": {
+  "10569578869634411804": {
     "targets": {
       "test": {
         "command": "jest",
@@ -2968,7 +3530,7 @@
       }
     }
   },
-  "4765468298565846233": {
+  "9434665817344636968": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3005,7 +3567,7 @@
       }
     }
   },
-  "12123905129057958459": {
+  "13263361352173051573": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3043,7 +3605,7 @@
       }
     }
   },
-  "17902812907881188047": {
+  "12684624890683230596": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3080,7 +3642,7 @@
       }
     }
   },
-  "4172632245134734653": {
+  "10644574849532515679": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3118,7 +3680,7 @@
       }
     }
   },
-  "9287034862496080782": {
+  "3911323835197637766": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3155,7 +3717,7 @@
       }
     }
   },
-  "2912134768766956884": {
+  "13719967275664918845": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3193,7 +3755,7 @@
       }
     }
   },
-  "17597943534201845379": {
+  "869313089627434238": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3230,12 +3792,12 @@
       }
     }
   },
-  "4644577618762842659": {
+  "15485417629575062558": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation-runtime"
         },
         "metadata": {
           "technologies": [
@@ -3263,12 +3825,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation-runtime"
         ]
       }
     }
   },
-  "11062369230775951292": {
+  "4041774733177418014": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3305,12 +3867,12 @@
       }
     }
   },
-  "14578341483922656873": {
+  "17634609548252679260": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation-runtime"
         },
         "metadata": {
           "technologies": [
@@ -3331,43 +3893,6 @@
           "default",
           "^production",
           "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "2243625689124221054": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
           {
             "externalDependencies": [
               "jest"
@@ -3375,12 +3900,12 @@
           }
         ],
         "outputs": [
-          "{projectRoot}/coverage"
+          "{workspaceRoot}/coverage/libs/native-federation-runtime"
         ]
       }
     }
   },
-  "18061734737988447874": {
+  "9146379803832381577": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3417,7 +3942,7 @@
       }
     }
   },
-  "7171388038908893524": {
+  "5319082831763535814": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3455,7 +3980,7 @@
       }
     }
   },
-  "6422009038491066848": {
+  "9060032818473857283": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3492,7 +4017,7 @@
       }
     }
   },
-  "11421217119622569837": {
+  "6040318259588581271": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3530,7 +4055,7 @@
       }
     }
   },
-  "6448023791349666191": {
+  "5951648759959579719": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3567,7 +4092,7 @@
       }
     }
   },
-  "11139166664237550033": {
+  "11409774316274004932": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3605,7 +4130,7 @@
       }
     }
   },
-  "10689103745126524202": {
+  "7060585726646680775": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3638,49 +4163,11 @@
         ],
         "outputs": [
           "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "4558427027571791686": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "libs/native-federation-node"
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
         ]
       }
     }
   },
-  "12174582115038620688": {
+  "11203253505349786558": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3717,12 +4204,12 @@
       }
     }
   },
-  "7956985131472425397": {
+  "11787867890777499666": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -3743,43 +4230,6 @@
           "default",
           "^production",
           "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "17532407883571135386": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
           {
             "externalDependencies": [
               "jest"
@@ -3787,12 +4237,12 @@
           }
         ],
         "outputs": [
-          "{projectRoot}/coverage"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "17820384039531039537": {
+  "13750274723390813021": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3826,53 +4276,16 @@
         ],
         "outputs": [
           "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "3491067833891444276": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
         ]
       }
     }
   },
-  "13391561450167655810": {
+  "17278782075080726692": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation-runtime"
         },
         "metadata": {
           "technologies": [
@@ -3900,12 +4313,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation-runtime"
         ]
       }
     }
   },
-  "4099231398336816868": {
+  "4932307180684981071": {
     "targets": {
       "test": {
         "command": "jest",
@@ -3942,12 +4355,12 @@
       }
     }
   },
-  "13149199763064744151": {
+  "8414390521370538106": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -3975,12 +4388,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "18388602516554294401": {
+  "3261710238469803777": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4017,12 +4430,12 @@
       }
     }
   },
-  "7312856529252609564": {
+  "9077599122910034041": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4050,12 +4463,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "17679410769726285613": {
+  "14432191471385077998": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4092,12 +4505,12 @@
       }
     }
   },
-  "467667803425946381": {
+  "15491699041642671058": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4125,12 +4538,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "14261117193803962747": {
+  "14810040247252209890": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4167,12 +4580,12 @@
       }
     }
   },
-  "8051904432170846337": {
+  "3886847192551669312": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4200,12 +4613,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "15094272167475863718": {
+  "17826133959288224714": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4242,12 +4655,12 @@
       }
     }
   },
-  "1532189608349023656": {
+  "10228130584898066453": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4275,12 +4688,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "5472940219801826812": {
+  "13634197318548111353": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4317,12 +4730,12 @@
       }
     }
   },
-  "15013856480487106402": {
+  "5548551856886222256": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4350,12 +4763,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "14498982299541772066": {
+  "4593412010691372734": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4392,12 +4805,12 @@
       }
     }
   },
-  "6909825132098522088": {
+  "14977294114019773385": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4425,12 +4838,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "10722481430655872054": {
+  "2517857391133592109": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4467,12 +4880,12 @@
       }
     }
   },
-  "14026495485294325905": {
+  "14441229315833540779": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4500,12 +4913,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "6404208361121738623": {
+  "4112508797961501660": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4542,12 +4955,12 @@
       }
     }
   },
-  "2613599305123016492": {
+  "4395883457482501437": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4575,12 +4988,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "10613630240994957079": {
+  "17306845207872605191": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4617,12 +5030,12 @@
       }
     }
   },
-  "8306735083989641509": {
+  "3155167261630299515": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4650,12 +5063,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "15764711198101567664": {
+  "8347164266611229784": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4692,12 +5105,12 @@
       }
     }
   },
-  "13531444485857856922": {
+  "14682169345819864796": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4725,12 +5138,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "3045788403353265353": {
+  "437615444920739985": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4767,12 +5180,12 @@
       }
     }
   },
-  "16440077699935140897": {
+  "4362787156242270069": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4800,12 +5213,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "8315938574290859369": {
+  "17722275989570183786": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4842,12 +5255,12 @@
       }
     }
   },
-  "12729995207780142628": {
+  "4329291524955606736": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4875,12 +5288,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "16288013546252103852": {
+  "1176325247673609459": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4917,12 +5330,12 @@
       }
     }
   },
-  "9058117880348576095": {
+  "13699098333020600417": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -4950,12 +5363,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "1042869890623617876": {
+  "18096148753653015437": {
     "targets": {
       "test": {
         "command": "jest",
@@ -4992,12 +5405,12 @@
       }
     }
   },
-  "2126549849120649693": {
+  "6977686868720227174": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5025,12 +5438,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "11938421952964861136": {
+  "9526180946370491205": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5067,12 +5480,12 @@
       }
     }
   },
-  "17572509494468686700": {
+  "6797068244968858147": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5100,12 +5513,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "12646011252983180802": {
+  "10056763001545816283": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5142,12 +5555,12 @@
       }
     }
   },
-  "5029992148696658267": {
+  "8676783843961375925": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5175,12 +5588,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "10561592826956256070": {
+  "15366316218100614170": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5217,12 +5630,12 @@
       }
     }
   },
-  "17373083873288273258": {
+  "7146383806686607871": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5250,12 +5663,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "1793869644620249603": {
+  "17134436393291198680": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5292,12 +5705,12 @@
       }
     }
   },
-  "10766506347198494250": {
+  "14612290573885634254": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5325,12 +5738,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "774307615770300542": {
+  "17195039873718402233": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5367,12 +5780,12 @@
       }
     }
   },
-  "6524675402017890736": {
+  "949700806467412928": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5400,12 +5813,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "1079306009816695180": {
+  "6229958184393598763": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5442,12 +5855,12 @@
       }
     }
   },
-  "7639222166881821297": {
+  "1047970445359619392": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5475,12 +5888,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "8740184989404127689": {
+  "13357494527774362497": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5517,12 +5930,12 @@
       }
     }
   },
-  "4995544278812275236": {
+  "15493168057153091488": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5543,43 +5956,6 @@
           "default",
           "^production",
           "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "3301664957555578619": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
           {
             "externalDependencies": [
               "jest"
@@ -5587,12 +5963,12 @@
           }
         ],
         "outputs": [
-          "{projectRoot}/coverage"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "6335867017349423104": {
+  "239025116538009586": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5629,12 +6005,12 @@
       }
     }
   },
-  "1945819261659946487": {
+  "5469330091831872730": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5662,12 +6038,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "2934628124727044202": {
+  "3241558326451728905": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5704,12 +6080,12 @@
       }
     }
   },
-  "5470492032571353760": {
+  "9418606514322575044": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5737,12 +6113,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "14144150192899905678": {
+  "13359955591444848776": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5779,12 +6155,12 @@
       }
     }
   },
-  "5546551242903835016": {
+  "8203755654647902754": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5812,12 +6188,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "5235983196734249660": {
+  "17394049343095968868": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5854,12 +6230,12 @@
       }
     }
   },
-  "15322894709401842605": {
+  "7389342227396452244": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5887,12 +6263,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "8817991825892328905": {
+  "2322079632656268311": {
     "targets": {
       "test": {
         "command": "jest",
@@ -5929,12 +6305,12 @@
       }
     }
   },
-  "7846454462159041174": {
+  "761799564640749357": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -5955,80 +6331,6 @@
           "default",
           "^production",
           "{workspaceRoot}/jest.preset.js",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
-        ]
-      }
-    }
-  },
-  "12775762754980346237": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
-          {
-            "externalDependencies": [
-              "jest"
-            ]
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/coverage"
-        ]
-      }
-    }
-  },
-  "1834438419361220472": {
-    "targets": {
-      "test": {
-        "command": "jest",
-        "options": {
-          "cwd": "."
-        },
-        "metadata": {
-          "technologies": [
-            "jest"
-          ],
-          "description": "Run Jest Tests",
-          "help": {
-            "command": "npx jest --help",
-            "example": {
-              "options": {
-                "coverage": true
-              }
-            }
-          }
-        },
-        "cache": true,
-        "inputs": [
-          "default",
-          "^production",
           {
             "externalDependencies": [
               "jest"
@@ -6036,12 +6338,12 @@
           }
         ],
         "outputs": [
-          "{projectRoot}/coverage"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "8374429200609537905": {
+  "6193740591191359023": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6078,12 +6380,12 @@
       }
     }
   },
-  "8097733434930341310": {
+  "9094878558357923771": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6111,12 +6413,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "12069160742701321924": {
+  "9049032414432752617": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6153,12 +6455,12 @@
       }
     }
   },
-  "14052402864074281592": {
+  "8018744531395262049": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6186,12 +6488,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "779984170848217082": {
+  "12535605529148864389": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6228,12 +6530,12 @@
       }
     }
   },
-  "7833835284412263024": {
+  "9348275779815764226": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6261,12 +6563,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "15259008243703225946": {
+  "13254928784881901414": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6303,12 +6605,12 @@
       }
     }
   },
-  "11945824596010257216": {
+  "7799760956745110013": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6336,12 +6638,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "7366494711220965002": {
+  "6660501742643393491": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6378,12 +6680,12 @@
       }
     }
   },
-  "6959539998167485839": {
+  "8932235722847651645": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6411,12 +6713,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "2227433218887922266": {
+  "15481920625809919905": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6453,12 +6755,12 @@
       }
     }
   },
-  "173693595207030116": {
+  "7737998169132081233": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6486,12 +6788,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "3540233612186531789": {
+  "3971963942315958847": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6528,12 +6830,12 @@
       }
     }
   },
-  "9746257875933204612": {
+  "15544883895749222470": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6561,12 +6863,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "87075189878277236": {
+  "1951167401850490466": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6603,12 +6905,12 @@
       }
     }
   },
-  "263041845631965702": {
+  "2243085003576036726": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6636,12 +6938,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "8395023494172596244": {
+  "17760748480385965993": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6678,12 +6980,12 @@
       }
     }
   },
-  "12245415035246943101": {
+  "15924610030772942090": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6711,12 +7013,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "2556978340220437592": {
+  "10982976100518487839": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6753,12 +7055,12 @@
       }
     }
   },
-  "11894786385945035852": {
+  "15801861183104495919": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6786,12 +7088,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "11467411134478397345": {
+  "13897386962903740853": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6828,12 +7130,12 @@
       }
     }
   },
-  "44363199105439065": {
+  "5901081604278544236": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6861,12 +7163,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "17994635470950377434": {
+  "11932257121898958786": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6903,12 +7205,12 @@
       }
     }
   },
-  "7455496128916830307": {
+  "14760714868547068606": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -6936,12 +7238,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "2855415785259242194": {
+  "15997157636002504973": {
     "targets": {
       "test": {
         "command": "jest",
@@ -6978,12 +7280,12 @@
       }
     }
   },
-  "1730488157862006663": {
+  "13160225837802219339": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7011,12 +7313,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "9088232474980065122": {
+  "16965681089201154546": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7053,12 +7355,12 @@
       }
     }
   },
-  "14943591988035695749": {
+  "13214491953246401269": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7086,12 +7388,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "8802970954036026222": {
+  "12017946000216816017": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7128,12 +7430,12 @@
       }
     }
   },
-  "15766956908713295527": {
+  "3282099569806915954": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7161,12 +7463,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "18400439518400173900": {
+  "4855990256057142380": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7203,7 +7505,7 @@
       }
     }
   },
-  "858891750085658322": {
+  "14311377344040809569": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7241,7 +7543,7 @@
       }
     }
   },
-  "7723206475597991158": {
+  "7919089072298509997": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7278,12 +7580,12 @@
       }
     }
   },
-  "7564083626612772170": {
+  "9342401363478121652": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7311,12 +7613,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "5131648357201008841": {
+  "2136701948793915837": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7353,12 +7655,12 @@
       }
     }
   },
-  "16183601592102439050": {
+  "8978834396277246340": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7386,12 +7688,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "4718439470045257575": {
+  "15039721606856186785": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7428,12 +7730,12 @@
       }
     }
   },
-  "5365082650286978434": {
+  "1085962269650031585": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7461,12 +7763,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "16998267316971553448": {
+  "17073861339825995408": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7503,12 +7805,12 @@
       }
     }
   },
-  "5054816634121425228": {
+  "11958289728271397459": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7536,12 +7838,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "5943397615157502428": {
+  "8572999317956743984": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7578,12 +7880,12 @@
       }
     }
   },
-  "6983790448049973470": {
+  "8284618682825007066": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7611,12 +7913,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "565470527904593010": {
+  "15842696437503174309": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7653,12 +7955,12 @@
       }
     }
   },
-  "4822470905287699989": {
+  "6008456814223218630": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7686,12 +7988,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "10728309312471872177": {
+  "6451684298019742307": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7728,12 +8030,12 @@
       }
     }
   },
-  "4126765134489845986": {
+  "1299801575111993397": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7761,12 +8063,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "13712186771696780469": {
+  "6539795850082589137": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7803,12 +8105,12 @@
       }
     }
   },
-  "6667464329748535700": {
+  "14023893782982722183": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7836,12 +8138,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "2800664990192556687": {
+  "7480310507640211617": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7878,12 +8180,12 @@
       }
     }
   },
-  "814124863641479963": {
+  "14432997374797925761": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7911,12 +8213,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "8083011442038180534": {
+  "14880710176400063572": {
     "targets": {
       "test": {
         "command": "jest",
@@ -7953,12 +8255,12 @@
       }
     }
   },
-  "11523513952831130009": {
+  "44864471368922369": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -7986,12 +8288,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "6924375855465218208": {
+  "12877182844753237963": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8028,12 +8330,12 @@
       }
     }
   },
-  "1850281506113902103": {
+  "9653005353081386414": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8061,12 +8363,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "11263406905629135917": {
+  "12128533154430742516": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8103,12 +8405,12 @@
       }
     }
   },
-  "10223804112953194037": {
+  "13424847734195418614": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8136,12 +8438,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "4736486972026519199": {
+  "4897717273391168100": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8178,12 +8480,12 @@
       }
     }
   },
-  "2775442276890854804": {
+  "15835943764566427255": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8211,12 +8513,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "5244459773477770066": {
+  "13464933267468245538": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8253,12 +8555,12 @@
       }
     }
   },
-  "6387572465959843526": {
+  "11782989613089822921": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8286,12 +8588,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "877331639415335147": {
+  "15711680264229126615": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8328,12 +8630,12 @@
       }
     }
   },
-  "10754871757243658049": {
+  "9674083983130924255": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8361,12 +8663,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "1237136802802074032": {
+  "11668012094323086717": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8403,12 +8705,12 @@
       }
     }
   },
-  "9174963823155455519": {
+  "17469713563691160342": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8436,12 +8738,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "10788187808925422147": {
+  "1499804897697079088": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8478,12 +8780,12 @@
       }
     }
   },
-  "5022801223285364293": {
+  "7487930977870179922": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8511,12 +8813,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "13400400841018066703": {
+  "9859240094426477634": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8553,12 +8855,12 @@
       }
     }
   },
-  "9489779574287210184": {
+  "18079959840185214243": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8586,12 +8888,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "11899223661973197703": {
+  "10476104309018607417": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8628,12 +8930,12 @@
       }
     }
   },
-  "8925411962445221566": {
+  "28788480945526815": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8661,12 +8963,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "12955630541693117735": {
+  "7422795889976616908": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8703,12 +9005,12 @@
       }
     }
   },
-  "9487406191044233603": {
+  "13559439081510848294": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8736,12 +9038,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "6600916435802854885": {
+  "160286105407889122": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8778,12 +9080,12 @@
       }
     }
   },
-  "11966060240277456176": {
+  "16944198644819759591": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8811,12 +9113,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "7182605264776822523": {
+  "11942174652067887448": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8853,12 +9155,12 @@
       }
     }
   },
-  "4759324916717763033": {
+  "17109210161526134265": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8886,12 +9188,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "2806030821878833372": {
+  "14610331926204566473": {
     "targets": {
       "test": {
         "command": "jest",
@@ -8928,12 +9230,12 @@
       }
     }
   },
-  "10293044510374813387": {
+  "15120106265350888356": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -8961,12 +9263,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "7293655118724690923": {
+  "7341173736910004117": {
     "targets": {
       "test": {
         "command": "jest",
@@ -9003,12 +9305,12 @@
       }
     }
   },
-  "3927412312638270264": {
+  "11566584021987773853": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -9036,12 +9338,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "625800290343283850": {
+  "10858499427909988770": {
     "targets": {
       "test": {
         "command": "jest",
@@ -9078,12 +9380,12 @@
       }
     }
   },
-  "11880705691786884880": {
+  "14562843195002647662": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -9111,12 +9413,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "12760197652099710859": {
+  "3665150651285922742": {
     "targets": {
       "test": {
         "command": "jest",
@@ -9153,12 +9455,12 @@
       }
     }
   },
-  "4216047596334336151": {
+  "16707199508298500623": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -9186,12 +9488,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "4922314521739615334": {
+  "1054151427877684214": {
     "targets": {
       "test": {
         "command": "jest",
@@ -9228,12 +9530,12 @@
       }
     }
   },
-  "7168745470791751020": {
+  "9653535402144636683": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -9261,12 +9563,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "11144742913229149795": {
+  "12836203739943413748": {
     "targets": {
       "test": {
         "command": "jest",
@@ -9303,12 +9605,12 @@
       }
     }
   },
-  "11547183173970314671": {
+  "17711469789525120481": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -9336,12 +9638,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "10243495394555175042": {
+  "18131945943840491059": {
     "targets": {
       "test": {
         "command": "jest",
@@ -9378,12 +9680,12 @@
       }
     }
   },
-  "9765101417953336794": {
+  "11021240692227083329": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -9411,12 +9713,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "3699002588698376170": {
+  "10119251103622324473": {
     "targets": {
       "test": {
         "command": "jest",
@@ -9453,12 +9755,12 @@
       }
     }
   },
-  "10188267053197712994": {
+  "275830898101296517": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -9486,12 +9788,12 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }
   },
-  "15464591705532652108": {
+  "17872435899444218470": {
     "targets": {
       "test": {
         "command": "jest",
@@ -9528,12 +9830,12 @@
       }
     }
   },
-  "9099713813229341041": {
+  "89472739270240829": {
     "targets": {
       "test": {
         "command": "jest",
         "options": {
-          "cwd": "libs/native-federation-node"
+          "cwd": "libs/native-federation"
         },
         "metadata": {
           "technologies": [
@@ -9561,7 +9863,7 @@
           }
         ],
         "outputs": [
-          "{workspaceRoot}/coverage/libs/native-federation-node"
+          "{workspaceRoot}/coverage/libs/native-federation"
         ]
       }
     }

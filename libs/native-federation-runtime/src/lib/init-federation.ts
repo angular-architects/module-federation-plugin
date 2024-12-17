@@ -33,7 +33,8 @@ async function loadManifest(remotes: string): Promise<Record<string, string>> {
 }
 
 export async function processRemoteInfos(
-  remotes: Record<string, string>
+  remotes: Record<string, string>,
+  options: { throwIfRemoteNotFound: boolean } = { throwIfRemoteNotFound: false }
 ): Promise<ImportMap> {
   const processRemoteInfoPromises = Object.keys(remotes).map(
     async (remoteName) => {
@@ -41,9 +42,13 @@ export async function processRemoteInfos(
         const url = remotes[remoteName];
         return await processRemoteInfo(url, remoteName);
       } catch (e) {
-        console.error(
-          `Error loading remote entry for ${remoteName} from file ${remotes[remoteName]}`
-        );
+        const error = `Error loading remote entry for ${remoteName} from file ${remotes[remoteName]}`;
+
+        if (options.throwIfRemoteNotFound) {
+          throw new Error(error);
+        }
+
+        console.error(error);
         return null;
       }
     }

@@ -152,6 +152,698 @@
   "fileMap": {
     "nonProjectFiles": [],
     "projectFileMap": {
+      "native-federation-e2e": [
+        {
+          "file": "apps/native-federation-e2e/.eslintrc.json",
+          "hash": "942885824144343268"
+        },
+        {
+          "file": "apps/native-federation-e2e/jest.config.ts",
+          "hash": "12996487241931656480"
+        },
+        {
+          "file": "apps/native-federation-e2e/project.json",
+          "hash": "14943264082822272509"
+        },
+        {
+          "file": "apps/native-federation-e2e/tests/native-federation.spec.ts",
+          "hash": "10443255764158200437",
+          "deps": [
+            "npm:@nx/plugin"
+          ]
+        },
+        {
+          "file": "apps/native-federation-e2e/tsconfig.json",
+          "hash": "4138663062042646066"
+        },
+        {
+          "file": "apps/native-federation-e2e/tsconfig.spec.json",
+          "hash": "11550347367511341917"
+        }
+      ],
+      "mfe2-e2e": [
+        {
+          "file": "apps/mfe2-e2e/.eslintrc.json",
+          "hash": "15523834149352881398"
+        },
+        {
+          "file": "apps/mfe2-e2e/cypress.json",
+          "hash": "17454894667494371866"
+        },
+        {
+          "file": "apps/mfe2-e2e/project.json",
+          "hash": "17575689871100360623"
+        },
+        {
+          "file": "apps/mfe2-e2e/src/fixtures/example.json",
+          "hash": "11614668686582597233"
+        },
+        {
+          "file": "apps/mfe2-e2e/src/integration/app.spec.ts",
+          "hash": "10960588309802508115"
+        },
+        {
+          "file": "apps/mfe2-e2e/src/plugins/index.js",
+          "hash": "1870053236038166983",
+          "deps": [
+            "npm:@nx/cypress"
+          ]
+        },
+        {
+          "file": "apps/mfe2-e2e/src/support/app.po.ts",
+          "hash": "11157016311132186162"
+        },
+        {
+          "file": "apps/mfe2-e2e/src/support/commands.ts",
+          "hash": "7314691991044890572"
+        },
+        {
+          "file": "apps/mfe2-e2e/src/support/index.ts",
+          "hash": "9968213533773113880"
+        },
+        {
+          "file": "apps/mfe2-e2e/tsconfig.json",
+          "hash": "17327834683392158647"
+        }
+      ],
+      "native-federation": [
+        {
+          "file": "libs/native-federation/.eslintrc.json",
+          "hash": "13512530575173493193"
+        },
+        {
+          "file": "libs/native-federation/LICENSE",
+          "hash": "7758420778216951569"
+        },
+        {
+          "file": "libs/native-federation/README.md",
+          "hash": "13537271861732708750"
+        },
+        {
+          "file": "libs/native-federation/builders.json",
+          "hash": "18430679548004919998"
+        },
+        {
+          "file": "libs/native-federation/collection.json",
+          "hash": "5027090635351726257"
+        },
+        {
+          "file": "libs/native-federation/config.ts",
+          "hash": "16033633128888950320"
+        },
+        {
+          "file": "libs/native-federation/docs/migrate.md",
+          "hash": "5157343858682760519"
+        },
+        {
+          "file": "libs/native-federation/docs/share-faq.md",
+          "hash": "4467797737980067962"
+        },
+        {
+          "file": "libs/native-federation/docs/update18.md",
+          "hash": "18166381890924451654"
+        },
+        {
+          "file": "libs/native-federation/example.png",
+          "hash": "6556712668095050157"
+        },
+        {
+          "file": "libs/native-federation/executors.json",
+          "hash": "8477065115816206143"
+        },
+        {
+          "file": "libs/native-federation/generators.json",
+          "hash": "3274101171299636907"
+        },
+        {
+          "file": "libs/native-federation/jest.config.ts",
+          "hash": "8071692576569058933"
+        },
+        {
+          "file": "libs/native-federation/migrate-appbuilder.md",
+          "hash": "10325754656804810736"
+        },
+        {
+          "file": "libs/native-federation/migration-collection.json",
+          "hash": "699580835525146387"
+        },
+        {
+          "file": "libs/native-federation/package.json",
+          "hash": "18236942736760243086",
+          "deps": [
+            "npm:@babel/core",
+            "native-federation-core",
+            "native-federation-runtime",
+            "npm:@types/browser-sync",
+            "npm:browser-sync",
+            "npm:esbuild",
+            "npm:mrmime",
+            "npm:npmlog",
+            "npm:process"
+          ]
+        },
+        {
+          "file": "libs/native-federation/post-build.js",
+          "hash": "2604888089828899771"
+        },
+        {
+          "file": "libs/native-federation/project.json",
+          "hash": "12770997268013303663"
+        },
+        {
+          "file": "libs/native-federation/src/builders/build/builder.ts",
+          "hash": "3379576629250587597",
+          "deps": [
+            "npm:mrmime",
+            "npm:@angular/build",
+            "npm:@angular-devkit/architect",
+            "npm:@angular-devkit/build-angular",
+            "native-federation-core",
+            "npm:@angular-devkit/core",
+            "npm:esbuild",
+            "native-federation-runtime"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/builders/build/schema.d.ts",
+          "hash": "18440354688479937915",
+          "deps": [
+            "npm:@angular-devkit/core",
+            "npm:es-module-shims"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/builders/build/schema.json",
+          "hash": "8150853770347228752"
+        },
+        {
+          "file": "libs/native-federation/src/builders/serve/builder.ts.bak",
+          "hash": "1008944657339764328"
+        },
+        {
+          "file": "libs/native-federation/src/builders/serve/schema.json.bak",
+          "hash": "5698839761258322934"
+        },
+        {
+          "file": "libs/native-federation/src/config.ts",
+          "hash": "3063405283952219036",
+          "deps": [
+            "native-federation-core"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/executors/build/executor.spec.ts",
+          "hash": "150297841976895364"
+        },
+        {
+          "file": "libs/native-federation/src/executors/build/executor.ts",
+          "hash": "13975518423544778144"
+        },
+        {
+          "file": "libs/native-federation/src/executors/build/schema.d.ts",
+          "hash": "17922418242936369517"
+        },
+        {
+          "file": "libs/native-federation/src/executors/build/schema.json",
+          "hash": "15261243041175593186"
+        },
+        {
+          "file": "libs/native-federation/src/generators/native-federation/files/src/index.ts__template__",
+          "hash": "12182040164740174869"
+        },
+        {
+          "file": "libs/native-federation/src/generators/native-federation/generator.spec.ts",
+          "hash": "6779228167731980538",
+          "deps": [
+            "npm:@nx/devkit"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/generators/native-federation/generator.ts",
+          "hash": "1751931467118405122",
+          "deps": [
+            "npm:@nx/devkit"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/generators/native-federation/schema.d.ts",
+          "hash": "11653935308082428381"
+        },
+        {
+          "file": "libs/native-federation/src/generators/native-federation/schema.json",
+          "hash": "16726087959595393817"
+        },
+        {
+          "file": "libs/native-federation/src/index.ts",
+          "hash": "11205332278489509743",
+          "deps": [
+            "native-federation-runtime"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/patch-angular-build.ts",
+          "hash": "15439134822903826033"
+        },
+        {
+          "file": "libs/native-federation/src/plugin/dev-externals-mixin.ts",
+          "hash": "11369102446635527831",
+          "deps": [
+            "native-federation-core"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/plugin/externals-skip-list.ts",
+          "hash": "1757544626396203511"
+        },
+        {
+          "file": "libs/native-federation/src/plugin/index.ts",
+          "hash": "14441316182953850781",
+          "deps": [
+            "npm:mrmime",
+            "native-federation-core",
+            "native-federation-runtime"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/schematics/appbuilder/schema.d.ts",
+          "hash": "8786545951171042064"
+        },
+        {
+          "file": "libs/native-federation/src/schematics/appbuilder/schema.json",
+          "hash": "2663907982125171479"
+        },
+        {
+          "file": "libs/native-federation/src/schematics/appbuilder/schematic.ts",
+          "hash": "8822542153069134797",
+          "deps": [
+            "npm:@angular-devkit/schematics"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/schematics/init/files/federation.config.js__tmpl__",
+          "hash": "11121434622361890823"
+        },
+        {
+          "file": "libs/native-federation/src/schematics/init/schema.d.ts",
+          "hash": "7934898858173717407"
+        },
+        {
+          "file": "libs/native-federation/src/schematics/init/schema.json",
+          "hash": "12873990551767335182"
+        },
+        {
+          "file": "libs/native-federation/src/schematics/init/schematic.ts",
+          "hash": "2353673441823407617",
+          "deps": [
+            "npm:@angular-devkit/schematics",
+            "npm:@angular-devkit/core",
+            "npm:@schematics/angular"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/schematics/remove/schema.d.ts",
+          "hash": "8786545951171042064"
+        },
+        {
+          "file": "libs/native-federation/src/schematics/remove/schema.json",
+          "hash": "2663907982125171479"
+        },
+        {
+          "file": "libs/native-federation/src/schematics/remove/schematic.ts",
+          "hash": "17008578818185320417",
+          "deps": [
+            "npm:@angular-devkit/schematics"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/schematics/update18/schema.json",
+          "hash": "3930707620884556402"
+        },
+        {
+          "file": "libs/native-federation/src/schematics/update18/schematic.ts",
+          "hash": "3100296914799428707",
+          "deps": [
+            "npm:@angular-devkit/schematics"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/utils/angular-esbuild-adapter.ts",
+          "hash": "16121101424044823706",
+          "deps": [
+            "native-federation-core",
+            "npm:esbuild",
+            "npm:@angular/build",
+            "npm:@angular-devkit/architect",
+            "npm:@angular-devkit/build-angular",
+            "npm:@babel/core",
+            "npm:json5"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/utils/create-compiler-options.ts",
+          "hash": "16839830046297452778"
+        },
+        {
+          "file": "libs/native-federation/src/utils/dev-server.ts",
+          "hash": "9093857060866342524",
+          "deps": [
+            "npm:browser-sync",
+            "npm:mrmime"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/utils/event-sorce.ts",
+          "hash": "13366590456660719786"
+        },
+        {
+          "file": "libs/native-federation/src/utils/mem-resuts.ts",
+          "hash": "9556576696909391872",
+          "deps": [
+            "npm:esbuild"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/utils/patch-angular-build.ts",
+          "hash": "12847134559856588919"
+        },
+        {
+          "file": "libs/native-federation/src/utils/rebuild-events.ts",
+          "hash": "9484301730251726771"
+        },
+        {
+          "file": "libs/native-federation/src/utils/rollup.ts.bak",
+          "hash": "10872609531589763400"
+        },
+        {
+          "file": "libs/native-federation/src/utils/rollup.ts.bak.bak",
+          "hash": "10872609531589763400"
+        },
+        {
+          "file": "libs/native-federation/src/utils/shared-mappings-plugin.ts",
+          "hash": "12456398800041070536",
+          "deps": [
+            "npm:esbuild",
+            "native-federation-core"
+          ]
+        },
+        {
+          "file": "libs/native-federation/src/utils/updateIndexHtml.ts",
+          "hash": "2470630557141993217",
+          "deps": [
+            "native-federation-core"
+          ]
+        },
+        {
+          "file": "libs/native-federation/tsconfig.json",
+          "hash": "1297691082963910506"
+        },
+        {
+          "file": "libs/native-federation/tsconfig.lib.json",
+          "hash": "1057936420130455977"
+        },
+        {
+          "file": "libs/native-federation/tsconfig.spec.json",
+          "hash": "8920410197173302166"
+        }
+      ],
+      "native-federation-runtime": [
+        {
+          "file": "libs/native-federation-runtime/.eslintrc.json",
+          "hash": "175195115239913026"
+        },
+        {
+          "file": "libs/native-federation-runtime/LICENSE",
+          "hash": "7758420778216951569"
+        },
+        {
+          "file": "libs/native-federation-runtime/README.md",
+          "hash": "14920532763820892928"
+        },
+        {
+          "file": "libs/native-federation-runtime/jest.config.ts",
+          "hash": "3331688691708508943"
+        },
+        {
+          "file": "libs/native-federation-runtime/ng-package.json",
+          "hash": "391636886085952891"
+        },
+        {
+          "file": "libs/native-federation-runtime/package-lock.json",
+          "hash": "10131443217904763515"
+        },
+        {
+          "file": "libs/native-federation-runtime/package.json",
+          "hash": "10558582854319893680"
+        },
+        {
+          "file": "libs/native-federation-runtime/project.json",
+          "hash": "1960215352545257159"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/index.ts",
+          "hash": "8218893682792337081"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/lib/get-shared.ts",
+          "hash": "11620222333792944372"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/lib/init-federation.ts",
+          "hash": "619376230177411831"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/lib/load-remote-module.ts",
+          "hash": "266239089456600887"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/lib/model/externals.ts",
+          "hash": "3354952666390859813"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/lib/model/federation-info.ts",
+          "hash": "15492652515816973011"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/lib/model/global-cache.ts",
+          "hash": "15192209624734190066"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/lib/model/import-map.ts",
+          "hash": "2937215898793350094"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/lib/model/remotes.ts",
+          "hash": "16606985014331254739"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/lib/test-setup.ts",
+          "hash": "12935735732682149507",
+          "deps": [
+            "npm:jest-preset-angular"
+          ]
+        },
+        {
+          "file": "libs/native-federation-runtime/src/lib/utils/add-import-map.ts",
+          "hash": "10185423321876014274"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/lib/utils/path-utils.ts",
+          "hash": "12184303916163369946"
+        },
+        {
+          "file": "libs/native-federation-runtime/src/test-setup.ts",
+          "hash": "17711435995618823417",
+          "deps": [
+            "npm:jest-preset-angular"
+          ]
+        },
+        {
+          "file": "libs/native-federation-runtime/tsconfig.json",
+          "hash": "1658695516121167781"
+        },
+        {
+          "file": "libs/native-federation-runtime/tsconfig.lib.json",
+          "hash": "5796668385415907511"
+        },
+        {
+          "file": "libs/native-federation-runtime/tsconfig.lib.prod.json",
+          "hash": "174503844014784742"
+        },
+        {
+          "file": "libs/native-federation-runtime/tsconfig.spec.json",
+          "hash": "2927375835638640771"
+        }
+      ],
+      "native-federation-node": [
+        {
+          "file": "libs/native-federation-node/.eslintrc.json",
+          "hash": "8543533485919716500"
+        },
+        {
+          "file": "libs/native-federation-node/README.md",
+          "hash": "3462688886269188570"
+        },
+        {
+          "file": "libs/native-federation-node/build/create-data-url.js",
+          "hash": "313349491335861445"
+        },
+        {
+          "file": "libs/native-federation-node/jest.config.ts",
+          "hash": "15624575272758145402"
+        },
+        {
+          "file": "libs/native-federation-node/package.json",
+          "hash": "8821900392220630669"
+        },
+        {
+          "file": "libs/native-federation-node/project.json",
+          "hash": "6119789342679211242"
+        },
+        {
+          "file": "libs/native-federation-node/src/index.ts",
+          "hash": "6402075936814518620"
+        },
+        {
+          "file": "libs/native-federation-node/src/lib/node/init-node-federation.ts",
+          "hash": "14268462217291115497",
+          "deps": [
+            "native-federation-runtime"
+          ]
+        },
+        {
+          "file": "libs/native-federation-node/src/lib/utils/import-map-loader.js",
+          "hash": "14829279960686805495"
+        },
+        {
+          "file": "libs/native-federation-node/src/lib/utils/loader-as-data-url.js",
+          "hash": "15517118955211324856"
+        },
+        {
+          "file": "libs/native-federation-node/tsconfig.json",
+          "hash": "12127065649008555896"
+        },
+        {
+          "file": "libs/native-federation-node/tsconfig.lib.json",
+          "hash": "5602183462882182257"
+        },
+        {
+          "file": "libs/native-federation-node/tsconfig.spec.json",
+          "hash": "11550347367511341917"
+        }
+      ],
+      "mf-tools": [
+        {
+          "file": "libs/mf-tools/.eslintrc.json",
+          "hash": "175195115239913026"
+        },
+        {
+          "file": "libs/mf-tools/.vscode/settings.json",
+          "hash": "12693258718958149204"
+        },
+        {
+          "file": "libs/mf-tools/.vscode/spellright.dict",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "libs/mf-tools/LICENSE",
+          "hash": "7758420778216951569"
+        },
+        {
+          "file": "libs/mf-tools/README.md",
+          "hash": "5440793822835972244"
+        },
+        {
+          "file": "libs/mf-tools/img/example.png",
+          "hash": "1566809714281274272"
+        },
+        {
+          "file": "libs/mf-tools/jest.config.ts",
+          "hash": "13467769495205896344"
+        },
+        {
+          "file": "libs/mf-tools/ng-package.json",
+          "hash": "14691658733956357199"
+        },
+        {
+          "file": "libs/mf-tools/package.json",
+          "hash": "9353335073398621945",
+          "deps": [
+            "npm:tslib"
+          ]
+        },
+        {
+          "file": "libs/mf-tools/project.json",
+          "hash": "10421271103490957239"
+        },
+        {
+          "file": "libs/mf-tools/src/index.ts",
+          "hash": "13048565832343884500"
+        },
+        {
+          "file": "libs/mf-tools/src/lib/mf-tools.module.ts",
+          "hash": "17327201765062531293",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common"
+          ]
+        },
+        {
+          "file": "libs/mf-tools/src/lib/utils/global-state.ts",
+          "hash": "16917954676084587166"
+        },
+        {
+          "file": "libs/mf-tools/src/lib/web-components/bootstrap-utils.ts",
+          "hash": "7160773842118780085",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/mf-tools/src/lib/web-components/router-utils.ts",
+          "hash": "12992978891012721435",
+          "deps": [
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/mf-tools/src/lib/web-components/web-component-wrapper.ts",
+          "hash": "1697960798188886742",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "mf-runtime"
+          ]
+        },
+        {
+          "file": "libs/mf-tools/src/test-setup.ts",
+          "hash": "12935735732682149507",
+          "deps": [
+            "npm:jest-preset-angular"
+          ]
+        },
+        {
+          "file": "libs/mf-tools/tsconfig.json",
+          "hash": "3499000021037492296"
+        },
+        {
+          "file": "libs/mf-tools/tsconfig.lib.json",
+          "hash": "5796668385415907511"
+        },
+        {
+          "file": "libs/mf-tools/tsconfig.lib.prod.json",
+          "hash": "174503844014784742"
+        },
+        {
+          "file": "libs/mf-tools/tsconfig.spec.json",
+          "hash": "2927375835638640771"
+        },
+        {
+          "file": "libs/mf-tools/tutorial/index.md",
+          "hash": "3728310032566731778"
+        }
+      ],
       "native-federation-core": [
         {
           "file": "libs/native-federation-core/.eslintrc.json",
@@ -259,7 +951,7 @@
         },
         {
           "file": "libs/native-federation-core/src/lib/core/default-skip-list.ts",
-          "hash": "11201906975713851422"
+          "hash": "97140643233899186"
         },
         {
           "file": "libs/native-federation-core/src/lib/core/federation-builder.ts",
@@ -384,69 +1076,804 @@
           "hash": "11550347367511341917"
         }
       ],
-      "native-federation-node": [
+      "mfe1": [
         {
-          "file": "libs/native-federation-node/.eslintrc.json",
-          "hash": "8543533485919716500"
+          "file": "apps/mfe1/.eslintrc.json",
+          "hash": "251138097496990787"
         },
         {
-          "file": "libs/native-federation-node/README.md",
-          "hash": "3462688886269188570"
+          "file": "apps/mfe1/federation.config.js",
+          "hash": "11726088002829403721"
         },
         {
-          "file": "libs/native-federation-node/jest.config.ts",
-          "hash": "15624575272758145402"
+          "file": "apps/mfe1/jest.config.ts",
+          "hash": "13764996843634799987"
         },
         {
-          "file": "libs/native-federation-node/package.json",
-          "hash": "14032574807013294784"
+          "file": "apps/mfe1/project.json",
+          "hash": "12895201311906322038"
         },
         {
-          "file": "libs/native-federation-node/project.json",
-          "hash": "6119789342679211242"
+          "file": "apps/mfe1/src/app/app.component.css",
+          "hash": "3244421341483603138"
         },
         {
-          "file": "libs/native-federation-node/src/index.ts",
-          "hash": "6402075936814518620"
+          "file": "apps/mfe1/src/app/app.component.html",
+          "hash": "10199512307611283904"
         },
         {
-          "file": "libs/native-federation-node/src/lib/node/init-node-federation.ts",
-          "hash": "4606732673486783208",
+          "file": "apps/mfe1/src/app/app.component.spec.ts",
+          "hash": "6911117535540321767",
           "deps": [
-            "native-federation-runtime"
+            "npm:@angular/core"
           ]
         },
         {
-          "file": "libs/native-federation-node/tsconfig.json",
-          "hash": "12127065649008555896"
+          "file": "apps/mfe1/src/app/app.component.ts",
+          "hash": "7992352070778668639",
+          "deps": [
+            "npm:@angular/core"
+          ]
         },
         {
-          "file": "libs/native-federation-node/tsconfig.lib.json",
-          "hash": "7198590754803779189"
+          "file": "apps/mfe1/src/app/app.module.ts",
+          "hash": "744499547650684053",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser"
+          ]
         },
         {
-          "file": "libs/native-federation-node/tsconfig.spec.json",
+          "file": "apps/mfe1/src/app/demo/demo.component.css",
+          "hash": "1016755280149560935"
+        },
+        {
+          "file": "apps/mfe1/src/app/demo/demo.component.html",
+          "hash": "6559933493931435071"
+        },
+        {
+          "file": "apps/mfe1/src/app/demo/demo.component.spec.ts",
+          "hash": "9722799810656735432",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/mfe1/src/app/demo/demo.component.ts",
+          "hash": "16148017430358684987",
+          "deps": [
+            "playground-lib",
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/mfe1/src/app/nx-welcome.component.ts",
+          "hash": "5245851637923571264",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/mfe1/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/mfe1/src/bootstrap.ts",
+          "hash": "14896519517424602606",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser-dynamic"
+          ]
+        },
+        {
+          "file": "apps/mfe1/src/environments/environment.prod.ts",
+          "hash": "10220522844224226756"
+        },
+        {
+          "file": "apps/mfe1/src/environments/environment.ts",
+          "hash": "15801694716951284069"
+        },
+        {
+          "file": "apps/mfe1/src/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/mfe1/src/index.html",
+          "hash": "9136879220843058673"
+        },
+        {
+          "file": "apps/mfe1/src/main.ts",
+          "hash": "2147724939352774111",
+          "deps": [
+            "native-federation"
+          ]
+        },
+        {
+          "file": "apps/mfe1/src/polyfills.ts",
+          "hash": "5753337927676035656",
+          "deps": [
+            "npm:zone.js",
+            "npm:es-module-shims"
+          ]
+        },
+        {
+          "file": "apps/mfe1/src/styles.css",
+          "hash": "5195668842064076916"
+        },
+        {
+          "file": "apps/mfe1/src/test-setup.ts",
+          "hash": "17711435995618823417",
+          "deps": [
+            "npm:jest-preset-angular"
+          ]
+        },
+        {
+          "file": "apps/mfe1/tsconfig.app.json",
+          "hash": "6569194456818436848"
+        },
+        {
+          "file": "apps/mfe1/tsconfig.editor.json",
+          "hash": "6367495026318685054"
+        },
+        {
+          "file": "apps/mfe1/tsconfig.json",
+          "hash": "17981161305287108769"
+        },
+        {
+          "file": "apps/mfe1/tsconfig.spec.json",
+          "hash": "6658172359945877284"
+        }
+      ],
+      "mf": [
+        {
+          "file": "libs/mf/.babelrc",
+          "hash": "1185090046784686875"
+        },
+        {
+          "file": "libs/mf/.eslintrc.json",
+          "hash": "13512530575173493193"
+        },
+        {
+          "file": "libs/mf/LICENSE",
+          "hash": "7758420778216951569"
+        },
+        {
+          "file": "libs/mf/README.md",
+          "hash": "12077762083838223537"
+        },
+        {
+          "file": "libs/mf/builders.json",
+          "hash": "7593972920689544306"
+        },
+        {
+          "file": "libs/mf/collection.json",
+          "hash": "2522246912433136903"
+        },
+        {
+          "file": "libs/mf/executors.json",
+          "hash": "8477065115816206143"
+        },
+        {
+          "file": "libs/mf/generators.json",
+          "hash": "13318963426103431003"
+        },
+        {
+          "file": "libs/mf/jest.config.ts",
+          "hash": "10318224422677485542"
+        },
+        {
+          "file": "libs/mf/nguniversal.ts",
+          "hash": "2993995579629484835"
+        },
+        {
+          "file": "libs/mf/package.json",
+          "hash": "12025339501840449488",
+          "deps": [
+            "mf-runtime",
+            "npm:word-wrap",
+            "npm:callsite",
+            "npm:node-fetch",
+            "npm:semver"
+          ]
+        },
+        {
+          "file": "libs/mf/post-build.js",
+          "hash": "13993696094824542288"
+        },
+        {
+          "file": "libs/mf/project.json",
+          "hash": "8852843751303712190"
+        },
+        {
+          "file": "libs/mf/src/builders/build/builder.ts",
+          "hash": "12839483563996536097",
+          "deps": [
+            "npm:@angular-devkit/architect",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "libs/mf/src/builders/build/schema.d.ts",
+          "hash": "2789917978867272393",
+          "deps": [
+            "npm:@angular-devkit/core"
+          ]
+        },
+        {
+          "file": "libs/mf/src/builders/build/schema.json",
+          "hash": "13873810958118613548"
+        },
+        {
+          "file": "libs/mf/src/executors/build/executor.spec.ts",
+          "hash": "14357623371195888682"
+        },
+        {
+          "file": "libs/mf/src/executors/build/executor.ts",
+          "hash": "11841628902852102175"
+        },
+        {
+          "file": "libs/mf/src/executors/build/schema.d.ts",
+          "hash": "17922418242936369517"
+        },
+        {
+          "file": "libs/mf/src/executors/build/schema.json",
+          "hash": "15261243041175593186"
+        },
+        {
+          "file": "libs/mf/src/generators/mf/files/src/index.ts__template__",
+          "hash": "12182040164740174869"
+        },
+        {
+          "file": "libs/mf/src/generators/mf/generator.spec.ts",
+          "hash": "15525094002045902311",
+          "deps": [
+            "npm:@nx/devkit"
+          ]
+        },
+        {
+          "file": "libs/mf/src/generators/mf/generator.ts",
+          "hash": "7707988815082480119",
+          "deps": [
+            "npm:@nx/devkit"
+          ]
+        },
+        {
+          "file": "libs/mf/src/generators/mf/schema.d.ts",
+          "hash": "6198845997533523295"
+        },
+        {
+          "file": "libs/mf/src/generators/mf/schema.json",
+          "hash": "5916442621771560667"
+        },
+        {
+          "file": "libs/mf/src/index.ts",
+          "hash": "17129055320640037376",
+          "deps": [
+            "mf-runtime"
+          ]
+        },
+        {
+          "file": "libs/mf/src/nguniversal.ts",
+          "hash": "13954908387037707825"
+        },
+        {
+          "file": "libs/mf/src/schematics/boot-async/schema.d.ts",
+          "hash": "6537114070884317618"
+        },
+        {
+          "file": "libs/mf/src/schematics/boot-async/schema.json",
+          "hash": "8924774527231022367"
+        },
+        {
+          "file": "libs/mf/src/schematics/boot-async/schematic.ts",
+          "hash": "4773555567716317633",
+          "deps": [
+            "npm:rxjs",
+            "npm:@angular-devkit/schematics"
+          ]
+        },
+        {
+          "file": "libs/mf/src/schematics/mf/files/webpack.config.js__tmpl__",
+          "hash": "2902053011616778981"
+        },
+        {
+          "file": "libs/mf/src/schematics/mf/prod-config.ts",
+          "hash": "14372158448647502739"
+        },
+        {
+          "file": "libs/mf/src/schematics/mf/schema.d.ts",
+          "hash": "10017039639976457441"
+        },
+        {
+          "file": "libs/mf/src/schematics/mf/schema.json",
+          "hash": "17331294571544221212"
+        },
+        {
+          "file": "libs/mf/src/schematics/mf/schematic.ts",
+          "hash": "11749611592444662945",
+          "deps": [
+            "npm:@angular-devkit/schematics",
+            "npm:@angular-devkit/core",
+            "npm:json5",
+            "npm:semver",
+            "npm:@schematics/angular"
+          ]
+        },
+        {
+          "file": "libs/mf/src/schematics/migrate-to-13/schema.d.ts",
+          "hash": "6537114070884317618"
+        },
+        {
+          "file": "libs/mf/src/schematics/migrate-to-13/schema.json",
+          "hash": "3930707620884556402"
+        },
+        {
+          "file": "libs/mf/src/schematics/migrate-to-13/schematic.ts",
+          "hash": "17572225284027086881",
+          "deps": [
+            "npm:@angular-devkit/schematics"
+          ]
+        },
+        {
+          "file": "libs/mf/src/schematics/migrate-to-14-3/schema.d.ts",
+          "hash": "8518900964489847873"
+        },
+        {
+          "file": "libs/mf/src/schematics/migrate-to-14-3/schema.json",
+          "hash": "3930707620884556402"
+        },
+        {
+          "file": "libs/mf/src/schematics/migrate-to-14-3/schematic.ts",
+          "hash": "16679559621930804400",
+          "deps": [
+            "npm:@angular-devkit/schematics",
+            "npm:@schematics/angular"
+          ]
+        },
+        {
+          "file": "libs/mf/src/schematics/nguniversal/schema.d.ts",
+          "hash": "2289304306867129814"
+        },
+        {
+          "file": "libs/mf/src/schematics/nguniversal/schema.json",
+          "hash": "2663907982125171479"
+        },
+        {
+          "file": "libs/mf/src/schematics/nguniversal/schematic.ts",
+          "hash": "14370622245120216170",
+          "deps": [
+            "npm:@angular-devkit/schematics"
+          ]
+        },
+        {
+          "file": "libs/mf/src/schematics/remove/schema.d.ts",
+          "hash": "12843678536116440589"
+        },
+        {
+          "file": "libs/mf/src/schematics/remove/schema.json",
+          "hash": "319129010396344041"
+        },
+        {
+          "file": "libs/mf/src/schematics/remove/schematic.ts",
+          "hash": "8074802035374626244",
+          "deps": [
+            "npm:rxjs",
+            "npm:@angular-devkit/schematics"
+          ]
+        },
+        {
+          "file": "libs/mf/src/server/colors.ts",
+          "hash": "9158618595259076348",
+          "deps": [
+            "npm:chalk",
+            "npm:word-wrap"
+          ]
+        },
+        {
+          "file": "libs/mf/src/server/index.ts",
+          "hash": "9068058999538770984"
+        },
+        {
+          "file": "libs/mf/src/server/mf-dev-build-server.ts.bak",
+          "hash": "13457089513672844338"
+        },
+        {
+          "file": "libs/mf/src/server/mf-dev-server.ts",
+          "hash": "16156868348211976228"
+        },
+        {
+          "file": "libs/mf/src/server/task-queue.ts",
+          "hash": "14488235738588909434"
+        },
+        {
+          "file": "libs/mf/src/server/tsconfig.json.bak",
+          "hash": "5615234166811910528"
+        },
+        {
+          "file": "libs/mf/src/server/workspace.ts",
+          "hash": "13490573396718177299"
+        },
+        {
+          "file": "libs/mf/src/universal/create-fetch.ts",
+          "hash": "6536139096603114816",
+          "deps": [
+            "npm:node-fetch"
+          ]
+        },
+        {
+          "file": "libs/mf/src/utils/create-config.ts",
+          "hash": "16018616927804527430",
+          "deps": [
+            "npm:@angular-devkit/core"
+          ]
+        },
+        {
+          "file": "libs/mf/src/utils/decl.d.ts",
+          "hash": "15630202611681815608"
+        },
+        {
+          "file": "libs/mf/src/utils/modify-entry-plugin.ts",
+          "hash": "6063765617186155549"
+        },
+        {
+          "file": "libs/mf/src/utils/share-utils.ts",
+          "hash": "12609381586772593763"
+        },
+        {
+          "file": "libs/mf/src/utils/shared-mappings.ts",
+          "hash": "8873168137256387222",
+          "deps": [
+            "npm:webpack",
+            "npm:json5"
+          ]
+        },
+        {
+          "file": "libs/mf/src/utils/webpack.types.ts",
+          "hash": "4240802696222745781"
+        },
+        {
+          "file": "libs/mf/src/utils/with-mf-plugin.ts",
+          "hash": "8429743818094557793",
+          "deps": [
+            "npm:webpack"
+          ]
+        },
+        {
+          "file": "libs/mf/src/webpack.ts",
+          "hash": "2158126450974934311"
+        },
+        {
+          "file": "libs/mf/tsconfig.json",
+          "hash": "14992986858630247925"
+        },
+        {
+          "file": "libs/mf/tsconfig.lib.json",
+          "hash": "3632393694954060084"
+        },
+        {
+          "file": "libs/mf/tsconfig.spec.json",
           "hash": "11550347367511341917"
         },
         {
-          "file": "libs/native-federation-node/src/lib/node/federation-resolver.ts.bak",
-          "hash": "18384387485088228863"
+          "file": "libs/mf/tutorial/.vscode/settings.json",
+          "hash": "12693258718958149204"
         },
         {
-          "file": "libs/native-federation-node/src/lib/node/import-map-store.ts.bak",
-          "hash": "14011404869408775243"
+          "file": "libs/mf/tutorial/braindump-ssr.md",
+          "hash": "16697378097099022447"
         },
         {
-          "file": "libs/native-federation-node/src/lib/utils/import-map-loader.js",
-          "hash": "3847574142012221696"
+          "file": "libs/mf/tutorial/mfe1.png",
+          "hash": "3027359933752069208"
         },
         {
-          "file": "libs/native-federation-node/src/lib/utils/loader-as-data-url.js",
-          "hash": "8823802938156466939"
+          "file": "libs/mf/tutorial/result.png",
+          "hash": "14500411092722581143"
         },
         {
-          "file": "libs/native-federation-node/build/create-data-url.js",
-          "hash": "13733155795452932705"
+          "file": "libs/mf/tutorial/shell.png",
+          "hash": "8824622074420130149"
+        },
+        {
+          "file": "libs/mf/tutorial/tutorial.md",
+          "hash": "7492546837301857147"
+        },
+        {
+          "file": "libs/mf/webpack.ts",
+          "hash": "13593782947861866215"
+        }
+      ],
+      "native-federation-esbuild": [
+        {
+          "file": "libs/native-federation-esbuild/.eslintrc.json",
+          "hash": "13512530575173493193"
+        },
+        {
+          "file": "libs/native-federation-esbuild/LICENSE",
+          "hash": "7758420778216951569"
+        },
+        {
+          "file": "libs/native-federation-esbuild/README.md",
+          "hash": "16068891872479171634"
+        },
+        {
+          "file": "libs/native-federation-esbuild/jest.config.ts",
+          "hash": "147394353665443865"
+        },
+        {
+          "file": "libs/native-federation-esbuild/package.json",
+          "hash": "10806330397783010221",
+          "deps": [
+            "npm:@rollup/plugin-commonjs",
+            "npm:@rollup/plugin-node-resolve",
+            "npm:@rollup/plugin-replace",
+            "npm:rollup",
+            "npm:rollup-plugin-node-externals",
+            "npm:esbuild",
+            "npm:npmlog",
+            "npm:acorn"
+          ]
+        },
+        {
+          "file": "libs/native-federation-esbuild/project.json",
+          "hash": "15186225820218134948"
+        },
+        {
+          "file": "libs/native-federation-esbuild/src/index.ts",
+          "hash": "11973907381702119158"
+        },
+        {
+          "file": "libs/native-federation-esbuild/src/lib/adapter.ts",
+          "hash": "13922891418032091864",
+          "deps": [
+            "native-federation-core",
+            "npm:esbuild",
+            "npm:rollup",
+            "npm:@rollup/plugin-node-resolve",
+            "npm:rollup-plugin-node-externals",
+            "npm:@rollup/plugin-commonjs",
+            "npm:@rollup/plugin-replace"
+          ]
+        },
+        {
+          "file": "libs/native-federation-esbuild/src/lib/collect-exports.ts",
+          "hash": "12543194919060196888",
+          "deps": [
+            "npm:acorn"
+          ]
+        },
+        {
+          "file": "libs/native-federation-esbuild/src/lib/react-replacements.ts",
+          "hash": "209095427575543275"
+        },
+        {
+          "file": "libs/native-federation-esbuild/tsconfig.json",
+          "hash": "14992986858630247925"
+        },
+        {
+          "file": "libs/native-federation-esbuild/tsconfig.lib.json",
+          "hash": "3632393694954060084"
+        },
+        {
+          "file": "libs/native-federation-esbuild/tsconfig.spec.json",
+          "hash": "11550347367511341917"
+        }
+      ],
+      "playground-e2e": [
+        {
+          "file": "apps/playground-e2e/.eslintrc.json",
+          "hash": "15523834149352881398"
+        },
+        {
+          "file": "apps/playground-e2e/cypress.json",
+          "hash": "2945068408340533698"
+        },
+        {
+          "file": "apps/playground-e2e/project.json",
+          "hash": "5916162116066215731"
+        },
+        {
+          "file": "apps/playground-e2e/src/fixtures/example.json",
+          "hash": "11614668686582597233"
+        },
+        {
+          "file": "apps/playground-e2e/src/integration/app.spec.ts",
+          "hash": "7993232265068544918"
+        },
+        {
+          "file": "apps/playground-e2e/src/plugins/index.js",
+          "hash": "1870053236038166983",
+          "deps": [
+            "npm:@nx/cypress"
+          ]
+        },
+        {
+          "file": "apps/playground-e2e/src/support/app.po.ts",
+          "hash": "11157016311132186162"
+        },
+        {
+          "file": "apps/playground-e2e/src/support/commands.ts",
+          "hash": "7314691991044890572"
+        },
+        {
+          "file": "apps/playground-e2e/src/support/index.ts",
+          "hash": "3666078656922506009"
+        },
+        {
+          "file": "apps/playground-e2e/tsconfig.e2e.json",
+          "hash": "3552469080385459243"
+        },
+        {
+          "file": "apps/playground-e2e/tsconfig.json",
+          "hash": "4500232260948002331"
+        }
+      ],
+      "mfe1-e2e": [
+        {
+          "file": "apps/mfe1-e2e/.eslintrc.json",
+          "hash": "15523834149352881398"
+        },
+        {
+          "file": "apps/mfe1-e2e/cypress.json",
+          "hash": "8610955834233359644"
+        },
+        {
+          "file": "apps/mfe1-e2e/project.json",
+          "hash": "619490513352918983"
+        },
+        {
+          "file": "apps/mfe1-e2e/src/fixtures/example.json",
+          "hash": "11614668686582597233"
+        },
+        {
+          "file": "apps/mfe1-e2e/src/integration/app.spec.ts",
+          "hash": "12393137190670595399"
+        },
+        {
+          "file": "apps/mfe1-e2e/src/plugins/index.js",
+          "hash": "1870053236038166983",
+          "deps": [
+            "npm:@nx/cypress"
+          ]
+        },
+        {
+          "file": "apps/mfe1-e2e/src/support/app.po.ts",
+          "hash": "11157016311132186162"
+        },
+        {
+          "file": "apps/mfe1-e2e/src/support/commands.ts",
+          "hash": "7314691991044890572"
+        },
+        {
+          "file": "apps/mfe1-e2e/src/support/index.ts",
+          "hash": "9968213533773113880"
+        },
+        {
+          "file": "apps/mfe1-e2e/tsconfig.json",
+          "hash": "17327834683392158647"
+        }
+      ],
+      "playground": [
+        {
+          "file": "apps/playground/.eslintrc.json",
+          "hash": "251138097496990787"
+        },
+        {
+          "file": "apps/playground/federation.config.js",
+          "hash": "3710068935049622761"
+        },
+        {
+          "file": "apps/playground/jest.config.ts",
+          "hash": "13668978495352725113"
+        },
+        {
+          "file": "apps/playground/project.json",
+          "hash": "1451434767386273048"
+        },
+        {
+          "file": "apps/playground/src/app/app.component.css",
+          "hash": "17418684592000289094"
+        },
+        {
+          "file": "apps/playground/src/app/app.component.html",
+          "hash": "7497086842130323323"
+        },
+        {
+          "file": "apps/playground/src/app/app.component.spec.ts",
+          "hash": "16891600822015205682",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/playground/src/app/app.component.ts",
+          "hash": "14170716185574022594",
+          "deps": [
+            "native-federation",
+            "playground-lib",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/playground/src/app/app.module.ts",
+          "hash": "9676466020239194331",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser"
+          ]
+        },
+        {
+          "file": "apps/playground/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/playground/src/bootstrap.ts",
+          "hash": "14896519517424602606",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser-dynamic"
+          ]
+        },
+        {
+          "file": "apps/playground/src/environments/environment.prod.ts",
+          "hash": "10220522844224226756"
+        },
+        {
+          "file": "apps/playground/src/environments/environment.ts",
+          "hash": "15801694716951284069"
+        },
+        {
+          "file": "apps/playground/src/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/playground/src/index.html",
+          "hash": "18184154050788975158"
+        },
+        {
+          "file": "apps/playground/src/main.ts",
+          "hash": "3349188418178751428",
+          "deps": [
+            "native-federation"
+          ]
+        },
+        {
+          "file": "apps/playground/src/polyfills.ts",
+          "hash": "5886890385542564182",
+          "deps": [
+            "npm:zone.js",
+            "npm:es-module-shims"
+          ]
+        },
+        {
+          "file": "apps/playground/src/styles.css",
+          "hash": "5195668842064076916"
+        },
+        {
+          "file": "apps/playground/src/test-setup.ts",
+          "hash": "7608486994823320296",
+          "deps": [
+            "npm:jest-preset-angular",
+            "npm:@angular/core",
+            "npm:@angular/platform-browser-dynamic"
+          ]
+        },
+        {
+          "file": "apps/playground/tsconfig.app.json",
+          "hash": "17391533230824388092"
+        },
+        {
+          "file": "apps/playground/tsconfig.editor.json",
+          "hash": "13708902743870995589"
+        },
+        {
+          "file": "apps/playground/tsconfig.json",
+          "hash": "15074473844620366262"
+        },
+        {
+          "file": "apps/playground/tsconfig.spec.json",
+          "hash": "9419262254794573494"
         }
       ],
       "angular-architects": [
@@ -473,10 +1900,6 @@
         {
           "file": ".gitignore",
           "hash": "11451021753167528831"
-        },
-        {
-          "file": ".nx/workspace-data/d/server-process.json",
-          "hash": "9624555267643485828"
         },
         {
           "file": ".prettierignore",
@@ -690,1096 +2113,15 @@
         },
         {
           "file": "tsconfig.base.json",
-          "hash": "10824370820702110208"
+          "hash": "10506655873986011213"
         },
         {
           "file": "update-local-mf.bat",
-          "hash": "7794625824132130727"
+          "hash": "7682982762482805093"
         },
         {
           "file": "update-local-nf.sh",
           "hash": "10836544763897318353"
-        }
-      ],
-      "playground-e2e": [
-        {
-          "file": "apps/playground-e2e/.eslintrc.json",
-          "hash": "15523834149352881398"
-        },
-        {
-          "file": "apps/playground-e2e/cypress.json",
-          "hash": "2945068408340533698"
-        },
-        {
-          "file": "apps/playground-e2e/project.json",
-          "hash": "5916162116066215731"
-        },
-        {
-          "file": "apps/playground-e2e/src/fixtures/example.json",
-          "hash": "11614668686582597233"
-        },
-        {
-          "file": "apps/playground-e2e/src/integration/app.spec.ts",
-          "hash": "7993232265068544918"
-        },
-        {
-          "file": "apps/playground-e2e/src/plugins/index.js",
-          "hash": "1870053236038166983",
-          "deps": [
-            "npm:@nx/cypress"
-          ]
-        },
-        {
-          "file": "apps/playground-e2e/src/support/app.po.ts",
-          "hash": "11157016311132186162"
-        },
-        {
-          "file": "apps/playground-e2e/src/support/commands.ts",
-          "hash": "7314691991044890572"
-        },
-        {
-          "file": "apps/playground-e2e/src/support/index.ts",
-          "hash": "3666078656922506009"
-        },
-        {
-          "file": "apps/playground-e2e/tsconfig.e2e.json",
-          "hash": "3552469080385459243"
-        },
-        {
-          "file": "apps/playground-e2e/tsconfig.json",
-          "hash": "4500232260948002331"
-        }
-      ],
-      "mf-runtime": [
-        {
-          "file": "libs/mf-runtime/.eslintrc.json",
-          "hash": "175195115239913026"
-        },
-        {
-          "file": "libs/mf-runtime/LICENSE",
-          "hash": "7758420778216951569"
-        },
-        {
-          "file": "libs/mf-runtime/README.md",
-          "hash": "12412615036262105308"
-        },
-        {
-          "file": "libs/mf-runtime/jest.config.ts",
-          "hash": "9612740952625502688"
-        },
-        {
-          "file": "libs/mf-runtime/ng-package.json",
-          "hash": "4763704790623561565"
-        },
-        {
-          "file": "libs/mf-runtime/package.json",
-          "hash": "7602326703449532856",
-          "deps": [
-            "npm:@angular/common",
-            "npm:@angular/core",
-            "npm:tslib"
-          ]
-        },
-        {
-          "file": "libs/mf-runtime/project.json",
-          "hash": "13627132991519231411"
-        },
-        {
-          "file": "libs/mf-runtime/src/index.ts",
-          "hash": "12492760458959359382"
-        },
-        {
-          "file": "libs/mf-runtime/src/lib/loader/dynamic-federation.ts",
-          "hash": "3075543386323356510"
-        },
-        {
-          "file": "libs/mf-runtime/src/lib/loader/webpack-runtime-api.d.ts",
-          "hash": "3156326977014599294"
-        },
-        {
-          "file": "libs/mf-runtime/src/test-setup.ts",
-          "hash": "12935735732682149507",
-          "deps": [
-            "npm:jest-preset-angular"
-          ]
-        },
-        {
-          "file": "libs/mf-runtime/tsconfig.json",
-          "hash": "3499000021037492296"
-        },
-        {
-          "file": "libs/mf-runtime/tsconfig.lib.json",
-          "hash": "5796668385415907511"
-        },
-        {
-          "file": "libs/mf-runtime/tsconfig.lib.prod.json",
-          "hash": "174503844014784742"
-        },
-        {
-          "file": "libs/mf-runtime/tsconfig.spec.json",
-          "hash": "2927375835638640771"
-        }
-      ],
-      "mfe1-e2e": [
-        {
-          "file": "apps/mfe1-e2e/.eslintrc.json",
-          "hash": "15523834149352881398"
-        },
-        {
-          "file": "apps/mfe1-e2e/cypress.json",
-          "hash": "8610955834233359644"
-        },
-        {
-          "file": "apps/mfe1-e2e/project.json",
-          "hash": "619490513352918983"
-        },
-        {
-          "file": "apps/mfe1-e2e/src/fixtures/example.json",
-          "hash": "11614668686582597233"
-        },
-        {
-          "file": "apps/mfe1-e2e/src/integration/app.spec.ts",
-          "hash": "12393137190670595399"
-        },
-        {
-          "file": "apps/mfe1-e2e/src/plugins/index.js",
-          "hash": "1870053236038166983",
-          "deps": [
-            "npm:@nx/cypress"
-          ]
-        },
-        {
-          "file": "apps/mfe1-e2e/src/support/app.po.ts",
-          "hash": "11157016311132186162"
-        },
-        {
-          "file": "apps/mfe1-e2e/src/support/commands.ts",
-          "hash": "7314691991044890572"
-        },
-        {
-          "file": "apps/mfe1-e2e/src/support/index.ts",
-          "hash": "9968213533773113880"
-        },
-        {
-          "file": "apps/mfe1-e2e/tsconfig.json",
-          "hash": "17327834683392158647"
-        }
-      ],
-      "native-federation-e2e": [
-        {
-          "file": "apps/native-federation-e2e/.eslintrc.json",
-          "hash": "942885824144343268"
-        },
-        {
-          "file": "apps/native-federation-e2e/jest.config.ts",
-          "hash": "12996487241931656480"
-        },
-        {
-          "file": "apps/native-federation-e2e/project.json",
-          "hash": "14943264082822272509"
-        },
-        {
-          "file": "apps/native-federation-e2e/tests/native-federation.spec.ts",
-          "hash": "10443255764158200437",
-          "deps": [
-            "npm:@nx/plugin"
-          ]
-        },
-        {
-          "file": "apps/native-federation-e2e/tsconfig.json",
-          "hash": "4138663062042646066"
-        },
-        {
-          "file": "apps/native-federation-e2e/tsconfig.spec.json",
-          "hash": "11550347367511341917"
-        }
-      ],
-      "native-federation": [
-        {
-          "file": "libs/native-federation/.eslintrc.json",
-          "hash": "13512530575173493193"
-        },
-        {
-          "file": "libs/native-federation/LICENSE",
-          "hash": "7758420778216951569"
-        },
-        {
-          "file": "libs/native-federation/README.md",
-          "hash": "13537271861732708750"
-        },
-        {
-          "file": "libs/native-federation/builders.json",
-          "hash": "18430679548004919998"
-        },
-        {
-          "file": "libs/native-federation/collection.json",
-          "hash": "5027090635351726257"
-        },
-        {
-          "file": "libs/native-federation/config.ts",
-          "hash": "16033633128888950320"
-        },
-        {
-          "file": "libs/native-federation/docs/migrate.md",
-          "hash": "5157343858682760519"
-        },
-        {
-          "file": "libs/native-federation/docs/share-faq.md",
-          "hash": "4467797737980067962"
-        },
-        {
-          "file": "libs/native-federation/docs/update18.md",
-          "hash": "18166381890924451654"
-        },
-        {
-          "file": "libs/native-federation/example.png",
-          "hash": "6556712668095050157"
-        },
-        {
-          "file": "libs/native-federation/executors.json",
-          "hash": "8477065115816206143"
-        },
-        {
-          "file": "libs/native-federation/generators.json",
-          "hash": "3274101171299636907"
-        },
-        {
-          "file": "libs/native-federation/jest.config.ts",
-          "hash": "8071692576569058933"
-        },
-        {
-          "file": "libs/native-federation/migrate-appbuilder.md",
-          "hash": "10325754656804810736"
-        },
-        {
-          "file": "libs/native-federation/migration-collection.json",
-          "hash": "699580835525146387"
-        },
-        {
-          "file": "libs/native-federation/package.json",
-          "hash": "18236942736760243086",
-          "deps": [
-            "npm:@babel/core",
-            "native-federation-core",
-            "native-federation-runtime",
-            "npm:@types/browser-sync",
-            "npm:browser-sync",
-            "npm:esbuild",
-            "npm:mrmime",
-            "npm:npmlog",
-            "npm:process"
-          ]
-        },
-        {
-          "file": "libs/native-federation/post-build.js",
-          "hash": "2604888089828899771"
-        },
-        {
-          "file": "libs/native-federation/project.json",
-          "hash": "12770997268013303663"
-        },
-        {
-          "file": "libs/native-federation/src/builders/build/builder.ts",
-          "hash": "16273367508097196842",
-          "deps": [
-            "npm:mrmime",
-            "npm:@angular/build",
-            "npm:@angular-devkit/architect",
-            "npm:@angular-devkit/build-angular",
-            "native-federation-core",
-            "npm:@angular-devkit/core",
-            "npm:esbuild",
-            "native-federation-runtime"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/builders/build/schema.d.ts",
-          "hash": "17965003766073454350",
-          "deps": [
-            "npm:@angular-devkit/core",
-            "npm:es-module-shims"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/builders/build/schema.json",
-          "hash": "10665191052693178270"
-        },
-        {
-          "file": "libs/native-federation/src/builders/serve/builder.ts.bak",
-          "hash": "1008944657339764328"
-        },
-        {
-          "file": "libs/native-federation/src/builders/serve/schema.json.bak",
-          "hash": "5698839761258322934"
-        },
-        {
-          "file": "libs/native-federation/src/config.ts",
-          "hash": "3063405283952219036",
-          "deps": [
-            "native-federation-core"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/executors/build/executor.spec.ts",
-          "hash": "150297841976895364"
-        },
-        {
-          "file": "libs/native-federation/src/executors/build/executor.ts",
-          "hash": "13975518423544778144"
-        },
-        {
-          "file": "libs/native-federation/src/executors/build/schema.d.ts",
-          "hash": "17922418242936369517"
-        },
-        {
-          "file": "libs/native-federation/src/executors/build/schema.json",
-          "hash": "15261243041175593186"
-        },
-        {
-          "file": "libs/native-federation/src/generators/native-federation/files/src/index.ts__template__",
-          "hash": "12182040164740174869"
-        },
-        {
-          "file": "libs/native-federation/src/generators/native-federation/generator.spec.ts",
-          "hash": "6779228167731980538",
-          "deps": [
-            "npm:@nx/devkit"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/generators/native-federation/generator.ts",
-          "hash": "1751931467118405122",
-          "deps": [
-            "npm:@nx/devkit"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/generators/native-federation/schema.d.ts",
-          "hash": "11653935308082428381"
-        },
-        {
-          "file": "libs/native-federation/src/generators/native-federation/schema.json",
-          "hash": "16726087959595393817"
-        },
-        {
-          "file": "libs/native-federation/src/index.ts",
-          "hash": "11205332278489509743",
-          "deps": [
-            "native-federation-runtime"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/patch-angular-build.ts",
-          "hash": "15439134822903826033"
-        },
-        {
-          "file": "libs/native-federation/src/plugin/dev-externals-mixin.ts",
-          "hash": "11369102446635527831",
-          "deps": [
-            "native-federation-core"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/plugin/externals-skip-list.ts",
-          "hash": "1757544626396203511"
-        },
-        {
-          "file": "libs/native-federation/src/plugin/index.ts",
-          "hash": "14441316182953850781",
-          "deps": [
-            "npm:mrmime",
-            "native-federation-core",
-            "native-federation-runtime"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/schematics/appbuilder/schema.d.ts",
-          "hash": "8786545951171042064"
-        },
-        {
-          "file": "libs/native-federation/src/schematics/appbuilder/schema.json",
-          "hash": "2663907982125171479"
-        },
-        {
-          "file": "libs/native-federation/src/schematics/appbuilder/schematic.ts",
-          "hash": "8822542153069134797",
-          "deps": [
-            "npm:@angular-devkit/schematics"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/schematics/init/files/federation.config.js__tmpl__",
-          "hash": "11121434622361890823"
-        },
-        {
-          "file": "libs/native-federation/src/schematics/init/schema.d.ts",
-          "hash": "7934898858173717407"
-        },
-        {
-          "file": "libs/native-federation/src/schematics/init/schema.json",
-          "hash": "12873990551767335182"
-        },
-        {
-          "file": "libs/native-federation/src/schematics/init/schematic.ts",
-          "hash": "16894400278645953762",
-          "deps": [
-            "npm:@angular-devkit/schematics",
-            "npm:@angular-devkit/core",
-            "npm:@schematics/angular"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/schematics/remove/schema.d.ts",
-          "hash": "8786545951171042064"
-        },
-        {
-          "file": "libs/native-federation/src/schematics/remove/schema.json",
-          "hash": "2663907982125171479"
-        },
-        {
-          "file": "libs/native-federation/src/schematics/remove/schematic.ts",
-          "hash": "17008578818185320417",
-          "deps": [
-            "npm:@angular-devkit/schematics"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/schematics/update18/schema.json",
-          "hash": "3930707620884556402"
-        },
-        {
-          "file": "libs/native-federation/src/schematics/update18/schematic.ts",
-          "hash": "3100296914799428707",
-          "deps": [
-            "npm:@angular-devkit/schematics"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/utils/angular-esbuild-adapter.ts",
-          "hash": "16121101424044823706",
-          "deps": [
-            "native-federation-core",
-            "npm:esbuild",
-            "npm:@angular/build",
-            "npm:@angular-devkit/architect",
-            "npm:@angular-devkit/build-angular",
-            "npm:@babel/core",
-            "npm:json5"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/utils/create-compiler-options.ts",
-          "hash": "16839830046297452778"
-        },
-        {
-          "file": "libs/native-federation/src/utils/dev-server.ts",
-          "hash": "9093857060866342524",
-          "deps": [
-            "npm:browser-sync",
-            "npm:mrmime"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/utils/event-sorce.ts",
-          "hash": "13366590456660719786"
-        },
-        {
-          "file": "libs/native-federation/src/utils/mem-resuts.ts",
-          "hash": "9556576696909391872",
-          "deps": [
-            "npm:esbuild"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/utils/patch-angular-build.ts",
-          "hash": "12847134559856588919"
-        },
-        {
-          "file": "libs/native-federation/src/utils/rebuild-events.ts",
-          "hash": "9484301730251726771"
-        },
-        {
-          "file": "libs/native-federation/src/utils/rollup.ts.bak",
-          "hash": "10872609531589763400"
-        },
-        {
-          "file": "libs/native-federation/src/utils/rollup.ts.bak.bak",
-          "hash": "10872609531589763400"
-        },
-        {
-          "file": "libs/native-federation/src/utils/shared-mappings-plugin.ts",
-          "hash": "12456398800041070536",
-          "deps": [
-            "npm:esbuild",
-            "native-federation-core"
-          ]
-        },
-        {
-          "file": "libs/native-federation/src/utils/updateIndexHtml.ts",
-          "hash": "399172373906215812",
-          "deps": [
-            "native-federation-core"
-          ]
-        },
-        {
-          "file": "libs/native-federation/tsconfig.json",
-          "hash": "14535644298105536286"
-        },
-        {
-          "file": "libs/native-federation/tsconfig.lib.json",
-          "hash": "6318426813308796910"
-        },
-        {
-          "file": "libs/native-federation/tsconfig.spec.json",
-          "hash": "8920410197173302166"
-        }
-      ],
-      "mf": [
-        {
-          "file": "libs/mf/.babelrc",
-          "hash": "1185090046784686875"
-        },
-        {
-          "file": "libs/mf/.eslintrc.json",
-          "hash": "13512530575173493193"
-        },
-        {
-          "file": "libs/mf/LICENSE",
-          "hash": "7758420778216951569"
-        },
-        {
-          "file": "libs/mf/README.md",
-          "hash": "12077762083838223537"
-        },
-        {
-          "file": "libs/mf/builders.json",
-          "hash": "7593972920689544306"
-        },
-        {
-          "file": "libs/mf/collection.json",
-          "hash": "2522246912433136903"
-        },
-        {
-          "file": "libs/mf/executors.json",
-          "hash": "8477065115816206143"
-        },
-        {
-          "file": "libs/mf/generators.json",
-          "hash": "13318963426103431003"
-        },
-        {
-          "file": "libs/mf/jest.config.ts",
-          "hash": "10318224422677485542"
-        },
-        {
-          "file": "libs/mf/nguniversal.ts",
-          "hash": "2993995579629484835"
-        },
-        {
-          "file": "libs/mf/package.json",
-          "hash": "9548304482094986218",
-          "deps": [
-            "mf-runtime",
-            "npm:word-wrap",
-            "npm:callsite",
-            "npm:node-fetch",
-            "npm:semver"
-          ]
-        },
-        {
-          "file": "libs/mf/post-build.js",
-          "hash": "13993696094824542288"
-        },
-        {
-          "file": "libs/mf/project.json",
-          "hash": "8852843751303712190"
-        },
-        {
-          "file": "libs/mf/src/builders/build/builder.ts",
-          "hash": "12839483563996536097",
-          "deps": [
-            "npm:@angular-devkit/architect",
-            "npm:rxjs"
-          ]
-        },
-        {
-          "file": "libs/mf/src/builders/build/schema.d.ts",
-          "hash": "2789917978867272393",
-          "deps": [
-            "npm:@angular-devkit/core"
-          ]
-        },
-        {
-          "file": "libs/mf/src/builders/build/schema.json",
-          "hash": "13873810958118613548"
-        },
-        {
-          "file": "libs/mf/src/executors/build/executor.spec.ts",
-          "hash": "14357623371195888682"
-        },
-        {
-          "file": "libs/mf/src/executors/build/executor.ts",
-          "hash": "11841628902852102175"
-        },
-        {
-          "file": "libs/mf/src/executors/build/schema.d.ts",
-          "hash": "17922418242936369517"
-        },
-        {
-          "file": "libs/mf/src/executors/build/schema.json",
-          "hash": "15261243041175593186"
-        },
-        {
-          "file": "libs/mf/src/generators/mf/files/src/index.ts__template__",
-          "hash": "12182040164740174869"
-        },
-        {
-          "file": "libs/mf/src/generators/mf/generator.spec.ts",
-          "hash": "15525094002045902311",
-          "deps": [
-            "npm:@nx/devkit"
-          ]
-        },
-        {
-          "file": "libs/mf/src/generators/mf/generator.ts",
-          "hash": "7707988815082480119",
-          "deps": [
-            "npm:@nx/devkit"
-          ]
-        },
-        {
-          "file": "libs/mf/src/generators/mf/schema.d.ts",
-          "hash": "6198845997533523295"
-        },
-        {
-          "file": "libs/mf/src/generators/mf/schema.json",
-          "hash": "5916442621771560667"
-        },
-        {
-          "file": "libs/mf/src/index.ts",
-          "hash": "17129055320640037376",
-          "deps": [
-            "mf-runtime"
-          ]
-        },
-        {
-          "file": "libs/mf/src/nguniversal.ts",
-          "hash": "13954908387037707825"
-        },
-        {
-          "file": "libs/mf/src/schematics/boot-async/schema.d.ts",
-          "hash": "6537114070884317618"
-        },
-        {
-          "file": "libs/mf/src/schematics/boot-async/schema.json",
-          "hash": "8924774527231022367"
-        },
-        {
-          "file": "libs/mf/src/schematics/boot-async/schematic.ts",
-          "hash": "4773555567716317633",
-          "deps": [
-            "npm:rxjs",
-            "npm:@angular-devkit/schematics"
-          ]
-        },
-        {
-          "file": "libs/mf/src/schematics/mf/files/webpack.config.js__tmpl__",
-          "hash": "2902053011616778981"
-        },
-        {
-          "file": "libs/mf/src/schematics/mf/prod-config.ts",
-          "hash": "14372158448647502739"
-        },
-        {
-          "file": "libs/mf/src/schematics/mf/schema.d.ts",
-          "hash": "10017039639976457441"
-        },
-        {
-          "file": "libs/mf/src/schematics/mf/schema.json",
-          "hash": "17331294571544221212"
-        },
-        {
-          "file": "libs/mf/src/schematics/mf/schematic.ts",
-          "hash": "11749611592444662945",
-          "deps": [
-            "npm:@angular-devkit/schematics",
-            "npm:@angular-devkit/core",
-            "npm:json5",
-            "npm:semver",
-            "npm:@schematics/angular"
-          ]
-        },
-        {
-          "file": "libs/mf/src/schematics/migrate-to-13/schema.d.ts",
-          "hash": "6537114070884317618"
-        },
-        {
-          "file": "libs/mf/src/schematics/migrate-to-13/schema.json",
-          "hash": "3930707620884556402"
-        },
-        {
-          "file": "libs/mf/src/schematics/migrate-to-13/schematic.ts",
-          "hash": "17572225284027086881",
-          "deps": [
-            "npm:@angular-devkit/schematics"
-          ]
-        },
-        {
-          "file": "libs/mf/src/schematics/migrate-to-14-3/schema.d.ts",
-          "hash": "8518900964489847873"
-        },
-        {
-          "file": "libs/mf/src/schematics/migrate-to-14-3/schema.json",
-          "hash": "3930707620884556402"
-        },
-        {
-          "file": "libs/mf/src/schematics/migrate-to-14-3/schematic.ts",
-          "hash": "16679559621930804400",
-          "deps": [
-            "npm:@angular-devkit/schematics",
-            "npm:@schematics/angular"
-          ]
-        },
-        {
-          "file": "libs/mf/src/schematics/nguniversal/schema.d.ts",
-          "hash": "2289304306867129814"
-        },
-        {
-          "file": "libs/mf/src/schematics/nguniversal/schema.json",
-          "hash": "2663907982125171479"
-        },
-        {
-          "file": "libs/mf/src/schematics/nguniversal/schematic.ts",
-          "hash": "14370622245120216170",
-          "deps": [
-            "npm:@angular-devkit/schematics"
-          ]
-        },
-        {
-          "file": "libs/mf/src/schematics/remove/schema.d.ts",
-          "hash": "12843678536116440589"
-        },
-        {
-          "file": "libs/mf/src/schematics/remove/schema.json",
-          "hash": "319129010396344041"
-        },
-        {
-          "file": "libs/mf/src/schematics/remove/schematic.ts",
-          "hash": "5133425674291401448",
-          "deps": [
-            "npm:rxjs",
-            "npm:@angular-devkit/schematics"
-          ]
-        },
-        {
-          "file": "libs/mf/src/server/colors.ts",
-          "hash": "9158618595259076348",
-          "deps": [
-            "npm:chalk",
-            "npm:word-wrap"
-          ]
-        },
-        {
-          "file": "libs/mf/src/server/index.ts",
-          "hash": "9068058999538770984"
-        },
-        {
-          "file": "libs/mf/src/server/mf-dev-build-server.ts.bak",
-          "hash": "13457089513672844338"
-        },
-        {
-          "file": "libs/mf/src/server/mf-dev-server.ts",
-          "hash": "16156868348211976228"
-        },
-        {
-          "file": "libs/mf/src/server/task-queue.ts",
-          "hash": "14488235738588909434"
-        },
-        {
-          "file": "libs/mf/src/server/tsconfig.json.bak",
-          "hash": "5615234166811910528"
-        },
-        {
-          "file": "libs/mf/src/server/workspace.ts",
-          "hash": "13490573396718177299"
-        },
-        {
-          "file": "libs/mf/src/universal/create-fetch.ts",
-          "hash": "6536139096603114816",
-          "deps": [
-            "npm:node-fetch"
-          ]
-        },
-        {
-          "file": "libs/mf/src/utils/create-config.ts",
-          "hash": "16018616927804527430",
-          "deps": [
-            "npm:@angular-devkit/core"
-          ]
-        },
-        {
-          "file": "libs/mf/src/utils/decl.d.ts",
-          "hash": "15630202611681815608"
-        },
-        {
-          "file": "libs/mf/src/utils/modify-entry-plugin.ts",
-          "hash": "6063765617186155549"
-        },
-        {
-          "file": "libs/mf/src/utils/share-utils.ts",
-          "hash": "12609381586772593763"
-        },
-        {
-          "file": "libs/mf/src/utils/shared-mappings.ts",
-          "hash": "8873168137256387222",
-          "deps": [
-            "npm:webpack",
-            "npm:json5"
-          ]
-        },
-        {
-          "file": "libs/mf/src/utils/webpack.types.ts",
-          "hash": "4240802696222745781"
-        },
-        {
-          "file": "libs/mf/src/utils/with-mf-plugin.ts",
-          "hash": "8429743818094557793",
-          "deps": [
-            "npm:webpack"
-          ]
-        },
-        {
-          "file": "libs/mf/src/webpack.ts",
-          "hash": "2158126450974934311"
-        },
-        {
-          "file": "libs/mf/tsconfig.json",
-          "hash": "14992986858630247925"
-        },
-        {
-          "file": "libs/mf/tsconfig.lib.json",
-          "hash": "3632393694954060084"
-        },
-        {
-          "file": "libs/mf/tsconfig.spec.json",
-          "hash": "11550347367511341917"
-        },
-        {
-          "file": "libs/mf/tutorial/.vscode/settings.json",
-          "hash": "12693258718958149204"
-        },
-        {
-          "file": "libs/mf/tutorial/braindump-ssr.md",
-          "hash": "16697378097099022447"
-        },
-        {
-          "file": "libs/mf/tutorial/mfe1.png",
-          "hash": "3027359933752069208"
-        },
-        {
-          "file": "libs/mf/tutorial/result.png",
-          "hash": "14500411092722581143"
-        },
-        {
-          "file": "libs/mf/tutorial/shell.png",
-          "hash": "8824622074420130149"
-        },
-        {
-          "file": "libs/mf/tutorial/tutorial.md",
-          "hash": "7492546837301857147"
-        },
-        {
-          "file": "libs/mf/webpack.ts",
-          "hash": "13593782947861866215"
-        }
-      ],
-      "mf-tools": [
-        {
-          "file": "libs/mf-tools/.eslintrc.json",
-          "hash": "175195115239913026"
-        },
-        {
-          "file": "libs/mf-tools/.vscode/settings.json",
-          "hash": "12693258718958149204"
-        },
-        {
-          "file": "libs/mf-tools/.vscode/spellright.dict",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "libs/mf-tools/LICENSE",
-          "hash": "7758420778216951569"
-        },
-        {
-          "file": "libs/mf-tools/README.md",
-          "hash": "5440793822835972244"
-        },
-        {
-          "file": "libs/mf-tools/img/example.png",
-          "hash": "1566809714281274272"
-        },
-        {
-          "file": "libs/mf-tools/jest.config.ts",
-          "hash": "13467769495205896344"
-        },
-        {
-          "file": "libs/mf-tools/ng-package.json",
-          "hash": "14691658733956357199"
-        },
-        {
-          "file": "libs/mf-tools/package.json",
-          "hash": "10469931137816693458",
-          "deps": [
-            "npm:tslib"
-          ]
-        },
-        {
-          "file": "libs/mf-tools/project.json",
-          "hash": "10421271103490957239"
-        },
-        {
-          "file": "libs/mf-tools/src/index.ts",
-          "hash": "13048565832343884500"
-        },
-        {
-          "file": "libs/mf-tools/src/lib/mf-tools.module.ts",
-          "hash": "17327201765062531293",
-          "deps": [
-            "npm:@angular/core",
-            "npm:@angular/common"
-          ]
-        },
-        {
-          "file": "libs/mf-tools/src/lib/utils/global-state.ts",
-          "hash": "16917954676084587166"
-        },
-        {
-          "file": "libs/mf-tools/src/lib/web-components/bootstrap-utils.ts",
-          "hash": "7160773842118780085",
-          "deps": [
-            "npm:@angular/core",
-            "npm:@angular/platform-browser",
-            "npm:@angular/router"
-          ]
-        },
-        {
-          "file": "libs/mf-tools/src/lib/web-components/router-utils.ts",
-          "hash": "12992978891012721435",
-          "deps": [
-            "npm:@angular/router"
-          ]
-        },
-        {
-          "file": "libs/mf-tools/src/lib/web-components/web-component-wrapper.ts",
-          "hash": "1697960798188886742",
-          "deps": [
-            "npm:@angular/core",
-            "npm:@angular/router",
-            "mf-runtime"
-          ]
-        },
-        {
-          "file": "libs/mf-tools/src/test-setup.ts",
-          "hash": "12935735732682149507",
-          "deps": [
-            "npm:jest-preset-angular"
-          ]
-        },
-        {
-          "file": "libs/mf-tools/tsconfig.json",
-          "hash": "3499000021037492296"
-        },
-        {
-          "file": "libs/mf-tools/tsconfig.lib.json",
-          "hash": "5796668385415907511"
-        },
-        {
-          "file": "libs/mf-tools/tsconfig.lib.prod.json",
-          "hash": "174503844014784742"
-        },
-        {
-          "file": "libs/mf-tools/tsconfig.spec.json",
-          "hash": "2927375835638640771"
-        },
-        {
-          "file": "libs/mf-tools/tutorial/index.md",
-          "hash": "3728310032566731778"
-        }
-      ],
-      "native-federation-esbuild": [
-        {
-          "file": "libs/native-federation-esbuild/.eslintrc.json",
-          "hash": "13512530575173493193"
-        },
-        {
-          "file": "libs/native-federation-esbuild/LICENSE",
-          "hash": "7758420778216951569"
-        },
-        {
-          "file": "libs/native-federation-esbuild/README.md",
-          "hash": "16068891872479171634"
-        },
-        {
-          "file": "libs/native-federation-esbuild/jest.config.ts",
-          "hash": "147394353665443865"
-        },
-        {
-          "file": "libs/native-federation-esbuild/package.json",
-          "hash": "10806330397783010221",
-          "deps": [
-            "npm:@rollup/plugin-commonjs",
-            "npm:@rollup/plugin-node-resolve",
-            "npm:@rollup/plugin-replace",
-            "npm:rollup",
-            "npm:rollup-plugin-node-externals",
-            "npm:esbuild",
-            "npm:npmlog",
-            "npm:acorn"
-          ]
-        },
-        {
-          "file": "libs/native-federation-esbuild/project.json",
-          "hash": "15186225820218134948"
-        },
-        {
-          "file": "libs/native-federation-esbuild/src/index.ts",
-          "hash": "11973907381702119158"
-        },
-        {
-          "file": "libs/native-federation-esbuild/src/lib/adapter.ts",
-          "hash": "13922891418032091864",
-          "deps": [
-            "native-federation-core",
-            "npm:esbuild",
-            "npm:rollup",
-            "npm:@rollup/plugin-node-resolve",
-            "npm:rollup-plugin-node-externals",
-            "npm:@rollup/plugin-commonjs",
-            "npm:@rollup/plugin-replace"
-          ]
-        },
-        {
-          "file": "libs/native-federation-esbuild/src/lib/collect-exports.ts",
-          "hash": "12543194919060196888",
-          "deps": [
-            "npm:acorn"
-          ]
-        },
-        {
-          "file": "libs/native-federation-esbuild/src/lib/react-replacements.ts",
-          "hash": "209095427575543275"
-        },
-        {
-          "file": "libs/native-federation-esbuild/tsconfig.json",
-          "hash": "14992986858630247925"
-        },
-        {
-          "file": "libs/native-federation-esbuild/tsconfig.lib.json",
-          "hash": "3632393694954060084"
-        },
-        {
-          "file": "libs/native-federation-esbuild/tsconfig.spec.json",
-          "hash": "11550347367511341917"
         }
       ],
       "mfe2": [
@@ -1911,302 +2253,74 @@
           "hash": "6658172359945877284"
         }
       ],
-      "native-federation-runtime": [
+      "mf-runtime": [
         {
-          "file": "libs/native-federation-runtime/.eslintrc.json",
+          "file": "libs/mf-runtime/.eslintrc.json",
           "hash": "175195115239913026"
         },
         {
-          "file": "libs/native-federation-runtime/LICENSE",
+          "file": "libs/mf-runtime/LICENSE",
           "hash": "7758420778216951569"
         },
         {
-          "file": "libs/native-federation-runtime/README.md",
-          "hash": "14920532763820892928"
+          "file": "libs/mf-runtime/README.md",
+          "hash": "12412615036262105308"
         },
         {
-          "file": "libs/native-federation-runtime/jest.config.ts",
-          "hash": "3331688691708508943"
+          "file": "libs/mf-runtime/jest.config.ts",
+          "hash": "9612740952625502688"
         },
         {
-          "file": "libs/native-federation-runtime/ng-package.json",
-          "hash": "391636886085952891"
+          "file": "libs/mf-runtime/ng-package.json",
+          "hash": "4763704790623561565"
         },
         {
-          "file": "libs/native-federation-runtime/package-lock.json",
-          "hash": "10131443217904763515"
+          "file": "libs/mf-runtime/package.json",
+          "hash": "14224509069462761709",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:tslib"
+          ]
         },
         {
-          "file": "libs/native-federation-runtime/package.json",
-          "hash": "10558582854319893680"
+          "file": "libs/mf-runtime/project.json",
+          "hash": "13627132991519231411"
         },
         {
-          "file": "libs/native-federation-runtime/project.json",
-          "hash": "1960215352545257159"
+          "file": "libs/mf-runtime/src/index.ts",
+          "hash": "12492760458959359382"
         },
         {
-          "file": "libs/native-federation-runtime/src/index.ts",
-          "hash": "11733051184005261876"
+          "file": "libs/mf-runtime/src/lib/loader/dynamic-federation.ts",
+          "hash": "3075543386323356510"
         },
         {
-          "file": "libs/native-federation-runtime/src/lib/init-federation.ts",
-          "hash": "12605124436315247777"
+          "file": "libs/mf-runtime/src/lib/loader/webpack-runtime-api.d.ts",
+          "hash": "3156326977014599294"
         },
         {
-          "file": "libs/native-federation-runtime/src/lib/load-remote-module.ts",
-          "hash": "18105934201798273343"
-        },
-        {
-          "file": "libs/native-federation-runtime/src/lib/model/externals.ts",
-          "hash": "3354952666390859813"
-        },
-        {
-          "file": "libs/native-federation-runtime/src/lib/model/federation-info.ts",
-          "hash": "15492652515816973011"
-        },
-        {
-          "file": "libs/native-federation-runtime/src/lib/model/global-cache.ts",
-          "hash": "15192209624734190066"
-        },
-        {
-          "file": "libs/native-federation-runtime/src/lib/model/import-map.ts",
-          "hash": "2937215898793350094"
-        },
-        {
-          "file": "libs/native-federation-runtime/src/lib/model/remotes.ts",
-          "hash": "16606985014331254739"
-        },
-        {
-          "file": "libs/native-federation-runtime/src/lib/test-setup.ts",
+          "file": "libs/mf-runtime/src/test-setup.ts",
           "hash": "12935735732682149507",
           "deps": [
             "npm:jest-preset-angular"
           ]
         },
         {
-          "file": "libs/native-federation-runtime/src/lib/utils/add-import-map.ts",
-          "hash": "10185423321876014274"
+          "file": "libs/mf-runtime/tsconfig.json",
+          "hash": "3499000021037492296"
         },
         {
-          "file": "libs/native-federation-runtime/src/lib/utils/path-utils.ts",
-          "hash": "12184303916163369946"
-        },
-        {
-          "file": "libs/native-federation-runtime/src/test-setup.ts",
-          "hash": "17711435995618823417",
-          "deps": [
-            "npm:jest-preset-angular"
-          ]
-        },
-        {
-          "file": "libs/native-federation-runtime/tsconfig.json",
-          "hash": "1658695516121167781"
-        },
-        {
-          "file": "libs/native-federation-runtime/tsconfig.lib.json",
+          "file": "libs/mf-runtime/tsconfig.lib.json",
           "hash": "5796668385415907511"
         },
         {
-          "file": "libs/native-federation-runtime/tsconfig.lib.prod.json",
+          "file": "libs/mf-runtime/tsconfig.lib.prod.json",
           "hash": "174503844014784742"
         },
         {
-          "file": "libs/native-federation-runtime/tsconfig.spec.json",
+          "file": "libs/mf-runtime/tsconfig.spec.json",
           "hash": "2927375835638640771"
-        }
-      ],
-      "mfe1": [
-        {
-          "file": "apps/mfe1/.eslintrc.json",
-          "hash": "251138097496990787"
-        },
-        {
-          "file": "apps/mfe1/federation.config.js",
-          "hash": "11726088002829403721"
-        },
-        {
-          "file": "apps/mfe1/jest.config.ts",
-          "hash": "13764996843634799987"
-        },
-        {
-          "file": "apps/mfe1/project.json",
-          "hash": "12895201311906322038"
-        },
-        {
-          "file": "apps/mfe1/src/app/app.component.css",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "apps/mfe1/src/app/app.component.html",
-          "hash": "10199512307611283904"
-        },
-        {
-          "file": "apps/mfe1/src/app/app.component.spec.ts",
-          "hash": "6911117535540321767",
-          "deps": [
-            "npm:@angular/core"
-          ]
-        },
-        {
-          "file": "apps/mfe1/src/app/app.component.ts",
-          "hash": "7992352070778668639",
-          "deps": [
-            "npm:@angular/core"
-          ]
-        },
-        {
-          "file": "apps/mfe1/src/app/app.module.ts",
-          "hash": "744499547650684053",
-          "deps": [
-            "npm:@angular/core",
-            "npm:@angular/platform-browser"
-          ]
-        },
-        {
-          "file": "apps/mfe1/src/app/demo/demo.component.css",
-          "hash": "1016755280149560935"
-        },
-        {
-          "file": "apps/mfe1/src/app/demo/demo.component.html",
-          "hash": "6559933493931435071"
-        },
-        {
-          "file": "apps/mfe1/src/app/demo/demo.component.spec.ts",
-          "hash": "9722799810656735432",
-          "deps": [
-            "npm:@angular/core"
-          ]
-        },
-        {
-          "file": "apps/mfe1/src/app/demo/demo.component.ts",
-          "hash": "16148017430358684987",
-          "deps": [
-            "playground-lib",
-            "npm:@angular/common",
-            "npm:@angular/core"
-          ]
-        },
-        {
-          "file": "apps/mfe1/src/app/nx-welcome.component.ts",
-          "hash": "5245851637923571264",
-          "deps": [
-            "npm:@angular/core"
-          ]
-        },
-        {
-          "file": "apps/mfe1/src/assets/.gitkeep",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "apps/mfe1/src/bootstrap.ts",
-          "hash": "14896519517424602606",
-          "deps": [
-            "npm:@angular/core",
-            "npm:@angular/platform-browser-dynamic"
-          ]
-        },
-        {
-          "file": "apps/mfe1/src/environments/environment.prod.ts",
-          "hash": "10220522844224226756"
-        },
-        {
-          "file": "apps/mfe1/src/environments/environment.ts",
-          "hash": "15801694716951284069"
-        },
-        {
-          "file": "apps/mfe1/src/favicon.ico",
-          "hash": "9303420814833116677"
-        },
-        {
-          "file": "apps/mfe1/src/index.html",
-          "hash": "9136879220843058673"
-        },
-        {
-          "file": "apps/mfe1/src/main.ts",
-          "hash": "2147724939352774111",
-          "deps": [
-            "native-federation"
-          ]
-        },
-        {
-          "file": "apps/mfe1/src/polyfills.ts",
-          "hash": "5753337927676035656",
-          "deps": [
-            "npm:zone.js",
-            "npm:es-module-shims"
-          ]
-        },
-        {
-          "file": "apps/mfe1/src/styles.css",
-          "hash": "5195668842064076916"
-        },
-        {
-          "file": "apps/mfe1/src/test-setup.ts",
-          "hash": "17711435995618823417",
-          "deps": [
-            "npm:jest-preset-angular"
-          ]
-        },
-        {
-          "file": "apps/mfe1/tsconfig.app.json",
-          "hash": "6569194456818436848"
-        },
-        {
-          "file": "apps/mfe1/tsconfig.editor.json",
-          "hash": "6367495026318685054"
-        },
-        {
-          "file": "apps/mfe1/tsconfig.json",
-          "hash": "17981161305287108769"
-        },
-        {
-          "file": "apps/mfe1/tsconfig.spec.json",
-          "hash": "6658172359945877284"
-        }
-      ],
-      "mfe2-e2e": [
-        {
-          "file": "apps/mfe2-e2e/.eslintrc.json",
-          "hash": "15523834149352881398"
-        },
-        {
-          "file": "apps/mfe2-e2e/cypress.json",
-          "hash": "17454894667494371866"
-        },
-        {
-          "file": "apps/mfe2-e2e/project.json",
-          "hash": "17575689871100360623"
-        },
-        {
-          "file": "apps/mfe2-e2e/src/fixtures/example.json",
-          "hash": "11614668686582597233"
-        },
-        {
-          "file": "apps/mfe2-e2e/src/integration/app.spec.ts",
-          "hash": "10960588309802508115"
-        },
-        {
-          "file": "apps/mfe2-e2e/src/plugins/index.js",
-          "hash": "1870053236038166983",
-          "deps": [
-            "npm:@nx/cypress"
-          ]
-        },
-        {
-          "file": "apps/mfe2-e2e/src/support/app.po.ts",
-          "hash": "11157016311132186162"
-        },
-        {
-          "file": "apps/mfe2-e2e/src/support/commands.ts",
-          "hash": "7314691991044890572"
-        },
-        {
-          "file": "apps/mfe2-e2e/src/support/index.ts",
-          "hash": "9968213533773113880"
-        },
-        {
-          "file": "apps/mfe2-e2e/tsconfig.json",
-          "hash": "17327834683392158647"
         }
       ],
       "playground-lib": [
@@ -2270,128 +2384,6 @@
         {
           "file": "libs/playground-lib/tsconfig.spec.json",
           "hash": "6658172359945877284"
-        }
-      ],
-      "playground": [
-        {
-          "file": "apps/playground/.eslintrc.json",
-          "hash": "251138097496990787"
-        },
-        {
-          "file": "apps/playground/federation.config.js",
-          "hash": "3710068935049622761"
-        },
-        {
-          "file": "apps/playground/jest.config.ts",
-          "hash": "13668978495352725113"
-        },
-        {
-          "file": "apps/playground/project.json",
-          "hash": "1451434767386273048"
-        },
-        {
-          "file": "apps/playground/src/app/app.component.css",
-          "hash": "17418684592000289094"
-        },
-        {
-          "file": "apps/playground/src/app/app.component.html",
-          "hash": "7497086842130323323"
-        },
-        {
-          "file": "apps/playground/src/app/app.component.spec.ts",
-          "hash": "16891600822015205682",
-          "deps": [
-            "npm:@angular/core"
-          ]
-        },
-        {
-          "file": "apps/playground/src/app/app.component.ts",
-          "hash": "14170716185574022594",
-          "deps": [
-            "native-federation",
-            "playground-lib",
-            "npm:@angular/core"
-          ]
-        },
-        {
-          "file": "apps/playground/src/app/app.module.ts",
-          "hash": "9676466020239194331",
-          "deps": [
-            "npm:@angular/core",
-            "npm:@angular/platform-browser"
-          ]
-        },
-        {
-          "file": "apps/playground/src/assets/.gitkeep",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "apps/playground/src/bootstrap.ts",
-          "hash": "14896519517424602606",
-          "deps": [
-            "npm:@angular/core",
-            "npm:@angular/platform-browser-dynamic"
-          ]
-        },
-        {
-          "file": "apps/playground/src/environments/environment.prod.ts",
-          "hash": "10220522844224226756"
-        },
-        {
-          "file": "apps/playground/src/environments/environment.ts",
-          "hash": "15801694716951284069"
-        },
-        {
-          "file": "apps/playground/src/favicon.ico",
-          "hash": "9303420814833116677"
-        },
-        {
-          "file": "apps/playground/src/index.html",
-          "hash": "18184154050788975158"
-        },
-        {
-          "file": "apps/playground/src/main.ts",
-          "hash": "3349188418178751428",
-          "deps": [
-            "native-federation"
-          ]
-        },
-        {
-          "file": "apps/playground/src/polyfills.ts",
-          "hash": "5886890385542564182",
-          "deps": [
-            "npm:zone.js",
-            "npm:es-module-shims"
-          ]
-        },
-        {
-          "file": "apps/playground/src/styles.css",
-          "hash": "5195668842064076916"
-        },
-        {
-          "file": "apps/playground/src/test-setup.ts",
-          "hash": "7608486994823320296",
-          "deps": [
-            "npm:jest-preset-angular",
-            "npm:@angular/core",
-            "npm:@angular/platform-browser-dynamic"
-          ]
-        },
-        {
-          "file": "apps/playground/tsconfig.app.json",
-          "hash": "17391533230824388092"
-        },
-        {
-          "file": "apps/playground/tsconfig.editor.json",
-          "hash": "13708902743870995589"
-        },
-        {
-          "file": "apps/playground/tsconfig.json",
-          "hash": "15074473844620366262"
-        },
-        {
-          "file": "apps/playground/tsconfig.spec.json",
-          "hash": "9419262254794573494"
         }
       ]
     }

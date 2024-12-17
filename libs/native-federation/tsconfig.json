@@ -4,6 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
     //        "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,

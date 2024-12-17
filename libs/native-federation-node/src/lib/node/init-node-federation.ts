@@ -9,20 +9,19 @@ import {
   FederationInfo,
 } from '@softarc/native-federation-runtime';
 import { ImportMap, mergeImportMaps } from '@softarc/native-federation-runtime';
-import {
-  IMPORT_MAP_FILE_NAME,
-  resolveAndComposeImportMap,
-} from '../utils/import-map-loader';
+import { IMPORT_MAP_FILE_NAME } from '../utils/import-map-loader';
 import { resolver } from '../utils/loader-as-data-url';
 
 export type InitNodeFederationOptions = {
   remotesOrManifestUrl: Record<string, string> | string;
   relBundlePath: string;
+  throwIfRemoteNotFound: boolean;
 };
 
 const defaultOptions: InitNodeFederationOptions = {
   remotesOrManifestUrl: {},
   relBundlePath: '../browser',
+  throwIfRemoteNotFound: false,
 };
 
 export async function initNodeFederation(
@@ -30,11 +29,12 @@ export async function initNodeFederation(
 ): Promise<void> {
   const mergedOptions = { ...defaultOptions, ...options };
   const importMap = await createNodeImportMap(mergedOptions);
-  const normalized = resolveAndComposeImportMap(importMap) as ImportMap;
-  writeImportMap(normalized);
 
-  const buffer = Buffer.from(resolver, 'base64');
-  await fs.writeFile('federation-resolver.mjs', buffer, 'utf-8');
+  // const normalized = resolveAndComposeImportMap(importMap) as ImportMap;
+  // await writeImportMap(normalized);
+
+  await writeImportMap(importMap);
+  await writeResolver();
 
   register(pathToFileURL('./federation-resolver.mjs').href);
 }
@@ -47,11 +47,13 @@ async function createNodeImportMap(
   const remotes =
     typeof remotesOrManifestUrl === 'object'
       ? remotesOrManifestUrl
-      : await loadFsManifest(relBundlePath, remotesOrManifestUrl);
+      : await loadFsManifest(remotesOrManifestUrl);
 
   const hostInfo = await loadFsFederationInfo(relBundlePath);
   const hostImportMap = await processHostInfo(hostInfo, relBundlePath);
-  const remotesImportMap = await processRemoteInfos(remotes);
+  const remotesImportMap = await processRemoteInfos(remotes, {
+    throwIfRemoteNotFound: options.throwIfRemoteNotFound,
+  });
 
   const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
 
@@ -59,11 +61,9 @@ async function createNodeImportMap(
 }
 
 async function loadFsManifest(
-  relBundlePath: string,
-  manifestName: string
+  manifestUrl: string
 ): Promise<Record<string, string>> {
-  const manifestPath = path.join(relBundlePath, manifestName);
-  const content = await fs.readFile(manifestPath, 'utf-8');
+  const content = await fs.readFile(manifestUrl, 'utf-8');
   const manifest = JSON.parse(content) as Record<string, string>;
   return manifest;
 }
@@ -83,4 +83,9 @@ async function writeImportMap(map: ImportMap): Promise<void> {
     JSON.stringify(map, null, 2),
     'utf-8'
   );
+}
+
+async function writeResolver() {
+  const buffer = Buffer.from(resolver, 'base64');
+  await fs.writeFile('federation-resolver.mjs', buffer, 'utf-8');
 }

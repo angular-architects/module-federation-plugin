@@ -1,8 +1,3 @@
-//
-//  Taken and modified from
-//  https://raw.githubusercontent.com/node-loader/
-//
-
 import path from 'path';
 import url from 'url';
 import { promises as fs } from 'fs';
@@ -241,59 +236,39 @@ let importMapPromise = getImportMapPromise();
 export async function resolve(specifier, context, defaultResolve) {
   const { parentURL = null } = context;
   const importMap = await importMapPromise;
-  let importMapUrl = resolveSpecifier(importMap, specifier, parentURL);
+  const importMapUrl = resolveSpecifier(importMap, specifier, parentURL);
 
-  if (
-    importMapUrl?.startsWith('http://') ||
-    importMapUrl?.startsWith('https://')
-  ) {
-    importMapUrl = await cacheBundle(importMapUrl);
-  }
-
-  const r = defaultResolve(importMapUrl ?? specifier, context, defaultResolve);
-
-  return r.then((r) => {
-    return { ...r, format: 'module' };
-  });
+  return defaultResolve(importMapUrl ?? specifier, context, defaultResolve);
 }
 
-async function cacheBundle(importMapUrl) {
-  const fileName = importMapUrl.replace(/[^a-zA-Z0-9.]/g, '_');
-  const filePath = path.join('./cache', fileName);
-
-  if (!(await exists(filePath))) {
-    const res = await fetch(importMapUrl);
+export async function load(url, context, defaultLoad) {
+  // Falls das URL-Schema http oder https ist, holen wir den Inhalt über Fetch
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch module from ${url}`);
+    }
     const source = await res.text();
-    await ensureCacheFolder();
-    await fs.writeFile(filePath, source, 'utf-8');
+    return {
+      shortCircuit: true,
+      format: 'module', // Wir nehmen an, es handelt sich um ein ESM-Modul
+      source,
+    };
   }
 
-  importMapUrl = path.resolve('./' + filePath);
-  return importMapUrl;
-}
+  // Default loader für alle anderen Module
+  context.format = 'module';
 
-async function ensureCacheFolder() {
-  if (!(await exists('./cache'))) {
-    await fs.mkdir('./cache');
-  }
+  return defaultLoad(url, context, defaultLoad);
 }
-
-// export async function load(url, context, defaultLoad) {
-//   return defaultLoad(url, context, defaultLoad);
-// }
 
 async function getImportMapPromise() {
-  const importMapPath = path.resolve(process.cwd(), IMPORT_MAP_FILE_NAME);
+  const relativePath = process.env.IMPORT_MAP_PATH || IMPORT_MAP_FILE_NAME;
+  const importMapPath = path.resolve(process.cwd(), relativePath);
 
   let str;
   try {
-    // str = await fs.readFile(importMapPath);
-    str = await fs.readFile(IMPORT_MAP_FILE_NAME, {
-      encoding: 'utf-8',
-    });
-    if (!str) {
-      throw new Error('error loading ' + importMapPath);
-    }
+    str = await fs.readFile(importMapPath);
   } catch (err) {
     return emptyMap();
   }
@@ -307,8 +282,7 @@ async function getImportMapPromise() {
     );
   }
 
-  const r = resolveAndComposeImportMap(json);
-  return r;
+  return resolveAndComposeImportMap(json);
 }
 
 global.nodeLoader = global.nodeLoader || {};
@@ -321,13 +295,4 @@ global.nodeLoader.setImportMapPromise = function setImportMapPromise(promise) {
 
 function emptyMap() {
   return { imports: {}, scopes: {} };
-}
-
-async function exists(path) {
-  try {
-    await fs.access(path);
-    return true;
-  } catch (err) {
-    return false;
-  }
 }
