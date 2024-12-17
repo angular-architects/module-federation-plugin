@@ -241,11 +241,10 @@ So far, we just hardcoded the URLs pointing to our Micro Frontends. However, in 
 import { loadManifest } from '@angular-architects/module-federation';
 
 loadManifest('assets/mf.manifest.json')
-.catch((err) => console.error('Error loading remote entries', err))
-.then(() => import('./bootstrap'))
-.catch((err) => console.error(err));
-
-````
+  .catch((err) => console.error('Error loading remote entries', err))
+  .then(() => import('./bootstrap'))
+  .catch((err) => console.error(err));
+```
 
 The imported `loadManifest` function also loads the remote entry points.
 
@@ -262,7 +261,7 @@ The imported `loadManifest` function also loads the remote entry points.
        })
        .then(m => m.FlightsModule)
 },
-````
+```
 
 4. Restart both, the `shell` and the micro frontend (`mfe1`).
 
