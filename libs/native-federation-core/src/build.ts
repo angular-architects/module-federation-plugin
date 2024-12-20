@@ -1,3 +1,5 @@
+export { DEFAULT_SKIP_LIST } from './lib/core/default-skip-list';
+
 export { NormalizedFederationConfig } from './lib/config/federation-config';
 export { FederationOptions } from './lib/core/federation-options';
 export { setBuildAdapter } from './lib/core/build-adapter';
@@ -29,3 +31,4 @@ export {
 export { logger, setLogLevel } from './lib/utils/logger';
 export { hashFile } from './lib/utils/hash-file';
 export * from './lib/utils/build-result-map';
+

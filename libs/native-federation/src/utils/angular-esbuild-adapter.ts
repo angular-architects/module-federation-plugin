@@ -271,7 +271,7 @@ async function runEsbuild(
       'object-rest-spread': false,
     },
     splitting: kind === 'mapping-or-exposed',
-    platform: 'browser',
+    platform: 'node',
     format: 'esm',
     target: ['esnext'],
     logLimit: kind === 'shared-package' ? 1 : 0,

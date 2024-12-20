@@ -6,6 +6,7 @@ import {
   DEFAULT_SKIP_LIST,
   isInSkipList,
   PREPARED_DEFAULT_SKIP_LIST,
+  PreparedSkipList,
   prepareSkipList,
   SkipList,
 } from '../core/default-skip-list';
@@ -321,7 +322,7 @@ export function shareAll(
     }
   }
 
-  return module.exports.share(share, projectPath);
+  return module.exports.share(share, projectPath, skip);
 }
 
 function inferProjectPath(projectPath: string) {
@@ -351,7 +352,8 @@ type TransientDependency = {
 
 function findTransientDeps(
   packageNames: string[],
-  projectRoot: string
+  projectRoot: string,
+  preparedSkipList: PreparedSkipList
 ): TransientDependency[] {
   const discovered = new Set<string>();
   const result: TransientDependency[] = [];
@@ -363,7 +365,13 @@ function findTransientDeps(
       packageName,
       'package.json'
     );
-    _findTransientDeps(packagePath, projectRoot, discovered, result);
+    _findTransientDeps(
+      packagePath,
+      projectRoot,
+      preparedSkipList,
+      discovered,
+      result
+    );
   }
 
   return result;
@@ -372,6 +380,7 @@ function findTransientDeps(
 function _findTransientDeps(
   packagePath: string,
   projectRoot: string,
+  preparedSkipList: PreparedSkipList,
   discovered: Set<string>,
   result: TransientDependency[]
 ) {
@@ -391,7 +400,11 @@ function _findTransientDeps(
     );
     const depPath = path.dirname(depPackageJson);
 
-    if (!discovered.has(depPackageJson)) {
+    if (
+      !discovered.has(depPackageJson) &&
+      !isInSkipList(dep, preparedSkipList) &&
+      fs.existsSync(depPackageJson)
+    ) {
       discovered.add(depPackageJson);
       const version = packageJson.dependencies[dep];
       result.push({
@@ -399,14 +412,21 @@ function _findTransientDeps(
         requiredVersion: version,
         packagePath: depPath,
       });
-      _findTransientDeps(depPackageJson, projectRoot, discovered, result);
+      _findTransientDeps(
+        depPackageJson,
+        projectRoot,
+        preparedSkipList,
+        discovered,
+        result
+      );
     }
   }
 }
 
 export function share(
   configuredShareObjects: Config,
-  projectPath = ''
+  projectPath = '',
+  skipList = DEFAULT_SKIP_LIST
 ): Config {
   projectPath = inferProjectPath(projectPath);
   const packagePath = findPackageJson(projectPath);
@@ -414,7 +434,13 @@ export function share(
   const sharedPackageNames = Object.keys(configuredShareObjects);
   const packageDirectory = path.dirname(packagePath);
 
-  const transientDeps = findTransientDeps(sharedPackageNames, packageDirectory);
+  const preparedSkipList = prepareSkipList(skipList);
+
+  const transientDeps = findTransientDeps(
+    sharedPackageNames,
+    packageDirectory,
+    preparedSkipList
+  );
 
   const transientShareObject = transientDeps.reduce(
     (acc, curr) => ({
