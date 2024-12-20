@@ -6,7 +6,7 @@
     "ng": "nx",
     "nx": "nx",
     "build": "npm run build:mf && npm run build:nf",
-    "build:mf": "nx run-many -t build --projects=tag:scope:mf* && nx run mf:post-build",
+    "build:mf": "nx run-many -t build --projects=tag:scope:mf*",
     "build:nf": "nx run-many -t build --projects=tag:scope:nf* && nx run native-federation:post-build",
     "lint": "nx workspace-lint && ng lint",
     "e2e": "ng e2e",
