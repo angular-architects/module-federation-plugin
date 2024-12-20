@@ -16,6 +16,8 @@ export const DEFAULT_SKIP_LIST: SkipList = [
   '@angular/localize',
   '@angular/localize/init',
   '@angular/localize/tools',
+  (pkg) => pkg.startsWith('@angular/common/locales'),
+  (pkg) => pkg.startsWith('rxjs/internal'),
   '@angular/platform-server',
   '@angular/platform-server/init',
   '@angular/ssr',

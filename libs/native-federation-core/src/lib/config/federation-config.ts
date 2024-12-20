@@ -7,6 +7,11 @@ export interface SharedConfig {
   requiredVersion?: string;
   version?: string;
   includeSecondaries?: boolean;
+  packageInfo?: {
+    entryPoint: string;
+    version: string;
+    esm: boolean;
+  };
 }
 
 export interface FederationConfig {
@@ -23,6 +28,11 @@ export interface NormalizedSharedConfig {
   requiredVersion: string;
   version?: string;
   includeSecondaries?: boolean;
+  packageInfo?: {
+    entryPoint: string;
+    version: string;
+    esm: boolean;
+  };
 }
 
 export interface NormalizedFederationConfig {

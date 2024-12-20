@@ -26,10 +26,19 @@ export async function bundleShared(
 
   fs.mkdirSync(cachePath, { recursive: true });
 
-  const packageInfos = Object.keys(config.shared)
-    // .filter((packageName) => !isInSkipList(packageName, PREPARED_DEFAULT_SKIP_LIST))
+  const inferedPackageInfos = Object.keys(config.shared)
+    .filter((packageName) => !config.shared[packageName].packageInfo)
     .map((packageName) => getPackageInfo(packageName, folder))
     .filter((pi) => !!pi) as PackageInfo[];
+
+  const configuredPackageInfos = Object.keys(config.shared)
+    .filter((packageName) => !!config.shared[packageName].packageInfo)
+    .map((packageName) => ({
+      packageName,
+      ...config.shared[packageName].packageInfo,
+    })) as PackageInfo[];
+
+  const packageInfos = [...inferedPackageInfos, ...configuredPackageInfos];
 
   const configState =
     fs.readFileSync(path.join(__dirname, '../../../package.json')) +

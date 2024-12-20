@@ -45,3 +45,5 @@ migrations.json
 
 # Angular
 .angular
+
+.nx

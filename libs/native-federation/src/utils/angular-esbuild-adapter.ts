@@ -40,8 +40,6 @@ import { RebuildEvents, RebuildHubs } from './rebuild-events';
 import JSON5 from 'json5';
 // import { ComponentStylesheetBundler } from '@angular/build/src/tools/esbuild/angular/component-stylesheets';
 
-import { ComponentStylesheetBundler } from '@angular/build/private';
-
 // const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
 
 export type MemResultHandler = (
@@ -249,6 +247,9 @@ async function runEsbuild(
     undefined
   );
 
+  const commonjsPluginModule = await import('@chialab/esbuild-plugin-commonjs');
+  const commonjsPlugin = commonjsPluginModule.default;
+
   pluginOptions.styleOptions.externalDependencies = [];
 
   const config: esbuild.BuildOptions = {
@@ -274,21 +275,36 @@ async function runEsbuild(
     format: 'esm',
     target: ['esnext'],
     logLimit: kind === 'shared-package' ? 1 : 0,
-    plugins:
-      plugins ||
-      ([
-        createCompilerPlugin(
-          pluginOptions.pluginOptions,
-          new ComponentStylesheetBundler(
-            pluginOptions.styleOptions,
-            builderOptions.inlineStyleLanguage,
-            false
-          )
-        ),
-        ...(mappedPaths && mappedPaths.length > 0
-          ? [createSharedMappingsPlugin(mappedPaths)]
-          : []),
-      ] as any),
+    plugins: plugins || [
+      createCompilerPlugin(
+        pluginOptions.pluginOptions,
+        pluginOptions.styleOptions
+
+        // TODO: Once available, use helper functions
+        //  for creating these config objects:
+        //  @angular_devkit/build_angular/src/tools/esbuild/compiler-plugin-options.ts
+        // {
+        //   jit: false,
+        //   sourcemap: dev,
+        //   tsconfig: tsConfigPath,
+        //   advancedOptimizations: !dev,
+        //   thirdPartySourcemaps: false,
+        // },
+        // {
+        //   optimization: !dev,
+        //   sourcemap: dev ? 'inline' : false,
+        //   workspaceRoot: __dirname,
+        //   inlineStyleLanguage: builderOptions.inlineStyleLanguage,
+        //   // browsers: browsers,
+
+        //   target: target,
+        // }
+      ),
+      ...(mappedPaths && mappedPaths.length > 0
+        ? [createSharedMappingsPlugin(mappedPaths)]
+        : []),
+      commonjsPlugin(),
+    ],
     define: {
       ...(!dev ? { ngDevMode: 'false' } : {}),
       ngJitMode: 'false',
