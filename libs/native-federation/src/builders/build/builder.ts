@@ -284,7 +284,7 @@ export async function* runBuilder(
       yield output;
     }
 
-    if (!first && nfOptions.dev) {
+    if (!first && (nfOptions.dev || watch)) {
       setTimeout(async () => {
         await buildForFederation(config, fedOptions, externals);
         logger.info('Done!');
