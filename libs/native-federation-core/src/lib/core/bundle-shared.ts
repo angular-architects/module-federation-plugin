@@ -26,10 +26,23 @@ export async function bundleShared(
 
   fs.mkdirSync(cachePath, { recursive: true });
 
-  const packageInfos = Object.keys(config.shared)
-    // .filter((packageName) => !isInSkipList(packageName, PREPARED_DEFAULT_SKIP_LIST))
+  const inferedPackageInfos = Object.keys(config.shared)
+    .filter((packageName) => !config.shared[packageName].packageInfo)
     .map((packageName) => getPackageInfo(packageName, folder))
     .filter((pi) => !!pi) as PackageInfo[];
+
+  const configuredPackageInfos = Object.keys(config.shared)
+    .filter((packageName) => !!config.shared[packageName].packageInfo)
+    .map((packageName) => ({
+      packageName,
+      ...config.shared[packageName].packageInfo,
+    })) as PackageInfo[];
+
+  const packageInfos = [...inferedPackageInfos, ...configuredPackageInfos];
+
+  const configState =
+    fs.readFileSync(path.join(__dirname, '../../../package.json')) +
+    JSON.stringify(config);
 
   const allEntryPoints = packageInfos.map((pi) => {
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
@@ -39,7 +52,7 @@ export async function bundleShared(
     //   ? `${encName}-${encVersion}-dev.js`
     //   : `${encName}-${encVersion}.js`;
 
-    const hash = calcHash(pi);
+    const hash = calcHash(pi, configState);
 
     const outName = fedOptions.dev
       ? `${encName}.${hash}-dev.js`
@@ -138,8 +151,8 @@ export async function bundleShared(
   });
 }
 
-function calcHash(pi: PackageInfo) {
-  const hashBase = pi.version + '_' + pi.entryPoint;
+function calcHash(pi: PackageInfo, configState: string) {
+  const hashBase = pi.version + '_' + pi.entryPoint + '_' + configState;
   const hash = crypto
     .createHash('sha256')
     .update(hashBase)

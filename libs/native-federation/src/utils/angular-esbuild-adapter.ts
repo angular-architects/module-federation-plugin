@@ -246,6 +246,9 @@ async function runEsbuild(
     undefined
   );
 
+  const commonjsPluginModule = await import('@chialab/esbuild-plugin-commonjs');
+  const commonjsPlugin = commonjsPluginModule.default;
+
   pluginOptions.styleOptions.externalDependencies = [];
 
   const config: esbuild.BuildOptions = {
@@ -299,6 +302,7 @@ async function runEsbuild(
       ...(mappedPaths && mappedPaths.length > 0
         ? [createSharedMappingsPlugin(mappedPaths)]
         : []),
+      commonjsPlugin(),
     ],
     define: {
       ...(!dev ? { ngDevMode: 'false' } : {}),

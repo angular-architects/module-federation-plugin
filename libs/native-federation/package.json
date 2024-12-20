@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/native-federation",
-  "version": "18.2.2",
+  "version": "18.2.5",
   "main": "src/index.js",
   "generators": "./collection.json",
   "builders": "./builders.json",
@@ -20,9 +20,10 @@
   },
   "dependencies": {
     "@babel/core": "^7.19.0",
-    "@softarc/native-federation": "2.0.10",
-    "@softarc/native-federation-runtime": "2.0.10",
+    "@softarc/native-federation": "2.0.12",
+    "@softarc/native-federation-runtime": "2.0.12",
     "@types/browser-sync": "^2.29.0",
+    "@chialab/esbuild-plugin-commonjs": "^0.18.0",
     "browser-sync": "^3.0.2",
     "esbuild": "^0.19.5",
     "mrmime": "^1.0.1",

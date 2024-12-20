@@ -16,6 +16,7 @@ import {
 } from '../utils/package-info';
 import { getConfigContext } from './configuration-context';
 import { logger } from '../utils/logger';
+import { resolveGlobSync } from '../utils/resolve-glob';
 
 let inferVersion = false;
 
@@ -64,16 +65,6 @@ function findPackageJson(folder: string): string {
       folder
   );
 }
-
-// TODO: Unused, to delete?
-// function readVersionMap(packagePath: string): VersionMap {
-//   // eslint-disable-next-line @typescript-eslint/no-var-requires
-//   const json = require(packagePath);
-//   const versions = {
-//     ...json['dependencies'],
-//   };
-//   return versions;
-// }
 
 function lookupVersion(key: string, workspaceRoot: string): string {
   const versionMaps = getVersionMaps(workspaceRoot, workspaceRoot);
@@ -214,14 +205,13 @@ function readConfiguredSecondaries(
     (key) =>
       key != '.' &&
       key != './package.json' &&
-      !key.endsWith('*') &&
+      key.startsWith('./') &&
       (exports[key]['default'] || typeof exports[key] === 'string')
   );
 
   const result = {} as Record<string, SharedConfig>;
 
   for (const key of keys) {
-    // const relPath = exports[key]['default'];
     const secondaryName = path.join(parent, key).replace(/\\/g, '/');
 
     if (exclude.includes(secondaryName)) {
@@ -240,20 +230,40 @@ function readConfiguredSecondaries(
     }
 
     if (
-      entry?.endsWith('.css') ||
-      entry?.endsWith('.scss') ||
-      entry?.endsWith('.less')
+      !entry?.endsWith('.js') &&
+      !entry?.endsWith('.mjs') &&
+      !entry?.endsWith('.cjs')
     ) {
       continue;
     }
 
-    result[secondaryName] = {
-      ...shareObject,
-      // import: path.join(libPath, relPath)
-    };
+    const items = resolveSecondaries(key, libPath, parent, secondaryName);
+
+    for (const item of items) {
+      result[item] = {
+        ...shareObject,
+      };
+    }
   }
 
   return result;
+}
+
+function resolveSecondaries(
+  key: string,
+  libPath: string,
+  parent: string,
+  secondaryName: string
+) {
+  let items = [];
+  if (key.includes('*')) {
+    items = resolveGlobSync(key, libPath).map((e) =>
+      path.join(parent, e.substring(libPath.length))
+    );
+  } else {
+    items = [secondaryName];
+  }
+  return items;
 }
 
 function getDefaultEntry(
@@ -333,12 +343,92 @@ export function setInferVersion(infer: boolean): void {
   inferVersion = infer;
 }
 
-export function share(shareObjects: Config, projectPath = ''): Config {
-  projectPath = inferProjectPath(projectPath);
+type TransientDependency = {
+  packageName: string;
+  requiredVersion: string;
+  packagePath: string;
+};
 
+function findTransientDeps(
+  packageNames: string[],
+  projectRoot: string
+): TransientDependency[] {
+  const discovered = new Set<string>();
+  const result: TransientDependency[] = [];
+
+  for (const packageName of packageNames) {
+    const packagePath = path.join(
+      projectRoot,
+      'node_modules',
+      packageName,
+      'package.json'
+    );
+    _findTransientDeps(packagePath, projectRoot, discovered, result);
+  }
+
+  return result;
+}
+
+function _findTransientDeps(
+  packagePath: string,
+  projectRoot: string,
+  discovered: Set<string>,
+  result: TransientDependency[]
+) {
+  if (!fs.existsSync(packagePath)) {
+    return;
+  }
+
+  const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf-8'));
+
+  const deps = Object.keys(packageJson.dependencies ?? {});
+  for (const dep of deps) {
+    const depPackageJson = path.join(
+      projectRoot,
+      'node_modules',
+      dep,
+      'package.json'
+    );
+    const depPath = path.dirname(depPackageJson);
+
+    if (!discovered.has(depPackageJson)) {
+      discovered.add(depPackageJson);
+      const version = packageJson.dependencies[dep];
+      result.push({
+        packageName: dep,
+        requiredVersion: version,
+        packagePath: depPath,
+      });
+      _findTransientDeps(depPackageJson, projectRoot, discovered, result);
+    }
+  }
+}
+
+export function share(
+  configuredShareObjects: Config,
+  projectPath = ''
+): Config {
+  projectPath = inferProjectPath(projectPath);
   const packagePath = findPackageJson(projectPath);
 
-  // const versions = readVersionMap(packagePath);
+  const sharedPackageNames = Object.keys(configuredShareObjects);
+  const packageDirectory = path.dirname(packagePath);
+
+  const transientDeps = findTransientDeps(sharedPackageNames, packageDirectory);
+
+  const transientShareObject = transientDeps.reduce(
+    (acc, curr) => ({
+      ...acc,
+      [curr.packageName]: { path: curr.packagePath },
+    }),
+    {}
+  );
+
+  const shareObjects = {
+    ...configuredShareObjects,
+    ...transientShareObject,
+  };
+
   const result: any = {};
   let includeSecondaries;
 
@@ -394,7 +484,7 @@ export function share(shareObjects: Config, projectPath = ''): Config {
 
 function addSecondaries(
   secondaries: Record<string, SharedConfig>,
-  result: any
+  result: Record<string, SharedConfig>
 ) {
   for (const key in secondaries) {
     result[key] = secondaries[key];
