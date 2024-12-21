@@ -3,5 +3,5 @@ export {
   findRootTsConfigJson,
   share,
   shareAll,
-  DEFAULT_SKIP_LIST
+  DEFAULT_SKIP_LIST,
 } from '@softarc/native-federation/build';

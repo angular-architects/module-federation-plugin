@@ -5,10 +5,15 @@ Native Federation is a "browser-native" implementation of the successful mental 
 ## Features 🔥
 
 - ✅ Mental Model of Module Federation
-- ✅ Future Proof: Independent of build tools like webpack
-- ✅ Embraces Import Maps - an emerging web standard
+- ✅ Future Proof: Uses **Web Standards** to be **independent** of build tools like webpack
+- ✅ Neat Angular-Integration: **Directly delegates** to Angular's new ultra-fast esbuild-based ApplicationBuilder to **prevent diverging** from the Angular standard.
+
+### More
+
+- ✅ Embraces ESM and Import Maps - an emerging web standard
 - ✅ Easy to configure: We use the same API and Schematics as for our Module Federation plugin
 - ✅ Blazing Fast: The reference implementation not only uses the fast esbuild; it also caches already built shared dependencies.
+- ✅ Supports Angular SSR and Incremental Hydration (since 18@latest)
 
 ## Prerequisite
 
@@ -23,14 +28,19 @@ We will at least provide a new version of this package per Angular major. If nec
 - Use version 16.1.x for Angular 16.1.x
 - Use version 16.2.x for Angular 16.2.x
 - Use version 17.x for Angular 17.x
-- Use version 17.1.x for Angular 17.1+
-- Use version 18.x for Angular 18+
-- Use version 18.1.x for Angular 18.1+
-- Use version 18.2.x for Angular 18.2+
+- Use version 17.1.x for Angular 17.1
+- Use version 18.x for Angular 18.0.x
+- Use version 18.1.x for Angular 18.1.x
+- Use version 18.2.x for Angular 18.2.x
+- Use version 19.x for Angular 19.x
 
 ## Migration from Module Federation
 
 If you currently use Angular with Module Federation, you can follow our [Migration Guide](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/docs/migrate.md) to migrate to Native Federation and Angular's new fast esbuild-based build system.
+
+## Using Module Federation and Native Federation Side-by-Side
+
+[In this article](https://www.angulararchitects.io/en/blog/combining-native-federation-and-module-federation/) we describe, how to use both technologies side-by-side.
 
 ## Updates
 
@@ -40,7 +50,7 @@ Notes for [updating to version 18](https://github.com/angular-architects/module-
 
 ## Angular Integration
 
-Since 17.1, Native Federation for Angular uses the Angular CLI's `esbuild`-based **Application Builder** and the CLI's **Dev Server** to keep track with all the innovations and performance-improvements in that space.
+Since 17.1, Native Federation for Angular uses the Angular CLI's `esbuild`-based **Application Builder** and the CLI's **Dev Server** to **keep track with all the innovations and performance-improvements provided by the Angular CLI team.**
 
 Please find some [information for upgrading to 17.1. here](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/migrate-appbuilder.md).
 
@@ -318,11 +328,7 @@ Now, by clicking at the 2nd menu item, you can load the remote directly into the
 
 ### When to use this package?
 
-If you like the idea of webpack Module Federation but want to switch over to Angular's new esbuild builder (currently in developer preview), you can use this package.
-
-### Error: File 'src\main.ts' is missing from the TypeScript compilation. [plugin angular-compiler]
-
-It seems like the current version of Angular's esbuild builder has an issue with paths on Windows when using the traditional command prompt. For the time being, try to ng serve and ng build your application via PowerShell, the git bash, or WSL.
+If you like the idea of webpack Module Federation but want to switch over to Angular's new esbuild builder, you can use this package.
 
 ### I get an error when preparing shared packages. What to do?
 
@@ -337,6 +343,39 @@ For this, there are several reasons:
 - Perhaps you try to share a package intended for NodeJS/ a package that cannot be converted to EcmaScript modules. This happens if you use `shareAll` in the `federation.config.js` and when the package in question is part of your dependencies in `package.json`. If you don't need (to share) this package at runtime, move it to `devDependencies` or add it to the `skip` section of your `federation.config.js`.
 
 - Perhaps your shared packages contain some code esbuild cannot transfer to EcmaScript modules. This should not be the case for packages, built with the Angular CLI or Nx and the underlying package ng-packagr. If this happens, please let us know about the package causing troubles.
+
+### How to deal with CommonJS Packages?
+
+The good message is, that the official Angular Package Format defines the usage of ECMA Script Modules (ESM) for years. This is the future-proof standard, Native Federation is built upon and all npm packages created with the Angular CLI follow. If you use older CommonJS-based packages, Native Federation automatically converts them to ESM. Depending on the package, this might change some details. Here, you find some [information for dealing with CommonJS packages](https://shorturl.at/jmzH0).
+
+## How to Deal with Transitive Dependencies?
+
+Since version 18@latest, also transitive dependencies are shared. For instance, `primeng` uses a lib `@primeuix/styled` for theming. The latter one is now shared too if `primeng` is. This prevents possible challanges but also results in more bundles. If you don't want to share such a transitive dependency, just put it into the `skip` list.
+
+## How to Manually Define a Package's Entry Point?
+
+Usually, Native Federation automatically detects entry points into shared packages. If the packages neither align with the official standard nor with typical conventions beyond these standards, you can also directly provide the entry point:
+
+```js
+module.exports = withNativeFederation({
+  shared: {
+    ...shareAll({
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+    }),
+    'test-pkg': {
+      packageInfo: {
+        entryPoint: '/path/to/test-pkg/entry.mjs',
+        version: '1.0.0',
+        esm: true,
+      },
+    },
+  },
+});
+```
+
+As in such cases, we cannot expect to find a `package.json` nearby, you also have to specifiy the `version` and the `esm` flag by hand.
 
 ### How to speed up package preparation during the build process
 

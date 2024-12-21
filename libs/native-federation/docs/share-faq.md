@@ -55,3 +55,44 @@ skip: [
   /^my-package/, // RegExp
 ];
 ```
+
+As an alternative, you can also provide a lambda expression:
+
+```typescript
+skip: [
+  'this-package', // string-based entry
+  'that-package', // another string-based one
+  (p) => p.startsWith('my-package'), // RegExp
+];
+```
+
+Please note, that a provided string is fully compared (not with startsWith semantic). Hence, in this example shown, `this-package` is excluded but not secondary entry points like `this-package/interop`.
+
+## Transitive Dependencies
+
+Since version 18@latest, also transitive dependencies are shared. For instance, `primeng` and individual theming packages for `primeng` communicate via the lib `@primeuix/styled`. The latter one is now shared too together with the two former ones. This prevents possible challanges but also results in more bundles. If you don't want to share such a transitive dependency, just put it into the `skip` list.
+
+## Manually Providing a Package's Entry Point
+
+Usually, Native Federation automatically detects entry points into shared packages. If the packages neither align with the official standard nor with typical conventions beyond these standards, you can also directly provide the entry point:
+
+```js
+module.exports = withNativeFederation({
+  shared: {
+    ...shareAll({
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+    }),
+    'test-pkg': {
+      packageInfo: {
+        entryPoint: '/path/to/test-pkg/entry.mjs',
+        version: '1.0.0',
+        esm: true,
+      },
+    },
+  },
+});
+```
+
+As in such cases, we cannot expect to find a `package.json` nearby, you also have to specifiy the `version` and the `esm` flag by hand.
