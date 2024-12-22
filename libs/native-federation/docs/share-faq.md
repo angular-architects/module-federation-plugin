@@ -70,7 +70,25 @@ Please note, that a provided string is fully compared (not with startsWith seman
 
 ## Transitive Dependencies
 
-Since version 18@latest, also transitive dependencies are shared. For instance, `primeng` and individual theming packages for `primeng` communicate via the lib `@primeuix/styled`. The latter one is now shared too together with the two former ones. This prevents possible challanges but also results in more bundles. If you don't want to share such a transitive dependency, just put it into the `skip` list.
+Since version 18@latest, also transitive dependencies can be shared. For instance, `primeng` uses a lib `@primeuix/styled` for theming. The latter one is now shared too if `primeng` is. This prevents possible challanges but also results in more bundles.
+
+To activate sharing transient dependencies, set the new `transient` flag provided by `share` and `shareAll` to `true`:
+
+```js
+module.exports = withNativeFederation({
+  shared: {
+    ...shareAll({
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+      transient: true
+    }),
+  },
+  [...]
+});
+```
+
+The `skip` list will also be used for filtering transient dependencies. Hence, you can combine it with `shareAll` and `transient: true`.
 
 ## Manually Providing a Package's Entry Point
 

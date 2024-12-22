@@ -350,7 +350,25 @@ The good message is, that the official Angular Package Format defines the usage 
 
 ## How to Deal with Transitive Dependencies?
 
-Since version 18@latest, also transitive dependencies are shared. For instance, `primeng` uses a lib `@primeuix/styled` for theming. The latter one is now shared too if `primeng` is. This prevents possible challanges but also results in more bundles. If you don't want to share such a transitive dependency, just put it into the `skip` list.
+Since version 18@latest, also transitive dependencies can be shared. For instance, `primeng` uses a lib `@primeuix/styled` for theming. The latter one is now shared too if `primeng` is. This prevents possible challanges but also results in more bundles.
+
+To activate sharing transient dependencies, set the new `transient` flag provided by `share` and `shareAll` to `true`:
+
+```js
+module.exports = withNativeFederation({
+  shared: {
+    ...shareAll({
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+      transient: true
+    }),
+  },
+  [...]
+});
+```
+
+The `skip` list will also be used for filtering transient dependencies. Hence, you can combine it with `shareAll` and `transient: true`.
 
 ## How to Manually Define a Package's Entry Point?
 
