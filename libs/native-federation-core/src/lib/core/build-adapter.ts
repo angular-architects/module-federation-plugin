@@ -30,6 +30,7 @@ export interface BuildAdapterOptions {
   watch?: boolean;
   kind: BuildKind;
   hash: boolean;
+  platform?: 'browser' | 'node';
 }
 
 export interface BuildResult {

@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { NormalizedFederationConfig } from '../config/federation-config';
+import { NormalizedFederationConfig, NormalizedSharedConfig } from '../config/federation-config';
 import { bundle } from '../utils/build-utils';
 import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { SharedInfo } from '@softarc/native-federation-runtime';
@@ -11,9 +11,11 @@ import { normalize } from '../utils/normalize';
 import crypto from 'crypto';
 
 export async function bundleShared(
+  sharedBundles: Record<string, NormalizedSharedConfig>,
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
-  externals: string[]
+  externals: string[],
+  platform: 'browser' | 'node' = 'browser'
 ): Promise<Array<SharedInfo>> {
   const folder = fedOptions.packageJson
     ? path.dirname(fedOptions.packageJson)
@@ -26,16 +28,16 @@ export async function bundleShared(
 
   fs.mkdirSync(cachePath, { recursive: true });
 
-  const inferedPackageInfos = Object.keys(config.shared)
-    .filter((packageName) => !config.shared[packageName].packageInfo)
+  const inferedPackageInfos = Object.keys(sharedBundles)
+    .filter((packageName) => !sharedBundles[packageName].packageInfo)
     .map((packageName) => getPackageInfo(packageName, folder))
     .filter((pi) => !!pi) as PackageInfo[];
 
-  const configuredPackageInfos = Object.keys(config.shared)
-    .filter((packageName) => !!config.shared[packageName].packageInfo)
+  const configuredPackageInfos = Object.keys(sharedBundles)
+    .filter((packageName) => !!sharedBundles[packageName].packageInfo)
     .map((packageName) => ({
       packageName,
-      ...config.shared[packageName].packageInfo,
+      ...sharedBundles[packageName].packageInfo,
     })) as PackageInfo[];
 
   const packageInfos = [...inferedPackageInfos, ...configuredPackageInfos];
@@ -74,7 +76,7 @@ export async function bundleShared(
   );
 
   if (entryPoints.length > 0) {
-    logger.info('Preparing shared npm packages');
+    logger.info('Preparing shared npm packages for the platform ' + platform);
     logger.notice('This only needs to be done once, as results are cached');
     logger.notice(
       "Skip packages you don't want to share in your federation config"
@@ -91,6 +93,7 @@ export async function bundleShared(
       dev: fedOptions.dev,
       kind: 'shared-package',
       hash: false,
+      platform,
     });
 
     for (const fileName of exptedResults) {
@@ -134,7 +137,7 @@ export async function bundleShared(
   const outFileNames = [...exptedResults];
 
   return packageInfos.map((pi) => {
-    const shared = config.shared[pi.packageName];
+    const shared = sharedBundles[pi.packageName];
     return {
       packageName: pi.packageName,
       outFileName: path.basename(outFileNames.shift() || ''),

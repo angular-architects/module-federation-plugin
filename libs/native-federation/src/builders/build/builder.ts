@@ -165,7 +165,7 @@ export async function* runBuilder(
     {
       name: 'externals',
       setup(build: PluginBuild) {
-        if (activateSsr || build.initialOptions.platform !== 'node') {
+        if (!activateSsr && build.initialOptions.platform !== 'node') {
           build.initialOptions.external = externals.filter(
             (e) => e !== 'tslib'
           );
@@ -173,6 +173,11 @@ export async function* runBuilder(
       },
     },
   ];
+
+  // SSR build fails when externals are provided via the plugin
+  if (activateSsr) {
+    options.externalDependencies = externals;
+  }
 
   const middleware = [
     (req, res, next) => {

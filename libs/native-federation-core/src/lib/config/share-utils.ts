@@ -18,6 +18,7 @@ import {
 import { getConfigContext } from './configuration-context';
 import { logger } from '../utils/logger';
 import { resolveGlobSync } from '../utils/resolve-glob';
+import { ShareObject } from '@softarc/native-federation-runtime';
 
 let inferVersion = false;
 
@@ -109,26 +110,26 @@ function _findSecondaries(
 ): void {
   const files = fs.readdirSync(libPath);
 
-  const dirs = files
+  const secondaries = files
     .map((f) => path.join(libPath, f))
     .filter((f) => fs.lstatSync(f).isDirectory() && f !== 'node_modules');
 
-  const secondaries = dirs.filter((d) =>
-    fs.existsSync(path.join(d, 'package.json'))
-  );
   for (const s of secondaries) {
-    const secondaryLibName = s
-      .replace(/\\/g, '/')
-      .replace(/^.*node_modules[/]/, '');
-    if (excludes.includes(secondaryLibName)) {
-      continue;
+    if (fs.existsSync(path.join(s, 'package.json'))) {
+      const secondaryLibName = s
+        .replace(/\\/g, '/')
+        .replace(/^.*node_modules[/]/, '');
+      if (excludes.includes(secondaryLibName)) {
+        continue;
+      }
+
+      if (isInSkipList(secondaryLibName, PREPARED_DEFAULT_SKIP_LIST)) {
+        continue;
+      }
+
+      acc[secondaryLibName] = { ...shareObject };
     }
 
-    if (isInSkipList(secondaryLibName, PREPARED_DEFAULT_SKIP_LIST)) {
-      continue;
-    }
-
-    acc[secondaryLibName] = { ...shareObject };
     _findSecondaries(s, excludes, shareObject, acc);
   }
 }
@@ -351,27 +352,35 @@ type TransientDependency = {
 };
 
 function findTransientDeps(
-  packageNames: string[],
+  configuredShareObjects: Config,
   projectRoot: string,
   preparedSkipList: PreparedSkipList
 ): TransientDependency[] {
   const discovered = new Set<string>();
   const result: TransientDependency[] = [];
 
+  const packageNames = Object.keys(configuredShareObjects) as Array<
+    keyof typeof configuredShareObjects
+  >;
+
   for (const packageName of packageNames) {
-    const packagePath = path.join(
-      projectRoot,
-      'node_modules',
-      packageName,
-      'package.json'
-    );
-    _findTransientDeps(
-      packagePath,
-      projectRoot,
-      preparedSkipList,
-      discovered,
-      result
-    );
+    const shareConfig = configuredShareObjects[packageName];
+
+    if (typeof shareConfig === 'object' && shareConfig.transient) {
+      const packagePath = path.join(
+        projectRoot,
+        'node_modules',
+        packageName,
+        'package.json'
+      );
+      _findTransientDeps(
+        packagePath,
+        projectRoot,
+        preparedSkipList,
+        discovered,
+        result
+      );
+    }
   }
 
   return result;
@@ -431,13 +440,12 @@ export function share(
   projectPath = inferProjectPath(projectPath);
   const packagePath = findPackageJson(projectPath);
 
-  const sharedPackageNames = Object.keys(configuredShareObjects);
   const packageDirectory = path.dirname(packagePath);
 
   const preparedSkipList = prepareSkipList(skipList);
 
   const transientDeps = findTransientDeps(
-    sharedPackageNames,
+    configuredShareObjects,
     packageDirectory,
     preparedSkipList
   );

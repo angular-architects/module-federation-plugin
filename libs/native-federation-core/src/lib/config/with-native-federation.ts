@@ -11,6 +11,7 @@ import {
   prepareSkipList,
 } from '../core/default-skip-list';
 import { logger } from '../utils/logger';
+import { DEFAULT_SERVER_DEPS_LIST } from '../core/default-server-deps-list';
 
 export function withNativeFederation(
   config: FederationConfig
@@ -22,6 +23,7 @@ export function withNativeFederation(
     exposes: config.exposes ?? {},
     shared: normalizeShared(config, skip),
     sharedMappings: normalizeSharedMappings(config, skip),
+    skip
   };
 }
 
@@ -38,6 +40,7 @@ function normalizeShared(
       singleton: true,
       strictVersion: true,
       requiredVersion: 'auto',
+      platform: 'browser',
     }) as Record<string, NormalizedSharedConfig>;
   } else {
     result = Object.keys(shared).reduce(
@@ -50,6 +53,7 @@ function normalizeShared(
           version: shared[cur].version,
           includeSecondaries: shared[cur].includeSecondaries,
           packageInfo: shared[cur].packageInfo,
+          platform: shared[cur].platform ?? getDefaultPlatform(cur)
         },
       }),
       {}
@@ -82,7 +86,8 @@ function normalizeSharedMappings(
     sharedMappings: config.sharedMappings,
   });
 
-  const result = paths.filter(
+  const result = paths
+    .filter(
     (p) => !isInSkipList(p.key, skip) && !p.key.includes('*')
   );
 
@@ -91,4 +96,13 @@ function normalizeSharedMappings(
   }
 
   return result;
+}
+
+function getDefaultPlatform(cur: string): 'browser' | 'node' {
+  if (DEFAULT_SERVER_DEPS_LIST.find(e => cur.startsWith(e))) {
+    return 'node';
+  }
+  else {
+    return 'browser';
+  }
 }

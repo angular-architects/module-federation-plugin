@@ -69,6 +69,7 @@ export function createAngularBuildAdapter(
       watch,
       dev,
       hash,
+      platform
     } = options;
 
     const files = await runEsbuild(
@@ -83,7 +84,11 @@ export function createAngularBuildAdapter(
       rebuildRequested,
       dev,
       kind,
-      hash
+      hash,
+      undefined,
+      undefined,
+      undefined,
+      platform
     );
 
     if (kind === 'shared-package') {
@@ -180,7 +185,8 @@ async function runEsbuild(
   hash = false,
   plugins: esbuild.Plugin[] | null = null,
   absWorkingDir: string | undefined = undefined,
-  logLevel: esbuild.LogLevel = 'warning'
+  logLevel: esbuild.LogLevel = 'warning',
+  platform?: 'browser' | 'node'
 ) {
   const projectRoot = path.dirname(tsConfigPath);
   const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
@@ -271,7 +277,7 @@ async function runEsbuild(
       'object-rest-spread': false,
     },
     splitting: kind === 'mapping-or-exposed',
-    platform: 'node',
+    platform: platform ?? 'browser',
     format: 'esm',
     target: ['esnext'],
     logLimit: kind === 'shared-package' ? 1 : 0,

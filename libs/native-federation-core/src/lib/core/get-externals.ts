@@ -1,12 +1,12 @@
 import { NormalizedFederationConfig } from '../config/federation-config';
-// import { isInSkipList, PREPARED_DEFAULT_SKIP_LIST } from './default-skip-list';
 
 export function getExternals(config: NormalizedFederationConfig) {
   const shared = Object.keys(config.shared);
   const sharedMappings = config.sharedMappings.map((m) => m.key);
 
-  const externals = [...shared, ...sharedMappings];
+  // TODO: Also handle deps that match RegExps and functions
+  const depsToSkip = config.skip.strings;
+  const externals = [...shared, ...sharedMappings, ...depsToSkip];
 
   return externals;
-  // return externals.filter((p) => !isInSkipList(p, PREPARED_DEFAULT_SKIP_LIST));
 }

@@ -242,7 +242,6 @@ export async function resolve(specifier, context, defaultResolve) {
 }
 
 export async function load(url, context, defaultLoad) {
-  // Falls das URL-Schema http oder https ist, holen wir den Inhalt über Fetch
   if (url.startsWith('http://') || url.startsWith('https://')) {
     const res = await fetch(url);
     if (!res.ok) {
@@ -251,14 +250,15 @@ export async function load(url, context, defaultLoad) {
     const source = await res.text();
     return {
       shortCircuit: true,
-      format: 'module', // Wir nehmen an, es handelt sich um ein ESM-Modul
+      format: 'module', 
       source,
     };
   }
 
-  // Default loader für alle anderen Module
-  context.format = 'module';
-
+  if (!url.startsWith('node:')) {
+    context.format = 'module';
+  }
+  
   return defaultLoad(url, context, defaultLoad);
 }
 
