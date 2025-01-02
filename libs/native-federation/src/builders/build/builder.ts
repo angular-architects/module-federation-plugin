@@ -122,6 +122,10 @@ export async function* runBuilder(
     options.baseHref = nfOptions.baseHref;
   }
 
+  if(nfOptions.outputPath){
+    options.outputPath = nfOptions.outputPath;
+  }
+
   const rebuildEvents = new RebuildHubs();
 
   const adapter = createAngularBuildAdapter(options, context, rebuildEvents);
