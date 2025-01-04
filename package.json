@@ -43,10 +43,13 @@
     "@angular/platform-browser": "19.0.0",
     "@angular/platform-browser-dynamic": "19.0.0",
     "@angular/router": "19.0.0",
+    "@module-federation/enhanced": "^0.8.7",
+    "@module-federation/runtime-core": "^0.6.15",
     "@module-federation/vite": "^0.2.6",
+    "@rsbuild/core": "^1.1.13",
     "es-module-shims": "^1.5.12",
     "rxjs": "^7.0.0",
-    "tslib": "^2.0.0",
+    "tslib": "^2.3.0",
     "zone.js": "0.15.0"
   },
   "devDependencies": {

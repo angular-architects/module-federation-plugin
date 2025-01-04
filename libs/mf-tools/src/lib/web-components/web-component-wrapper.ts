@@ -20,6 +20,7 @@ export type WebComponentWrapperOptions = LoadRemoteModuleOptions & {
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'mft-wc-wrapper',
   template: '<div #vc></div>',
+  standalone: false,
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class WebComponentWrapper implements AfterContentInit, OnChanges {

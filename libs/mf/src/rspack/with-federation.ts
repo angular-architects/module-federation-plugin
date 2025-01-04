@@ -1,0 +1,91 @@
+import { ModuleFederationConfig, RsbuildConfig } from '@rsbuild/core';
+import { pluginScriptModule } from './plugin-script-module';
+import { applySkipList, normalizeSkipList, SkipList } from '../utils/skip-list';
+import { SharedObject } from '@module-federation/enhanced/dist/src/declarations/plugins/sharing/SharePlugin';
+import { findRootTsConfigJson, SharedMappings } from '../webpack';
+
+export type FederationConfig = ModuleFederationConfig & {
+  skip?: SkipList;
+};
+
+export function withFederation(
+  rsbuildConfig: RsbuildConfig,
+  federationConfig: FederationConfig
+): RsbuildConfig {
+  const { skip, ...mfConfig } = federationConfig;
+  const normalizedSkip = normalizeSkipList(skip);
+  const shared = (mfConfig.options.shared ?? {}) as SharedObject;
+
+  const mappings = new SharedMappings();
+  mappings.register(findRootTsConfigJson());
+
+  const sharedWithLibs = {
+    ...mappings.getDescriptors(),
+    ...shared,
+  };
+
+  const filteredSkipList = applySkipList(normalizedSkip, sharedWithLibs);
+
+  mfConfig.options.shared = filteredSkipList;
+
+  const config: RsbuildConfig = {
+    ...rsbuildConfig,
+    resolve: {
+      ...rsbuildConfig.resolve,
+      alias: {
+        ...rsbuildConfig.resolve?.alias,
+        ...mappings.getAliases(),
+      },
+    },
+    dev: {
+      ...rsbuildConfig.dev,
+      // chunkFormat: 'module' does not work with hmr yet
+      hmr: false,
+    },
+    server: {
+      ...rsbuildConfig.server,
+      cors: true,
+    },
+    plugins: [
+      ...(rsbuildConfig.plugins ?? []),
+      // mappings.getPlugin(),
+
+      pluginScriptModule(),
+    ],
+    tools: {
+      rspack: {
+        experiments: {
+          outputModule: true,
+        },
+        plugins: [mappings.getPlugin()],
+        output: {
+          uniqueName: mfConfig.options.name,
+          publicPath: 'auto',
+          chunkFormat: 'module',
+          chunkLoading: 'import',
+          workerChunkLoading: 'import',
+          wasmLoading: 'fetch',
+          library: { type: 'module' },
+          module: true,
+        },
+        optimization: {
+          runtimeChunk: 'single',
+        },
+      },
+    },
+    moduleFederation: {
+      ...mfConfig,
+      options: {
+        ...mfConfig.options,
+        library: {
+          ...mfConfig.options.library,
+          type: 'module',
+        },
+        remoteType: 'module',
+        filename: 'remoteEntry.js',
+      },
+    },
+  };
+
+  return config;
+}

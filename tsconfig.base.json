@@ -21,8 +21,14 @@
       "@angular-architects/module-federation-runtime": [
         "libs/mf-runtime/src/index.ts"
       ],
+      "@angular-architects/module-federation-runtime/enhanced": [
+        "libs/mf-runtime/enhanced/src/index.ts"
+      ],
       "@angular-architects/module-federation-tools": [
         "libs/mf-tools/src/index.ts"
+      ],
+      "@angular-architects/module-federation/rsbuild": [
+        "libs/mf/rsbuild/src/index.ts"
       ],
       "@angular-architects/native-federation": [
         "libs/native-federation/src/index.ts"
@@ -44,7 +50,8 @@
       ],
       "@softarc/native-federation/build": [
         "libs/native-federation-core/build.ts"
-      ]
+      ],
+      "mf-rsbuild": ["mf-rsbuild/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
