@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "mf",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "The project to add module federation",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "Project name (press enter for default project)"
+    },
+    "port": {
+      "type": "number",
+      "x-aliases": ["p"],
+      "description": "The port to use for the federated module (remote, micro frontend, etc.)",
+      "x-prompt": {
+        "message": "Port to use",
+        "type": "number"
+      },
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      }
+    },
+    "type": {
+      "enum": ["host", "dynamic-host", "remote", "legacy"],
+      "x-aliases": ["t"],
+      "type": "string",
+      "default": "remote"
+    },
+    "stack": {
+      "type": "string",
+      "enum": ["webpack", "rsbuild", "native"],
+      "x-aliases": ["s"],
+      "x-prompt": "Which stack do you want to use?",
+      "x-enumDescriptions": {
+        "webpack": "Module Federation with webpack: Classic option",
+        "rsbuild": "Module Federation with rsbuild: New Experimental (!) option",
+        "native": "Native Federation with esbuild: Technology-agnostic option"
+      }
+    },
+    "nxBuilders": {
+      "type": "boolean",
+      "description": "Use builders provided by Nx instead of ngx-build-plus? Defaults to true for Nx workspaces and false for CLI workspaces."
+    }
+  },
+  "required": ["stack"]
+}
