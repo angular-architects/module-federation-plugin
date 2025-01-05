@@ -79,7 +79,7 @@ export function init(options: MfSchematicSchema): Rule {
       generteManifest(tree, manifestPath, remoteMap);
     }
 
-    updateProjectConfig(projectConfig);
+    updateProjectConfig(projectConfig, parseInt(options.port));
 
     updateTsConfig(tree, tsConfigName);
 
@@ -338,7 +338,7 @@ function updateLocalTsConfig(projectRoot: string, tree) {
   }
 }
 
-function updateProjectConfig(projectConfig: ProjectConfig) {
+function updateProjectConfig(projectConfig: ProjectConfig, port: number) {
   if (projectConfig?.architect?.build) {
     projectConfig.architect['original-build'] = projectConfig.architect.build;
     delete projectConfig.architect.build;
@@ -347,6 +347,12 @@ function updateProjectConfig(projectConfig: ProjectConfig) {
   if (projectConfig?.architect?.serve) {
     projectConfig.architect['original-serve'] = projectConfig.architect.serve;
     delete projectConfig.architect.serve;
+
+    const target = projectConfig.architect['original-serve'];
+    target.options = {
+      ...target.options,
+      port: port || 4200
+    };
   }
 }
 
@@ -388,10 +394,12 @@ function generateRemoteMap(workspace: WorkspaceConfig, projectName: string) {
     if (
       p !== projectName &&
       projectType === 'application' &&
-      project?.architect?.serve &&
-      project?.architect?.build
+      (project?.architect?.serve ||  project?.architect?.['original-serve']) &&
+      (project?.architect?.build || project?.architect?.['original-build'])
     ) {
-      const pPort = project.architect.serve.options?.port ?? 4200;
+      const pPort = project.architect.serve?.options?.port 
+        ?? project.architect['original-serve']?.options?.port
+        ?? 4200;
       result[strings.camelize(p)] = `http://localhost:${pPort}/remoteEntry.js`;
     }
   }

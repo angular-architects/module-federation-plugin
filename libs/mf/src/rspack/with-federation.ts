@@ -17,7 +17,7 @@ export type FederationOptions = Omit<
 };
 
 export function withFederation(config: FederationConfig) {
-  // 
+  //
   // This provides partial application for better DX,
   // as it allows to split the config into a file with
   // rsbuild and an other one with federation settings

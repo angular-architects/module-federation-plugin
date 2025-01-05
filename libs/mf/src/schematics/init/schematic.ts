@@ -16,13 +16,13 @@ export function init(options: InitSchema): Rule {
     const { stack, ...delegationOptions } = options;
 
     switch (stack) {
-      case 'webpack':
+      case 'module-federation-webpack':
         return chain([schematic('init-webpack', delegationOptions)]);
 
-      case 'rsbuild':
+      case 'module-federation-rsbuild':
         return chain([schematic('init-rspack', delegationOptions)]);
 
-      case 'native':
+      case 'native-federation-esbuild':
         initNativeFederation(context, delegationOptions);
     }
     return noop();

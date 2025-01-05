@@ -33,22 +33,22 @@
     },
     "stack": {
       "type": "string",
-      "enum": ["webpack", "rsbuild", "native"],
+      "enum": ["module-federation-webpack", "module-federation-rsbuild", "native-federation-esbuild"],
       "x-aliases": ["s"],
       "x-prompt": {
         "message": "Which stack do you want to use?",
         "type": "list",
         "items": [
           {
-            "value": "webpack",
+            "value": "module-federation-webpack",
             "label": "Module Federation with webpack (classic)"
           },
           {
-            "value": "rsbuild",
+            "value": "module-federation-rsbuild",
             "label": "Module Federation with rsbuild (experimental nextgen)"
           },
           {
-            "value": "native",
+            "value": "native-federation-esbuild",
             "label": "Native Federation with esbuild (bundler-agnostic)"
           }
         ]
