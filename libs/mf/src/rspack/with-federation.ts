@@ -9,11 +9,25 @@ export type FederationConfig = {
   skip?: SkipList;
 };
 
-export type FederationOptions =  Omit<ModuleFederationConfig['options'], 'name'> & {
+export type FederationOptions = Omit<
+  ModuleFederationConfig['options'],
+  'name'
+> & {
   name?: string;
+};
+
+export function withFederation(config: FederationConfig) {
+  // 
+  // This provides partial application for better DX,
+  // as it allows to split the config into a file with
+  // rsbuild and an other one with federation settings
+  //
+  return (rsbuildConfig: RsbuildConfig) => {
+    return applyFederation(rsbuildConfig, config);
+  };
 }
 
-export function withFederation(
+export function applyFederation(
   rsbuildConfig: RsbuildConfig,
   federationConfig: FederationConfig
 ): RsbuildConfig {
@@ -83,7 +97,7 @@ export function withFederation(
         //
         // Shells use an empty name by default
         // Alternative: Specifiying the *same* name
-        // in initFederation (runtime) and 
+        // in initFederation (runtime) and
         // withFederation (build time)
         //
         name: '',

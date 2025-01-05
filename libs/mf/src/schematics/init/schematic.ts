@@ -1,9 +1,4 @@
-import {
-  chain,
-  Rule,
-  schematic,
-  noop,
-} from '@angular-devkit/schematics';
+import { chain, Rule, schematic, noop } from '@angular-devkit/schematics';
 
 import {
   NodePackageInstallTask,

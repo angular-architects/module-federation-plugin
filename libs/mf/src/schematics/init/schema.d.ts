@@ -3,5 +3,5 @@ export interface InitSchema {
   port: string | number;
   nxBuilders: boolean | undefined;
   type: 'host' | 'dynamic-host' | 'remote' | 'legacy';
-  stack: 'webpack' | 'rsbuild' | 'native'
+  stack: 'webpack' | 'rsbuild' | 'native';
 }

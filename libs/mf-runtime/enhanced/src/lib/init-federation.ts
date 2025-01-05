@@ -55,8 +55,8 @@ export function toRuntimeConfig(
 ): UserOptions {
   return {
     //
-    // The runtime assumes an empty string as the name for 
-    // the host. Alternatively, we have to pass the same  
+    // The runtime assumes an empty string as the name for
+    // the host. Alternatively, we have to pass the same
     // name to withFederation (compile time config) and
     // initFederation (runtime time config on app start)
     //

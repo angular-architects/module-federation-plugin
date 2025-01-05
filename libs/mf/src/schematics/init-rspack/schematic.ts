@@ -278,7 +278,11 @@ function updatePackageJson(
   tree.overwrite('package.json', JSON.stringify(packageJson, null, 2));
 }
 
-function printScriptInfo(projectRoot: string, startScriptName: string, buildScriptName: string) {
+function printScriptInfo(
+  projectRoot: string,
+  startScriptName: string,
+  buildScriptName: string
+) {
   console.info();
   console.info(
     `[INFO] Please remember that the rspack integration is in early stages`
