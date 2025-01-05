@@ -1,7 +1,6 @@
-export interface InitSchema {
+export interface MfSchematicSchema {
   project: string;
-  port: string | number;
+  port: string;
   nxBuilders: boolean | undefined;
   type: 'host' | 'dynamic-host' | 'remote' | 'legacy';
-  stack: 'webpack' | 'rsbuild' | 'native'
 }

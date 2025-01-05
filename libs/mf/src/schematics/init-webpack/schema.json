@@ -15,10 +15,10 @@
     },
     "port": {
       "type": "number",
-      "x-aliases": ["p"],
       "description": "The port to use for the federated module (remote, micro frontend, etc.)",
       "x-prompt": {
-        "message": "Port to use (press enter for default port 4200)"
+        "message": "Port to use",
+        "type": "number"
       },
       "$default": {
         "$source": "argv",
@@ -27,37 +27,13 @@
     },
     "type": {
       "enum": ["host", "dynamic-host", "remote", "legacy"],
-      "x-aliases": ["t"],
       "type": "string",
-      "default": "remote"
-    },
-    "stack": {
-      "type": "string",
-      "enum": ["webpack", "rsbuild", "native"],
-      "x-aliases": ["s"],
-      "x-prompt": {
-        "message": "Which stack do you want to use?",
-        "type": "list",
-        "items": [
-          {
-            "value": "webpack",
-            "label": "Module Federation with webpack (classic)"
-          },
-          {
-            "value": "rsbuild",
-            "label": "Module Federation with rsbuild (experimental nextgen)"
-          },
-          {
-            "value": "native",
-            "label": "Native Federation with esbuild (bundler-agnostic)"
-          }
-        ]
-      }
+      "default": "legacy"
     },
     "nxBuilders": {
       "type": "boolean",
       "description": "Use builders provided by Nx instead of ngx-build-plus? Defaults to true for Nx workspaces and false for CLI workspaces."
     }
   },
-  "required": ["port", "stack"]
+  "required": ["port"]
 }

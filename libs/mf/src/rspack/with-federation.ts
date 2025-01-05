@@ -4,9 +4,14 @@ import { applySkipList, normalizeSkipList, SkipList } from '../utils/skip-list';
 import { SharedObject } from '@module-federation/enhanced/dist/src/declarations/plugins/sharing/SharePlugin';
 import { findRootTsConfigJson, SharedMappings } from '../webpack';
 
-export type FederationConfig = ModuleFederationConfig & {
+export type FederationConfig = {
+  options: FederationOptions;
   skip?: SkipList;
 };
+
+export type FederationOptions =  Omit<ModuleFederationConfig['options'], 'name'> & {
+  name?: string;
+}
 
 export function withFederation(
   rsbuildConfig: RsbuildConfig,
@@ -14,11 +19,10 @@ export function withFederation(
 ): RsbuildConfig {
   const { skip, ...mfConfig } = federationConfig;
   const normalizedSkip = normalizeSkipList(skip);
-  const shared = (mfConfig.options.shared ?? {}) as SharedObject;
-
   const mappings = new SharedMappings();
   mappings.register(findRootTsConfigJson());
 
+  const shared = (mfConfig.options.shared ?? {}) as SharedObject;
   const sharedWithLibs = {
     ...mappings.getDescriptors(),
     ...shared,
@@ -76,6 +80,13 @@ export function withFederation(
     moduleFederation: {
       ...mfConfig,
       options: {
+        //
+        // Shells use an empty name by default
+        // Alternative: Specifiying the *same* name
+        // in initFederation (runtime) and 
+        // withFederation (build time)
+        //
+        name: '',
         ...mfConfig.options,
         library: {
           ...mfConfig.options.library,

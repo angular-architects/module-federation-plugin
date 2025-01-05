@@ -4,14 +4,24 @@
   "version": "0.0.1",
   "schematics": {
     "ng-add": {
-      "factory": "./src/schematics/mf/schematic#add",
-      "schema": "./src/schematics/mf/schema.json",
-      "description": "Initialize an angular project for webpack module federation"
+      "factory": "./src/schematics/init/schematic#init",
+      "schema": "./src/schematics/init/schema.json",
+      "description": "Initialize an angular project for module federation"
     },
     "init": {
       "factory": "./src/schematics/init/schematic#init",
       "schema": "./src/schematics/init/schema.json",
       "description": "Initialize an angular project for module federation"
+    },
+    "init-webpack": {
+      "factory": "./src/schematics/init-webpack/schematic#init",
+      "schema": "./src/schematics/init-webpack/schema.json",
+      "description": "Initialize an angular project for webpack module federation"
+    },
+    "init-rspack": {
+      "factory": "./src/schematics/init-rspack/schematic#init",
+      "schema": "./src/schematics/init-rspack/schema.json",
+      "description": "Initialize an angular project for rspack module federation"
     },
     "config": {
       "factory": "./src/schematics/mf/schematic",
@@ -32,6 +42,11 @@
       "factory": "./src/schematics/remove/schematic",
       "schema": "./src/schematics/remove/schema.json",
       "description": "Removes Module Federation"
+    },
+    "patch": {
+      "factory": "./src/schematics/patch/schematic",
+      "description": "Patching Angular for rsbuild integration while experimental. Will be removed when stable!",
+      "private": true
     }
   }
 }

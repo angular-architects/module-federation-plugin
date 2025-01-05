@@ -27,7 +27,7 @@ import {
   NodeDependencyType,
 } from '@schematics/angular/utility/dependencies';
 
-export function add(options: MfSchematicSchema): Rule {
+export function init(options: MfSchematicSchema): Rule {
   return config(options);
 }
 

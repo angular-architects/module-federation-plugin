@@ -1,6 +1,6 @@
 import path = require('path');
 import { noop } from 'rxjs';
-import { getWorkspaceFileName } from '../mf/schematic';
+import { getWorkspaceFileName } from '../init-webpack/schematic';
 import { BootAsyncSchema } from './schema';
 import { Rule } from '@angular-devkit/schematics';
 

@@ -49,13 +49,18 @@ export async function initFederation(
   return init(runtimeConfig);
 }
 
-// TODO: Consider making internal
 export function toRuntimeConfig(
   config: Manifest<RemoteConfig>,
   options?: InitFederationOptions
 ): UserOptions {
   return {
-    name: 'shell',
+    //
+    // The runtime assumes an empty string as the name for 
+    // the host. Alternatively, we have to pass the same  
+    // name to withFederation (compile time config) and
+    // initFederation (runtime time config on app start)
+    //
+    name: '',
     ...options?.runtimeOptions,
     remotes: [
       ...(options?.runtimeOptions?.remotes ?? []),
@@ -94,7 +99,6 @@ export async function loadManifest<T extends Manifest = Manifest>(
   return config as T;
 }
 
-// TODO: Consider making internal
 export function parseConfig(config: ManifestFile): Manifest {
   const result: Manifest = {};
   for (const key in config) {
