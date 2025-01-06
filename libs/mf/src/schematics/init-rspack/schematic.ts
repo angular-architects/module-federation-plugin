@@ -351,7 +351,7 @@ function updateProjectConfig(projectConfig: ProjectConfig, port: number) {
     const target = projectConfig.architect['original-serve'];
     target.options = {
       ...target.options,
-      port: port || 4200
+      port: port || 4200,
     };
   }
 }
@@ -394,12 +394,13 @@ function generateRemoteMap(workspace: WorkspaceConfig, projectName: string) {
     if (
       p !== projectName &&
       projectType === 'application' &&
-      (project?.architect?.serve ||  project?.architect?.['original-serve']) &&
+      (project?.architect?.serve || project?.architect?.['original-serve']) &&
       (project?.architect?.build || project?.architect?.['original-build'])
     ) {
-      const pPort = project.architect.serve?.options?.port 
-        ?? project.architect['original-serve']?.options?.port
-        ?? 4200;
+      const pPort =
+        project.architect.serve?.options?.port ??
+        project.architect['original-serve']?.options?.port ??
+        4200;
       result[strings.camelize(p)] = `http://localhost:${pPort}/remoteEntry.js`;
     }
   }

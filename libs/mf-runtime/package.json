@@ -1,7 +1,7 @@
 {
   "name": "@angular-architects/module-federation-runtime",
   "license": "MIT",
-  "version": "19.0.0-beta.0",
+  "version": "19.0.1",
   "peerDependencies": {
     "@angular/common": ">=18.0.0",
     "@angular/core": ">=18.0.0",

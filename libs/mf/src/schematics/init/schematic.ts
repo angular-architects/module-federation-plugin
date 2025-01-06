@@ -19,7 +19,7 @@ export function init(options: InitSchema): Rule {
       case 'module-federation-webpack':
         return chain([schematic('init-webpack', delegationOptions)]);
 
-      case 'module-federation-rsbuild':
+      case 'module-federation-rsbuild-experimental':
         return chain([schematic('init-rspack', delegationOptions)]);
 
       case 'native-federation-esbuild':

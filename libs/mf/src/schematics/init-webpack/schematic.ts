@@ -236,7 +236,7 @@ export default function config(options: MfSchematicSchema): Rule {
 
     if (isApplicationBuilder) {
       console.warn(
-        `\nWARNING: This package uses the tradtional webpack-based Module Federation implementation and not the fast new esbuild-based ApplicationBuilder.`
+        `\nWARNING: This package uses the traditional webpack-based Module Federation implementation and not the fast new esbuild-based ApplicationBuilder.`
       );
       console.warn(
         `\nFor new projects, consider Native Federation as an alternative: https://shorturl.at/0ZQ0j`
@@ -403,11 +403,11 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const dep = getPackageJsonDependency(tree, 'ngx-build-plus');
 
-    if (!dep || !semver.satisfies(dep.version, '>=18.0.0')) {
+    if (!dep || !semver.satisfies(dep.version, '>=19.0.0')) {
       addPackageJsonDependency(tree, {
         name: 'ngx-build-plus',
         type: NodeDependencyType.Dev,
-        version: '^18.0.0',
+        version: '^19.0.0',
         overwrite: true,
       });
 

@@ -3,5 +3,8 @@ export interface InitSchema {
   port: string | number;
   nxBuilders: boolean | undefined;
   type: 'host' | 'dynamic-host' | 'remote' | 'legacy';
-  stack: 'module-federation-webpack' | 'module-federation-rsbuild' | 'native-federation-esbuild';
+  stack:
+    | 'module-federation-webpack'
+    | 'module-federation-rsbuild-experimental'
+    | 'native-federation-esbuild';
 }
