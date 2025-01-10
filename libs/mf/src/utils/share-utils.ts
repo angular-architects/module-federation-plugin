@@ -101,7 +101,7 @@ function _findSecondaries(
 
   const dirs = files
     .map((f) => path.join(libPath, f))
-    .filter((f) => fs.lstatSync(f).isDirectory() && f !== 'node_modules');
+    .filter((f) => fs.lstatSync(f).isDirectory() && !f.endsWith('node_modules'));
 
   const secondaries = dirs.filter((d) =>
     fs.existsSync(path.join(d, 'package.json'))

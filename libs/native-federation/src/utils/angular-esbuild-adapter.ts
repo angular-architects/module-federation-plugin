@@ -281,7 +281,7 @@ async function runEsbuild(
     format: 'esm',
     target: ['esnext'],
     logLimit: kind === 'shared-package' ? 1 : 0,
-    plugins: plugins || [
+    plugins: plugins as any || [
       createCompilerPlugin(
         pluginOptions.pluginOptions,
         pluginOptions.styleOptions

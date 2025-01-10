@@ -22,7 +22,7 @@ Module Federation allows loading separately compiled and deployed code (like mic
 
 ## Supporting Several Technologies
 
-✅ Supports webpack, rsbuild (experimental, nextgen), esbuild 
+✅ Supports webpack, rsbuild (experimental, nextgen), esbuild
 
 ✅ Supports Module Federation and Native Federation
 
