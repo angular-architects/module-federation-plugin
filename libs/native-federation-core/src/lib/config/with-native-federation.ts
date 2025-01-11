@@ -46,7 +46,7 @@ function normalizeShared(
     result = Object.keys(shared).reduce(
       (acc, cur) => ({
         ...acc,
-        [cur]: {
+        [cur.replace(/\\/g, '/')]: {
           requiredVersion: shared[cur].requiredVersion ?? 'auto',
           singleton: shared[cur].singleton ?? false,
           strictVersion: shared[cur].strictVersion ?? false,
