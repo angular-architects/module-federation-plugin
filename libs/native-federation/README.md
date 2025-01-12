@@ -34,6 +34,16 @@ We will at least provide a new version of this package per Angular major. If nec
 - Use version 18.2.x for Angular 18.2.x
 - Use version 19.x for Angular 19.x
 
+## Demo Repo
+
+In this [demo repo](https://github.com/manfredsteyer/nf-test.git), we test Native Federation together with several known UI libraries for Angular. For this, we compile demo apps build with them with Native Federation.
+
+<a href="https://github.com/manfredsteyer/nf-test.git" target="_blank">
+<img width="500" src="https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/demo-repo.png">
+</a>
+
+This is primarily for testing purposes. For an **initial example and/or an tutorial please look below.**
+
 ## Migration from Module Federation
 
 If you currently use Angular with Module Federation, you can follow our [Migration Guide](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/docs/migrate.md) to migrate to Native Federation and Angular's new fast esbuild-based build system.
@@ -350,18 +360,18 @@ The good message is, that the official Angular Package Format defines the usage 
 
 ### How to Deal with Transitive Dependencies?
 
-Since version >=18.2.7, transitive dependencies can also be shared. For instance, `primeng` uses a lib `@primeuix/styled` for theming. The latter one is now shared too if `primeng` is. This prevents possible challenges but also results in more bundles. 
+Since version >=18.2.7, transitive dependencies can also be shared. For instance, `primeng` uses a lib `@primeuix/styled` for theming. The latter one is now shared too if `primeng` is. This prevents possible challenges but also results in more bundles.
 
 To activate sharing transient dependencies, set the new `transient` flag provided by `share` and `shareAll` to `true`:
 
 ```js
 module.exports = withNativeFederation({
   shared: {
-    ...shareAll({ 
-      singleton: true, 
-      strictVersion: true, 
-      requiredVersion: 'auto', 
-      transient: true 
+    ...shareAll({
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+      transient: true
     }),
   },
   [...]

@@ -69,7 +69,7 @@ export function createAngularBuildAdapter(
       watch,
       dev,
       hash,
-      platform
+      platform,
     } = options;
 
     const files = await runEsbuild(
@@ -281,7 +281,7 @@ async function runEsbuild(
     format: 'esm',
     target: ['esnext'],
     logLimit: kind === 'shared-package' ? 1 : 0,
-    plugins: plugins as any || [
+    plugins: (plugins as any) || [
       createCompilerPlugin(
         pluginOptions.pluginOptions,
         pluginOptions.styleOptions
