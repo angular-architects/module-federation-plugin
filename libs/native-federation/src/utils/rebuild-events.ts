@@ -1,4 +1,4 @@
-import { EventHub, EventSource } from './event-sorce';
+import { EventHub, EventSource } from './event-source';
 
 export interface RebuildEvents {
   readonly rebuild: EventSource;
