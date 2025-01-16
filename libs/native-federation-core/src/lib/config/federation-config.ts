@@ -9,6 +9,7 @@ export interface SharedConfig {
   includeSecondaries?: boolean;
   transient?: boolean;
   platform?: 'browser' | 'node';
+  build?: 'default' | 'separate';
   packageInfo?: {
     entryPoint: string;
     version: string;
@@ -31,6 +32,7 @@ export interface NormalizedSharedConfig {
   version?: string;
   includeSecondaries?: boolean;
   platform: 'browser' | 'node';
+  build: 'default' | 'separate';
   packageInfo?: {
     entryPoint: string;
     version: string;

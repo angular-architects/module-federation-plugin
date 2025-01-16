@@ -53,7 +53,8 @@ function normalizeShared(
           version: shared[cur].version,
           includeSecondaries: shared[cur].includeSecondaries,
           packageInfo: shared[cur].packageInfo,
-          platform: shared[cur].platform ?? getDefaultPlatform(cur)
+          platform: shared[cur].platform ?? getDefaultPlatform(cur),
+          build: shared[cur].build ?? 'default'
         },
       }),
       {}

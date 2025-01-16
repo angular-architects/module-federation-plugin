@@ -18,7 +18,6 @@ import {
 import { getConfigContext } from './configuration-context';
 import { logger } from '../utils/logger';
 import { resolveGlobSync } from '../utils/resolve-glob';
-import { ShareObject } from '@softarc/native-federation-runtime';
 
 let inferVersion = false;
 
@@ -210,7 +209,7 @@ function readConfiguredSecondaries(
       key != '.' &&
       key != './package.json' &&
       key.startsWith('./') &&
-      (exports[key]['default'] || typeof exports[key] === 'string')
+      (exports[key]['default'] || exports[key]['import'] || typeof exports[key] === 'string')
   );
 
   const result = {} as Record<string, SharedConfig>;
@@ -277,13 +276,22 @@ function getDefaultEntry(
   let entry = '';
   if (typeof exports[key] === 'string') {
     entry = exports[key] as unknown as string;
-  } else {
+  } 
+  
+  if (!entry) {
     entry = exports[key]?.['default'];
-
     if (typeof entry === 'object') {
       entry = entry['default'];
     }
   }
+
+  if (!entry) {
+    entry = exports[key]?.['import'];
+    if (typeof entry === 'object') {
+      entry = entry['import'];
+    }    
+  }
+
   return entry;
 }
 
