@@ -209,7 +209,9 @@ function readConfiguredSecondaries(
       key != '.' &&
       key != './package.json' &&
       key.startsWith('./') &&
-      (exports[key]['default'] || exports[key]['import'] || typeof exports[key] === 'string')
+      (exports[key]['default'] ||
+        exports[key]['import'] ||
+        typeof exports[key] === 'string')
   );
 
   const result = {} as Record<string, SharedConfig>;
@@ -276,8 +278,8 @@ function getDefaultEntry(
   let entry = '';
   if (typeof exports[key] === 'string') {
     entry = exports[key] as unknown as string;
-  } 
-  
+  }
+
   if (!entry) {
     entry = exports[key]?.['default'];
     if (typeof entry === 'object') {
@@ -289,7 +291,7 @@ function getDefaultEntry(
     entry = exports[key]?.['import'];
     if (typeof entry === 'object') {
       entry = entry['import'];
-    }    
+    }
   }
 
   return entry;

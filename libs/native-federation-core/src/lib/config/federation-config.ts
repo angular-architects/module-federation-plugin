@@ -23,6 +23,7 @@ export interface FederationConfig {
   shared?: Record<string, SharedConfig>;
   sharedMappings?: Array<string>;
   skip?: SkipList;
+  externals?: string[];
 }
 
 export interface NormalizedSharedConfig {
@@ -46,4 +47,5 @@ export interface NormalizedFederationConfig {
   shared: Record<string, NormalizedSharedConfig>;
   sharedMappings: Array<MappedPath>;
   skip: PreparedSkipList;
+  externals: string[];
 }

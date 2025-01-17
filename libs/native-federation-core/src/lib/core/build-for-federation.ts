@@ -1,4 +1,7 @@
-import { NormalizedFederationConfig, NormalizedSharedConfig } from '../config/federation-config';
+import {
+  NormalizedFederationConfig,
+  NormalizedSharedConfig,
+} from '../config/federation-config';
 import { FederationInfo, SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 import { writeImportMap } from './write-import-map';
@@ -19,14 +22,15 @@ export const defaultBuildParams: BuildParams = {
   skipMappingsAndExposed: false,
 };
 
-
 export async function buildForFederation(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
   buildParams = defaultBuildParams
 ) {
+
   let artefactInfo: ArtefactInfo | undefined;
+
   if (!buildParams.skipMappingsAndExposed) {
     artefactInfo = await bundleExposedAndMappings(
       config,
@@ -39,23 +43,46 @@ export async function buildForFederation(
     ? describeExposed(config, fedOptions)
     : artefactInfo.exposes;
 
-  const { 
-    sharedBrowser, 
-    sharedServer, 
-    separateBrowser, 
-    separateServer 
-  } = splitShared(config.shared);
+  const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
+    splitShared(config.shared);
 
-  const sharedPackageInfoBrowser = await bundleShared(sharedBrowser, config, fedOptions, externals, 'browser');
-  const sharedPackageInfoServer = await bundleShared(sharedServer, config, fedOptions, externals, 'node');
-  const separatePackageInfoBrowser = await bundleSeparate(separateBrowser, externals, config, fedOptions, 'browser');
-  const separatePackageInfoServer = await bundleSeparate(separateServer, externals, config, fedOptions, 'node');
+  const sharedPackageInfoBrowser = await bundleShared(
+    sharedBrowser,
+    config,
+    fedOptions,
+    externals,
+    'browser'
+  );
+
+  const sharedPackageInfoServer = await bundleShared(
+    sharedServer,
+    config,
+    fedOptions,
+    externals,
+    'node'
+  );
+
+  const separatePackageInfoBrowser = await bundleSeparate(
+    separateBrowser,
+    externals,
+    config,
+    fedOptions,
+    'browser'
+  );
+  
+  const separatePackageInfoServer = await bundleSeparate(
+    separateServer,
+    externals,
+    config,
+    fedOptions,
+    'node'
+  );
 
   const sharedPackageInfo = [
-    ...sharedPackageInfoBrowser, 
+    ...sharedPackageInfoBrowser,
     ...sharedPackageInfoServer,
     ...separatePackageInfoBrowser,
-    ...separatePackageInfoServer
+    ...separatePackageInfoServer,
   ];
 
   const sharedMappingInfo = !artefactInfo
@@ -86,25 +113,41 @@ type SplitSharedResult = {
 function inferPackageFromSecondary(secondary: string): string {
   const parts = secondary.split('/');
   if (secondary.startsWith('@') && parts.length >= 2) {
-      return parts[0] + '/' + parts[1];
+    return parts[0] + '/' + parts[1];
   }
   return parts[0];
 }
 
-async function bundleSeparate(separateBrowser: Record<string, NormalizedSharedConfig>, externals: string[], config: NormalizedFederationConfig, fedOptions: FederationOptions, platform: 'node' | 'browser') {
+async function bundleSeparate(
+  separateBrowser: Record<string, NormalizedSharedConfig>,
+  externals: string[],
+  config: NormalizedFederationConfig,
+  fedOptions: FederationOptions,
+  platform: 'node' | 'browser'
+) {
   const result: SharedInfo[] = [];
   for (const key in separateBrowser) {
     const shared = separateBrowser[key];
     const packageName = inferPackageFromSecondary(key);
-    const filteredExternals = externals.filter(e => !e.startsWith(packageName));
+    const filteredExternals = externals.filter(
+      (e) => !e.startsWith(packageName)
+    );
     const record = { [key]: shared };
-    const buildResult = await bundleShared(record, config, fedOptions, filteredExternals, platform);
-    buildResult.forEach(item => result.push(item));
+    const buildResult = await bundleShared(
+      record,
+      config,
+      fedOptions,
+      filteredExternals,
+      platform
+    );
+    buildResult.forEach((item) => result.push(item));
   }
   return result;
 }
 
-function splitShared(shared: Record<string, NormalizedSharedConfig>): SplitSharedResult {
+function splitShared(
+  shared: Record<string, NormalizedSharedConfig>
+): SplitSharedResult {
   const sharedServer: Record<string, NormalizedSharedConfig> = {};
   const sharedBrowser: Record<string, NormalizedSharedConfig> = {};
   const separateBrowser: Record<string, NormalizedSharedConfig> = {};
@@ -114,24 +157,19 @@ function splitShared(shared: Record<string, NormalizedSharedConfig>): SplitShare
     const obj = shared[key];
     if (obj.platform === 'node' && obj.build === 'default') {
       sharedServer[key] = obj;
-    }
-    else if (obj.platform === 'node' && obj.build === 'separate') {
+    } else if (obj.platform === 'node' && obj.build === 'separate') {
       separateServer[key] = obj;
-    }
-    else if (obj.platform === 'browser' && obj.build === 'default') {
+    } else if (obj.platform === 'browser' && obj.build === 'default') {
       sharedBrowser[key] = obj;
-    }
-    else {
+    } else {
       separateBrowser[key] = obj;
     }
   }
 
   return {
-    sharedBrowser, 
+    sharedBrowser,
     sharedServer,
     separateBrowser,
     separateServer,
   };
-
 }
-

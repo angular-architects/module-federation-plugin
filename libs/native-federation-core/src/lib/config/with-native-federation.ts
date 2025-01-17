@@ -23,7 +23,8 @@ export function withNativeFederation(
     exposes: config.exposes ?? {},
     shared: normalizeShared(config, skip),
     sharedMappings: normalizeSharedMappings(config, skip),
-    skip
+    skip,
+    externals: config.externals ?? [],
   };
 }
 
@@ -54,7 +55,7 @@ function normalizeShared(
           includeSecondaries: shared[cur].includeSecondaries,
           packageInfo: shared[cur].packageInfo,
           platform: shared[cur].platform ?? getDefaultPlatform(cur),
-          build: shared[cur].build ?? 'default'
+          build: shared[cur].build ?? 'default',
         },
       }),
       {}
@@ -87,8 +88,7 @@ function normalizeSharedMappings(
     sharedMappings: config.sharedMappings,
   });
 
-  const result = paths
-    .filter(
+  const result = paths.filter(
     (p) => !isInSkipList(p.key, skip) && !p.key.includes('*')
   );
 
@@ -100,10 +100,9 @@ function normalizeSharedMappings(
 }
 
 function getDefaultPlatform(cur: string): 'browser' | 'node' {
-  if (DEFAULT_SERVER_DEPS_LIST.find(e => cur.startsWith(e))) {
+  if (DEFAULT_SERVER_DEPS_LIST.find((e) => cur.startsWith(e))) {
     return 'node';
-  }
-  else {
+  } else {
     return 'browser';
   }
 }
