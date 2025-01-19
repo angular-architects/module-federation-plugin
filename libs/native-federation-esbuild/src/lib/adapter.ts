@@ -2,6 +2,8 @@ import {
   BuildAdapter,
   BuildAdapterOptions,
   BuildResult,
+  EntryPoint,
+  logger,
 } from '@softarc/native-federation/build';
 import * as esbuild from 'esbuild';
 import { rollup } from 'rollup';
@@ -9,6 +11,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import { externals } from 'rollup-plugin-node-externals';
 import * as fs from 'fs';
 import path from 'path';
+import { collectExports } from './collect-exports';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const commonjs = require('@rollup/plugin-commonjs');
@@ -24,10 +27,18 @@ export type ReplacementConfig = {
   file: string;
 };
 
+type EntryPointWithMeta = EntryPoint & {
+  meta: {
+    isPkg: boolean;
+    originalFileName: string;
+  };
+};
+
 export interface EsBuildAdapterConfig {
   plugins: esbuild.Plugin[];
   fileReplacements?: Record<string, string | ReplacementConfig>;
   skipRollup?: boolean;
+  /** Identify packages for which compensating missing named exports */
   compensateExports?: RegExp[];
   loader?: { [ext: string]: esbuild.Loader };
 }
@@ -42,10 +53,16 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
 
     // TODO: Do we need to prepare packages anymore as esbuild has evolved?
 
-    for (const entryPoint of entryPoints) {
+    const preparedEntryPoints = entryPoints as EntryPointWithMeta[];
+    for (const entryPoint of preparedEntryPoints) {
       const isPkg = entryPoint.fileName.includes('node_modules');
       const pkgName = isPkg ? inferePkgName(entryPoint.fileName) : '';
       const tmpFolder = `node_modules/.tmp/${pkgName}`;
+
+      entryPoint.meta = {
+        originalFileName: entryPoint.fileName,
+        isPkg,
+      };
 
       if (isPkg) {
         await prepareNodePackage(
@@ -55,13 +72,12 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
           config,
           !!options.dev
         );
-
         entryPoint.fileName = tmpFolder;
       }
     }
 
     const ctx = await esbuild.context({
-      entryPoints: entryPoints.map((ep) => ({
+      entryPoints: preparedEntryPoints.map((ep) => ({
         in: ep.fileName,
         out: path.parse(ep.outName).name,
       })),
@@ -81,16 +97,18 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
     const result = await ctx.rebuild();
     const writtenFiles = writeResult(result, outdir);
     ctx.dispose();
+    preparedEntryPoints.forEach((entryPoint) => {
+      const { meta, fileName, outName } = entryPoint;
+      const normEntryPoint = meta.originalFileName.replace(/\\/g, '/');
+      if (
+        meta.isPkg &&
+        config?.compensateExports?.find((regExp) => regExp.exec(normEntryPoint))
+      ) {
+        logger.verbose('compensate exports for ' + meta.originalFileName);
+        compensateExports(fileName, path.join(outdir, outName));
+      }
+    });
     return writtenFiles.map((fileName) => ({ fileName }));
-
-    // const normEntryPoint = entryPoint.replace(/\\/g, '/');
-    // if (
-    //   isPkg &&
-    //   config?.compensateExports?.find((regExp) => regExp.exec(normEntryPoint))
-    // ) {
-    //   logger.verbose('compensate exports for ' + tmpFolder);
-    //   compensateExports(tmpFolder, outfile);
-    // }
   };
 }
 
@@ -110,25 +128,24 @@ function writeResult(
   return writtenFiles;
 }
 
-// TODO: Unused, to delete?
-// function compensateExports(entryPoint: string, outfile?: string): void {
-//   const inExports = collectExports(entryPoint);
-//   const outExports = outfile ? collectExports(outfile) : inExports;
-//
-//   if (!outExports.hasDefaultExport || outExports.hasFurtherExports) {
-//     return;
-//   }
-//   const defaultName = outExports.defaultExportName;
-//
-//   let exports = '/*Try to compensate missing exports*/\n\n';
-//   for (const exp of inExports.exports) {
-//     exports += `let ${exp}$softarc = ${defaultName}.${exp};\n`;
-//     exports += `export { ${exp}$softarc as ${exp} };\n`;
-//   }
-//
-//   const target = outfile ?? entryPoint;
-//   fs.appendFileSync(target, exports, 'utf-8');
-// }
+function compensateExports(entryPoint: string, outfile?: string): void {
+  const inExports = collectExports(entryPoint);
+  const outExports = outfile ? collectExports(outfile) : inExports;
+
+  if (!outExports.hasDefaultExport || outExports.hasFurtherExports) {
+    return;
+  }
+  const defaultName = outExports.defaultExportName;
+
+  let exports = '/*Try to compensate missing exports*/\n\n';
+  for (const exp of inExports.exports) {
+    exports += `let ${exp}$softarc = ${defaultName}.${exp};\n`;
+    exports += `export { ${exp}$softarc as ${exp} };\n`;
+  }
+
+  const target = outfile ?? entryPoint;
+  fs.appendFileSync(target, exports, 'utf-8');
+}
 
 async function prepareNodePackage(
   entryPoint: string,
