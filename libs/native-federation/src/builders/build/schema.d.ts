@@ -1,5 +1,6 @@
 import { JsonObject } from '@angular-devkit/core';
 import type { ESMSInitOptions } from 'es-module-shims';
+import { PluginConfig } from '../../utils/custom-plugins/custom-plugins.entity';
 
 export interface NfBuilderSchema extends JsonObject {
   target: string;
@@ -13,4 +14,5 @@ export interface NfBuilderSchema extends JsonObject {
   esmsInitOptions: ESMSInitOptions;
   baseHref?: string;
   ssr: boolean;
+  plugins?: PluginConfig[];
 } // eslint-disable-line
