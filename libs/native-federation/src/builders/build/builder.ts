@@ -320,7 +320,7 @@ function removeBaseHref(req: any, baseHref?: string) {
 
 function infereConfigPath(tsConfig: string): string {
   const relProjectPath = path.dirname(tsConfig);
-  const relConfigPath = path.join(relProjectPath, 'federation.config.js');
+  const relConfigPath = path.join(relProjectPath, 'federation.config.cjs');
 
   return relConfigPath;
 }
