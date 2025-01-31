@@ -8,17 +8,30 @@ import { getExternalUrl, setExternalUrl } from './model/externals';
 import { joinPaths, getDirectory } from './utils/path-utils';
 import { addRemote } from './model/remotes';
 import { appendImportMap } from './utils/add-import-map';
-import { FederationInfo } from './model/federation-info';
+import {
+  FederationInfo,
+  InitFederationOptions,
+  ProcessRemoteInfoOptions,
+} from './model/federation-info';
 
+/**
+ * Initialize the federation runtime
+ * @param remotesOrManifestUrl
+ * @param options The cacheTag allows you to invalidate the cache of the remoteEntry.json files, pass a new value with every release (f.ex. the version number)
+ */
 export async function initFederation(
-  remotesOrManifestUrl: Record<string, string> | string = {}
+  remotesOrManifestUrl: Record<string, string> | string = {},
+  options?: InitFederationOptions
 ): Promise<ImportMap> {
   const remotes =
     typeof remotesOrManifestUrl === 'string'
       ? await loadManifest(remotesOrManifestUrl)
       : remotesOrManifestUrl;
 
-  const hostInfo = await loadFederationInfo('./remoteEntry.json');
+  const url = `./remoteEntry.json${
+    options?.cacheTag ? `?t=${options.cacheTag}` : ''
+  }`;
+  const hostInfo = await loadFederationInfo(url);
   const hostImportMap = await processHostInfo(hostInfo);
   const remotesImportMap = await processRemoteInfos(remotes);
 
@@ -34,12 +47,17 @@ async function loadManifest(remotes: string): Promise<Record<string, string>> {
 
 export async function processRemoteInfos(
   remotes: Record<string, string>,
-  options: { throwIfRemoteNotFound: boolean } = { throwIfRemoteNotFound: false }
+  options: ProcessRemoteInfoOptions = { throwIfRemoteNotFound: false }
 ): Promise<ImportMap> {
   const processRemoteInfoPromises = Object.keys(remotes).map(
     async (remoteName) => {
       try {
-        const url = remotes[remoteName];
+        let url = remotes[remoteName];
+        if (options.cacheTag) {
+          const addAppend = remotes[remoteName].includes('?') ? '&' : '?';
+          url += `${addAppend}t=${options.cacheTag}`;
+        }
+
         return await processRemoteInfo(url, remoteName);
       } catch (e) {
         const error = `Error loading remote entry for ${remoteName} from file ${remotes[remoteName]}`;
