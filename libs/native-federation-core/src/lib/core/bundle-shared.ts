@@ -132,6 +132,7 @@ export async function bundleShared(
     logger.notice('');
 
     logger.verbose(e);
+    throw e;
   }
 
   const outFileNames = [...exptedResults];

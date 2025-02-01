@@ -28,7 +28,6 @@ export async function buildForFederation(
   externals: string[],
   buildParams = defaultBuildParams
 ) {
-
   let artefactInfo: ArtefactInfo | undefined;
 
   if (!buildParams.skipMappingsAndExposed) {
@@ -69,7 +68,7 @@ export async function buildForFederation(
     fedOptions,
     'browser'
   );
-  
+
   const separatePackageInfoServer = await bundleSeparate(
     separateServer,
     externals,

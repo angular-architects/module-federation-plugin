@@ -491,9 +491,14 @@ function makeServerAsync(
         `const port = process.env['PORT'] || ${options.port || 4000}`
       )
       .replace(
-        `  server.set('view engine', 'html');`,
-        `  server.use(cors())\n  server.set('view engine', 'html');`
-      );
+        `const app = express();`,
+        `const app = express();\n  app.set('view engine', 'html');`
+      )
+      .replace(
+        `if (isMainModule(import.meta.url)) {`,
+        ``
+      )
+      .replace(/\}(?![\s\S]*\})/, '')
 
     tree.create(bootstrapName, updatedContent);
 
