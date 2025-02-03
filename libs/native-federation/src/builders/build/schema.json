@@ -10,6 +10,13 @@
       "type": "string",
       "description": "target configured for the esbuild builder"
     },
+    "plugins": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "plugins configured for the esbuild builder"
+    },
     "dev": {
       "type": "boolean",
       "description": "Set this to true to start the builder in dev mode",

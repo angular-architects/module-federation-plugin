@@ -1,11 +1,11 @@
-import * as path from 'path';
 import * as fs from 'fs';
 import * as mrmime from 'mrmime';
+import * as path from 'path';
 
-import { buildApplication, ApplicationBuilderOptions } from '@angular/build';
+import { ApplicationBuilderOptions, buildApplication } from '@angular/build';
 import {
-  serveWithVite,
   buildApplicationInternal,
+  serveWithVite,
 } from '@angular/build/private';
 
 import {
@@ -14,37 +14,33 @@ import {
   createBuilder,
 } from '@angular-devkit/architect';
 
-import { DevServerBuilderOptions } from '@angular-devkit/build-angular';
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
-import { setLogLevel, logger } from '@softarc/native-federation/build';
+import { logger, setLogLevel } from '@softarc/native-federation/build';
 
-import { FederationOptions } from '@softarc/native-federation/build';
-import { setBuildAdapter } from '@softarc/native-federation/build';
+import { targetFromTargetString } from '@angular-devkit/architect';
+import { buildForFederation, FederationOptions, getExternals, loadFederationConfig, setBuildAdapter } from '@softarc/native-federation/build';
 import {
   createAngularBuildAdapter,
   setMemResultHandler,
 } from '../../utils/angular-esbuild-adapter';
-import { getExternals } from '@softarc/native-federation/build';
-import { loadFederationConfig } from '@softarc/native-federation/build';
-import { buildForFederation } from '@softarc/native-federation/build';
-import { targetFromTargetString } from '@angular-devkit/architect';
 
-import { NfBuilderSchema } from './schema';
-import { reloadBrowser, reloadShell, setError } from '../../utils/dev-server';
-import { RebuildHubs } from '../../utils/rebuild-events';
-import { updateIndexHtml, updateScriptTags } from '../../utils/updateIndexHtml';
+import { JsonObject } from '@angular-devkit/core';
 import { existsSync, mkdirSync, rmSync } from 'fs';
+import { reloadBrowser, reloadShell, setError } from '../../utils/dev-server';
 import {
   EsBuildResult,
   MemResults,
   NgCliAssetResult,
 } from '../../utils/mem-resuts';
-import { JsonObject } from '@angular-devkit/core';
+import { RebuildHubs } from '../../utils/rebuild-events';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
+import { updateIndexHtml, updateScriptTags } from '../../utils/updateIndexHtml';
+import { NfBuilderSchema } from './schema';
 // import { NextHandleFunction } from 'vite';
-import { PluginBuild } from 'esbuild';
 import { FederationInfo } from '@softarc/native-federation-runtime';
+import { PluginBuild } from 'esbuild';
+import { addCustomPlugins } from '../../utils/custom-plugins/add-custom-plugins';
 
 function _buildApplication(options, context, pluginsOrExtensions) {
   let extensions;
@@ -174,6 +170,11 @@ export async function* runBuilder(
     },
   ];
 
+  // Add custom plugins
+  if (nfOptions.plugins) {
+    await addCustomPlugins(plugins, nfOptions.plugins, context.workspaceRoot, options.tsConfig, context.logger);
+  }
+
   // SSR build fails when externals are provided via the plugin
   if (activateSsr) {
     options.externalDependencies = externals;
@@ -243,21 +244,21 @@ export async function* runBuilder(
 
   const builderRun = nfOptions.dev
     ? serveWithVite(
-        normOuterOptions,
-        appBuilderName,
-        _buildApplication,
-        context,
-        nfOptions.skipHtmlTransform
-          ? {}
-          : { indexHtml: transformIndexHtml(nfOptions) },
-        {
-          buildPlugins: plugins as any,
-          middleware,
-        }
-      )
+      normOuterOptions,
+      appBuilderName,
+      _buildApplication,
+      context,
+      nfOptions.skipHtmlTransform
+        ? {}
+        : { indexHtml: transformIndexHtml(nfOptions) },
+      {
+        buildPlugins: plugins as any,
+        middleware,
+      }
+    )
     : buildApplication(options, context, {
-        codePlugins: plugins as any,
-      });
+      codePlugins: plugins as any,
+    });
 
   // builderRun.output.subscribe(async (output) => {
   for await (const output of builderRun) {
