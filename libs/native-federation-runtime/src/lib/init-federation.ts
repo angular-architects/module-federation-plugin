@@ -11,14 +11,15 @@ import { appendImportMap } from './utils/add-import-map';
 import { FederationInfo } from './model/federation-info';
 
 export async function initFederation(
-  remotesOrManifestUrl: Record<string, string> | string = {}
+  remotesOrManifestUrl: Record<string, string> | string = {},
+  o: {hostRemoteEntry:string|false} = {hostRemoteEntry:'./remoteEntry.json'}
 ): Promise<ImportMap> {
   const remotes =
     typeof remotesOrManifestUrl === 'string'
       ? await loadManifest(remotesOrManifestUrl)
       : remotesOrManifestUrl;
 
-  const hostInfo = await loadFederationInfo('./remoteEntry.json');
+  const hostInfo = await loadFederationInfo(o.hostRemoteEntry);
   const hostImportMap = await processHostInfo(hostInfo);
   const remotesImportMap = await processRemoteInfos(remotes);
 
@@ -92,7 +93,9 @@ function createRemoteImportMap(
   return { imports, scopes };
 }
 
-async function loadFederationInfo(url: string): Promise<FederationInfo> {
+async function loadFederationInfo(url: string|false): Promise<FederationInfo> {
+  if(!url) return {name: "host", exposes: [], shared: []};
+  
   const info = (await fetch(url).then((r) => r.json())) as FederationInfo;
   return info;
 }
