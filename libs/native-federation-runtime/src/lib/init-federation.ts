@@ -1,11 +1,11 @@
 import {
-  Scopes,
-  Imports,
   ImportMap,
+  Imports,
   mergeImportMaps,
+  Scopes,
 } from './model/import-map';
 import { getExternalUrl, setExternalUrl } from './model/externals';
-import { joinPaths, getDirectory } from './utils/path-utils';
+import { getDirectory, joinPaths } from './utils/path-utils';
 import { addRemote } from './model/remotes';
 import { appendImportMap } from './utils/add-import-map';
 import {
@@ -33,7 +33,10 @@ export async function initFederation(
   }`;
   const hostInfo = await loadFederationInfo(url);
   const hostImportMap = await processHostInfo(hostInfo);
-  const remotesImportMap = await processRemoteInfos(remotes);
+  const remotesImportMap = await processRemoteInfos(remotes, {
+    throwIfRemoteNotFound: false,
+    ...options,
+  });
 
   const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
   appendImportMap(importMap);

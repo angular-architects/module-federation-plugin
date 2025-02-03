@@ -4,11 +4,13 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
 import {
+  FederationInfo,
+  ImportMap,
+  InitFederationOptions,
+  mergeImportMaps,
   processHostInfo,
   processRemoteInfos,
-  FederationInfo,
 } from '@softarc/native-federation-runtime';
-import { ImportMap, mergeImportMaps } from '@softarc/native-federation-runtime';
 import { IMPORT_MAP_FILE_NAME } from '../utils/import-map-loader';
 import { resolver } from '../utils/loader-as-data-url';
 
@@ -16,6 +18,7 @@ export type InitNodeFederationOptions = {
   remotesOrManifestUrl: Record<string, string> | string;
   relBundlePath: string;
   throwIfRemoteNotFound: boolean;
+  cacheTag?: string;
 };
 
 const defaultOptions: InitNodeFederationOptions = {
@@ -53,6 +56,7 @@ async function createNodeImportMap(
   const hostImportMap = await processHostInfo(hostInfo, relBundlePath);
   const remotesImportMap = await processRemoteInfos(remotes, {
     throwIfRemoteNotFound: options.throwIfRemoteNotFound,
+    cacheTag: options.cacheTag,
   });
 
   const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
@@ -69,9 +73,13 @@ async function loadFsManifest(
 }
 
 async function loadFsFederationInfo(
-  relBundlePath: string
+  relBundlePath: string,
+  options?: InitFederationOptions
 ): Promise<FederationInfo> {
-  const manifestPath = path.join(relBundlePath, 'remoteEntry.json');
+  const manifestPath = path.join(
+    relBundlePath,
+    'remoteEntry.json' + options?.cacheTag ? `?t=${options.cacheTag}` : ''
+  );
   const content = await fs.readFile(manifestPath, 'utf-8');
   const manifest = JSON.parse(content) as FederationInfo;
   return manifest;
