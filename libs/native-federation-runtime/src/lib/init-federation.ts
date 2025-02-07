@@ -23,14 +23,13 @@ export async function initFederation(
   remotesOrManifestUrl: Record<string, string> | string = {},
   options?: InitFederationOptions
 ): Promise<ImportMap> {
+  const cacheOption = options?.cacheTag ? `?t=${options.cacheTag}` : '';
   const remotes =
     typeof remotesOrManifestUrl === 'string'
-      ? await loadManifest(remotesOrManifestUrl)
+      ? await loadManifest(remotesOrManifestUrl + cacheOption)
       : remotesOrManifestUrl;
 
-  const url = `./remoteEntry.json${
-    options?.cacheTag ? `?t=${options.cacheTag}` : ''
-  }`;
+  const url = './remoteEntry.json' + cacheOption;
   const hostInfo = await loadFederationInfo(url);
   const hostImportMap = await processHostInfo(hostInfo);
   const remotesImportMap = await processRemoteInfos(remotes, {
