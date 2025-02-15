@@ -1,4 +1,6 @@
 import path from 'path';
+import fs from 'fs';
+
 import { NormalizedFederationConfig } from '../config/federation-config';
 import { FederationOptions } from './federation-options';
 import { bundle } from '../utils/build-utils';
@@ -61,7 +63,7 @@ export async function bundleExposedAndMappings(
       requiredVersion: '',
       singleton: true,
       strictVersion: false,
-      version: '',
+      version: config.features.mappingVersion ? getMappingVersion(item.fileName) : '',
       dev: !fedOptions.dev
         ? undefined
         : {
@@ -127,7 +129,7 @@ export function describeSharedMappings(
       requiredVersion: '',
       singleton: true,
       strictVersion: false,
-      version: '',
+      version: config.features.mappingVersion ? getMappingVersion(m.path) : '',
       dev: !fedOptions.dev
         ? undefined
         : {
@@ -137,4 +139,17 @@ export function describeSharedMappings(
   }
 
   return result;
+}
+
+function getMappingVersion(fileName: string): string {
+  const entryFileDir = path.dirname(fileName);
+  const cand1 = path.join(entryFileDir, 'package.json');
+  const cand2 = path.join(path.dirname(entryFileDir), 'package.json');
+
+  const packageJsonPath = [cand1, cand2].find((cand) => fs.existsSync(cand));
+  if (packageJsonPath) {
+    const json = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+    return json.version ?? '';
+  }
+  return '';
 }

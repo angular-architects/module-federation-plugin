@@ -25,6 +25,9 @@ export function withNativeFederation(
     sharedMappings: normalizeSharedMappings(config, skip),
     skip,
     externals: config.externals ?? [],
+    features: {
+      mappingVersion: config.features?.mappingVersion ?? false,
+    },
   };
 }
 

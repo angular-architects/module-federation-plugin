@@ -494,11 +494,8 @@ function makeServerAsync(
         `const app = express();`,
         `const app = express();\n  app.set('view engine', 'html');`
       )
-      .replace(
-        `if (isMainModule(import.meta.url)) {`,
-        ``
-      )
-      .replace(/\}(?![\s\S]*\})/, '')
+      .replace(`if (isMainModule(import.meta.url)) {`, ``)
+      .replace(/\}(?![\s\S]*\})/, '');
 
     tree.create(bootstrapName, updatedContent);
 

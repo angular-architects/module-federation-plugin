@@ -1,6 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { NormalizedFederationConfig, NormalizedSharedConfig } from '../config/federation-config';
+import {
+  NormalizedFederationConfig,
+  NormalizedSharedConfig,
+} from '../config/federation-config';
 import { bundle } from '../utils/build-utils';
 import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { SharedInfo } from '@softarc/native-federation-runtime';
@@ -9,6 +12,7 @@ import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
 import crypto from 'crypto';
+import { DEFAULT_EXTERNAL_LIST } from './default-external-list';
 
 export async function bundleShared(
   sharedBundles: Record<string, NormalizedSharedConfig>,
@@ -83,11 +87,16 @@ export async function bundleShared(
     );
   }
 
+  const additionalExternals = platform === 'browser' ? DEFAULT_EXTERNAL_LIST : [];
+
   try {
     await bundle({
       entryPoints,
       tsConfigPath: fedOptions.tsConfig,
-      external: externals,
+      external: [
+        ...additionalExternals,
+        ...externals
+      ],
       outdir: cachePath,
       mappedPaths: config.sharedMappings,
       dev: fedOptions.dev,

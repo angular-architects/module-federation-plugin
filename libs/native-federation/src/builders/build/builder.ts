@@ -31,7 +31,7 @@ import { buildForFederation } from '@softarc/native-federation/build';
 import { targetFromTargetString } from '@angular-devkit/architect';
 
 import { NfBuilderSchema } from './schema';
-import { reloadBrowser, reloadShell, setError } from '../../utils/dev-server';
+import { reloadBrowser, setError } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { updateIndexHtml, updateScriptTags } from '../../utils/updateIndexHtml';
 import { existsSync, mkdirSync, rmSync } from 'fs';
@@ -101,7 +101,11 @@ export async function* runBuilder(
     ? await normalizeOptions(context, context.target.project, outerOptions)
     : null;
 
-  if (nfOptions.dev) {
+  const runServer = nfOptions.dev && nfOptions.devServer !== false;
+  const write = true;
+  const watch = nfOptions.watch;
+
+  if (runServer) {
     target = targetFromTargetString(outerOptions.buildTarget);
     _options = (await context.getTargetOptions(
       target
@@ -111,10 +115,6 @@ export async function* runBuilder(
     options = (await context.validateOptions(_options, builder)) as JsonObject &
       ApplicationBuilderOptions;
   }
-
-  const runServer = !!nfOptions.port;
-  const write = !runServer;
-  const watch = !!runServer || nfOptions.watch;
 
   options.watch = watch;
 
@@ -241,7 +241,7 @@ export async function* runBuilder(
 
   const appBuilderName = '@angular-devkit/build-angular:application';
 
-  const builderRun = nfOptions.dev
+  const builderRun = runServer
     ? serveWithVite(
         normOuterOptions,
         appBuilderName,
@@ -281,22 +281,26 @@ export async function* runBuilder(
       );
     }
 
-    if (write && !nfOptions.dev && !nfOptions.skipHtmlTransform) {
+    if (write && !runServer && !nfOptions.skipHtmlTransform) {
       updateIndexHtml(fedOptions, nfOptions);
     }
 
-    if (!runServer) {
-      yield output;
-    }
+    // if (!runServer) {
+    //   yield output;
+    // }
 
     if (!first && (nfOptions.dev || watch)) {
       setTimeout(async () => {
-        await buildForFederation(config, fedOptions, externals);
-        logger.info('Done!');
-
-        if (runServer) {
-          setTimeout(() => reloadShell(nfOptions.shell), 0);
+        try {
+          await buildForFederation(config, fedOptions, externals);
+          logger.info('Done!');
+        } catch {
+          logger.error('Not successful!');
         }
+
+        // if (runServer) {
+        //   setTimeout(() => reloadShell(nfOptions.shell), 0);
+        // }
       }, nfOptions.rebuildDelay);
     }
 

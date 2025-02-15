@@ -57,6 +57,10 @@
       "type": "boolean",
       "description": "uses federation for ssr in ApplicationBuilder too",
       "default": false
+    },
+    "devServer": {
+      "type": "boolean",
+      "description": "can be used to disable the dev server when dev=true"
     }
   }
 }

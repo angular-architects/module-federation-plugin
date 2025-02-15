@@ -24,6 +24,9 @@ export interface FederationConfig {
   sharedMappings?: Array<string>;
   skip?: SkipList;
   externals?: string[];
+  features?: {
+    mappingVersion?: boolean;
+  }
 }
 
 export interface NormalizedSharedConfig {
@@ -48,4 +51,7 @@ export interface NormalizedFederationConfig {
   sharedMappings: Array<MappedPath>;
   skip: PreparedSkipList;
   externals: string[];
+  features: {
+    mappingVersion: boolean;
+  }
 }
