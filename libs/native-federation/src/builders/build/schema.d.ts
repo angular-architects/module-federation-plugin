@@ -12,6 +12,7 @@ export interface NfBuilderSchema extends JsonObject {
   skipHtmlTransform: boolean;
   esmsInitOptions: ESMSInitOptions;
   baseHref?: string;
+  outputPath?: string;
   ssr: boolean;
   devServer?: boolean;
 } // eslint-disable-line
