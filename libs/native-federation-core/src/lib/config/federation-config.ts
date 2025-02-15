@@ -26,7 +26,7 @@ export interface FederationConfig {
   externals?: string[];
   features?: {
     mappingVersion?: boolean;
-  }
+  };
 }
 
 export interface NormalizedSharedConfig {
@@ -53,5 +53,5 @@ export interface NormalizedFederationConfig {
   externals: string[];
   features: {
     mappingVersion: boolean;
-  }
+  };
 }

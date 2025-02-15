@@ -63,7 +63,9 @@ export async function bundleExposedAndMappings(
       requiredVersion: '',
       singleton: true,
       strictVersion: false,
-      version: config.features.mappingVersion ? getMappingVersion(item.fileName) : '',
+      version: config.features.mappingVersion
+        ? getMappingVersion(item.fileName)
+        : '',
       dev: !fedOptions.dev
         ? undefined
         : {

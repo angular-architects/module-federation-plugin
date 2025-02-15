@@ -87,16 +87,14 @@ export async function bundleShared(
     );
   }
 
-  const additionalExternals = platform === 'browser' ? DEFAULT_EXTERNAL_LIST : [];
+  const additionalExternals =
+    platform === 'browser' ? DEFAULT_EXTERNAL_LIST : [];
 
   try {
     await bundle({
       entryPoints,
       tsConfigPath: fedOptions.tsConfig,
-      external: [
-        ...additionalExternals,
-        ...externals
-      ],
+      external: [...additionalExternals, ...externals],
       outdir: cachePath,
       mappedPaths: config.sharedMappings,
       dev: fedOptions.dev,

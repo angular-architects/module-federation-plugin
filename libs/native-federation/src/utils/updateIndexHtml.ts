@@ -54,16 +54,17 @@ export function updateScriptTags(
 
   const htmlFragment = `
 <script type="esms-options">${JSON.stringify(esmsOptions)}</script>
-
-<script type="module" src="${polyfillsName}"></script>
-<script type="module-shim" src="${mainName}"></script>
 `;
 
   indexContent = indexContent.replace(
-    /<script src="polyfills.*?><\/script>/,
-    ''
+    /<script src="(.*?polyfills.*?)><\/script>/,
+    '<script type="module" src="$1"></script>'
   );
-  indexContent = indexContent.replace(/<script src="main.*?><\/script>/, '');
-  indexContent = indexContent.replace('</body>', `${htmlFragment}</body>`);
+  indexContent = indexContent.replace(
+    /<script src="(.*?main.*?)><\/script>/,
+    '<script type="module-shim" src="$1"></script>'
+  );
+
+  indexContent = indexContent.replace('<body>', `<body>${htmlFragment}`);
   return indexContent;
 }
