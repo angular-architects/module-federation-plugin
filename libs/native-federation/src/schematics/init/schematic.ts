@@ -25,6 +25,7 @@ import {
 } from '@schematics/angular/utility/dependencies';
 
 import * as path from 'path';
+import * as fs from 'fs';
 
 const SSR_VERSION = '^2.0.10';
 
@@ -39,6 +40,10 @@ type NormalizedOptions = {
   main: string;
   port: number;
 };
+
+const CONFIG_FILE_NAME_PREFIX = 'federation.config';
+const CONFIG_FILE_NAME = `${CONFIG_FILE_NAME_PREFIX}.cjs`;
+const CONFIG_FILE_NAME_JS = `${CONFIG_FILE_NAME_PREFIX}.js`;
 
 export function updatePackageJson(tree: Tree): void {
   const packageJson = tree.readJson('package.json');
@@ -93,9 +98,28 @@ export default function config(options: MfSchematicSchema): Rule {
       tree.create(manifestPath, JSON.stringify(remoteMap, null, '\t'));
     }
 
-    const federationConfigPath = path.join(projectRoot, 'federation.config.js');
+    const federationConfigPath = path.join(projectRoot, CONFIG_FILE_NAME);
+    const jsFederationConfigPath = path.join(projectRoot, CONFIG_FILE_NAME_JS);
 
     const exists = tree.exists(federationConfigPath);
+    const jsConfigExists = tree.exists(jsFederationConfigPath);
+
+    if (jsConfigExists) {
+      // If old .js config is found check if new .cjs exists
+      if (!exists) {
+        // .js config is found and no .cjs is found. Inform user to delete old config file so new one is created from scratch
+        // or rename old one to .cjs in order to keep same configuration.
+        throw new Error(
+          `Outdated configuration file found (federation.config.js), please delete it or rename it to .cjs in case you want to keep existing configuration.`
+        );
+      }
+      // Both .js and .cjs configurations are found, delete .js one
+      console.log(
+        'Multiple configuration files found, deleting outdated one (federation.config.js)'
+      );
+      //tree.delete(jsFederationConfigPath); // Doesn't seem to work, will use fs
+      fs.unlinkSync(jsFederationConfigPath);
+    }
 
     const generateRule = !exists
       ? await generateFederationConfig(
@@ -176,6 +200,36 @@ export function patchAngularBuild(tree: Tree) {
     tree.create(privatePath, privateEntrySrc);
   } else {
     tree.overwrite(privatePath, privateEntrySrc);
+  }
+}
+
+export function renameConfigToCjs(options: MfSchematicSchema, tree: Tree) {
+  const workspaceFileName = getWorkspaceFileName(tree);
+  const workspace = JSON.parse(tree.read(workspaceFileName).toString('utf8'));
+
+  const normalized = normalizeOptions(options, workspace, tree);
+
+  const { projectRoot } = normalized;
+
+  const federationConfigPath = path.join(projectRoot, CONFIG_FILE_NAME);
+  const jsFederationConfigPath = path.join(projectRoot, CONFIG_FILE_NAME_JS);
+
+  const exists = tree.exists(federationConfigPath);
+  const jsConfigExists = tree.exists(jsFederationConfigPath);
+
+  if (jsConfigExists) {
+    // If old .js config is found check if new .cjs exists
+    if (!exists) {
+      // .js config is found and no .cjs is found. Rename existing .js to .cjs.
+      tree.rename(jsFederationConfigPath, federationConfigPath);
+      return;
+    }
+    // Both .js and .cjs configurations are found, delete .js one
+    console.log(
+      'Multiple configuration files found, deleting outdated one (federation.config.js)'
+    );
+    //tree.delete(jsFederationConfigPath); // Doesn't seem to work, will use fs
+    fs.unlinkSync(jsFederationConfigPath);
   }
 }
 
