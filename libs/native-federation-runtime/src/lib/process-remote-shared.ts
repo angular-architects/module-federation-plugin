@@ -1,6 +1,6 @@
 import { Imports } from './model/import-map';
 import { SharedInfo } from './model/federation-info';
-import { satisfies } from 'semver';
+import { satisfies, coerce, parse } from 'semver';
 import { getHostInfoOrThrow } from './init-federation-cache';
 
 /**
@@ -65,7 +65,7 @@ export function processRemoteShared(
     }
 
     if (hostShared.version && remoteShared.version) {
-      if (satisfies(hostShared.version, remoteShared.requiredVersion)) {
+      if (satisfiesWithPrerelease(hostShared.version, remoteShared.requiredVersion)) {
         // Use the host's version of the package
         scope[packageName] = relHostBundlesPath + hostShared.outFileName;
         return;
@@ -86,9 +86,16 @@ export function processRemoteShared(
     (!hostShared.version && !remoteShared.version) || // Neither host nor remote has version info, it is a shared mapping
     (hostShared.version &&
       remoteShared.version &&
-      satisfies(hostShared.version, remoteShared.requiredVersion)) // Host's version is compatible
+      satisfiesWithPrerelease(hostShared.version, remoteShared.requiredVersion)) // Host's version is compatible
   ) {
     // Use the host's version of the package
     scope[packageName] = relHostBundlesPath + hostShared.outFileName;
   }
+}
+
+function satisfiesWithPrerelease(version: string, requiredVersion: string) {
+  const parsed = parse(version);
+  if (!parsed) throw new Error(`Invalid version: ${version}`);
+
+  return satisfies(parsed.version, requiredVersion);
 }
