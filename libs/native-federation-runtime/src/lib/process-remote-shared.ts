@@ -65,7 +65,7 @@ export function processRemoteShared(
     }
 
     if (hostShared.version && remoteShared.version) {
-      if (satisfiesWithPrerelease(hostShared.version, remoteShared.requiredVersion)) {
+      if (satisfies(hostShared.version, remoteShared.requiredVersion, { includePrerelease: true })) {
         // Use the host's version of the package
         scope[packageName] = relHostBundlesPath + hostShared.outFileName;
         return;
@@ -86,16 +86,10 @@ export function processRemoteShared(
     (!hostShared.version && !remoteShared.version) || // Neither host nor remote has version info, it is a shared mapping
     (hostShared.version &&
       remoteShared.version &&
-      satisfiesWithPrerelease(hostShared.version, remoteShared.requiredVersion)) // Host's version is compatible
+      satisfies(hostShared.version, remoteShared.requiredVersion,  { includePrerelease: true })) // Host's version is compatible
   ) {
     // Use the host's version of the package
     scope[packageName] = relHostBundlesPath + hostShared.outFileName;
   }
 }
 
-function satisfiesWithPrerelease(version: string, requiredVersion: string) {
-  const parsed = parse(version);
-  if (!parsed) throw new Error(`Invalid version: ${version}`);
-
-  return satisfies(parsed.version, requiredVersion);
-}
