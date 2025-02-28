@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/module-federation",
-  "version": "19.0.1",
+  "version": "19.0.2",
   "license": "MIT",
   "repository": {
     "type": "GitHub",
@@ -17,7 +17,7 @@
   "schematics": "./collection.json",
   "builders": "./builders.json",
   "dependencies": {
-    "@angular-architects/module-federation-runtime": "19.0.1",
+    "@angular-architects/module-federation-runtime": "19.0.2",
     "word-wrap": "^1.2.3",
     "callsite": "^1.0.0",
     "node-fetch": "^2.6.7",

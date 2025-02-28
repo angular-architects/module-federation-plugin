@@ -74,11 +74,10 @@ async function loadFsManifest(
 
 async function loadFsFederationInfo(
   relBundlePath: string,
-  options?: InitFederationOptions
 ): Promise<FederationInfo> {
   const manifestPath = path.join(
     relBundlePath,
-    'remoteEntry.json' + options?.cacheTag ? `?t=${options.cacheTag}` : ''
+    'remoteEntry.json'
   );
   const content = await fs.readFile(manifestPath, 'utf-8');
   const manifest = JSON.parse(content) as FederationInfo;

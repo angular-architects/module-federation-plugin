@@ -1,12 +1,12 @@
 {
   "name": "@angular-architects/module-federation-runtime",
   "license": "MIT",
-  "version": "19.0.1",
+  "version": "19.0.2",
   "peerDependencies": {
     "@angular/common": ">=18.0.0",
     "@angular/core": ">=18.0.0",
-    "@module-federation/enhanced": "^0.8.7",
-    "@module-federation/runtime-core": "^0.6.15"
+    "@module-federation/enhanced": "^0.9.0",
+    "@module-federation/runtime-core": "^0.6.21"
   },
   "dependencies": {
     "tslib": "^2.0.0"

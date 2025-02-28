@@ -492,7 +492,7 @@ function makeServerAsync(
       )
       .replace(
         `const app = express();`,
-        `const app = express();\n  app.set('view engine', 'html');`
+        `const app = express();\n\tapp.use(cors());\n  app.set('view engine', 'html');`
       )
       .replace(`if (isMainModule(import.meta.url)) {`, ``)
       .replace(/\}(?![\s\S]*\})/, '');
