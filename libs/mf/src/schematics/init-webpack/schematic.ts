@@ -234,7 +234,7 @@ export default function config(options: MfSchematicSchema): Rule {
     const isApplicationBuilder =
       buildConfig?.builder === '@angular-devkit/build-angular:application';
 
-    if (isApplicationBuilder) {
+    if (isApplicationBuilder && !options.skipConfirmation) {
       console.warn(
         `\nWARNING: This package uses the traditional webpack-based Module Federation implementation and not the fast new esbuild-based ApplicationBuilder.`
       );

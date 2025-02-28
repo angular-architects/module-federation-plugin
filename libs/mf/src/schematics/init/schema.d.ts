@@ -3,6 +3,7 @@ export interface InitSchema {
   port: string | number;
   nxBuilders: boolean | undefined;
   type: 'host' | 'dynamic-host' | 'remote' | 'legacy';
+  skipConfirmation: boolean;
   stack:
     | 'module-federation-webpack'
     | 'module-federation-rsbuild-experimental'

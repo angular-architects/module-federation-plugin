@@ -73,12 +73,9 @@ async function loadFsManifest(
 }
 
 async function loadFsFederationInfo(
-  relBundlePath: string,
+  relBundlePath: string
 ): Promise<FederationInfo> {
-  const manifestPath = path.join(
-    relBundlePath,
-    'remoteEntry.json'
-  );
+  const manifestPath = path.join(relBundlePath, 'remoteEntry.json');
   const content = await fs.readFile(manifestPath, 'utf-8');
   const manifest = JSON.parse(content) as FederationInfo;
   return manifest;
