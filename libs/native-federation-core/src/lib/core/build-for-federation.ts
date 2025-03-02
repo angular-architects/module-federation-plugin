@@ -27,7 +27,7 @@ export async function buildForFederation(
   fedOptions: FederationOptions,
   externals: string[],
   buildParams = defaultBuildParams
-) {
+): Promise<FederationInfo> {
   let artefactInfo: ArtefactInfo | undefined;
 
   if (!buildParams.skipMappingsAndExposed) {

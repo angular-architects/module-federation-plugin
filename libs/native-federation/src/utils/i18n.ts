@@ -1,0 +1,99 @@
+import { BuilderContext } from '@angular-devkit/architect';
+import { logger } from '@softarc/native-federation/build';
+import { execSync } from 'child_process';
+import path from 'path';
+import fs from 'fs';
+import { FederationInfo } from '@softarc/native-federation-runtime';
+
+export type WorkspaceConfig = {
+  i18n?: I18nConfig;
+};
+
+export type I18nConfig = {
+  sourceLocale: string;
+  locales: Record<string, string>;
+};
+
+export async function getI18nConfig(
+  context: BuilderContext
+): Promise<I18nConfig | undefined> {
+  const workspaceConfig = (await context.getProjectMetadata(
+    context.target?.project || ''
+  )) as WorkspaceConfig;
+
+  const i18nConfig = workspaceConfig?.i18n;
+  return i18nConfig;
+}
+
+export async function translateFederationArtefacts(
+  i18n: I18nConfig,
+  outputPath: string,
+  federationResult: FederationInfo
+) {
+
+  logger.info('Writing Translations');
+
+  const translationFiles =
+    '"' +
+    Object.values(i18n.locales || {})
+      .map((value) => JSON.stringify(value))
+      .join(' ')
+      .replace(/"/g, '') +
+    '"';
+
+  const locales = Object.keys(i18n.locales);
+  const targetLocales = locales.join(' ');
+
+  const sourceLocale = i18n.sourceLocale;
+
+  const translationOutPath = path.join(outputPath, 'browser', '{{LOCALE}}');
+
+  const federationFiles = [
+    ...federationResult.shared.map((s) => s.outFileName),
+    ...federationResult.exposes.map((e) => e.outFileName),
+  ];
+
+  // Here, we use a glob with an exhaustive list i/o `"*.js"`
+  // to improve performance
+  const sourcePattern = '{' + federationFiles.join(',') + '}';
+
+  const sourceLocalePath = path.join(
+    outputPath,
+    'browser',
+    sourceLocale,
+  );
+
+  const cmd = `node node_modules/.bin/localize-translate -r ${sourceLocalePath} -s "${sourcePattern}" -t ${translationFiles} -o ${translationOutPath} --target-locales ${targetLocales} -l ${sourceLocale}`;
+
+  ensureDistFolders(locales, outputPath);
+  copyRemoteEntry(locales, outputPath, sourceLocalePath);
+
+  logger.debug('Running: ' + cmd);
+
+  execCommand(cmd, 'Successfully translated');
+}
+
+function execCommand(cmd: string, defaultSuccessInfo: string) {
+    try {
+        const output = execSync(cmd);
+        logger.info(output.toString() || defaultSuccessInfo);
+    } catch (error) {
+        logger.error(error.message);
+    }
+}
+
+function copyRemoteEntry(locales: string[], outputPath: string, sourceLocalePath: string) {
+    const remoteEntry = path.join(sourceLocalePath, 'remoteEntry.json');
+
+    for (const locale of locales) {
+        const localePath = path.join(outputPath, 'browser', locale, 'remoteEntry.json');
+        fs.copyFileSync(remoteEntry, localePath);
+    }
+}
+
+function ensureDistFolders(locales: string[], outputPath: string) {
+    for (const locale of locales) {
+        const localePath = path.join(outputPath, 'browser', locale);
+        fs.mkdirSync(localePath, { recursive: true })
+    }
+}

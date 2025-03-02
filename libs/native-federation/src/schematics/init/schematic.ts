@@ -21,6 +21,7 @@ import {
 
 import {
   addPackageJsonDependency,
+  getPackageJsonDependency,
   NodeDependencyType,
 } from '@schematics/angular/utility/dependencies';
 
@@ -38,6 +39,10 @@ type NormalizedOptions = {
   projectConfig: any;
   main: string;
   port: number;
+};
+
+type PackageJson = {
+  dependencies: Record<string, string>;
 };
 
 export function updatePackageJson(tree: Tree): void {
@@ -72,6 +77,9 @@ export default function config(options: MfSchematicSchema): Rule {
   return async function (tree, context) {
     const workspaceFileName = getWorkspaceFileName(tree);
     const workspace = JSON.parse(tree.read(workspaceFileName).toString('utf8'));
+    const packageJson = JSON.parse(
+      tree.read('package.json').toString('utf8')
+    ) as PackageJson;
 
     const normalized = normalizeOptions(options, workspace, tree);
 
@@ -125,6 +133,14 @@ export default function config(options: MfSchematicSchema): Rule {
 
     // updatePackageJson(tree);
     // patchAngularBuild(tree);
+
+    addPackageJsonDependency(tree, {
+      name: '@angular/animations',
+      type: NodeDependencyType.Default,
+      version:
+        getPackageJsonDependency(tree, '@angular/core')?.version || 'latest',
+      overwrite: false,
+    });
 
     addPackageJsonDependency(tree, {
       name: 'es-module-shims',

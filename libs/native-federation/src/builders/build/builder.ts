@@ -14,7 +14,6 @@ import {
   createBuilder,
 } from '@angular-devkit/architect';
 
-import { DevServerBuilderOptions } from '@angular-devkit/build-angular';
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
 import { setLogLevel, logger } from '@softarc/native-federation/build';
@@ -33,7 +32,7 @@ import { targetFromTargetString } from '@angular-devkit/architect';
 import { NfBuilderSchema } from './schema';
 import { reloadBrowser, setError } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
-import { updateIndexHtml, updateScriptTags } from '../../utils/updateIndexHtml';
+import { updateScriptTags } from '../../utils/updateIndexHtml';
 import { existsSync, mkdirSync, rmSync } from 'fs';
 import {
   EsBuildResult,
@@ -45,6 +44,8 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 // import { NextHandleFunction } from 'vite';
 import { PluginBuild } from 'esbuild';
 import { FederationInfo } from '@softarc/native-federation-runtime';
+import { getI18nConfig, translateFederationArtefacts } from '../../utils/i18n';
+import { createOrUpdateGithubRelease } from 'nx/src/command-line/release/utils/github';
 
 function _buildApplication(options, context, pluginsOrExtensions) {
   let extensions;
@@ -122,7 +123,7 @@ export async function* runBuilder(
     options.baseHref = nfOptions.baseHref;
   }
 
-  if(nfOptions.outputPath){
+  if (nfOptions.outputPath) {
     options.outputPath = nfOptions.outputPath;
   }
 
@@ -134,7 +135,6 @@ export async function* runBuilder(
   setLogLevel(options.verbose ? 'verbose' : 'info');
 
   const outputPath = options.outputPath;
-
   const outputOptions: Required<
     Exclude<ApplicationBuilderOptions['outputPath'], string>
   > = {
@@ -145,9 +145,12 @@ export async function* runBuilder(
     base: typeof outputPath === 'string' ? outputPath : outputPath.base,
   };
 
+  const i18n = await getI18nConfig(context);
+
   const browserOutputPath = path.join(
     outputOptions.base,
-    outputOptions.browser
+    outputOptions.browser,
+    i18n?.sourceLocale || ''
   );
 
   const fedOptions: FederationOptions = {
@@ -235,10 +238,16 @@ export async function* runBuilder(
     });
   }
 
+  let federationResult: FederationInfo;
   try {
-    await buildForFederation(config, fedOptions, externals);
+    federationResult = await buildForFederation(config, fedOptions, externals);
   } catch (e) {
     process.exit(1);
+  }
+
+  const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
+  if (!runServer && hasLocales) {
+    translateFederationArtefacts(i18n, outputOptions.base, federationResult);
   }
 
   options.deleteOutputPath = false;
@@ -261,6 +270,7 @@ export async function* runBuilder(
       )
     : buildApplication(options, context, {
         codePlugins: plugins as any,
+        indexHtmlTransformer: transformIndexHtml(nfOptions),
       });
 
   // builderRun.output.subscribe(async (output) => {
@@ -285,9 +295,9 @@ export async function* runBuilder(
       );
     }
 
-    if (write && !runServer && !nfOptions.skipHtmlTransform) {
-      updateIndexHtml(fedOptions, nfOptions);
-    }
+    // if (write && !runServer && !nfOptions.skipHtmlTransform) {
+    //   updateIndexHtml(fedOptions, nfOptions);
+    // }
 
     // if (!runServer) {
     //   yield output;

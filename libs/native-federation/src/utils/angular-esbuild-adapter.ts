@@ -420,7 +420,7 @@ export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
 //
 //  Usually, ngServerMode is set during bundling. However, we need to infer this
 //  value at runtime as we are using the same shared bundle for @angular/core
-//  on the server and in the browser. 
+//  on the server and in the browser.
 //
 function setNgServerMode(): void {
   const fileToPatch = 'node_modules/@angular/core/fesm2022/core.mjs';
@@ -432,10 +432,7 @@ function setNgServerMode(): void {
       if (!content.includes(lineToAdd)) {
         content = lineToAdd + '\n' + content;
         fs.writeFileSync(fileToPatch, content);
-        console.log('patched!');
-      } else {
-        console.log('not patched!');
-      }
+      } 
     }
   } catch (e) {
     console.error(
