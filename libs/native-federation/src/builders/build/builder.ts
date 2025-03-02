@@ -44,8 +44,11 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 // import { NextHandleFunction } from 'vite';
 import { PluginBuild } from 'esbuild';
 import { FederationInfo } from '@softarc/native-federation-runtime';
-import { getI18nConfig, translateFederationArtefacts } from '../../utils/i18n';
-import { createOrUpdateGithubRelease } from 'nx/src/command-line/release/utils/github';
+import {
+  getI18nConfig,
+  I18nConfig,
+  translateFederationArtefacts,
+} from '../../utils/i18n';
 
 function _buildApplication(options, context, pluginsOrExtensions) {
   let extensions;
@@ -147,11 +150,19 @@ export async function* runBuilder(
 
   const i18n = await getI18nConfig(context);
 
+  const localeFilter = getLocaleFilter(options, runServer);
+
   const browserOutputPath = path.join(
     outputOptions.base,
     outputOptions.browser,
-    i18n?.sourceLocale || ''
+    options.localize ? i18n?.sourceLocale || '' : ''
   );
+
+  const differentDevServerOutputPath =
+    Array.isArray(localeFilter) && localeFilter.length === 1;
+  const devServerOutputPath = !differentDevServerOutputPath
+    ? browserOutputPath
+    : path.join(outputOptions.base, outputOptions.browser, options.localize[0]);
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
@@ -192,7 +203,7 @@ export async function* runBuilder(
 
       const fileName = path.join(
         fedOptions.workspaceRoot,
-        fedOptions.outputPath,
+        devServerOutputPath,
         url
       );
 
@@ -246,8 +257,13 @@ export async function* runBuilder(
   }
 
   const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
-  if (!runServer && hasLocales) {
-    translateFederationArtefacts(i18n, outputOptions.base, federationResult);
+  if (hasLocales && localeFilter) {
+    translateFederationArtefacts(
+      i18n,
+      localeFilter,
+      outputOptions.base,
+      federationResult
+    );
   }
 
   options.deleteOutputPath = false;
@@ -306,7 +322,21 @@ export async function* runBuilder(
     if (!first && (nfOptions.dev || watch)) {
       setTimeout(async () => {
         try {
-          await buildForFederation(config, fedOptions, externals);
+          federationResult = await buildForFederation(
+            config,
+            fedOptions,
+            externals
+          );
+
+          if (hasLocales && localeFilter) {
+            translateFederationArtefacts(
+              i18n,
+              localeFilter,
+              outputOptions.base,
+              federationResult
+            );
+          }
+
           logger.info('Done!');
         } catch {
           logger.error('Not successful!');
@@ -326,6 +356,22 @@ export async function* runBuilder(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default createBuilder(runBuilder) as any;
+
+function getLocaleFilter(
+  options: ApplicationBuilderOptions,
+  runServer: boolean
+) {
+  let localize = options.localize || false;
+
+  if (runServer && Array.isArray(localize) && localize.length > 1) {
+    localize = false;
+  }
+
+  if (runServer && localize === true) {
+    localize = false;
+  }
+  return localize;
+}
 
 function removeBaseHref(req: any, baseHref?: string) {
   let url = req.url;

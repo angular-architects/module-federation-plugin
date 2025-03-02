@@ -14,6 +14,7 @@ Native Federation is a "browser-native" implementation of the successful mental 
 - ✅ Easy to configure: We use the same API and Schematics as for our Module Federation plugin
 - ✅ Blazing Fast: The reference implementation not only uses the fast esbuild; it also caches already built shared dependencies.
 - ✅ Supports Angular SSR and Incremental Hydration (since 18@latest)
+- ✅ Supports Angular I18N (since 19.0.13)
 
 ## Prerequisite
 
@@ -333,6 +334,38 @@ ng serve shell -o
 ```
 
 Now, by clicking at the 2nd menu item, you can load the remote directly into the host.
+
+## Advanced Use Cases
+
+### SSR and Hydration
+
+We support Angular's SSR and (Incremental) Hydration. Please find [more information here](https://www.angulararchitects.io/blog/ssr-and-hydration-with-native-federation-for-angular/).
+
+### Native Federation and Module Federation
+
+We support combining Native Federation with Module Federation. Please find [more information here](https://www.angulararchitects.io/blog/combining-native-federation-and-module-federation/).
+
+### Angular I18N
+
+Since version 19.0.13, Native Federation for Angular supports Angular I18N. Here are some things to keep in mind:
+
+- Make sure, you also add I18N support to your shell (e.g., `ng add @angular/localize --project shell`)
+- Configure I18N in your `angular.json`. Don’t use command line parameters (as the Native Federation Builder does not forward them to the ApplicationBuilder by design)
+- In production, make sure your `federation.manifest.json` points to the right language versions of your remotes
+
+### Angular Localization
+
+To just build the localization files you need for federation, you can use the `shareAngularLocales` introduced with version 19.0.14:
+
+```js
+module.exports = withNativeFederation({
+  [...],
+  shared: {
+    ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+    ...shareAngularLocales(['en', 'de', 'fr']),
+  }
+});
+```
 
 ## FAQ
 

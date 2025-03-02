@@ -27,21 +27,29 @@ export async function getI18nConfig(
 
 export async function translateFederationArtefacts(
   i18n: I18nConfig,
+  localize: boolean | string[],
   outputPath: string,
   federationResult: FederationInfo
 ) {
+  const neededLocales = Array.isArray(localize)
+    ? localize
+    : Object.keys(i18n.locales);
+
+  const locales = Object.keys(i18n.locales).filter((locale) =>
+    neededLocales.includes(locale)
+  );
+
+  if (locales.length === 0) {
+    return;
+  }
 
   logger.info('Writing Translations');
 
-  const translationFiles =
-    '"' +
-    Object.values(i18n.locales || {})
-      .map((value) => JSON.stringify(value))
-      .join(' ')
-      .replace(/"/g, '') +
-    '"';
+  const translationFiles = locales
+    .map((loc) => i18n.locales[loc])
+    .map((value) => JSON.stringify(value))
+    .join(' ');
 
-  const locales = Object.keys(i18n.locales);
   const targetLocales = locales.join(' ');
 
   const sourceLocale = i18n.sourceLocale;
@@ -57,11 +65,7 @@ export async function translateFederationArtefacts(
   // to improve performance
   const sourcePattern = '{' + federationFiles.join(',') + '}';
 
-  const sourceLocalePath = path.join(
-    outputPath,
-    'browser',
-    sourceLocale,
-  );
+  const sourceLocalePath = path.join(outputPath, 'browser', sourceLocale);
 
   const cmd = `node node_modules/.bin/localize-translate -r ${sourceLocalePath} -s "${sourcePattern}" -t ${translationFiles} -o ${translationOutPath} --target-locales ${targetLocales} -l ${sourceLocale}`;
 
@@ -74,26 +78,35 @@ export async function translateFederationArtefacts(
 }
 
 function execCommand(cmd: string, defaultSuccessInfo: string) {
-    try {
-        const output = execSync(cmd);
-        logger.info(output.toString() || defaultSuccessInfo);
-    } catch (error) {
-        logger.error(error.message);
-    }
+  try {
+    const output = execSync(cmd);
+    logger.info(output.toString() || defaultSuccessInfo);
+  } catch (error) {
+    logger.error(error.message);
+  }
 }
 
-function copyRemoteEntry(locales: string[], outputPath: string, sourceLocalePath: string) {
-    const remoteEntry = path.join(sourceLocalePath, 'remoteEntry.json');
+function copyRemoteEntry(
+  locales: string[],
+  outputPath: string,
+  sourceLocalePath: string
+) {
+  const remoteEntry = path.join(sourceLocalePath, 'remoteEntry.json');
 
-    for (const locale of locales) {
-        const localePath = path.join(outputPath, 'browser', locale, 'remoteEntry.json');
-        fs.copyFileSync(remoteEntry, localePath);
-    }
+  for (const locale of locales) {
+    const localePath = path.join(
+      outputPath,
+      'browser',
+      locale,
+      'remoteEntry.json'
+    );
+    fs.copyFileSync(remoteEntry, localePath);
+  }
 }
 
 function ensureDistFolders(locales: string[], outputPath: string) {
-    for (const locale of locales) {
-        const localePath = path.join(outputPath, 'browser', locale);
-        fs.mkdirSync(localePath, { recursive: true })
-    }
+  for (const locale of locales) {
+    const localePath = path.join(outputPath, 'browser', locale);
+    fs.mkdirSync(localePath, { recursive: true });
+  }
 }

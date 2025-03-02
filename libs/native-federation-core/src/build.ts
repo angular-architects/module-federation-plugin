@@ -1,6 +1,9 @@
 export { DEFAULT_SKIP_LIST } from './lib/core/default-skip-list';
 
-export { NormalizedFederationConfig } from './lib/config/federation-config';
+export {
+  NormalizedFederationConfig,
+  SharedConfig,
+} from './lib/config/federation-config';
 export { FederationOptions } from './lib/core/federation-options';
 export { setBuildAdapter } from './lib/core/build-adapter';
 export { writeImportMap } from './lib/core/write-import-map';

@@ -432,7 +432,7 @@ function setNgServerMode(): void {
       if (!content.includes(lineToAdd)) {
         content = lineToAdd + '\n' + content;
         fs.writeFileSync(fileToPatch, content);
-      } 
+      }
     }
   } catch (e) {
     console.error(
