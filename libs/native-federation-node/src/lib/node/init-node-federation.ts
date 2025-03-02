@@ -53,7 +53,7 @@ async function createNodeImportMap(
       : await loadFsManifest(remotesOrManifestUrl);
 
   const hostInfo = await loadFsFederationInfo(relBundlePath);
-  const hostImportMap = await processHostInfo(hostInfo, relBundlePath);
+  const hostImportMap = await processHostInfo(hostInfo, './' + relBundlePath);
   const remotesImportMap = await processRemoteInfos(remotes, {
     throwIfRemoteNotFound: options.throwIfRemoteNotFound,
     cacheTag: options.cacheTag,

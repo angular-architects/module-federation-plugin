@@ -38,9 +38,6 @@ import {
 import { RebuildEvents, RebuildHubs } from './rebuild-events';
 
 import JSON5 from 'json5';
-// import { ComponentStylesheetBundler } from '@angular/build/src/tools/esbuild/angular/component-stylesheets';
-
-// const fesmFolderRegExp = /[/\\]fesm\d+[/\\]/;
 
 export type MemResultHandler = (
   outfiles: esbuild.OutputFile[],
@@ -71,6 +68,8 @@ export function createAngularBuildAdapter(
       hash,
       platform,
     } = options;
+
+    setNgServerMode();
 
     const files = await runEsbuild(
       builderOptions,
@@ -285,26 +284,6 @@ async function runEsbuild(
       createCompilerPlugin(
         pluginOptions.pluginOptions,
         pluginOptions.styleOptions
-
-        // TODO: Once available, use helper functions
-        //  for creating these config objects:
-        //  @angular_devkit/build_angular/src/tools/esbuild/compiler-plugin-options.ts
-        // {
-        //   jit: false,
-        //   sourcemap: dev,
-        //   tsconfig: tsConfigPath,
-        //   advancedOptimizations: !dev,
-        //   thirdPartySourcemaps: false,
-        // },
-        // {
-        //   optimization: !dev,
-        //   sourcemap: dev ? 'inline' : false,
-        //   workspaceRoot: __dirname,
-        //   inlineStyleLanguage: builderOptions.inlineStyleLanguage,
-        //   // browsers: browsers,
-
-        //   target: target,
-        // }
       ),
       ...(mappedPaths && mappedPaths.length > 0
         ? [createSharedMappingsPlugin(mappedPaths)]
@@ -338,16 +317,8 @@ async function runEsbuild(
     ctx.dispose();
   }
 
-  // cleanUpTsConfigForFederation(tsConfigPath);
-
   return writtenFiles;
 }
-
-// function cleanUpTsConfigForFederation(tsConfigPath: string) {
-//   if (tsConfigPath.includes('.federation.')) {
-//     fs.unlinkSync(tsConfigPath);
-//   }
-// }
 
 function createTsConfigForFederation(
   workspaceRoot: string,
@@ -365,11 +336,6 @@ function createTsConfigForFederation(
     .map((ep) => path.relative(tsconfigDir, ep.fileName).replace(/\\\\/g, '/'));
 
   const tsconfigAsString = fs.readFileSync(fullTsConfigPath, 'utf-8');
-  // const tsconfigWithoutComments = tsconfigAsString.replace(
-  //   /\/\*.+?\*\/|\/\/.*(?=[\n\r])/g,
-  //   ''
-  // );
-
   const tsconfig = JSON5.parse(tsconfigAsString);
 
   if (!tsconfig.include) {
@@ -449,4 +415,33 @@ export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
   return new Function('modulePath', `return import(modulePath);`)(
     modulePath
   ) as Promise<T>;
+}
+
+//
+//  Usually, ngServerMode is set during bundling. However, we need to infer this
+//  value at runtime as we are using the same shared bundle for @angular/core
+//  on the server and in the browser. 
+//
+function setNgServerMode(): void {
+  const fileToPatch = 'node_modules/@angular/core/fesm2022/core.mjs';
+  const lineToAdd = `const ngServerMode = (typeof window === 'undefined') ? true : false;`;
+
+  try {
+    if (fs.existsSync(fileToPatch)) {
+      let content = fs.readFileSync(fileToPatch, 'utf-8');
+      if (!content.includes(lineToAdd)) {
+        content = lineToAdd + '\n' + content;
+        fs.writeFileSync(fileToPatch, content);
+        console.log('patched!');
+      } else {
+        console.log('not patched!');
+      }
+    }
+  } catch (e) {
+    console.error(
+      'Error patching file ',
+      fileToPatch,
+      '\nIs it write-protected?'
+    );
+  }
 }

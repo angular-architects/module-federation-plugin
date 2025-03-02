@@ -484,8 +484,12 @@ function makeServerAsync(
       return;
     }
 
+    const cors = `import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const cors = require("cors"); 
+`;
     const mainContent = tree.read(server).toString('utf8');
-    const updatedContent = (`import cors from 'cors';\n` + mainContent)
+    const updatedContent = (cors + mainContent)
       .replace(
         `const port = process.env['PORT'] || 4000`,
         `const port = process.env['PORT'] || ${options.port || 4000}`
