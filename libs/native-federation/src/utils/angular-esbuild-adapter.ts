@@ -424,15 +424,19 @@ export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
 //
 function setNgServerMode(): void {
   const fileToPatch = 'node_modules/@angular/core/fesm2022/core.mjs';
-  const lineToAdd = `const ngServerMode = (typeof window === 'undefined') ? true : false;`;
-
+  const lineToAdd = `var ngServerMode = (typeof window === 'undefined') ? true : false;`;
   try {
     if (fs.existsSync(fileToPatch)) {
       let content = fs.readFileSync(fileToPatch, 'utf-8');
-      if (!content.includes(lineToAdd)) {
-        content = lineToAdd + '\n' + content;
-        fs.writeFileSync(fileToPatch, content);
+      // Check if const ngServerMode exists and replace it
+      if (content.includes('const ngServerMode')) {
+        content = content.replace(/const ngServerMode.*/, lineToAdd);
       }
+      // If not found, add it at the beginning
+      else if (!content.includes(lineToAdd)) {
+        content = lineToAdd + '\n' + content;
+      }
+      fs.writeFileSync(fileToPatch, content);
     }
   } catch (e) {
     console.error(
