@@ -1,17 +1,17 @@
 import {
-  chain,
-  Rule,
-  Tree,
-  url,
   apply,
+  chain,
   mergeWith,
-  template,
   move,
   noop,
+  Rule,
+  template,
+  Tree,
+  url,
 } from '@angular-devkit/schematics';
 
-import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { strings } from '@angular-devkit/core';
+import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { MfSchematicSchema } from './schema';
 
 import {
@@ -230,11 +230,14 @@ function updateWorkspaceConfig(
 
   const originalBuild = projectConfig.architect.build;
 
-  if (originalBuild.builder !== '@angular-devkit/build-angular:application') {
+  if (
+    originalBuild.builder !== '@angular-devkit/build-angular:application' ||
+    originalBuild.builder !== '@angular/build:application'
+  ) {
     console.log(
       'Switching project to the application builder using esbuild ...'
     );
-    originalBuild.builder = '@angular-devkit/build-angular:application';
+    originalBuild.builder = '@angular/build:application';
     delete originalBuild.configurations?.development?.buildOptimizer;
     delete originalBuild.configurations?.development?.vendorChunk;
   }
@@ -520,7 +523,7 @@ function makeServerAsync(
 
     const cors = `import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const cors = require("cors"); 
+const cors = require("cors");
 `;
     const mainContent = tree.read(server).toString('utf8');
     const updatedContent = (cors + mainContent)
@@ -549,7 +552,7 @@ console.log('Starting SSR for Shell');
     remotesOrManifestUrl: '../browser/federation.manifest.json',
     relBundlePath: '../browser/',
   });
-  
+
   await import('./bootstrap-server');
 
 })();
@@ -566,7 +569,7 @@ console.log('Starting SSR for Shell');
     remotesOrManifestUrl: ${manifest},
     relBundlePath: '../browser/',
   });
-  
+
   await import('./bootstrap-server');
 
 })();
@@ -579,7 +582,7 @@ console.log('Starting SSR for Shell');
   await initNodeFederation({
     relBundlePath: '../browser/'
   });
-  
+
   await import('./bootstrap-server');
 
 })();

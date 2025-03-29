@@ -40,8 +40,8 @@ function updateWorkspaceConfig(
   }
 
   if (projectConfig.architect.esbuild) {
-    projectConfig.architect.esbuild.builder =
-      '@angular-devkit/build-angular:application';
+    projectConfig.architect.esbuild.builder = '@angular/build:application';
+
     projectConfig.architect.esbuild.options.browser =
       projectConfig.architect.esbuild.options.main;
     delete projectConfig.architect.esbuild.options.main;
