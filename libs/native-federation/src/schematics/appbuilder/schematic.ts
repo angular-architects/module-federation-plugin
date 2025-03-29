@@ -3,6 +3,7 @@ import { Rule, Tree } from '@angular-devkit/schematics';
 import { MfSchematicSchema } from './schema';
 
 import * as path from 'path';
+import { checkAngularBuildApplicationBuilder } from '../../utils/check-builder';
 
 type NormalizedOptions = {
   polyfills: string;
@@ -41,7 +42,9 @@ function updateWorkspaceConfig(
 
   if (projectConfig.architect.esbuild) {
     projectConfig.architect.esbuild.builder =
-      '@angular-devkit/build-angular:application';
+      checkAngularBuildApplicationBuilder()
+        ? '@angular/build:application'
+        : '@angular-devkit/build-angular:application';
     projectConfig.architect.esbuild.options.browser =
       projectConfig.architect.esbuild.options.main;
     delete projectConfig.architect.esbuild.options.main;

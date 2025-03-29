@@ -1,11 +1,11 @@
-import * as path from 'path';
 import * as fs from 'fs';
 import * as mrmime from 'mrmime';
+import * as path from 'path';
 
-import { buildApplication, ApplicationBuilderOptions } from '@angular/build';
+import { ApplicationBuilderOptions, buildApplication } from '@angular/build';
 import {
-  serveWithVite,
   buildApplicationInternal,
+  serveWithVite,
 } from '@angular/build/private';
 
 import {
@@ -16,39 +16,38 @@ import {
 
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
-import { setLogLevel, logger } from '@softarc/native-federation/build';
+import { logger, setLogLevel } from '@softarc/native-federation/build';
 
-import { FederationOptions } from '@softarc/native-federation/build';
-import { setBuildAdapter } from '@softarc/native-federation/build';
+import { targetFromTargetString } from '@angular-devkit/architect';
+import {
+  buildForFederation,
+  FederationOptions,
+  getExternals,
+  loadFederationConfig,
+  setBuildAdapter,
+} from '@softarc/native-federation/build';
 import {
   createAngularBuildAdapter,
   setMemResultHandler,
 } from '../../utils/angular-esbuild-adapter';
-import { getExternals } from '@softarc/native-federation/build';
-import { loadFederationConfig } from '@softarc/native-federation/build';
-import { buildForFederation } from '@softarc/native-federation/build';
-import { targetFromTargetString } from '@angular-devkit/architect';
 
-import { NfBuilderSchema } from './schema';
-import { reloadBrowser, setError } from '../../utils/dev-server';
-import { RebuildHubs } from '../../utils/rebuild-events';
-import { updateScriptTags } from '../../utils/updateIndexHtml';
+import { JsonObject } from '@angular-devkit/core';
 import { existsSync, mkdirSync, rmSync } from 'fs';
+import { reloadBrowser, setError } from '../../utils/dev-server';
 import {
   EsBuildResult,
   MemResults,
   NgCliAssetResult,
 } from '../../utils/mem-resuts';
-import { JsonObject } from '@angular-devkit/core';
+import { RebuildHubs } from '../../utils/rebuild-events';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
+import { updateScriptTags } from '../../utils/updateIndexHtml';
+import { NfBuilderSchema } from './schema';
 // import { NextHandleFunction } from 'vite';
-import { PluginBuild } from 'esbuild';
 import { FederationInfo } from '@softarc/native-federation-runtime';
-import {
-  getI18nConfig,
-  I18nConfig,
-  translateFederationArtefacts,
-} from '../../utils/i18n';
+import { PluginBuild } from 'esbuild';
+import { checkAngularBuildApplicationBuilder } from '../../utils/check-builder';
+import { getI18nConfig, translateFederationArtefacts } from '../../utils/i18n';
 
 function _buildApplication(options, context, pluginsOrExtensions) {
   let extensions;
@@ -268,7 +267,9 @@ export async function* runBuilder(
 
   options.deleteOutputPath = false;
 
-  const appBuilderName = '@angular-devkit/build-angular:application';
+  const appBuilderName = checkAngularBuildApplicationBuilder()
+    ? '@angular/build:application'
+    : '@angular-devkit/build-angular:application';
 
   const builderRun = runServer
     ? serveWithVite(
