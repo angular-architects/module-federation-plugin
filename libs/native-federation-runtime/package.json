@@ -1,6 +1,6 @@
 {
   "name": "@softarc/native-federation-runtime",
-  "version": "2.0.10",
+  "version": "2.0.10-hotfix.2",
   "dependencies": {
     "tslib": "^2.3.0"
   },

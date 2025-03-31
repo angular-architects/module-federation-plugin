@@ -65,15 +65,11 @@ export function processRemoteShared(
     }
 
     if (hostShared.version && remoteShared.version) {
-      console.log(
-        'SINGLETON',
-        remoteShared.packageName,
-        hostShared,
-        remoteShared,
-        satisfies(onlyMajorMinorPatch(hostShared.version), remoteShared.requiredVersion)
-      );
       if (
-        satisfies(onlyMajorMinorPatch(hostShared.version), remoteShared.requiredVersion)
+        satisfies(
+          onlyMajorMinorPatch(hostShared.version),
+          remoteShared.requiredVersion
+        )
       ) {
         // Use the host's version of the package
         scope[packageName] = relHostBundlesPath + hostShared.outFileName;
@@ -95,16 +91,18 @@ export function processRemoteShared(
     (!hostShared.version && !remoteShared.version) || // Neither host nor remote has version info, it is a shared mapping
     (hostShared.version &&
       remoteShared.version &&
-      satisfies(onlyMajorMinorPatch(hostShared.version), remoteShared.requiredVersion)) // Host's version is compatible
+      satisfies(
+        onlyMajorMinorPatch(hostShared.version),
+        remoteShared.requiredVersion
+      )) // Host's version is compatible
   ) {
     // Use the host's version of the package
     scope[packageName] = relHostBundlesPath + hostShared.outFileName;
   }
 }
 
-
 function onlyMajorMinorPatch(version: string) {
   const o = parse(version);
-  if(!o) throw new Error('Cannot parse version ' + version);
+  if (!o) throw new Error('Cannot parse version ' + version);
   return o.major + '.' + o.minor + '.' + o.patch;
 }
