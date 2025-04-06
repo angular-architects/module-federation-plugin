@@ -22,12 +22,10 @@
     "@babel/core": "^7.19.0",
     "@softarc/native-federation": "2.0.26",
     "@softarc/native-federation-runtime": "2.0.26",
-    "@types/browser-sync": "^2.29.0",
     "@chialab/esbuild-plugin-commonjs": "^0.18.0",
-    "browser-sync": "^3.0.2",
-    "esbuild": "^0.19.5",
+    "esbuild": "^0.25.1",
     "mrmime": "^1.0.1",
-    "npmlog": "^6.0.2",
+    "signale": "^1.4.0",
     "process": "0.11.10"
   },
   "peerDependencies": {}

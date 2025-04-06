@@ -30,7 +30,6 @@ import { buildForFederation } from '@softarc/native-federation/build';
 import { targetFromTargetString } from '@angular-devkit/architect';
 
 import { NfBuilderSchema } from './schema';
-import { reloadBrowser, setError } from '../../utils/dev-server';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { updateScriptTags } from '../../utils/updateIndexHtml';
 import { existsSync, mkdirSync, rmSync } from 'fs';
@@ -292,14 +291,6 @@ export async function* runBuilder(
   // builderRun.output.subscribe(async (output) => {
   for await (const output of builderRun) {
     lastResult = output;
-
-    if (!output.success) {
-      setError('Compilation Error');
-      reloadBrowser();
-      continue;
-    } else {
-      setError(null);
-    }
 
     if (!write && output.outputFiles) {
       memResults.add(output.outputFiles.map((file) => new EsBuildResult(file)));

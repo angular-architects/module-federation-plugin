@@ -1,57 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import log from 'npmlog';
-import { LogLevels } from 'npmlog';
+import chalk from 'chalk';
 
-const levels = (log as any).levels;
-
-log.addLevel('error', levels.error, { fg: 'brightWhite', bg: 'red' }, ' ERR! ');
-log.addLevel(
-  'warn',
-  levels.info,
-  { fg: 'brightWhite', bg: 'yellow' },
-  ' WARN '
-);
-log.addLevel('info', levels.warn, { fg: 'brightWhite', bg: 'green' }, ' INFO ');
-log.addLevel(
-  'notice',
-  levels.notice,
-  { fg: 'black', bg: 'brightYellow' },
-  ' NOTE '
-);
-log.addLevel(
-  'verbose',
-  levels.verbose,
-  { fg: 'brightWhite', bg: 'brightBlue' },
-  ' VRB! '
-);
-log.addLevel('silly', levels.silly, { fg: 'black', bg: 'white' }, ' DBG! ');
-
-// export const error = (msg: any) => log.error('', msg);
-// export const warn = (msg: any) => log.warn('', msg);
-// export const notice = (msg: any) => log.notice('', msg);
-// export const info = (msg: any) => log.info('', msg);
-// export const verbose = (msg: any) => log.verbose('', msg);
-// export const debug = (msg: any) => log.silly('', msg);
+let verbose = false;
 
 export const logger = {
-  error: (msg: any) => log.error('', msg),
-  warn: (msg: any) => log.warn('', msg),
-  notice: (msg: any) => log.notice('', msg),
-  info: (msg: any) => log.info('', msg),
-  verbose: (msg: any) => log.verbose('', msg),
-  debug: (msg: any) => log.silly('', msg),
+  warn: (msg: any)    => console.warn(chalk.bgYellow.ansi256(15)(' WARN '), msg),
+  error: (msg: any)   => console.error(chalk.bgRed.ansi256(15)(' ERRR '), msg),
+  notice: (msg: any) => console.log(chalk.bgYellowBright.black(' NOTE '), msg),
+  info: (msg: any) => console.log(chalk.bgGreen.ansi256(15)(' INFO '), msg),
+  verbose: (msg: any) => verbose && console.log(chalk.bgGreen.ansi256(15)(' DBG! '), msg),
+  debug: (msg: any) => verbose && console.log(chalk.bgGreen.ansi256(15)(' DBG! '), msg),
 };
 
-export const setLogLevel = (level: LogLevels | 'debug') => {
-  log.level = level === 'debug' ? 'silly' : level;
+export const setLogLevel = (level: string) => {
+  verbose = level === 'verbose';
 };
-
-setLogLevel('info');
-
-// log.error('', {x:1} as any);
-// log.warn('', 'bla');
-// log.notice('', 'bla');
-// log.info('', 'bla');
-// log.verbose('', 'bla');
-// log.silly('', 'bla');

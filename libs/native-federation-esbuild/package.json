@@ -8,8 +8,8 @@
     "@rollup/plugin-replace": "^4.0.0",
     "rollup": "^2.79.0",
     "rollup-plugin-node-externals": "^4.1.1",
-    "esbuild": "^0.18.12",
-    "npmlog": "^6.0.2",
+    "esbuild": "^0.25.1",
+    "signale": "^1.4.0",
     "acorn": "^8.8.1"
   }
 }
