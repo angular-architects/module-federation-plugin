@@ -1,11 +1,11 @@
 {
   "name": "@softarc/native-federation",
-  "version": "2.0.26",
+  "version": "2.0.28",
   "type": "commonjs",
   "license": "MIT",
   "dependencies": {
     "json5": "^2.2.0",
-    "chalk": "^5.4.1",
-    "@softarc/native-federation-runtime": "2.0.26"
+    "chalk": "^4.1.2",
+    "@softarc/native-federation-runtime": "2.0.28"
   }
 }
