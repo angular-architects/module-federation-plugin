@@ -391,28 +391,6 @@ For this, there are several reasons:
 
 The good message is, that the official Angular Package Format defines the usage of ECMA Script Modules (ESM) for years. This is the future-proof standard, Native Federation is built upon and all npm packages created with the Angular CLI follow. If you use older CommonJS-based packages, Native Federation automatically converts them to ESM. Depending on the package, this might change some details. Here, you find some [information for dealing with CommonJS packages](https://shorturl.at/jmzH0).
 
-### How to Deal with Transitive Dependencies?
-
-Since version >=18.2.7, transitive dependencies can also be shared. For instance, `primeng` uses a lib `@primeuix/styled` for theming. The latter one is now shared too if `primeng` is. This prevents possible challenges but also results in more bundles.
-
-To activate sharing transient dependencies, set the new `transient` flag provided by `share` and `shareAll` to `true`:
-
-```js
-module.exports = withNativeFederation({
-  shared: {
-    ...shareAll({
-      singleton: true,
-      strictVersion: true,
-      requiredVersion: 'auto',
-      transient: true
-    }),
-  },
-  [...]
-});
-```
-
-The `skip` list will also be used for filtering transient dependencies. Hence, you can combine it with `shareAll` and `transient: true`.
-
 ### How to Manually Define a Package's Entry Point?
 
 Usually, Native Federation automatically detects entry points in shared packages. If the packages neither align with the official standard nor with typical conventions beyond these standards, you can also directly provide the entry point:
