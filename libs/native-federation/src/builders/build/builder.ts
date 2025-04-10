@@ -252,7 +252,10 @@ export async function* runBuilder(
   try {
     federationResult = await buildForFederation(config, fedOptions, externals);
   } catch (e) {
-    process.exit(1);
+    console.error(e);
+    if (!watch) {
+      process.exit(1);
+    }
   }
 
   const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
