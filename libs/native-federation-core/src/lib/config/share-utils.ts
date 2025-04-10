@@ -379,6 +379,16 @@ function findTransientDeps(
     const shareConfig = configuredShareObjects[packageName];
 
     if (typeof shareConfig === 'object' && shareConfig.transient) {
+      logger.info(
+        'PLEASE NOTE: The transient flag in your federation.config.js is deprecated.'
+      );
+      logger.info(
+        'Please remove it. Meanwhile, Native Federation uses the underlying bundler'
+      );
+      logger.info(
+        'for splitting transient dependencies into separate chunks, _when_ necessary.'
+      );
+
       const packagePath = path.join(
         projectRoot,
         'node_modules',
