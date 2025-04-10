@@ -13,6 +13,7 @@ import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
 import crypto from 'crypto';
 import { DEFAULT_EXTERNAL_LIST } from './default-external-list';
+import { BuildResult } from './build-adapter';
 
 export async function bundleShared(
   sharedBundles: Record<string, NormalizedSharedConfig>,
@@ -52,18 +53,7 @@ export async function bundleShared(
 
   const allEntryPoints = packageInfos.map((pi) => {
     const encName = pi.packageName.replace(/[^A-Za-z0-9]/g, '_');
-    // const encVersion = pi.version.replace(/[^A-Za-z0-9]/g, '_');
-
-    // const outName = fedOptions.dev
-    //   ? `${encName}-${encVersion}-dev.js`
-    //   : `${encName}-${encVersion}.js`;
-
-    const hash = calcHash(pi, configState);
-
-    const outName = fedOptions.dev
-      ? `${encName}.${hash}-dev.js`
-      : `${encName}.${hash}.js`;
-
+    const outName = createOutName(pi, configState, fedOptions, encName);
     return { fileName: pi.entryPoint, outName };
   });
 
@@ -90,8 +80,10 @@ export async function bundleShared(
   const additionalExternals =
     platform === 'browser' ? DEFAULT_EXTERNAL_LIST : [];
 
+  let bundleResult: BuildResult[] | null = null;
+
   try {
-    await bundle({
+    bundleResult = await bundle({
       entryPoints,
       tsConfigPath: fedOptions.tsConfig,
       external: [...additionalExternals, ...externals],
@@ -103,13 +95,9 @@ export async function bundleShared(
       platform,
     });
 
-    for (const fileName of exptedResults) {
-      const outFileName = path.basename(fileName);
-      const cachedFile = path.join(cachePath, outFileName);
+    const cachedFiles = bundleResult.map(br => path.basename(br.fileName));
+    copyCacheToOutput(cachedFiles, cachePath, fullOutputPath);
 
-      copyFileIfExists(cachedFile, fileName);
-      copySrcMapIfExists(cachedFile, fileName);
-    }
   } catch (e) {
     logger.error('Error bundling shared npm package ');
     if (e instanceof Error) {
@@ -142,8 +130,73 @@ export async function bundleShared(
     throw e;
   }
 
+  const resultCacheFile = createCacheFileName(
+    configState, 
+    sharedBundles, 
+    fedOptions, 
+    cachePath, 
+    platform
+  );
+
+  if (fs.existsSync(resultCacheFile)) {
+      const cachedResult: SharedInfo[] = JSON.parse(fs.readFileSync(resultCacheFile, 'utf-8'));
+      const cachedFiles = cachedResult.map(cr => cr.outFileName);
+      copyCacheToOutput(cachedFiles, cachePath, fullOutputPath)
+      return cachedResult;
+  }
+
   const outFileNames = [...exptedResults];
 
+  const result = buildResult(
+    packageInfos, 
+    sharedBundles, 
+    outFileNames, 
+    fedOptions);
+
+  const chunks = bundleResult.filter(
+    (br) => !result.find((r) => 
+      r.outFileName === path.basename(br.fileName))
+  );
+
+  addChunksToResult(chunks, result, fedOptions.dev);
+
+  fs.writeFileSync(
+    resultCacheFile,
+    JSON.stringify(result, undefined, 2),
+    'utf-8'
+  );
+
+  return result;
+}
+
+function copyCacheToOutput(cachedFiles: string[], cachePath: string, fullOutputPath: string) {
+  for (const fileName of cachedFiles) {
+    const cachedFile = path.join(cachePath, fileName);
+    const distFileName = path.join(fullOutputPath, fileName);
+    copyFileIfExists(cachedFile, distFileName);
+    copySrcMapIfExists(cachedFile, distFileName);
+  }
+}
+
+function createOutName(pi: PackageInfo, configState: string, fedOptions: FederationOptions, encName: string) {
+  const hashBase = pi.version + '_' + pi.entryPoint + '_' + configState;
+  const hash = calcHash(hashBase);
+
+  const outName = fedOptions.dev
+    ? `${encName}.${hash}-dev.js`
+    : `${encName}.${hash}.js`;
+  return outName;
+}
+
+function createCacheFileName(configState: string, sharedBundles: Record<string, NormalizedSharedConfig>, fedOptions: FederationOptions, cachePath: string, platform: string) {
+  const resultCacheState = configState + JSON.stringify(sharedBundles);
+  const resultHash = calcHash(resultCacheState);
+  const dev = fedOptions.dev ? '-dev' : '';
+  const resultCacheFile = path.join(cachePath, 'result-' + resultHash + '-' + platform + dev + '.json');
+  return resultCacheFile;
+}
+
+function buildResult(packageInfos: PackageInfo[], sharedBundles: Record<string, NormalizedSharedConfig>, outFileNames: string[], fedOptions: FederationOptions) {
   return packageInfos.map((pi) => {
     const shared = sharedBundles[pi.packageName];
     return {
@@ -156,14 +209,32 @@ export async function bundleShared(
       dev: !fedOptions.dev
         ? undefined
         : {
-            entryPoint: normalize(pi.entryPoint),
-          },
+          entryPoint: normalize(pi.entryPoint),
+        },
     } as SharedInfo;
   });
 }
 
-function calcHash(pi: PackageInfo, configState: string) {
-  const hashBase = pi.version + '_' + pi.entryPoint + '_' + configState;
+function addChunksToResult(chunks: BuildResult[], result: SharedInfo[], dev?: boolean) {
+  for (const item of chunks) {
+    const fileName = path.basename(item.fileName);
+    result.push({
+      singleton: false,
+      strictVersion: false,
+      requiredVersion: '0.0.0',
+      version: '0.0.0',
+      packageName: fileName,
+      outFileName: fileName,
+      dev: dev
+        ? undefined
+        : {
+          entryPoint: normalize(fileName),
+        },
+    });
+  }
+}
+
+function calcHash(hashBase: string) {
   const hash = crypto
     .createHash('sha256')
     .update(hashBase)
@@ -174,6 +245,7 @@ function calcHash(pi: PackageInfo, configState: string) {
     .substring(0, 10);
   return hash;
 }
+
 
 function copyFileIfExists(cachedFile: string, fullOutputPath: string) {
   fs.mkdirSync(path.dirname(fullOutputPath), { recursive: true });

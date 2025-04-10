@@ -275,7 +275,7 @@ async function runEsbuild(
       'async-await': false,
       'object-rest-spread': false,
     },
-    splitting: kind === 'mapping-or-exposed',
+    splitting: true, //kind === 'mapping-or-exposed',
     platform: platform ?? 'browser',
     format: 'esm',
     target: target,
