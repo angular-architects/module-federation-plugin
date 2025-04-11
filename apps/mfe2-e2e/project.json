@@ -16,13 +16,6 @@
           "devServerTarget": "mfe2:serve:production"
         }
       }
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["apps/mfe2-e2e/**/*.{js,ts}"]
-      }
     }
   },
   "tags": [],

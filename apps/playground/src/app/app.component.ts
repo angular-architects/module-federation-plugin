@@ -1,15 +1,19 @@
+import { RouterModule } from '@angular/router';
 import { loadRemoteModule } from '@angular-architects/native-federation';
 import { AuthService } from '@angular-architects/playground-lib';
 import { Component, Type } from '@angular/core';
+import { NgComponentOutlet, NgIf } from '@angular/common';
 
 @Component({
-  selector: 'angular-architects-root',
+  standalone: true,
+  imports: [RouterModule, NgComponentOutlet, NgIf],
+  selector: 'playground-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrl: './app.component.css',
 })
 export class AppComponent {
   title = 'playground';
-  Cmp: Type<unknown>;
+  Cmp: Type<unknown> | undefined = undefined;
 
   constructor(authService: AuthService) {
     authService.userName = 'Jane Doe';

@@ -3,5 +3,6 @@ import { initFederation } from '@angular-architects/native-federation';
 initFederation({
   //'mfe1': 'http://localhost:3001/remoteEntry.json'
 })
+  .catch((err) => console.error(err))
   .then(() => import('./bootstrap'))
-  .catch((e) => console.error('err', e));
+  .catch((err) => console.error(err));
