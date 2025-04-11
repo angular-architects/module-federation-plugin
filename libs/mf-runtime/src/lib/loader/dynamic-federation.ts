@@ -322,5 +322,18 @@ async function loadRemoteEntries() {
     }
   }
 
-  await Promise.all(promises);
+  const allSettledPromises = promises.map( p => {
+    return Promise.resolve(p).then(
+      value => ( { status: 'fulfilled', value } as const ),
+      reason => ( { status: 'rejected', reason } as const )
+    )
+  });
+
+  const result = await Promise.all(allSettledPromises);
+  const rejected = result.filter(isRejected).map( s => s.reason );
+  return rejected.length > 0 ? Promise.reject(rejected) : Promise.resolve();
+}
+
+function isRejected(status: Record<string, unknown>): status is { status: 'rejected', reason: any } {
+  return 'status' in status && status.status === 'rejected';
 }
