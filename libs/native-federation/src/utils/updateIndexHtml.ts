@@ -57,14 +57,14 @@ export function updateScriptTags(
 `;
 
   indexContent = indexContent.replace(
-    /<script src="(.*?polyfills.*?)><\/script>/,
+    /<script src="(.*?polyfills.*?)".*?><\/script>/,
     '<script type="module" src="$1"></script>'
   );
   indexContent = indexContent.replace(
-    /<script src="(.*?main.*?)><\/script>/,
+    /<script src="(.*?main.*?)".*?><\/script>/,
     '<script type="module-shim" src="$1"></script>'
   );
 
-  indexContent = indexContent.replace('<body>', `<body>${htmlFragment}`);
+  indexContent = indexContent.replace(/(<body.*?>)/, `$1\n\t\t${htmlFragment}`);
   return indexContent;
 }
