@@ -26,8 +26,6 @@ export interface FederationInfo {
 
 export interface InitFederationOptions {
   cacheTag?: string;
-}
-
-export interface ProcessRemoteInfoOptions extends InitFederationOptions {
+  hostRemoteEntry: string|false;
   throwIfRemoteNotFound: boolean;
 }

@@ -11,8 +11,8 @@ import { appendImportMap } from './utils/add-import-map';
 import {
   FederationInfo,
   InitFederationOptions,
-  ProcessRemoteInfoOptions,
 } from './model/federation-info';
+import { setOptions } from './utils/set-options';
 
 /**
  * Initialize the federation runtime
@@ -21,25 +21,30 @@ import {
  */
 export async function initFederation(
   remotesOrManifestUrl: Record<string, string> | string = {},
-  options?: InitFederationOptions
+  optionsOverride?: Partial<InitFederationOptions>
 ): Promise<ImportMap> {
-  const cacheOption = options?.cacheTag ? `?t=${options.cacheTag}` : '';
-  const remotes =
-    typeof remotesOrManifestUrl === 'string'
-      ? await loadManifest(remotesOrManifestUrl + cacheOption)
-      : remotesOrManifestUrl;
+  const options = setOptions(optionsOverride);
 
-  const url = './remoteEntry.json' + cacheOption;
-  const hostInfo = await loadFederationInfo(url);
-  const hostImportMap = await processHostInfo(hostInfo);
-  const remotesImportMap = await processRemoteInfos(remotes, {
-    throwIfRemoteNotFound: false,
-    ...options,
-  });
+  const cacheOption = options.cacheTag ? `?t=${options.cacheTag}` : '';
+  
+  const remotesPromise = typeof remotesOrManifestUrl === 'string'
+    ? loadManifest(remotesOrManifestUrl + cacheOption)
+    : Promise.resolve(remotesOrManifestUrl);
 
-  const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
+  const remotes = await remotesPromise;
+  const remotesImportMap = await processRemoteInfos(remotes, options);
+
+  let importMap: ImportMap;
+  if (options.hostRemoteEntry) {
+    const hostInfoPromise = loadFederationInfo(options.hostRemoteEntry + cacheOption);
+    const hostInfo = await hostInfoPromise;
+    const hostImportMap = await processHostInfo(hostInfo);
+    importMap = mergeImportMaps(hostImportMap, remotesImportMap);
+  } else {
+    importMap = remotesImportMap;
+  }
+
   appendImportMap(importMap);
-
   return importMap;
 }
 
@@ -49,8 +54,10 @@ async function loadManifest(remotes: string): Promise<Record<string, string>> {
 
 export async function processRemoteInfos(
   remotes: Record<string, string>,
-  options: ProcessRemoteInfoOptions = { throwIfRemoteNotFound: false }
+  optionsOverride?: Partial<InitFederationOptions>
 ): Promise<ImportMap> {
+  const options = setOptions(optionsOverride);
+
   const processRemoteInfoPromises = Object.keys(remotes).map(
     async (remoteName) => {
       try {
