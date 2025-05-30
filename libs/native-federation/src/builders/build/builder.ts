@@ -16,7 +16,6 @@ import {
 
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
-
 import { setLogLevel, logger } from '@softarc/native-federation/build';
 
 import { FederationOptions } from '@softarc/native-federation/build';
@@ -305,7 +304,9 @@ export async function* runBuilder(
     lastResult = output;
 
     if (!write && output['outputFiles']) {
-      memResults.add(output['outputFiles'].map((file) => new EsBuildResult(file)));
+      memResults.add(
+        output['outputFiles'].map((file) => new EsBuildResult(file))
+      );
     }
 
     if (!write && output['assetFiles']) {

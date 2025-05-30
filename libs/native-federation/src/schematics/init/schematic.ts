@@ -108,7 +108,11 @@ export default function config(options: MfSchematicSchema): Rule {
     const cand1 = path.join(projectSourceRoot, 'app', 'app.component.ts');
     const cand2 = path.join(projectSourceRoot, 'app', 'app.ts');
 
-    const appComponent = tree.exists(cand1) ? cand1 : tree.exists(cand2) ? cand2 : 'update-this.ts';
+    const appComponent = tree.exists(cand1)
+      ? cand1
+      : tree.exists(cand2)
+      ? cand2
+      : 'update-this.ts';
 
     const generateRule = !exists
       ? await generateFederationConfig(
