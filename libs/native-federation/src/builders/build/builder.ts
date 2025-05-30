@@ -212,7 +212,11 @@ export async function* runBuilder(
         const lookup = mrmime.lookup;
         const mimeType = lookup(path.extname(fileName)) || 'text/javascript';
         const rawBody = fs.readFileSync(fileName, 'utf-8');
-        const body = addDebugInformation(url, rawBody);
+        
+        // TODO: Evaluate need for debug infos
+        // const body = addDebugInformation(url, rawBody);
+        const body = rawBody;
+        
         res.writeHead(200, {
           'Content-Type': mimeType,
           'Access-Control-Allow-Origin': '*',

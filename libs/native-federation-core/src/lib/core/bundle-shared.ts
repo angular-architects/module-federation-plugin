@@ -48,6 +48,7 @@ export async function bundleShared(
   const packageInfos = [...inferedPackageInfos, ...configuredPackageInfos];
 
   const configState =
+    'BUNDLER_CHUNKS' + // TODO: Replace this with lib version 
     fs.readFileSync(path.join(__dirname, '../../../package.json')) +
     JSON.stringify(config);
 
@@ -155,8 +156,9 @@ export async function bundleShared(
     fedOptions
   );
 
+  // TODO: Decide whether/when to add .map files
   const chunks = bundleResult.filter(
-    (br) => !result.find((r) => r.outFileName === path.basename(br.fileName))
+    (br) => !br.fileName.endsWith('.map') && !result.find((r) => r.outFileName === path.basename(br.fileName))
   );
 
   addChunksToResult(chunks, result, fedOptions.dev);
@@ -230,11 +232,12 @@ function buildResult(
       singleton: shared.singleton,
       strictVersion: shared.strictVersion,
       version: pi.version,
-      dev: !fedOptions.dev
-        ? undefined
-        : {
-            entryPoint: normalize(pi.entryPoint),
-          },
+      // TODO: Decide whether/when we need debug infos
+      // dev: !fedOptions.dev
+      //   ? undefined 
+      //   : {
+      //       entryPoint: normalize(pi.entryPoint),
+      //     },
     } as SharedInfo;
   });
 }
@@ -255,17 +258,17 @@ function addChunksToResult(
       // code as part of the file name to be unique
       // when requested via a _versioned_ package.
       //
-      // For the same reason, we don't need to 
+      // For the same reason, we don't need to
       // take care of singleton and strictVersion.
       requiredVersion: '0.0.0',
       version: '0.0.0',
       packageName: fileName,
       outFileName: fileName,
-      dev: dev
-        ? undefined
-        : {
-            entryPoint: normalize(fileName),
-          },
+      // dev: dev
+      //   ? undefined
+      //   : {
+      //       entryPoint: normalize(fileName),
+      //     },
     });
   }
 }
