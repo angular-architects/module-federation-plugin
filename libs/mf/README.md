@@ -56,6 +56,7 @@ We are going to provide at least one major per Angular major to keep track with 
 - Angular 17: @angular-architects/module-federation: ^17.0.0
 - Angular 18: @angular-architects/module-federation: ^18.0.0
 - Angular 19: @angular-architects/module-federation: ^19.0.0
+- Angular 20: @angular-architects/module-federation: ^20.0.0
 
 Beginning with Angular 13, we had to add some changes to adjust to the Angular CLI. Please see the next section for this.
 

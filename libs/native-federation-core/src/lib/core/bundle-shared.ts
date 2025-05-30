@@ -48,7 +48,7 @@ export async function bundleShared(
   const packageInfos = [...inferedPackageInfos, ...configuredPackageInfos];
 
   const configState =
-    'BUNDLER_CHUNKS' + // TODO: Replace this with lib version 
+    'BUNDLER_CHUNKS' + // TODO: Replace this with lib version
     fs.readFileSync(path.join(__dirname, '../../../package.json')) +
     JSON.stringify(config);
 
@@ -158,7 +158,9 @@ export async function bundleShared(
 
   // TODO: Decide whether/when to add .map files
   const chunks = bundleResult.filter(
-    (br) => !br.fileName.endsWith('.map') && !result.find((r) => r.outFileName === path.basename(br.fileName))
+    (br) =>
+      !br.fileName.endsWith('.map') &&
+      !result.find((r) => r.outFileName === path.basename(br.fileName))
   );
 
   addChunksToResult(chunks, result, fedOptions.dev);
@@ -234,7 +236,7 @@ function buildResult(
       version: pi.version,
       // TODO: Decide whether/when we need debug infos
       // dev: !fedOptions.dev
-      //   ? undefined 
+      //   ? undefined
       //   : {
       //       entryPoint: normalize(pi.entryPoint),
       //     },

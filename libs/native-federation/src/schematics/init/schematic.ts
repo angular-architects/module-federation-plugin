@@ -105,11 +105,17 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const exists = tree.exists(federationConfigPath);
 
+    const cand1 = path.join(projectSourceRoot, 'app', 'app.component.ts');
+    const cand2 = path.join(projectSourceRoot, 'app', 'app.ts');
+
+    const appComponent = tree.exists(cand1) ? cand1 : tree.exists(cand2) ? cand2 : 'update-this.ts';
+
     const generateRule = !exists
       ? await generateFederationConfig(
           remoteMap,
           projectRoot,
           projectSourceRoot,
+          appComponent,
           options
         )
       : noop;
@@ -139,6 +145,14 @@ export default function config(options: MfSchematicSchema): Rule {
       type: NodeDependencyType.Default,
       version:
         getPackageJsonDependency(tree, '@angular/core')?.version || 'latest',
+      overwrite: false,
+    });
+
+    addPackageJsonDependency(tree, {
+      name: '@angular-devkit/build-angular',
+      type: NodeDependencyType.Dev,
+      version:
+        getPackageJsonDependency(tree, '@angular/build')?.version || 'latest',
       overwrite: false,
     });
 
@@ -588,6 +602,7 @@ async function generateFederationConfig(
   remoteMap: Record<string, string>,
   projectRoot: string,
   projectSourceRoot: string,
+  appComponentPath: string,
   options: MfSchematicSchema
 ) {
   const tmpl = url('./files');
@@ -596,6 +611,7 @@ async function generateFederationConfig(
     template({
       projectRoot,
       projectSourceRoot,
+      appComponentPath,
       remoteMap,
       ...options,
       tmpl: '',

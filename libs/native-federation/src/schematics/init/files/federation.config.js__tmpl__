@@ -5,7 +5,7 @@ module.exports = withNativeFederation({
   name: '<%=project%>',
 
   exposes: {
-    './Component': './<%=projectSourceRoot%>/app/app.component.ts',
+    './Component': './<%=appComponentPath%>',
   },
 <% } %>
   shared: {

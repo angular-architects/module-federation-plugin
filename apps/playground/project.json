@@ -4,6 +4,7 @@
   "projectType": "application",
   "sourceRoot": "apps/playground/src",
   "prefix": "angular-architects",
+  "tags": [],
   "targets": {
     "demo": {
       "executor": "@angular-architects/native-federation:build",
@@ -68,7 +69,8 @@
           "buildTarget": "playground:build:development"
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "development",
+      "continuous": true
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
@@ -93,6 +95,5 @@
         "jestConfig": "apps/playground/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

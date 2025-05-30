@@ -4,6 +4,7 @@
   "projectType": "application",
   "sourceRoot": "apps/mfe1/src",
   "prefix": "angular-architects",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@angular-architects/native-federation:build",
@@ -61,7 +62,8 @@
           "buildTarget": "mfe1:build:development"
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "development",
+      "continuous": true
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
@@ -82,6 +84,5 @@
         "jestConfig": "apps/mfe1/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

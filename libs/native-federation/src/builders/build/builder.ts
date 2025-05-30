@@ -16,6 +16,7 @@ import {
 
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
+
 import { setLogLevel, logger } from '@softarc/native-federation/build';
 
 import { FederationOptions } from '@softarc/native-federation/build';
@@ -136,6 +137,10 @@ export async function* runBuilder(
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
 
+  if (!options.outputPath) {
+    options.outputPath = `dist/${context.target.project}`;
+  }
+
   const outputPath = options.outputPath;
   const outputOptions: Required<
     Exclude<ApplicationBuilderOptions['outputPath'], string>
@@ -212,11 +217,11 @@ export async function* runBuilder(
         const lookup = mrmime.lookup;
         const mimeType = lookup(path.extname(fileName)) || 'text/javascript';
         const rawBody = fs.readFileSync(fileName, 'utf-8');
-        
+
         // TODO: Evaluate need for debug infos
         // const body = addDebugInformation(url, rawBody);
         const body = rawBody;
-        
+
         res.writeHead(200, {
           'Content-Type': mimeType,
           'Access-Control-Allow-Origin': '*',
@@ -299,13 +304,13 @@ export async function* runBuilder(
   for await (const output of builderRun) {
     lastResult = output;
 
-    if (!write && output.outputFiles) {
-      memResults.add(output.outputFiles.map((file) => new EsBuildResult(file)));
+    if (!write && output['outputFiles']) {
+      memResults.add(output['outputFiles'].map((file) => new EsBuildResult(file)));
     }
 
-    if (!write && output.assetFiles) {
+    if (!write && output['assetFiles']) {
       memResults.add(
-        output.assetFiles.map((file) => new NgCliAssetResult(file))
+        output['assetFiles'].map((file) => new NgCliAssetResult(file))
       );
     }
 
