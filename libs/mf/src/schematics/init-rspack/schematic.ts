@@ -45,11 +45,11 @@ type PackageJson = {
 };
 
 const RSPACK_DEPS = {
-  '@module-federation/enhanced': '0.8.7',
+  '@module-federation/enhanced': '0.14.3',
 };
 
 const RSPACK_DEV_DEPS = {
-  '@ng-rsbuild/plugin-angular': '19.0.0-alpha.14',
+  '@ng-rsbuild/plugin-angular': '^21.0.0',
 };
 
 export function init(options: MfSchematicSchema): Rule {
@@ -68,10 +68,20 @@ export function init(options: MfSchematicSchema): Rule {
 
     const remoteMap = await generateRemoteMap(workspace, projectName);
 
+    const cand1 = path.join(projectSourceRoot, 'app', 'app.component.ts');
+    const cand2 = path.join(projectSourceRoot, 'app', 'app.ts');
+
+    const appComponent = tree.exists(cand1)
+      ? cand1
+      : tree.exists(cand2)
+      ? cand2
+      : 'update-this.ts';
+
     const generateRule = await generateRsBuildConfig(
       remoteMap,
       projectRoot,
       projectSourceRoot,
+      appComponent,
       options
     );
 
@@ -305,6 +315,7 @@ async function generateRsBuildConfig(
   remoteMap: Record<string, string>,
   projectRoot: string,
   projectSourceRoot: string,
+  appComponent: string,
   options: MfSchematicSchema
 ) {
   const tmpl = url('./files');
@@ -316,6 +327,7 @@ async function generateRsBuildConfig(
       remoteMap,
       ...options,
       tmpl: '',
+      appComponent,
     }),
     move(projectRoot),
   ]);

@@ -168,6 +168,7 @@ async function generateWebpackConfig(
   remoteMap: Record<string, string>,
   projectRoot: string,
   projectSourceRoot: string,
+  appComponent: string,
   options: MfSchematicSchema
 ) {
   const tmpl = url('./files');
@@ -178,6 +179,7 @@ async function generateWebpackConfig(
       projectSourceRoot,
       remoteMap,
       ...options,
+      appComponent,
       tmpl: '',
     }),
     move(projectRoot),
@@ -286,6 +288,15 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const remoteMap = await generateRemoteMap(workspace, projectName);
 
+    const cand1 = path.join(projectSourceRoot, 'app', 'app.component.ts');
+    const cand2 = path.join(projectSourceRoot, 'app', 'app.ts');
+
+    const appComponent = tree.exists(cand1)
+      ? cand1
+      : tree.exists(cand2)
+      ? cand2
+      : 'update-this.ts';
+
     let generateRule = null;
 
     if (options.type === 'legacy') {
@@ -302,6 +313,7 @@ export default function config(options: MfSchematicSchema): Rule {
         remoteMap,
         projectRoot,
         projectSourceRoot,
+        appComponent,
         options
       );
     }
@@ -353,6 +365,14 @@ export default function config(options: MfSchematicSchema): Rule {
       projectConfig.architect.serve.options = {};
     }
 
+    const indexPath = path.join(projectSourceRoot, 'index.html');
+
+    projectConfig.architect.build.options.outputPath =
+      projectConfig.architect.build.options.outputPath ?? `dist/${projectName}`;
+
+    projectConfig.architect.build.options.index =
+      projectConfig.architect.build.options.index ?? indexPath;
+
     projectConfig.architect.build.builder = buildBuilder;
     projectConfig.architect.build.options[webpackProperty] =
       getWebpackConfigValue(options.nxBuilders, configPath);
@@ -403,14 +423,31 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const dep = getPackageJsonDependency(tree, 'ngx-build-plus');
 
-    if (!dep || !semver.satisfies(dep.version, '>=19.0.0')) {
+    let installDeps = false;
+    if (!dep || !semver.satisfies(dep.version, '>=20.0.0')) {
       addPackageJsonDependency(tree, {
         name: 'ngx-build-plus',
         type: NodeDependencyType.Dev,
-        version: '^19.0.0',
+        version: '^20.0.0',
         overwrite: true,
       });
 
+      installDeps = true;
+    }
+
+    if (!getPackageJsonDependency(tree, '@angular-devkit/build-angular')) {
+      addPackageJsonDependency(tree, {
+        name: '@angular-devkit/build-angular',
+        type: NodeDependencyType.Dev,
+        version:
+          getPackageJsonDependency(tree, '@angular/cli')?.version || 'latest',
+        overwrite: false,
+      });
+
+      installDeps = true;
+    }
+
+    if (installDeps) {
       context.addTask(new NodePackageInstallTask());
     }
 

@@ -46,7 +46,7 @@ export async function initFederation(
   }
 
   const runtimeConfig = toRuntimeConfig(config, options);
-  return init(runtimeConfig);
+  return init(runtimeConfig as any) as any;
 }
 
 export function toRuntimeConfig(

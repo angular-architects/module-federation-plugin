@@ -6,7 +6,7 @@ export default withFederation({
     name: '<%=project%>',
 
     exposes: {
-      './Component': './src/app/app.component.ts',
+      './Component': './<%=appComponent%>',
     },
 <% } else if (type === 'host') { %>
     remotes: {<% for (key in remoteMap) { %>

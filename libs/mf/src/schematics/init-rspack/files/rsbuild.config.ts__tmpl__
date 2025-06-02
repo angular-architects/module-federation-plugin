@@ -1,7 +1,7 @@
 import { createConfig } from '@ng-rsbuild/plugin-angular';
 import applyFederation from './federation.config';
 
-const rsbuildConfig = createConfig(
+export default createConfig(
   {
     browser: './src/main.ts',
   },
@@ -11,5 +11,3 @@ const rsbuildConfig = createConfig(
     },
   }
 );
-
-export default applyFederation(rsbuildConfig);
