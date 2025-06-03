@@ -1,16 +1,16 @@
 import {
+  apply,
   chain,
+  mergeWith,
+  move,
   Rule,
+  template,
   Tree,
   url,
-  apply,
-  mergeWith,
-  template,
-  move,
 } from '@angular-devkit/schematics';
 
-import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { strings } from '@angular-devkit/core';
+import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import * as json5 from 'json5';
 import * as semver from 'semver';
 
@@ -234,7 +234,8 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const buildConfig = projectConfig?.architect?.build;
     const isApplicationBuilder =
-      buildConfig?.builder === '@angular-devkit/build-angular:application';
+      buildConfig?.builder === '@angular-devkit/build-angular:application' ||
+      buildConfig?.builder === '@angular/build:application';
 
     if (isApplicationBuilder && !options.skipConfirmation) {
       console.warn(
