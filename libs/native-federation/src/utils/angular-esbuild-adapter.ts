@@ -38,6 +38,7 @@ import {
 import { RebuildEvents, RebuildHubs } from './rebuild-events';
 
 import JSON5 from 'json5';
+import { isDeepStrictEqual } from 'node:util';
 
 export type MemResultHandler = (
   outfiles: esbuild.OutputFile[],
@@ -352,11 +353,35 @@ function createTsConfigForFederation(
 
   const tsconfigFedPath = path.join(tsconfigDir, 'tsconfig.federation.json');
 
-  if (!doesFileExist(tsconfigFedPath, content)) {
+  if (!doesFileExistAndJsonEqual(tsconfigFedPath, content)) {
     fs.writeFileSync(tsconfigFedPath, JSON.stringify(tsconfig, null, 2));
   }
   tsConfigPath = tsconfigFedPath;
   return tsConfigPath;
+}
+
+/**
+ * Checks if a file exists and if its content is equal to the provided content.
+ * If the file does not exist, it returns false.
+ * If the file or its content is invalid JSON, it returns false.
+ * @param {string} path - The path to the file
+ * @param {string} content - The content to compare with
+ * @returns {boolean} - Returns true if the file exists and its content is equal to the provided content
+ */
+function doesFileExistAndJsonEqual(path: string, content: string) {
+  if (!fs.existsSync(path)) {
+    return false;
+  }
+
+  try {
+    const currentContent = fs.readFileSync(path, 'utf-8');
+    const currentJson = JSON5.parse(currentContent);
+    const newJson = JSON5.parse(content);
+
+    return isDeepStrictEqual(currentJson, newJson);
+  } catch (_error) {
+    return false;
+  }
 }
 
 function doesFileExist(path: string, content: string): boolean {
