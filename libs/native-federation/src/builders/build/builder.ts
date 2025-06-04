@@ -155,10 +155,15 @@ export async function* runBuilder(
 
   const localeFilter = getLocaleFilter(options, runServer);
 
+  const sourceLocaleSegment =
+    typeof i18n?.sourceLocale === 'string'
+      ? i18n.sourceLocale
+      : i18n?.sourceLocale?.subPath || i18n?.sourceLocale?.code || '';
+
   const browserOutputPath = path.join(
     outputOptions.base,
     outputOptions.browser,
-    options.localize ? i18n?.sourceLocale || '' : ''
+    options.localize ? sourceLocaleSegment : ''
   );
 
   const differentDevServerOutputPath =
