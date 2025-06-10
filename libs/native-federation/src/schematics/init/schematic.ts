@@ -266,7 +266,7 @@ function updateWorkspaceConfig(
 
   if (ssr) {
     projectConfig.architect.build.options.ssr = true;
-    projectConfig.architect.esbuild.options.prerender = false;
+    // projectConfig.architect.esbuild.options.prerender = false;
   }
 
   const serve = projectConfig.architect.serve;

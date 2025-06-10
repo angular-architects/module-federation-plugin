@@ -48,6 +48,7 @@ import {
   I18nConfig,
   translateFederationArtefacts,
 } from '../../utils/i18n';
+import { fstart } from '../../tools/fstart-as-data-url';
 
 function _buildApplication(options, context, pluginsOrExtensions) {
   let extensions;
@@ -266,6 +267,10 @@ export async function* runBuilder(
     }
   }
 
+  if (activateSsr) {
+    writeFstartScript(fedOptions);
+  }
+  
   const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
   if (hasLocales && localeFilter) {
     translateFederationArtefacts(
@@ -360,6 +365,14 @@ export async function* runBuilder(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default createBuilder(runBuilder) as any;
+
+function writeFstartScript(fedOptions: FederationOptions) {
+  const serverOutpath = path.join(fedOptions.outputPath, '../server');
+  const fstartPath = path.join(serverOutpath, 'fstart.mjs');
+  const buffer = Buffer.from(fstart, 'base64');
+  fs.mkdirSync(serverOutpath, { recursive: true });
+  fs.writeFileSync(fstartPath, buffer, 'utf-8');
+}
 
 function getLocaleFilter(
   options: ApplicationBuilderOptions,

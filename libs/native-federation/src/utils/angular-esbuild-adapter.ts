@@ -424,8 +424,8 @@ export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
 //
 function setNgServerMode(): void {
   const fileToPatch = 'node_modules/@angular/core/fesm2022/core.mjs';
-  const lineToAdd = `const ngServerMode = (typeof window === 'undefined') ? true : false;`;
-
+  const lineToAdd = `if (typeof globalThis.ngServerMode ==='undefined') globalThis.ngServerMode = (typeof window === 'undefined') ? true : false;`;
+  
   try {
     if (fs.existsSync(fileToPatch)) {
       let content = fs.readFileSync(fileToPatch, 'utf-8');
