@@ -27,6 +27,7 @@ export function withNativeFederation(
     externals: config.externals ?? [],
     features: {
       mappingVersion: config.features?.mappingVersion ?? false,
+      ignoreUnusedDeps: config.features?.ignoreUnusedDeps ?? false,
     },
   };
 }

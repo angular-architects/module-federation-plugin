@@ -168,6 +168,8 @@ export async function* runBuilder(
     ? browserOutputPath
     : path.join(outputOptions.base, outputOptions.browser, options.localize[0]);
 
+  const entryPoint = path.join(path.dirname(options.tsConfig), 'src/main.ts');
+
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
     outputPath: browserOutputPath,
@@ -176,6 +178,7 @@ export async function* runBuilder(
     verbose: options.verbose,
     watch: false, // options.watch,
     dev: !!nfOptions.dev,
+    entryPoint,
   };
 
   const activateSsr = nfOptions.ssr && !nfOptions.dev;
@@ -270,7 +273,7 @@ export async function* runBuilder(
   if (activateSsr) {
     writeFstartScript(fedOptions);
   }
-  
+
   const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
   if (hasLocales && localeFilter) {
     translateFederationArtefacts(

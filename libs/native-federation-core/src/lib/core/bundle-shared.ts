@@ -10,7 +10,6 @@ import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 import { logger } from '../utils/logger';
-import { normalize } from '../utils/normalize';
 import crypto from 'crypto';
 import { DEFAULT_EXTERNAL_LIST } from './default-external-list';
 import { BuildResult } from './build-adapter';
@@ -77,9 +76,13 @@ export async function bundleShared(
       "Skip packages you don't want to share in your federation config"
     );
   }
+  
+  // If we build for the browser and don't remote unused deps from the shared config,
+  // we need to exclude typical node libs to avoid compilation issues
+  const useDefaultExternalList = platform === 'browser' && !config.features.ignoreUnusedDeps;
 
   const additionalExternals =
-    platform === 'browser' ? DEFAULT_EXTERNAL_LIST : [];
+      useDefaultExternalList ? DEFAULT_EXTERNAL_LIST : [];
 
   let bundleResult: BuildResult[] | null = null;
 

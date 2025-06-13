@@ -26,6 +26,7 @@ export interface FederationConfig {
   externals?: string[];
   features?: {
     mappingVersion?: boolean;
+    ignoreUnusedDeps?: boolean;
   };
 }
 
@@ -53,5 +54,6 @@ export interface NormalizedFederationConfig {
   externals: string[];
   features: {
     mappingVersion: boolean;
+    ignoreUnusedDeps: boolean;
   };
 }

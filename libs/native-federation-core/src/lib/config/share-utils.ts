@@ -290,7 +290,14 @@ function getDefaultEntry(
   if (!entry) {
     entry = exports[key]?.['import'];
     if (typeof entry === 'object') {
-      entry = entry['import'];
+      entry = entry['import'] ?? entry['default'];
+    }
+  }
+
+  if (!entry) {
+    entry = exports[key]?.['require'];
+    if (typeof entry === 'object') {
+      entry = entry['require'] ?? entry['default'];
     }
   }
 

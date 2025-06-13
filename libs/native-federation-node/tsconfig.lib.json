@@ -11,6 +11,8 @@
   "include": [
     "src/**/*.ts",
     "src/lib/node/import-map-store.ts.bak",
-    "src/lib/node/federation-resolver.ts.bak"
-, "../native-federation/tools/fstart-args-parser.ts", "../native-federation/tools/fstart.ts"  ]
+    "src/lib/node/federation-resolver.ts.bak",
+    "../native-federation/tools/fstart-args-parser.ts",
+    "../native-federation/tools/fstart.ts"
+  ]
 }
