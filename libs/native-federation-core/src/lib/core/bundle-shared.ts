@@ -76,13 +76,15 @@ export async function bundleShared(
       "Skip packages you don't want to share in your federation config"
     );
   }
-  
+
   // If we build for the browser and don't remote unused deps from the shared config,
   // we need to exclude typical node libs to avoid compilation issues
-  const useDefaultExternalList = platform === 'browser' && !config.features.ignoreUnusedDeps;
+  const useDefaultExternalList =
+    platform === 'browser' && !config.features.ignoreUnusedDeps;
 
-  const additionalExternals =
-      useDefaultExternalList ? DEFAULT_EXTERNAL_LIST : [];
+  const additionalExternals = useDefaultExternalList
+    ? DEFAULT_EXTERNAL_LIST
+    : [];
 
   let bundleResult: BuildResult[] | null = null;
 

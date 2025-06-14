@@ -19,15 +19,17 @@ export async function loadFederationConfig(
   const config = (await import(fullConfigPath)) as NormalizedFederationConfig;
 
   if (config.features.ignoreUnusedDeps && !fedOptions.entryPoint) {
-    throw new Error(`The feature ignoreUnusedDeps needs the application's entry point. Please set it in your federation options!`);
+    throw new Error(
+      `The feature ignoreUnusedDeps needs the application's entry point. Please set it in your federation options!`
+    );
   }
 
   if (config.features.ignoreUnusedDeps) {
     return removeUnusedDeps(
       config,
       fedOptions.entryPoint ?? '',
-      fedOptions.workspaceRoot,
-    )
+      fedOptions.workspaceRoot
+    );
   }
 
   return config;

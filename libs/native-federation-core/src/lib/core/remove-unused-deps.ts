@@ -8,7 +8,11 @@ import { getExternalImports as extractExternalImports } from '../utils/get-exter
 import { MappedPath } from '../utils/mapped-paths';
 import { ProjectData } from '@softarc/sheriff-core/src/lib/api/get-project-data';
 
-export function removeUnusedDeps(config: NormalizedFederationConfig, main: string, workspaceRoot: string): NormalizedFederationConfig {
+export function removeUnusedDeps(
+  config: NormalizedFederationConfig,
+  main: string,
+  workspaceRoot: string
+): NormalizedFederationConfig {
   const fileInfos = getProjectData(main, cwd(), {
     includeExternalLibraries: true,
   });
@@ -17,7 +21,10 @@ export function removeUnusedDeps(config: NormalizedFederationConfig, main: strin
   const usedPackageNames = usedDeps.usedPackageNames;
   const usedMappings = usedDeps.usedMappings;
 
-  const usedPackageNamesWithTransient = addTransientDeps(usedPackageNames, workspaceRoot);
+  const usedPackageNamesWithTransient = addTransientDeps(
+    usedPackageNames,
+    workspaceRoot
+  );
   const filteredShared = filterShared(config, usedPackageNamesWithTransient);
 
   return {
@@ -27,92 +34,105 @@ export function removeUnusedDeps(config: NormalizedFederationConfig, main: strin
   };
 }
 
-function filterShared(config: NormalizedFederationConfig, usedPackageNamesWithTransient: Set<string>) {
-    const filteredSharedNames = Object.keys(config.shared).filter(
-        (shared) => usedPackageNamesWithTransient.has(shared)
-    );
+function filterShared(
+  config: NormalizedFederationConfig,
+  usedPackageNamesWithTransient: Set<string>
+) {
+  const filteredSharedNames = Object.keys(config.shared).filter((shared) =>
+    usedPackageNamesWithTransient.has(shared)
+  );
 
-    const filteredShared = filteredSharedNames.reduce(
-        (acc, curr) => ({ ...acc, [curr]: config.shared[curr] }),
-        {}
-    );
-    return filteredShared;
+  const filteredShared = filteredSharedNames.reduce(
+    (acc, curr) => ({ ...acc, [curr]: config.shared[curr] }),
+    {}
+  );
+  return filteredShared;
 }
 
-function findUsedDeps(fileInfos: ProjectData, workspaceRoot: string, config: NormalizedFederationConfig) {
-    const usedPackageNames = new Set<string>();
-    const usedMappings = new Set<MappedPath>();
+function findUsedDeps(
+  fileInfos: ProjectData,
+  workspaceRoot: string,
+  config: NormalizedFederationConfig
+) {
+  const usedPackageNames = new Set<string>();
+  const usedMappings = new Set<MappedPath>();
 
-    for (const fileName of Object.keys(fileInfos)) {
-        const fileInfo = fileInfos[fileName];
+  for (const fileName of Object.keys(fileInfos)) {
+    const fileInfo = fileInfos[fileName];
 
-        if (!fileInfo || !fileInfo.externalLibraries) {
-            continue;
-        }
-
-        for (const pckg of fileInfo.externalLibraries) {
-            usedPackageNames.add(pckg);
-        }
-
-        const fullFileName = path.join(workspaceRoot, fileName);
-        const mappings = config.sharedMappings.filter(
-            (sm) => sm.path === fullFileName
-        );
-
-        for (const mapping of mappings) {
-            usedMappings.add(mapping);
-        }
+    if (!fileInfo || !fileInfo.externalLibraries) {
+      continue;
     }
-    return { usedPackageNames, usedMappings };
+
+    for (const pckg of fileInfo.externalLibraries) {
+      usedPackageNames.add(pckg);
+    }
+
+    const fullFileName = path.join(workspaceRoot, fileName);
+    const mappings = config.sharedMappings.filter(
+      (sm) => sm.path === fullFileName
+    );
+
+    for (const mapping of mappings) {
+      usedMappings.add(mapping);
+    }
+  }
+  return { usedPackageNames, usedMappings };
 }
 
 function addTransientDeps(packages: Set<string>, workspaceRoot: string) {
-    const packagesAndPeers = new Set<string>([...packages]);
-    const discovered = new Set<string>(packagesAndPeers);
-    const stack = [...packagesAndPeers];
+  const packagesAndPeers = new Set<string>([...packages]);
+  const discovered = new Set<string>(packagesAndPeers);
+  const stack = [...packagesAndPeers];
 
-    while (stack.length > 0) {
-        const dep = stack.pop();
+  while (stack.length > 0) {
+    const dep = stack.pop();
 
-        if (!dep) {
-            continue;
-        }
-
-        const pInfo = getPackageInfo(dep, workspaceRoot);
-
-        if (!pInfo) {
-            continue;
-        }
-        
-        const peerDeps = getExternalImports(pInfo, workspaceRoot);
-
-        for (const peerDep of peerDeps) {
-            if (!discovered.has(peerDep)) {
-                discovered.add(peerDep);
-                stack.push(peerDep);
-                packagesAndPeers.add(peerDep);
-            }
-        }
+    if (!dep) {
+      continue;
     }
-    return packagesAndPeers;
+
+    const pInfo = getPackageInfo(dep, workspaceRoot);
+
+    if (!pInfo) {
+      continue;
+    }
+
+    const peerDeps = getExternalImports(pInfo, workspaceRoot);
+
+    for (const peerDep of peerDeps) {
+      if (!discovered.has(peerDep)) {
+        discovered.add(peerDep);
+        stack.push(peerDep);
+        packagesAndPeers.add(peerDep);
+      }
+    }
+  }
+  return packagesAndPeers;
 }
 
 function getExternalImports(pInfo: PackageInfo, workspaceRoot: string) {
-    const encodedPackageName = pInfo.packageName.replace(/[^A-Za-z0-9]/g, '_');
-    const cacheFileName = `${encodedPackageName}-${pInfo.version}.deps.json`;
-    const cachePath = path.join(workspaceRoot, 'node_modules/.cache/native-federation');
-    const cacheFilePath = path.join(cachePath, cacheFileName);
+  const encodedPackageName = pInfo.packageName.replace(/[^A-Za-z0-9]/g, '_');
+  const cacheFileName = `${encodedPackageName}-${pInfo.version}.deps.json`;
+  const cachePath = path.join(
+    workspaceRoot,
+    'node_modules/.cache/native-federation'
+  );
+  const cacheFilePath = path.join(cachePath, cacheFileName);
 
-    const cacheHit = fs.existsSync(cacheFilePath);
+  const cacheHit = fs.existsSync(cacheFilePath);
 
-    let peerDeps;
-    if (cacheHit) {
-        peerDeps = JSON.parse(fs.readFileSync(cacheFilePath, 'utf-8'));
-    }
-    else {
-        peerDeps = extractExternalImports(pInfo.entryPoint);
-        fs.mkdirSync(cachePath, { recursive: true });
-        fs.writeFileSync(cacheFilePath, JSON.stringify(peerDeps, undefined, 2), 'utf-8');
-    }
-    return peerDeps;
+  let peerDeps;
+  if (cacheHit) {
+    peerDeps = JSON.parse(fs.readFileSync(cacheFilePath, 'utf-8'));
+  } else {
+    peerDeps = extractExternalImports(pInfo.entryPoint);
+    fs.mkdirSync(cachePath, { recursive: true });
+    fs.writeFileSync(
+      cacheFilePath,
+      JSON.stringify(peerDeps, undefined, 2),
+      'utf-8'
+    );
+  }
+  return peerDeps;
 }

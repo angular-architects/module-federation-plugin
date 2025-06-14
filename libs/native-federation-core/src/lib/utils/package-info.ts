@@ -330,6 +330,26 @@ export function _getPackageInfo(
     };
   }
 
+  cand = secondaryPgkPath + '.js';
+  if (fs.existsSync(cand)) {
+    return {
+      entryPoint: cand,
+      packageName,
+      version,
+      esm,
+    };
+  }
+
+  cand = secondaryPgkPath + '.mjs';
+  if (fs.existsSync(cand)) {
+    return {
+      entryPoint: cand,
+      packageName,
+      version,
+      esm,
+    };
+  }
+
   // TODO: Add logger
   logger.warn('No entry point found for ' + packageName);
   logger.warn(
