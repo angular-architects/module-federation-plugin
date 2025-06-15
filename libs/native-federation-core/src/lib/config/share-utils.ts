@@ -19,6 +19,11 @@ import { getConfigContext } from './configuration-context';
 import { logger } from '../utils/logger';
 import { resolveGlobSync } from '../utils/resolve-glob';
 
+import {
+  KeyValuePair,
+  resolveWildcardKeys,
+} from '../utils/resolve-wildcard-keys';
+
 let inferVersion = false;
 
 export const DEFAULT_SECONARIES_SKIP_LIST = [
@@ -195,6 +200,10 @@ function readConfiguredSecondaries(
   }
 
   const packageJson = JSON.parse(fs.readFileSync(libPackageJson, 'utf-8'));
+
+  const version = packageJson['version'] as string;
+  const esm = packageJson['type'] === 'module';
+
   const exports = packageJson['exports'] as Record<
     string,
     Record<string, string>
@@ -242,12 +251,29 @@ function readConfiguredSecondaries(
       continue;
     }
 
-    const items = resolveSecondaries(key, libPath, parent, secondaryName);
+    const items = resolveSecondaries(
+      key,
+      libPath,
+      parent,
+      secondaryName,
+      entry
+    );
 
     for (const item of items) {
-      result[item] = {
-        ...shareObject,
-      };
+      if (typeof item === 'object') {
+        result[item.key] = {
+          ...shareObject,
+          packageInfo: {
+            entryPoint: item.value,
+            version: shareObject.version ?? version,
+            esm
+          },
+        };
+      } else {
+        result[item] = {
+          ...shareObject,
+        };
+      }
     }
   }
 
@@ -258,13 +284,16 @@ function resolveSecondaries(
   key: string,
   libPath: string,
   parent: string,
-  secondaryName: string
-) {
-  let items = [];
+  secondaryName: string,
+  entry: string
+): Array<string | KeyValuePair> {
+  let items: Array<string | KeyValuePair> = [];
   if (key.includes('*')) {
-    items = resolveGlobSync(key, libPath).map((e) =>
-      path.join(parent, e.substring(libPath.length))
-    );
+    const expanded = resolveWildcardKeys(key, entry, libPath);
+    items = expanded.map((e) => ({
+      key: path.join(parent, e.key),
+      value: path.join(libPath, e.value),
+    }));
   } else {
     items = [secondaryName];
   }

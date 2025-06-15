@@ -68,6 +68,7 @@ export function createAngularBuildAdapter(
       dev,
       hash,
       platform,
+      optimizedMappings,
     } = options;
 
     setNgServerMode();
@@ -88,7 +89,8 @@ export function createAngularBuildAdapter(
       undefined,
       undefined,
       undefined,
-      platform
+      platform,
+      optimizedMappings
     );
 
     if (kind === 'shared-package') {
@@ -186,7 +188,8 @@ async function runEsbuild(
   plugins: esbuild.Plugin[] | null = null,
   absWorkingDir: string | undefined = undefined,
   logLevel: esbuild.LogLevel = 'warning',
-  platform?: 'browser' | 'node'
+  platform?: 'browser' | 'node',
+  optimizedMappings?: boolean
 ) {
   const projectRoot = path.dirname(tsConfigPath);
   const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
@@ -227,11 +230,13 @@ async function runEsbuild(
     }
   }
 
-  tsConfigPath = createTsConfigForFederation(
-    workspaceRoot,
-    tsConfigPath,
-    entryPoints
-  );
+  if (!optimizedMappings) {
+    tsConfigPath = createTsConfigForFederation(
+      workspaceRoot,
+      tsConfigPath,
+      entryPoints
+    );
+  }
 
   const pluginOptions = createCompilerPluginOptions(
     {

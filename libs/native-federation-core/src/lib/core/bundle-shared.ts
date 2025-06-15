@@ -99,6 +99,7 @@ export async function bundleShared(
       kind: 'shared-package',
       hash: false,
       platform,
+      optimizedMappings: config.features.ignoreUnusedDeps
     });
 
     const cachedFiles = bundleResult.map((br) => path.basename(br.fileName));
