@@ -7,6 +7,10 @@ export interface NfBuilderSchema extends JsonObject {
   port: number;
   open: boolean;
   rebuildDelay: number;
+  SSEReloads?: {
+    enable: boolean;
+    customEndpoint?: string;
+  };
   shell: string;
   watch: boolean;
   skipHtmlTransform: boolean;
