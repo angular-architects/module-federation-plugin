@@ -202,14 +202,6 @@ export async function* runBuilder(
     options.externalDependencies = externals;
   }
 
-  const removeBaseHref = (req: any): string => {
-    let url = req.url;
-    if (options.baseHref && url.startsWith(options.baseHref)) {
-      url = url.substr(options.baseHref.length);
-    }
-    return url;
-  };
-
   // Initialize SSE reloader only for local development
   const isLocalDevelopment = runServer && nfOptions.dev;
   if (isLocalDevelopment && nfOptions.buildNotifications?.enable) {
@@ -221,11 +213,11 @@ export async function* runBuilder(
   const middleware = [
     // Add SSE middleware only for local development
     ...(isLocalDevelopment
-      ? [federationBuildNotifier.createEventMiddleware(removeBaseHref)]
+      ? [federationBuildNotifier.createEventMiddleware((req) => removeBaseHref(req, options.baseHref))]
       : []),
 
     (req, res, next) => {
-      const url = removeBaseHref(req);
+      const url = removeBaseHref(req, options.baseHref);
 
       const fileName = path.join(
         fedOptions.workspaceRoot,
@@ -401,6 +393,15 @@ export async function* runBuilder(
 // =============================================================================
 // Helper Functions
 // =============================================================================
+
+function removeBaseHref(req: any, baseHref?: string) {
+  let url = req.url;
+
+  if (baseHref && url.startsWith(baseHref)) {
+    url = url.substr(baseHref.length);
+  }
+  return url;
+}
 
 function writeFstartScript(fedOptions: FederationOptions) {
   const serverOutpath = path.join(fedOptions.outputPath, '../server');
