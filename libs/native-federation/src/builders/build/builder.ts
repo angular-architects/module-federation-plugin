@@ -202,8 +202,9 @@ export async function* runBuilder(
     options.externalDependencies = externals;
   }
 
-  // Initialize SSE reloader only for local development
   const isLocalDevelopment = runServer && nfOptions.dev;
+
+  // Initialize SSE reloader only for local development
   if (isLocalDevelopment && nfOptions.buildNotifications?.enable) {
     federationBuildNotifier.initialize(
       nfOptions.buildNotifications.customEndpoint
@@ -211,9 +212,12 @@ export async function* runBuilder(
   }
 
   const middleware = [
-    // Add SSE middleware only for local development
     ...(isLocalDevelopment
-      ? [federationBuildNotifier.createEventMiddleware((req) => removeBaseHref(req, options.baseHref))]
+      ? [
+          federationBuildNotifier.createEventMiddleware((req) =>
+            removeBaseHref(req, options.baseHref)
+          ),
+        ]
       : []),
 
     (req, res, next) => {
@@ -363,14 +367,14 @@ export async function* runBuilder(
 
             logger.info('Done!');
 
-            // Notify about successful rebuild (only in local development)
+            // Notifies about build completion
             if (isLocalDevelopment) {
               federationBuildNotifier.broadcastBuildCompletion();
             }
           } catch (error) {
             logger.error('Federation rebuild failed!');
 
-            // Notify about build failure (only in local development)
+            // Notifies about build failure
             if (isLocalDevelopment) {
               federationBuildNotifier.broadcastBuildError(error);
             }
@@ -381,7 +385,6 @@ export async function* runBuilder(
       first = false;
     }
   } finally {
-    // Cleanup SSE connections only if it was initialized
     if (isLocalDevelopment) {
       federationBuildNotifier.stopEventServer();
     }
