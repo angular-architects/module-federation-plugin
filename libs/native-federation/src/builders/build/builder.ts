@@ -45,7 +45,7 @@ import {
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { updateScriptTags } from '../../utils/updateIndexHtml';
-import { localSSEReloader } from './local-sse-reloader';
+import { federationBuildNotifier } from './federation-build-notifier';
 import { NfBuilderSchema } from './schema';
 
 function _buildApplication(options, context, pluginsOrExtensions) {
@@ -212,14 +212,16 @@ export async function* runBuilder(
 
   // Initialize SSE reloader only for local development
   const isLocalDevelopment = runServer && nfOptions.dev;
-  if (isLocalDevelopment && nfOptions.SSEReloads?.enable) {
-    localSSEReloader.initialize(nfOptions.SSEReloads.customEndpoint);
+  if (isLocalDevelopment && nfOptions.buildNotifications?.enable) {
+    federationBuildNotifier.initialize(
+      nfOptions.buildNotifications.customEndpoint
+    );
   }
 
   const middleware = [
     // Add SSE middleware only for local development
     ...(isLocalDevelopment
-      ? [localSSEReloader.createMiddleware(removeBaseHref)]
+      ? [federationBuildNotifier.createEventMiddleware(removeBaseHref)]
       : []),
 
     (req, res, next) => {
@@ -371,14 +373,14 @@ export async function* runBuilder(
 
             // Notify about successful rebuild (only in local development)
             if (isLocalDevelopment) {
-              localSSEReloader.notifyRebuildSuccess();
+              federationBuildNotifier.broadcastBuildCompletion();
             }
           } catch (error) {
             logger.error('Federation rebuild failed!');
 
             // Notify about build failure (only in local development)
             if (isLocalDevelopment) {
-              localSSEReloader.notifyRebuildError(error);
+              federationBuildNotifier.broadcastBuildError(error);
             }
           }
         }, nfOptions.rebuildDelay);
@@ -389,7 +391,7 @@ export async function* runBuilder(
   } finally {
     // Cleanup SSE connections only if it was initialized
     if (isLocalDevelopment) {
-      localSSEReloader.dispose();
+      federationBuildNotifier.stopEventServer();
     }
   }
 

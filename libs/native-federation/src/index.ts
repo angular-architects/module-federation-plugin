@@ -1,2 +1,6 @@
 export * from '@softarc/native-federation-runtime';
-export * from './builders/build/consts';
+export {
+  BUILD_NOTIFICATIONS_ENDPOINT,
+  BuildNotificationType,
+} from './builders/build/consts';
+export { watchFederationBuildCompletion } from './builders/build/watch-federation-build';

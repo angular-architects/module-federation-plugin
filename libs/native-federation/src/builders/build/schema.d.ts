@@ -7,7 +7,7 @@ export interface NfBuilderSchema extends JsonObject {
   port: number;
   open: boolean;
   rebuildDelay: number;
-  SSEReloads?: {
+  buildNotifications?: {
     enable: boolean;
     customEndpoint?: string;
   };

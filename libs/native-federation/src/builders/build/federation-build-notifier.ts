@@ -1,6 +1,6 @@
 import { logger } from '@softarc/native-federation/build';
 import { IncomingMessage, ServerResponse } from 'http';
-import { SSE_ENDPOINT } from './consts';
+import { BUILD_NOTIFICATIONS_ENDPOINT, BuildNotificationType } from './consts';
 
 // =============================================================================
 // SSE Event Management for Local Development Hot Reload
@@ -29,11 +29,11 @@ type MiddlewareFunction = (
  * Manages Server-Sent Events for federation hot reload in local development
  * Only active when running in development mode with dev server
  */
-export class LocalSSEReloader {
+export class FederationBuildNotifier {
   private connections: SSEConnection[] = [];
   private cleanupInterval: NodeJS.Timeout | null = null;
   private isActive = false;
-  private SSEEndpoint = SSE_ENDPOINT;
+  private SSEEndpoint = BUILD_NOTIFICATIONS_ENDPOINT;
 
   /**
    * Initializes the SSE reloader for local development
@@ -55,7 +55,7 @@ export class LocalSSEReloader {
   /**
    * Creates SSE middleware for federation events
    */
-  public createMiddleware(
+  public createEventMiddleware(
     removeBaseHref: (req: IncomingMessage) => string
   ): MiddlewareFunction {
     if (!this.isActive) {
@@ -185,9 +185,9 @@ export class LocalSSEReloader {
   /**
    * Notifies about successful federation rebuild
    */
-  public notifyRebuildSuccess(): void {
+  public broadcastBuildCompletion(): void {
     this._broadcastEvent({
-      type: 'federation-rebuild-complete',
+      type: BuildNotificationType.COMPLETED,
       timestamp: Date.now(),
     });
   }
@@ -195,9 +195,9 @@ export class LocalSSEReloader {
   /**
    * Notifies about failed federation rebuild
    */
-  public notifyRebuildError(error: unknown): void {
+  public broadcastBuildError(error: unknown): void {
     this._broadcastEvent({
-      type: 'federation-rebuild-error',
+      type: BuildNotificationType.ERROR,
       timestamp: Date.now(),
       error: error instanceof Error ? error.message : 'Unknown error',
     });
@@ -207,7 +207,7 @@ export class LocalSSEReloader {
    * Stops cleanup and closes all connections
    * Should be called when development server stops
    */
-  public dispose(): void {
+  public stopEventServer(): void {
     if (!this.isActive) {
       return;
     }
@@ -246,4 +246,4 @@ export class LocalSSEReloader {
 }
 
 // Singleton instance for local development
-export const localSSEReloader = new LocalSSEReloader();
+export const federationBuildNotifier = new FederationBuildNotifier();
