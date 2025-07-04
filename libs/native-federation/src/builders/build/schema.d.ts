@@ -1,4 +1,5 @@
 import { JsonObject } from '@angular-devkit/core';
+import type { BuildNotificationOptions } from '@softarc/native-federation-runtime';
 import type { ESMSInitOptions } from 'es-module-shims';
 
 export interface NfBuilderSchema extends JsonObject {
@@ -7,10 +8,7 @@ export interface NfBuilderSchema extends JsonObject {
   port: number;
   open: boolean;
   rebuildDelay: number;
-  buildNotifications?: {
-    enable: boolean;
-    customEndpoint?: string;
-  };
+  buildNotifications?: BuildNotificationOptions;
   shell: string;
   watch: boolean;
   skipHtmlTransform: boolean;

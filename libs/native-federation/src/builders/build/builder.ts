@@ -177,6 +177,7 @@ export async function* runBuilder(
     watch: false, // options.watch,
     dev: !!nfOptions.dev,
     entryPoint,
+    buildNotifications: nfOptions.buildNotifications,
   };
 
   const activateSsr = nfOptions.ssr && !nfOptions.dev;

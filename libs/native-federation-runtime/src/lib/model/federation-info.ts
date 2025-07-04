@@ -22,6 +22,7 @@ export interface FederationInfo {
   name: string;
   exposes: ExposesInfo[];
   shared: SharedInfo[];
+  buildNotificationsEndpoint?: string;
 }
 
 export interface InitFederationOptions {

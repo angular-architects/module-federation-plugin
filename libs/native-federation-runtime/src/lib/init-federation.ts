@@ -1,18 +1,19 @@
+import { getExternalUrl, setExternalUrl } from './model/externals';
+import {
+  FederationInfo,
+  InitFederationOptions,
+  ProcessRemoteInfoOptions,
+} from './model/federation-info';
 import {
   ImportMap,
   Imports,
   mergeImportMaps,
   Scopes,
 } from './model/import-map';
-import { getExternalUrl, setExternalUrl } from './model/externals';
-import { getDirectory, joinPaths } from './utils/path-utils';
 import { addRemote } from './model/remotes';
 import { appendImportMap } from './utils/add-import-map';
-import {
-  FederationInfo,
-  InitFederationOptions,
-  ProcessRemoteInfoOptions,
-} from './model/federation-info';
+import { getDirectory, joinPaths } from './utils/path-utils';
+import { watchFederationBuildCompletion } from './watch-federation-build';
 
 /**
  * Initialize the federation runtime
@@ -94,6 +95,12 @@ export async function processRemoteInfo(
 
   if (!remoteName) {
     remoteName = remoteInfo.name;
+  }
+
+  if (remoteInfo.buildNotificationsEndpoint) {
+    watchFederationBuildCompletion(
+      baseUrl + remoteInfo.buildNotificationsEndpoint
+    );
   }
 
   const importMap = createRemoteImportMap(remoteInfo, remoteName, baseUrl);
