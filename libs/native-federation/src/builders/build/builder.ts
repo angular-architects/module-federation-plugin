@@ -207,18 +207,16 @@ export async function* runBuilder(
 
   // Initialize SSE reloader only for local development
   if (isLocalDevelopment && nfOptions.buildNotifications?.enable) {
-    federationBuildNotifier.initialize(
-      nfOptions.buildNotifications.customEndpoint
-    );
+    federationBuildNotifier.initialize(nfOptions.buildNotifications.endpoint);
   }
 
   const middleware = [
     ...(isLocalDevelopment
       ? [
-          federationBuildNotifier.createEventMiddleware((req) =>
-            removeBaseHref(req, options.baseHref)
-          ),
-        ]
+        federationBuildNotifier.createEventMiddleware((req) =>
+          removeBaseHref(req, options.baseHref)
+        ),
+      ]
       : []),
 
     (req, res, next) => {
@@ -306,22 +304,22 @@ export async function* runBuilder(
 
   const builderRun = runServer
     ? serveWithVite(
-        normOuterOptions,
-        appBuilderName,
-        _buildApplication,
-        context,
-        nfOptions.skipHtmlTransform
-          ? {}
-          : { indexHtml: transformIndexHtml(nfOptions) },
-        {
-          buildPlugins: plugins as any,
-          middleware,
-        }
-      )
+      normOuterOptions,
+      appBuilderName,
+      _buildApplication,
+      context,
+      nfOptions.skipHtmlTransform
+        ? {}
+        : { indexHtml: transformIndexHtml(nfOptions) },
+      {
+        buildPlugins: plugins as any,
+        middleware,
+      }
+    )
     : buildApplication(options, context, {
-        codePlugins: plugins as any,
-        indexHtmlTransformer: transformIndexHtml(nfOptions),
-      });
+      codePlugins: plugins as any,
+      indexHtmlTransformer: transformIndexHtml(nfOptions),
+    });
 
   try {
     // builderRun.output.subscribe(async (output) => {

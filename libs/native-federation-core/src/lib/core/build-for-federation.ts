@@ -90,8 +90,8 @@ export async function buildForFederation(
 
   const sharedInfo = [...sharedPackageInfo, ...sharedMappingInfo];
   const buildNotificationsEndpoint =
-    fedOptions.buildNotifications?.customEndpoint && fedOptions.dev
-      ? fedOptions.buildNotifications?.customEndpoint
+    fedOptions.buildNotifications?.enable && fedOptions.dev
+      ? fedOptions.buildNotifications?.endpoint
       : undefined;
   const federationInfo: FederationInfo = {
     name: config.name,

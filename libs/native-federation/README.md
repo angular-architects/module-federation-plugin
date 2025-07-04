@@ -362,7 +362,7 @@ Since version 20.0.6, loading locales works out of the box, when the feature `ig
 
 ```js
 features: {
-  ignoreUnusedDeps: true
+  ignoreUnusedDeps: true;
 }
 ```
 
@@ -471,7 +471,7 @@ You can customize the notification endpoint if needed:
 {
   "buildNotifications": {
     "enable": true,
-    "customEndpoint": "/my-custom-build-events"
+    "endpoint": "/my-custom-build-events"
   }
 }
 ```

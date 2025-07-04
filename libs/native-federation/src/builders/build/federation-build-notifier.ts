@@ -1,6 +1,6 @@
+import { BuildNotificationType } from '@softarc/native-federation-runtime';
 import { logger } from '@softarc/native-federation/build';
 import { IncomingMessage, ServerResponse } from 'http';
-import { BUILD_NOTIFICATIONS_ENDPOINT, BuildNotificationType } from './consts';
 
 // =============================================================================
 // SSE Event Management for Local Development Hot Reload
@@ -33,22 +33,22 @@ export class FederationBuildNotifier {
   private connections: SSEConnection[] = [];
   private cleanupInterval: NodeJS.Timeout | null = null;
   private isActive = false;
-  private SSEEndpoint = BUILD_NOTIFICATIONS_ENDPOINT;
+  private endpoint: string;
 
   /**
    * Initializes the SSE reloader for local development
    */
-  public initialize(customEndpoint?: string): void {
+  public initialize(endpoint: string): void {
     if (this.isActive) {
       return;
     }
 
-    this.SSEEndpoint = customEndpoint || this.SSEEndpoint;
+    this.endpoint = endpoint;
     this.isActive = true;
     this.startCleanup();
 
     logger.info(
-      `[Federation SSE] Local reloader initialized with endpoint ${this.SSEEndpoint}`
+      `[Federation SSE] Local reloader initialized with endpoint ${this.endpoint}`
     );
   }
 
@@ -66,7 +66,7 @@ export class FederationBuildNotifier {
     return (req: IncomingMessage, res: ServerResponse, next: NextFunction) => {
       const url = removeBaseHref(req);
 
-      if (url !== this.SSEEndpoint) {
+      if (url !== this.endpoint) {
         return next();
       }
 

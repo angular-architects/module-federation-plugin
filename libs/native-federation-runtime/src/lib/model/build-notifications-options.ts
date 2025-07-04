@@ -1,6 +1,6 @@
 export interface BuildNotificationOptions {
   enable: boolean;
-  customEndpoint?: string;
+  endpoint: string;
 }
 
 export const BUILD_NOTIFICATIONS_ENDPOINT =
