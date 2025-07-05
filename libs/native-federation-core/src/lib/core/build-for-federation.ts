@@ -1,18 +1,18 @@
+import { FederationInfo, SharedInfo } from '@softarc/native-federation-runtime';
 import {
   NormalizedFederationConfig,
   NormalizedSharedConfig,
 } from '../config/federation-config';
-import { FederationInfo, SharedInfo } from '@softarc/native-federation-runtime';
-import { FederationOptions } from './federation-options';
-import { writeImportMap } from './write-import-map';
-import { writeFederationInfo } from './write-federation-info';
-import { bundleShared } from './bundle-shared';
 import {
   ArtefactInfo,
   bundleExposedAndMappings,
   describeExposed,
   describeSharedMappings,
 } from './bundle-exposed-and-mappings';
+import { bundleShared } from './bundle-shared';
+import { FederationOptions } from './federation-options';
+import { writeFederationInfo } from './write-federation-info';
+import { writeImportMap } from './write-import-map';
 
 export interface BuildParams {
   skipMappingsAndExposed: boolean;
@@ -89,11 +89,15 @@ export async function buildForFederation(
     : artefactInfo.mappings;
 
   const sharedInfo = [...sharedPackageInfo, ...sharedMappingInfo];
-
+  const buildNotificationsEndpoint =
+    fedOptions.buildNotifications?.enable && fedOptions.dev
+      ? fedOptions.buildNotifications?.endpoint
+      : undefined;
   const federationInfo: FederationInfo = {
     name: config.name,
     shared: sharedInfo,
     exposes: exposedInfo,
+    buildNotificationsEndpoint,
   };
 
   writeFederationInfo(federationInfo, fedOptions);

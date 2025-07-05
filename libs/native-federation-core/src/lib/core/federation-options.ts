@@ -1,3 +1,5 @@
+import { BuildNotificationOptions } from '@softarc/native-federation-runtime';
+
 export interface FederationOptions {
   workspaceRoot: string;
   outputPath: string;
@@ -8,4 +10,5 @@ export interface FederationOptions {
   watch?: boolean;
   packageJson?: string;
   entryPoint?: string;
+  buildNotifications?: BuildNotificationOptions;
 }
