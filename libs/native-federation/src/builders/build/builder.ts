@@ -1,11 +1,11 @@
-import * as path from 'path';
 import * as fs from 'fs';
 import * as mrmime from 'mrmime';
+import * as path from 'path';
 
-import { buildApplication, ApplicationBuilderOptions } from '@angular/build';
+import { ApplicationBuilderOptions, buildApplication } from '@angular/build';
 import {
-  serveWithVite,
   buildApplicationInternal,
+  serveWithVite,
 } from '@angular/build/private';
 
 import {
@@ -16,39 +16,37 @@ import {
 
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
-import { setLogLevel, logger } from '@softarc/native-federation/build';
+import { logger, setLogLevel } from '@softarc/native-federation/build';
 
-import { FederationOptions } from '@softarc/native-federation/build';
-import { setBuildAdapter } from '@softarc/native-federation/build';
+import { targetFromTargetString } from '@angular-devkit/architect';
+import {
+  buildForFederation,
+  FederationOptions,
+  getExternals,
+  loadFederationConfig,
+  setBuildAdapter,
+} from '@softarc/native-federation/build';
 import {
   createAngularBuildAdapter,
   setMemResultHandler,
 } from '../../utils/angular-esbuild-adapter';
-import { getExternals } from '@softarc/native-federation/build';
-import { loadFederationConfig } from '@softarc/native-federation/build';
-import { buildForFederation } from '@softarc/native-federation/build';
-import { targetFromTargetString } from '@angular-devkit/architect';
 
-import { NfBuilderSchema } from './schema';
-import { RebuildHubs } from '../../utils/rebuild-events';
-import { updateScriptTags } from '../../utils/updateIndexHtml';
+import { JsonObject } from '@angular-devkit/core';
+import { FederationInfo } from '@softarc/native-federation-runtime';
+import { PluginBuild } from 'esbuild';
 import { existsSync, mkdirSync, rmSync } from 'fs';
+import { fstart } from '../../tools/fstart-as-data-url';
+import { getI18nConfig, translateFederationArtefacts } from '../../utils/i18n';
 import {
   EsBuildResult,
   MemResults,
   NgCliAssetResult,
 } from '../../utils/mem-resuts';
-import { JsonObject } from '@angular-devkit/core';
+import { RebuildHubs } from '../../utils/rebuild-events';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
-// import { NextHandleFunction } from 'vite';
-import { PluginBuild } from 'esbuild';
-import { FederationInfo } from '@softarc/native-federation-runtime';
-import {
-  getI18nConfig,
-  I18nConfig,
-  translateFederationArtefacts,
-} from '../../utils/i18n';
-import { fstart } from '../../tools/fstart-as-data-url';
+import { updateScriptTags } from '../../utils/updateIndexHtml';
+import { federationBuildNotifier } from './federation-build-notifier';
+import { NfBuilderSchema } from './schema';
 
 function _buildApplication(options, context, pluginsOrExtensions) {
   let extensions;
@@ -179,6 +177,7 @@ export async function* runBuilder(
     watch: false, // options.watch,
     dev: !!nfOptions.dev,
     entryPoint,
+    buildNotifications: nfOptions.buildNotifications,
   };
 
   const activateSsr = nfOptions.ssr && !nfOptions.dev;
@@ -204,7 +203,22 @@ export async function* runBuilder(
     options.externalDependencies = externals;
   }
 
+  const isLocalDevelopment = runServer && nfOptions.dev;
+
+  // Initialize SSE reloader only for local development
+  if (isLocalDevelopment && nfOptions.buildNotifications?.enable) {
+    federationBuildNotifier.initialize(nfOptions.buildNotifications.endpoint);
+  }
+
   const middleware = [
+    ...(isLocalDevelopment
+      ? [
+        federationBuildNotifier.createEventMiddleware((req) =>
+          removeBaseHref(req, options.baseHref)
+        ),
+      ]
+      : []),
+
     (req, res, next) => {
       const url = removeBaseHref(req, options.baseHref);
 
@@ -290,84 +304,106 @@ export async function* runBuilder(
 
   const builderRun = runServer
     ? serveWithVite(
-        normOuterOptions,
-        appBuilderName,
-        _buildApplication,
-        context,
-        nfOptions.skipHtmlTransform
-          ? {}
-          : { indexHtml: transformIndexHtml(nfOptions) },
-        {
-          buildPlugins: plugins as any,
-          middleware,
-        }
-      )
+      normOuterOptions,
+      appBuilderName,
+      _buildApplication,
+      context,
+      nfOptions.skipHtmlTransform
+        ? {}
+        : { indexHtml: transformIndexHtml(nfOptions) },
+      {
+        buildPlugins: plugins as any,
+        middleware,
+      }
+    )
     : buildApplication(options, context, {
-        codePlugins: plugins as any,
-        indexHtmlTransformer: transformIndexHtml(nfOptions),
-      });
+      codePlugins: plugins as any,
+      indexHtmlTransformer: transformIndexHtml(nfOptions),
+    });
 
-  // builderRun.output.subscribe(async (output) => {
-  for await (const output of builderRun) {
-    lastResult = output;
+  try {
+    // builderRun.output.subscribe(async (output) => {
+    for await (const output of builderRun) {
+      lastResult = output;
 
-    if (!write && output['outputFiles']) {
-      memResults.add(
-        output['outputFiles'].map((file) => new EsBuildResult(file))
-      );
-    }
+      if (!write && output['outputFiles']) {
+        memResults.add(
+          output['outputFiles'].map((file) => new EsBuildResult(file))
+        );
+      }
 
-    if (!write && output['assetFiles']) {
-      memResults.add(
-        output['assetFiles'].map((file) => new NgCliAssetResult(file))
-      );
-    }
+      if (!write && output['assetFiles']) {
+        memResults.add(
+          output['assetFiles'].map((file) => new NgCliAssetResult(file))
+        );
+      }
 
-    // if (write && !runServer && !nfOptions.skipHtmlTransform) {
-    //   updateIndexHtml(fedOptions, nfOptions);
-    // }
+      // if (write && !runServer && !nfOptions.skipHtmlTransform) {
+      //   updateIndexHtml(fedOptions, nfOptions);
+      // }
 
-    // if (!runServer) {
-    //   yield output;
-    // }
+      // if (!runServer) {
+      //   yield output;
+      // }
 
-    if (!first && (nfOptions.dev || watch)) {
-      setTimeout(async () => {
-        try {
-          federationResult = await buildForFederation(
-            config,
-            fedOptions,
-            externals
-          );
-
-          if (hasLocales && localeFilter) {
-            translateFederationArtefacts(
-              i18n,
-              localeFilter,
-              outputOptions.base,
-              federationResult
+      if (!first && (nfOptions.dev || watch)) {
+        setTimeout(async () => {
+          try {
+            federationResult = await buildForFederation(
+              config,
+              fedOptions,
+              externals
             );
+
+            if (hasLocales && localeFilter) {
+              translateFederationArtefacts(
+                i18n,
+                localeFilter,
+                outputOptions.base,
+                federationResult
+              );
+            }
+
+            logger.info('Done!');
+
+            // Notifies about build completion
+            if (isLocalDevelopment) {
+              federationBuildNotifier.broadcastBuildCompletion();
+            }
+          } catch (error) {
+            logger.error('Federation rebuild failed!');
+
+            // Notifies about build failure
+            if (isLocalDevelopment) {
+              federationBuildNotifier.broadcastBuildError(error);
+            }
           }
+        }, nfOptions.rebuildDelay);
+      }
 
-          logger.info('Done!');
-        } catch {
-          logger.error('Not successful!');
-        }
-
-        // if (runServer) {
-        //   setTimeout(() => reloadShell(nfOptions.shell), 0);
-        // }
-      }, nfOptions.rebuildDelay);
+      first = false;
     }
-
-    first = false;
+  } finally {
+    if (isLocalDevelopment) {
+      federationBuildNotifier.stopEventServer();
+    }
   }
 
   yield lastResult || { success: false };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default createBuilder(runBuilder) as any;
+// =============================================================================
+// Helper Functions
+// =============================================================================
+
+function removeBaseHref(req: any, baseHref?: string) {
+  let url = req.url;
+
+  if (baseHref && url.startsWith(baseHref)) {
+    url = url.substr(baseHref.length);
+  }
+  return url;
+}
 
 function writeFstartScript(fedOptions: FederationOptions) {
   const serverOutpath = path.join(fedOptions.outputPath, '../server');
@@ -391,15 +427,6 @@ function getLocaleFilter(
     localize = false;
   }
   return localize;
-}
-
-function removeBaseHref(req: any, baseHref?: string) {
-  let url = req.url;
-
-  if (baseHref && url.startsWith(baseHref)) {
-    url = url.substr(baseHref.length);
-  }
-  return url;
 }
 
 function infereConfigPath(tsConfig: string): string {
@@ -439,3 +466,6 @@ function addDebugInformation(fileName: string, rawBody: string): string {
 
   return JSON.stringify(remoteEntry, null, 2);
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default createBuilder(runBuilder) as any;

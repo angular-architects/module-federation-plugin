@@ -351,7 +351,7 @@ We support combining Native Federation with Module Federation. Please find [more
 Since version 19.0.13, Native Federation for Angular supports Angular I18N. Here are some things to keep in mind:
 
 - Make sure, you also add I18N support to your shell (e.g., `ng add @angular/localize --project shell`)
-- Configure I18N in your `angular.json`. Don’t use command line parameters (as the Native Federation Builder does not forward them to the ApplicationBuilder by design)
+- Configure I18N in your `angular.json`. Don't use command line parameters (as the Native Federation Builder does not forward them to the ApplicationBuilder by design)
 - In production, make sure your `federation.manifest.json` points to the right language versions of your remotes
 
 ### Angular Localization
@@ -383,6 +383,106 @@ module.exports = withNativeFederation({
 ```
 
 This option was introduced with version 19.0.14.
+
+#### Shell reloading when MFE finishes building for local development
+
+During development, you might want your shell application to automatically reload when a remote Micro Frontend finishes rebuilding. This is especially useful when you're developing multiple applications simultaneously and want to see changes immediately without manual refresh.
+
+Native Federation provides a **build notifications system** that enables automatic page reloads when federation artifacts are rebuilt.
+
+##### Configuration
+
+**1. Enable build notifications in the remote MFE**
+
+In your remote's `angular.json`, add the `buildNotifications` configuration:
+
+```json
+{
+  "projects": {
+    "mfe1": {
+      "architect": {
+        "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "mfe1:esbuild:development",
+            "rebuildDelay": 0,
+            "dev": true,
+            "buildNotifications": {
+              "enable": true
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+**2. Add the watcher to your shell application**
+
+Import and call `watchFederationBuildCompletion` in your shell's `main.ts`:
+
+```typescript
+import {
+  watchFederationBuildCompletion,
+  BUILD_NOTIFICATIONS_ENDPOINT,
+} from '@angular-architects/native-federation';
+
+// Shell watching MFE1 (running on port 4201)
+if (!environment.production) {
+  watchFederationBuildCompletion(
+    `http://localhost:4201${BUILD_NOTIFICATIONS_ENDPOINT}`
+  );
+}
+
+bootstrapApplication(AppComponent, appConfig);
+```
+
+##### Multiple MFEs
+
+If your shell watches multiple MFEs, you can call the function multiple times:
+
+```typescript
+if (!environment.production) {
+  // Watch MFE1 on port 4201
+  watchFederationBuildCompletion(
+    `http://localhost:4201${BUILD_NOTIFICATIONS_ENDPOINT}`
+  );
+
+  // Watch MFE2 on port 4202
+  watchFederationBuildCompletion(
+    `http://localhost:4202${BUILD_NOTIFICATIONS_ENDPOINT}`
+  );
+}
+```
+
+##### Requirements
+
+- Only works in development mode (`dev: true`)
+- Requires `buildNotifications.enable: true` in the target MFE's configuration
+- MFEs must be running with the native-federation dev server
+- Should never be enabled in production builds
+
+##### Custom Endpoints
+
+You can customize the notification endpoint if needed:
+
+```json
+{
+  "buildNotifications": {
+    "enable": true,
+    "endpoint": "/my-custom-build-events"
+  }
+}
+```
+
+Then use it in your shell's watcher:
+
+```typescript
+watchFederationBuildCompletion('http://localhost:4201/my-custom-build-events');
+```
+
+This feature significantly improves the development experience by eliminating manual page refreshes and ensuring your shell always reflects the latest changes from your remote micro frontends.
 
 ## FAQ
 
