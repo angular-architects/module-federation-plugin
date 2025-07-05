@@ -20,7 +20,7 @@ export interface ArtefactInfo {
 export async function bundleExposedAndMappings(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
-  externals: string[]
+  externals: string[],
 ): Promise<ArtefactInfo> {
   const shared = config.sharedMappings.map((sm) => {
     const entryPoint = sm.path;

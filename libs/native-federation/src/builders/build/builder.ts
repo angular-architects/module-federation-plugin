@@ -213,10 +213,10 @@ export async function* runBuilder(
   const middleware = [
     ...(isLocalDevelopment
       ? [
-        federationBuildNotifier.createEventMiddleware((req) =>
-          removeBaseHref(req, options.baseHref)
-        ),
-      ]
+          federationBuildNotifier.createEventMiddleware((req) =>
+            removeBaseHref(req, options.baseHref)
+          ),
+        ]
       : []),
 
     (req, res, next) => {
@@ -304,22 +304,22 @@ export async function* runBuilder(
 
   const builderRun = runServer
     ? serveWithVite(
-      normOuterOptions,
-      appBuilderName,
-      _buildApplication,
-      context,
-      nfOptions.skipHtmlTransform
-        ? {}
-        : { indexHtml: transformIndexHtml(nfOptions) },
-      {
-        buildPlugins: plugins as any,
-        middleware,
-      }
-    )
+        normOuterOptions,
+        appBuilderName,
+        _buildApplication,
+        context,
+        nfOptions.skipHtmlTransform
+          ? {}
+          : { indexHtml: transformIndexHtml(nfOptions) },
+        {
+          buildPlugins: plugins as any,
+          middleware,
+        }
+      )
     : buildApplication(options, context, {
-      codePlugins: plugins as any,
-      indexHtmlTransformer: transformIndexHtml(nfOptions),
-    });
+        codePlugins: plugins as any,
+        indexHtmlTransformer: transformIndexHtml(nfOptions),
+      });
 
   try {
     // builderRun.output.subscribe(async (output) => {
@@ -352,7 +352,11 @@ export async function* runBuilder(
             federationResult = await buildForFederation(
               config,
               fedOptions,
-              externals
+              externals,
+              {
+                skipMappingsAndExposed: false,
+                skipShared: true,
+              }
             );
 
             if (hasLocales && localeFilter) {
@@ -391,10 +395,6 @@ export async function* runBuilder(
 
   yield lastResult || { success: false };
 }
-
-// =============================================================================
-// Helper Functions
-// =============================================================================
 
 function removeBaseHref(req: any, baseHref?: string) {
   let url = req.url;
