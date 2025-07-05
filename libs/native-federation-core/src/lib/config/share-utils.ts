@@ -266,7 +266,7 @@ function readConfiguredSecondaries(
           packageInfo: {
             entryPoint: item.value,
             version: shareObject.version ?? version,
-            esm
+            esm,
           },
         };
       } else {

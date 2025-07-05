@@ -31,7 +31,7 @@ export interface BuildAdapterOptions {
   kind: BuildKind;
   hash: boolean;
   platform?: 'browser' | 'node';
-  optimizedMappings?: boolean
+  optimizedMappings?: boolean;
 }
 
 export interface BuildResult {

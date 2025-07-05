@@ -50,7 +50,7 @@ export async function bundleExposedAndMappings(
     mappedPaths: config.sharedMappings,
     kind: 'mapping-or-exposed',
     hash,
-    optimizedMappings: config.features.ignoreUnusedDeps
+    optimizedMappings: config.features.ignoreUnusedDeps,
   });
 
   const resultMap = createBuildResultMap(result, hash);

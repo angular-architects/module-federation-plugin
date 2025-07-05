@@ -13,6 +13,7 @@ import { logger } from '../utils/logger';
 import crypto from 'crypto';
 import { DEFAULT_EXTERNAL_LIST } from './default-external-list';
 import { BuildResult } from './build-adapter';
+import { deriveInternalName, isSourceFile, rewriteChunkImports } from '../utils/rewrite-chunk-imports';
 
 export async function bundleShared(
   sharedBundles: Record<string, NormalizedSharedConfig>,
@@ -89,6 +90,9 @@ export async function bundleShared(
   let bundleResult: BuildResult[] | null = null;
 
   try {
+
+    const alreadyCached = new Set<string>(fs.readdirSync(cachePath));
+
     bundleResult = await bundle({
       entryPoints,
       tsConfigPath: fedOptions.tsConfig,
@@ -99,10 +103,13 @@ export async function bundleShared(
       kind: 'shared-package',
       hash: false,
       platform,
-      optimizedMappings: config.features.ignoreUnusedDeps
+      optimizedMappings: config.features.ignoreUnusedDeps,
     });
 
     const cachedFiles = bundleResult.map((br) => path.basename(br.fileName));
+
+    rewriteImportsInNewSourceFiles(cachedFiles, alreadyCached, cachePath);
+
     copyCacheToOutput(cachedFiles, cachePath, fullOutputPath);
   } catch (e) {
     logger.error('Error bundling shared npm package ');
@@ -178,6 +185,16 @@ export async function bundleShared(
   );
 
   return result;
+}
+
+function rewriteImportsInNewSourceFiles(cachedFiles: string[], alreadyCached: Set<string>, cachePath: string) {
+  const newSourceFiles = cachedFiles
+    .filter(cf => !alreadyCached.has(cf) && isSourceFile(cf));
+
+  for (const sourceFile of newSourceFiles) {
+    const sourceFilePath = path.join(cachePath, sourceFile);
+    rewriteChunkImports(sourceFilePath);
+  }
 }
 
 function copyCacheToOutput(
@@ -270,7 +287,7 @@ function addChunksToResult(
       // take care of singleton and strictVersion.
       requiredVersion: '0.0.0',
       version: '0.0.0',
-      packageName: fileName,
+      packageName: deriveInternalName(fileName),
       outFileName: fileName,
       // dev: dev
       //   ? undefined
