@@ -24,7 +24,9 @@ export function rewriteChunkImports(filePath: string) {
       if (moduleSpecifier && ts.isStringLiteral(moduleSpecifier)) {
         const text = moduleSpecifier.text;
         if (text.startsWith('./')) {
-          const newModuleSpecifier = ts.factory.createStringLiteral(deriveInternalName(text));
+          const newModuleSpecifier = ts.factory.createStringLiteral(
+            deriveInternalName(text)
+          );
 
           if (ts.isImportDeclaration(node)) {
             return ts.factory.updateImportDeclaration(
@@ -49,12 +51,17 @@ export function rewriteChunkImports(filePath: string) {
     }
 
     // import('./...')
-    if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword) {
+    if (
+      ts.isCallExpression(node) &&
+      node.expression.kind === ts.SyntaxKind.ImportKeyword
+    ) {
       const [arg] = node.arguments;
       if (arg && ts.isStringLiteral(arg)) {
         const text = arg.text;
         if (text.startsWith('./')) {
-          const newArg = ts.factory.createStringLiteral(deriveInternalName(text));
+          const newArg = ts.factory.createStringLiteral(
+            deriveInternalName(text)
+          );
           return ts.factory.updateCallExpression(
             node,
             node.expression,
@@ -68,7 +75,9 @@ export function rewriteChunkImports(filePath: string) {
     return ts.visitEachChild(node, visit, undefined);
   }
 
-  const transformed = ts.transform(sourceFile, [context => node => ts.visitNode(node as any, visit)]);
+  const transformed = ts.transform(sourceFile, [
+    (context) => (node) => ts.visitNode(node as any, visit),
+  ]);
   const updatedSourceFile = transformed.transformed[0];
 
   const result = printer.printFile(updatedSourceFile as ts.SourceFile);

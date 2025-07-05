@@ -4,14 +4,6 @@ import { pathToFileURL } from "node:url";
 import * as fs2 from "node:fs/promises";
 import * as path2 from "node:path";
 
-// libs/native-federation-runtime/src/lib/model/import-map.ts
-function mergeImportMaps(map1, map2) {
-  return {
-    imports: { ...map1.imports, ...map2.imports },
-    scopes: { ...map1.scopes, ...map2.scopes }
-  };
-}
-
 // libs/native-federation-runtime/src/lib/model/global-cache.ts
 var nfNamespace = "__NATIVE_FEDERATION__";
 var global2 = globalThis;
@@ -36,6 +28,22 @@ function setExternalUrl(shared, url2) {
   externals.set(packageKey, url2);
 }
 
+// libs/native-federation-runtime/src/lib/model/import-map.ts
+function mergeImportMaps(map1, map2) {
+  return {
+    imports: { ...map1.imports, ...map2.imports },
+    scopes: { ...map1.scopes, ...map2.scopes }
+  };
+}
+
+// libs/native-federation-runtime/src/lib/model/remotes.ts
+var remoteNamesToRemote = globalCache.remoteNamesToRemote;
+var baseUrlToRemoteNames = globalCache.baseUrlToRemoteNames;
+function addRemote(remoteName, remote) {
+  remoteNamesToRemote.set(remoteName, remote);
+  baseUrlToRemoteNames.set(remote.baseUrl, remoteName);
+}
+
 // libs/native-federation-runtime/src/lib/utils/path-utils.ts
 function getDirectory(url2) {
   const parts = url2.split("/");
@@ -52,12 +60,19 @@ function joinPaths(path1, path22) {
   return `${path1}/${path22}`;
 }
 
-// libs/native-federation-runtime/src/lib/model/remotes.ts
-var remoteNamesToRemote = globalCache.remoteNamesToRemote;
-var baseUrlToRemoteNames = globalCache.baseUrlToRemoteNames;
-function addRemote(remoteName, remote) {
-  remoteNamesToRemote.set(remoteName, remote);
-  baseUrlToRemoteNames.set(remote.baseUrl, remoteName);
+// libs/native-federation-runtime/src/lib/watch-federation-build.ts
+function watchFederationBuildCompletion(endpoint) {
+  const eventSource = new EventSource(endpoint);
+  eventSource.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    if (data.type === "federation-rebuild-complete" /* COMPLETED */) {
+      console.log("[Federation] Rebuild completed, reloading...");
+      window.location.reload();
+    }
+  };
+  eventSource.onerror = function(event) {
+    console.warn("[Federation] SSE connection error:", event);
+  };
 }
 
 // libs/native-federation-runtime/src/lib/init-federation.ts
@@ -93,6 +108,11 @@ async function processRemoteInfo(federationInfoUrl, remoteName) {
   const remoteInfo = await loadFederationInfo(federationInfoUrl);
   if (!remoteName) {
     remoteName = remoteInfo.name;
+  }
+  if (remoteInfo.buildNotificationsEndpoint) {
+    watchFederationBuildCompletion(
+      baseUrl + remoteInfo.buildNotificationsEndpoint
+    );
   }
   const importMap = createRemoteImportMap(remoteInfo, remoteName, baseUrl);
   addRemote(remoteName, { ...remoteInfo, baseUrl });

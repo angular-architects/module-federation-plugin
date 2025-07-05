@@ -13,7 +13,11 @@ import { logger } from '../utils/logger';
 import crypto from 'crypto';
 import { DEFAULT_EXTERNAL_LIST } from './default-external-list';
 import { BuildResult } from './build-adapter';
-import { deriveInternalName, isSourceFile, rewriteChunkImports } from '../utils/rewrite-chunk-imports';
+import {
+  deriveInternalName,
+  isSourceFile,
+  rewriteChunkImports,
+} from '../utils/rewrite-chunk-imports';
 
 export async function bundleShared(
   sharedBundles: Record<string, NormalizedSharedConfig>,
@@ -90,9 +94,6 @@ export async function bundleShared(
   let bundleResult: BuildResult[] | null = null;
 
   try {
-
-    const alreadyCached = new Set<string>(fs.readdirSync(cachePath));
-
     bundleResult = await bundle({
       entryPoints,
       tsConfigPath: fedOptions.tsConfig,
@@ -107,8 +108,7 @@ export async function bundleShared(
     });
 
     const cachedFiles = bundleResult.map((br) => path.basename(br.fileName));
-
-    rewriteImportsInNewSourceFiles(cachedFiles, alreadyCached, cachePath);
+    rewriteImports(cachedFiles, cachePath);
 
     copyCacheToOutput(cachedFiles, cachePath, fullOutputPath);
   } catch (e) {
@@ -156,6 +156,10 @@ export async function bundleShared(
       fs.readFileSync(resultCacheFile, 'utf-8')
     );
     const cachedFiles = cachedResult.map((cr) => cr.outFileName);
+
+    // Chunks are overwritten by the bundler, so we need to reprocess them
+    rewriteImports(cachedFiles, cachePath);
+
     copyCacheToOutput(cachedFiles, cachePath, fullOutputPath);
     return cachedResult;
   }
@@ -187,9 +191,8 @@ export async function bundleShared(
   return result;
 }
 
-function rewriteImportsInNewSourceFiles(cachedFiles: string[], alreadyCached: Set<string>, cachePath: string) {
-  const newSourceFiles = cachedFiles
-    .filter(cf => !alreadyCached.has(cf) && isSourceFile(cf));
+function rewriteImports(cachedFiles: string[], cachePath: string) {
+  const newSourceFiles = cachedFiles.filter((cf) => isSourceFile(cf));
 
   for (const sourceFile of newSourceFiles) {
     const sourceFilePath = path.join(cachePath, sourceFile);
