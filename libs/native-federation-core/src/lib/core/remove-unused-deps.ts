@@ -60,11 +60,16 @@ function findUsedDeps(
   for (const fileName of Object.keys(fileInfos)) {
     const fileInfo = fileInfos[fileName];
 
-    if (!fileInfo || !fileInfo.externalLibraries) {
+    if (!fileInfo) {
       continue;
     }
 
-    for (const pckg of fileInfo.externalLibraries) {
+    const libs = [
+      ...(fileInfo.externalLibraries || []),
+      ...(fileInfo.unresolvedImports || []),
+    ];
+
+    for (const pckg of libs) {
       usedPackageNames.add(pckg);
     }
 

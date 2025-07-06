@@ -10,6 +10,6 @@
     "fast-glob": "^3.3.3"
   },
   "peerDependencies": {
-    "@softarc/sheriff-core": "^0.18.0"
+    "@softarc/sheriff-core": "^0.18.2"
   }
 }
