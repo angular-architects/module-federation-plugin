@@ -10,8 +10,14 @@ export type WorkspaceConfig = {
 };
 
 export type I18nConfig = {
-  sourceLocale: string;
+  sourceLocale: string | SourceLocaleObject;
   locales: Record<string, string>;
+};
+
+export type SourceLocaleObject = {
+  code: string;
+  baseHref?: string;
+  subPath?: string;
 };
 
 export async function getI18nConfig(
@@ -52,7 +58,10 @@ export async function translateFederationArtefacts(
 
   const targetLocales = locales.join(' ');
 
-  const sourceLocale = i18n.sourceLocale;
+  const sourceLocale =
+    typeof i18n.sourceLocale === 'string'
+      ? i18n.sourceLocale
+      : i18n.sourceLocale.code;
 
   const translationOutPath = path.join(outputPath, 'browser', '{{LOCALE}}');
 
