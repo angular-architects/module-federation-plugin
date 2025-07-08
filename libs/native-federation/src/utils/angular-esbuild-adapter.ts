@@ -300,6 +300,7 @@ async function runEsbuild(
       ...(!dev ? { ngDevMode: 'false' } : {}),
       ngJitMode: 'false',
     },
+    ...(builderOptions.loader ? {loader: builderOptions.loader} : {}),
   };
 
   const ctx = await esbuild.context(config);
