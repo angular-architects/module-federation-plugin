@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { existsSync, mkdirSync, rmSync } from 'fs';
 import * as mrmime from 'mrmime';
 import * as path from 'path';
 
@@ -12,9 +13,11 @@ import {
   BuilderContext,
   BuilderOutput,
   createBuilder,
+  targetFromTargetString,
 } from '@angular-devkit/architect';
 
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
+
 
 import { logger, setLogLevel } from '@softarc/native-federation/build';
 
@@ -24,13 +27,19 @@ import {
   FederationOptions,
   getExternals,
   loadFederationConfig,
+  logger,
   setBuildAdapter,
+  setLogLevel,
 } from '@softarc/native-federation/build';
 import {
   createAngularBuildAdapter,
   setMemResultHandler,
 } from '../../utils/angular-esbuild-adapter';
 
+import { NfBuilderSchema } from './schema';
+import { RebuildHubs } from '../../utils/rebuild-events';
+import { updateScriptTags } from '../../utils/updateIndexHtml';
+import { JsonObject } from '@angular-devkit/core';
 import { JsonObject } from '@angular-devkit/core';
 import { FederationInfo } from '@softarc/native-federation-runtime';
 import { PluginBuild } from 'esbuild';
@@ -42,6 +51,11 @@ import {
   MemResults,
   NgCliAssetResult,
 } from '../../utils/mem-resuts';
+import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
+// import { NextHandleFunction } from 'vite';
+import { FederationInfo } from '@softarc/native-federation-runtime';
+import { PluginBuild } from 'esbuild';
+import { getI18nConfig, translateFederationArtefacts } from '../../utils/i18n';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { updateScriptTags } from '../../utils/updateIndexHtml';
@@ -134,10 +148,6 @@ export async function* runBuilder(
   setBuildAdapter(adapter);
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
-
-  if (!options.outputPath) {
-    options.outputPath = `dist/${context.target.project}`;
-  }
 
   const outputPath = options.outputPath;
   const outputOptions: Required<
@@ -283,10 +293,7 @@ export async function* runBuilder(
   try {
     federationResult = await buildForFederation(config, fedOptions, externals);
   } catch (e) {
-    console.error(e);
-    if (!watch) {
-      process.exit(1);
-    }
+    process.exit(1);
   }
 
   if (activateSsr) {
@@ -305,7 +312,7 @@ export async function* runBuilder(
 
   options.deleteOutputPath = false;
 
-  const appBuilderName = '@angular-devkit/build-angular:application';
+  const appBuilderName = '@angular/build:application';
 
   const builderRun = runServer
     ? serveWithVite(
