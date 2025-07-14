@@ -48,6 +48,29 @@ import { updateScriptTags } from '../../utils/updateIndexHtml';
 import { federationBuildNotifier } from './federation-build-notifier';
 import { NfBuilderSchema } from './schema';
 
+const originalWrite = process.stderr.write.bind(process.stderr);
+
+process.stderr.write = function (
+  chunk: string | Uint8Array,
+  encodingOrCallback?: BufferEncoding | ((err?: Error) => void),
+  callback?: (err?: Error) => void
+): boolean {
+  const str = typeof chunk === 'string' ? chunk : chunk.toString();
+
+  if (
+    str.includes('vite:import-analysis') &&
+    str.includes('es-module-shims.js')
+  ) {
+    return true;
+  }
+
+  if (typeof encodingOrCallback === 'function') {
+    return originalWrite(chunk, encodingOrCallback);
+  }
+
+  return originalWrite(chunk, encodingOrCallback as BufferEncoding, callback);
+};
+
 function _buildApplication(options, context, pluginsOrExtensions) {
   let extensions;
   if (pluginsOrExtensions && Array.isArray(pluginsOrExtensions)) {

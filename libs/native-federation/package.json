@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/native-federation",
-  "version": "20.1.0",
+  "version": "20.1.2",
   "main": "src/index.js",
   "generators": "./collection.json",
   "builders": "./builders.json",
