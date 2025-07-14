@@ -10,11 +10,12 @@ import {
   createCompilerPlugin,
   transformSupportedBrowsersToTargets,
   getSupportedBrowsers,
+  generateSearchDirectories,
+  findTailwindConfiguration,
 } from '@angular/build/private';
 
 import { createCompilerPluginOptions } from './create-compiler-options';
 import { BuilderContext } from '@angular-devkit/architect';
-import { findTailwindConfigurationFile } from '@angular-devkit/build-angular/src/utils/tailwind';
 
 import {
   normalizeOptimization,
@@ -201,10 +202,12 @@ async function runEsbuild(
     builderOptions.optimization
   );
   const sourcemapOptions = normalizeSourceMaps(builderOptions.sourceMap);
-  const tailwindConfigurationPath = await findTailwindConfigurationFile(
+  const searchDirectories = await generateSearchDirectories([
+    projectRoot,
     workspaceRoot,
-    projectRoot
-  );
+  ]);
+  const tailwindConfigurationPath =
+    findTailwindConfiguration(searchDirectories);
 
   const fullProjectRoot = path.join(workspaceRoot, projectRoot);
   const resolver = createRequire(fullProjectRoot + '/');
