@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import { existsSync, mkdirSync, rmSync } from 'fs';
 import * as mrmime from 'mrmime';
 import * as path from 'path';
 
@@ -18,10 +17,6 @@ import {
 
 import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
-
-import { logger, setLogLevel } from '@softarc/native-federation/build';
-
-import { targetFromTargetString } from '@angular-devkit/architect';
 import {
   buildForFederation,
   FederationOptions,
@@ -36,23 +31,14 @@ import {
   setMemResultHandler,
 } from '../../utils/angular-esbuild-adapter';
 
-import { NfBuilderSchema } from './schema';
-import { RebuildHubs } from '../../utils/rebuild-events';
-import { updateScriptTags } from '../../utils/updateIndexHtml';
 import { JsonObject } from '@angular-devkit/core';
-import { JsonObject } from '@angular-devkit/core';
-import { FederationInfo } from '@softarc/native-federation-runtime';
-import { PluginBuild } from 'esbuild';
 import { existsSync, mkdirSync, rmSync } from 'fs';
 import { fstart } from '../../tools/fstart-as-data-url';
-import { getI18nConfig, translateFederationArtefacts } from '../../utils/i18n';
 import {
   EsBuildResult,
   MemResults,
   NgCliAssetResult,
 } from '../../utils/mem-resuts';
-import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
-// import { NextHandleFunction } from 'vite';
 import { FederationInfo } from '@softarc/native-federation-runtime';
 import { PluginBuild } from 'esbuild';
 import { getI18nConfig, translateFederationArtefacts } from '../../utils/i18n';
@@ -148,6 +134,10 @@ export async function* runBuilder(
   setBuildAdapter(adapter);
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
+
+  if (!options.outputPath) {
+    options.outputPath = `dist/${context.target.project}`;
+  }
 
   const outputPath = options.outputPath;
   const outputOptions: Required<
