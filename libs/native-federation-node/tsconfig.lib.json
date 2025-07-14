@@ -1,8 +1,8 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "ES2015",
-    "target": "ES2015",
+    "module": "ES2022",
+    "target": "ES2022",
     "outDir": "../../dist/out-tsc",
     "declaration": true,
     "types": ["node"]
@@ -11,6 +11,8 @@
   "include": [
     "src/**/*.ts",
     "src/lib/node/import-map-store.ts.bak",
-    "src/lib/node/federation-resolver.ts.bak"
+    "src/lib/node/federation-resolver.ts.bak",
+    "../native-federation/tools/fstart-args-parser.ts",
+    "../native-federation/tools/fstart.ts"
   ]
 }

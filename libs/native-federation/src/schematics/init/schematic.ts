@@ -105,8 +105,12 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const exists = tree.exists(federationConfigPath);
 
-    const cand1 = path.join(projectSourceRoot, 'app', 'app.component.ts');
-    const cand2 = path.join(projectSourceRoot, 'app', 'app.ts');
+    const cand1 = path
+      .join(projectSourceRoot, 'app', 'app.component.ts')
+      .replace(/\\/g, '/');
+    const cand2 = path
+      .join(projectSourceRoot, 'app', 'app.ts')
+      .replace(/\\/g, '/');
 
     const appComponent = tree.exists(cand1)
       ? cand1
@@ -269,7 +273,7 @@ function updateWorkspaceConfig(
 
   if (ssr) {
     projectConfig.architect.build.options.ssr = true;
-    projectConfig.architect.esbuild.options.prerender = false;
+    // projectConfig.architect.esbuild.options.prerender = false;
   }
 
   const serve = projectConfig.architect.serve;

@@ -18,7 +18,7 @@ export function withNativeFederation(
 ): NormalizedFederationConfig {
   const skip = prepareSkipList(config.skip ?? []);
 
-  return {
+  const normalized = {
     name: config.name ?? '',
     exposes: config.exposes ?? {},
     shared: normalizeShared(config, skip),
@@ -27,8 +27,34 @@ export function withNativeFederation(
     externals: config.externals ?? [],
     features: {
       mappingVersion: config.features?.mappingVersion ?? false,
+      ignoreUnusedDeps: config.features?.ignoreUnusedDeps ?? false,
     },
   };
+
+  // This is for being backwards compatible
+  if (!normalized.features.ignoreUnusedDeps) {
+    normalized.shared = filterShared(normalized.shared);
+  }
+
+  return normalized;
+}
+
+function filterShared(
+  shared: Record<string, NormalizedSharedConfig>
+): Record<string, NormalizedSharedConfig> {
+  const keys = Object.keys(shared).filter(
+    (k) => !k.startsWith('@angular/common/locales')
+  );
+
+  const filtered = keys.reduce(
+    (acc, curr) => ({
+      ...acc,
+      [curr]: shared[curr],
+    }),
+    {}
+  );
+
+  return filtered;
 }
 
 function normalizeShared(

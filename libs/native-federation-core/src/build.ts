@@ -4,33 +4,33 @@ export {
   NormalizedFederationConfig,
   SharedConfig,
 } from './lib/config/federation-config';
-export { FederationOptions } from './lib/core/federation-options';
-export { setBuildAdapter } from './lib/core/build-adapter';
-export { writeImportMap } from './lib/core/write-import-map';
-export { writeFederationInfo } from './lib/core/write-federation-info';
-export { getExternals } from './lib/core/get-externals';
-export { loadFederationConfig } from './lib/core/load-federation-config';
-export { MappedPath } from './lib/utils/mapped-paths';
+export { withNativeFederation } from './lib/config/with-native-federation';
 export {
   BuildAdapter,
   BuildAdapterOptions,
-  BuildResult,
   BuildKind,
+  BuildResult,
   EntryPoint,
+  setBuildAdapter,
 } from './lib/core/build-adapter';
-export { withNativeFederation } from './lib/config/with-native-federation';
 export { buildForFederation } from './lib/core/build-for-federation';
 export { bundleExposedAndMappings } from './lib/core/bundle-exposed-and-mappings';
+export { FederationOptions } from './lib/core/federation-options';
+export { getExternals } from './lib/core/get-externals';
+export { loadFederationConfig } from './lib/core/load-federation-config';
+export { writeFederationInfo } from './lib/core/write-federation-info';
+export { writeImportMap } from './lib/core/write-import-map';
+export { MappedPath } from './lib/utils/mapped-paths';
 
 export {
+  findRootTsConfigJson,
   share,
   shareAll,
-  findRootTsConfigJson,
 } from './lib/config/share-utils';
 export {
-  federationBuilder,
   BuildHelperParams,
+  federationBuilder,
 } from './lib/core/federation-builder';
-export { logger, setLogLevel } from './lib/utils/logger';
-export { hashFile } from './lib/utils/hash-file';
 export * from './lib/utils/build-result-map';
+export { hashFile } from './lib/utils/hash-file';
+export { logger, setLogLevel } from './lib/utils/logger';

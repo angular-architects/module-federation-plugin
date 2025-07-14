@@ -10,10 +10,14 @@ import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 import { logger } from '../utils/logger';
-import { normalize } from '../utils/normalize';
 import crypto from 'crypto';
 import { DEFAULT_EXTERNAL_LIST } from './default-external-list';
 import { BuildResult } from './build-adapter';
+import {
+  deriveInternalName,
+  isSourceFile,
+  rewriteChunkImports,
+} from '../utils/rewrite-chunk-imports';
 
 export async function bundleShared(
   sharedBundles: Record<string, NormalizedSharedConfig>,
@@ -78,8 +82,14 @@ export async function bundleShared(
     );
   }
 
-  const additionalExternals =
-    platform === 'browser' ? DEFAULT_EXTERNAL_LIST : [];
+  // If we build for the browser and don't remote unused deps from the shared config,
+  // we need to exclude typical node libs to avoid compilation issues
+  const useDefaultExternalList =
+    platform === 'browser' && !config.features.ignoreUnusedDeps;
+
+  const additionalExternals = useDefaultExternalList
+    ? DEFAULT_EXTERNAL_LIST
+    : [];
 
   let bundleResult: BuildResult[] | null = null;
 
@@ -94,9 +104,12 @@ export async function bundleShared(
       kind: 'shared-package',
       hash: false,
       platform,
+      optimizedMappings: config.features.ignoreUnusedDeps,
     });
 
     const cachedFiles = bundleResult.map((br) => path.basename(br.fileName));
+    rewriteImports(cachedFiles, cachePath);
+
     copyCacheToOutput(cachedFiles, cachePath, fullOutputPath);
   } catch (e) {
     logger.error('Error bundling shared npm package ');
@@ -143,6 +156,10 @@ export async function bundleShared(
       fs.readFileSync(resultCacheFile, 'utf-8')
     );
     const cachedFiles = cachedResult.map((cr) => cr.outFileName);
+
+    // Chunks are overwritten by the bundler, so we need to reprocess them
+    rewriteImports(cachedFiles, cachePath);
+
     copyCacheToOutput(cachedFiles, cachePath, fullOutputPath);
     return cachedResult;
   }
@@ -172,6 +189,15 @@ export async function bundleShared(
   );
 
   return result;
+}
+
+function rewriteImports(cachedFiles: string[], cachePath: string) {
+  const newSourceFiles = cachedFiles.filter((cf) => isSourceFile(cf));
+
+  for (const sourceFile of newSourceFiles) {
+    const sourceFilePath = path.join(cachePath, sourceFile);
+    rewriteChunkImports(sourceFilePath);
+  }
 }
 
 function copyCacheToOutput(
@@ -264,7 +290,7 @@ function addChunksToResult(
       // take care of singleton and strictVersion.
       requiredVersion: '0.0.0',
       version: '0.0.0',
-      packageName: fileName,
+      packageName: deriveInternalName(fileName),
       outFileName: fileName,
       // dev: dev
       //   ? undefined

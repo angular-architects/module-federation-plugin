@@ -1,26 +1,30 @@
+import { FederationInfo, SharedInfo } from '@softarc/native-federation-runtime';
 import {
   NormalizedFederationConfig,
   NormalizedSharedConfig,
 } from '../config/federation-config';
-import { FederationInfo, SharedInfo } from '@softarc/native-federation-runtime';
-import { FederationOptions } from './federation-options';
-import { writeImportMap } from './write-import-map';
-import { writeFederationInfo } from './write-federation-info';
-import { bundleShared } from './bundle-shared';
 import {
   ArtefactInfo,
   bundleExposedAndMappings,
   describeExposed,
   describeSharedMappings,
 } from './bundle-exposed-and-mappings';
+import { bundleShared } from './bundle-shared';
+import { FederationOptions } from './federation-options';
+import { writeFederationInfo } from './write-federation-info';
+import { writeImportMap } from './write-import-map';
 
 export interface BuildParams {
   skipMappingsAndExposed: boolean;
+  skipShared: boolean;
 }
 
 export const defaultBuildParams: BuildParams = {
   skipMappingsAndExposed: false,
+  skipShared: false,
 };
+
+let sharedPackageInfoCache: SharedInfo[] = [];
 
 export async function buildForFederation(
   config: NormalizedFederationConfig,
@@ -42,58 +46,64 @@ export async function buildForFederation(
     ? describeExposed(config, fedOptions)
     : artefactInfo.exposes;
 
-  const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
-    splitShared(config.shared);
+  if (!buildParams.skipShared) {
+    const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
+      splitShared(config.shared);
 
-  const sharedPackageInfoBrowser = await bundleShared(
-    sharedBrowser,
-    config,
-    fedOptions,
-    externals,
-    'browser'
-  );
+    const sharedPackageInfoBrowser = await bundleShared(
+      sharedBrowser,
+      config,
+      fedOptions,
+      externals,
+      'browser'
+    );
 
-  const sharedPackageInfoServer = await bundleShared(
-    sharedServer,
-    config,
-    fedOptions,
-    externals,
-    'node'
-  );
+    const sharedPackageInfoServer = await bundleShared(
+      sharedServer,
+      config,
+      fedOptions,
+      externals,
+      'node'
+    );
 
-  const separatePackageInfoBrowser = await bundleSeparate(
-    separateBrowser,
-    externals,
-    config,
-    fedOptions,
-    'browser'
-  );
+    const separatePackageInfoBrowser = await bundleSeparate(
+      separateBrowser,
+      externals,
+      config,
+      fedOptions,
+      'browser'
+    );
 
-  const separatePackageInfoServer = await bundleSeparate(
-    separateServer,
-    externals,
-    config,
-    fedOptions,
-    'node'
-  );
+    const separatePackageInfoServer = await bundleSeparate(
+      separateServer,
+      externals,
+      config,
+      fedOptions,
+      'node'
+    );
 
-  const sharedPackageInfo = [
-    ...sharedPackageInfoBrowser,
-    ...sharedPackageInfoServer,
-    ...separatePackageInfoBrowser,
-    ...separatePackageInfoServer,
-  ];
+    sharedPackageInfoCache = [
+      ...sharedPackageInfoBrowser,
+      ...sharedPackageInfoServer,
+      ...separatePackageInfoBrowser,
+      ...separatePackageInfoServer,
+    ];
+  }
 
   const sharedMappingInfo = !artefactInfo
     ? describeSharedMappings(config, fedOptions)
     : artefactInfo.mappings;
 
-  const sharedInfo = [...sharedPackageInfo, ...sharedMappingInfo];
-
+  const sharedInfo = [...sharedPackageInfoCache, ...sharedMappingInfo];
+  const buildNotificationsEndpoint =
+    fedOptions.buildNotifications?.enable && fedOptions.dev
+      ? fedOptions.buildNotifications?.endpoint
+      : undefined;
   const federationInfo: FederationInfo = {
     name: config.name,
     shared: sharedInfo,
     exposes: exposedInfo,
+    buildNotificationsEndpoint,
   };
 
   writeFederationInfo(federationInfo, fedOptions);

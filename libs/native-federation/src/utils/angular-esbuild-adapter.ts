@@ -10,11 +10,12 @@ import {
   createCompilerPlugin,
   transformSupportedBrowsersToTargets,
   getSupportedBrowsers,
+  generateSearchDirectories,
+  findTailwindConfiguration,
 } from '@angular/build/private';
 
 import { createCompilerPluginOptions } from './create-compiler-options';
 import { BuilderContext } from '@angular-devkit/architect';
-import { findTailwindConfigurationFile } from '@angular-devkit/build-angular/src/utils/tailwind';
 
 import {
   normalizeOptimization,
@@ -38,6 +39,7 @@ import {
 import { RebuildEvents, RebuildHubs } from './rebuild-events';
 
 import JSON5 from 'json5';
+import { isDeepStrictEqual } from 'node:util';
 
 export type MemResultHandler = (
   outfiles: esbuild.OutputFile[],
@@ -67,6 +69,7 @@ export function createAngularBuildAdapter(
       dev,
       hash,
       platform,
+      optimizedMappings,
     } = options;
 
     setNgServerMode();
@@ -87,7 +90,8 @@ export function createAngularBuildAdapter(
       undefined,
       undefined,
       undefined,
-      platform
+      platform,
+      optimizedMappings
     );
 
     if (kind === 'shared-package') {
@@ -185,7 +189,8 @@ async function runEsbuild(
   plugins: esbuild.Plugin[] | null = null,
   absWorkingDir: string | undefined = undefined,
   logLevel: esbuild.LogLevel = 'warning',
-  platform?: 'browser' | 'node'
+  platform?: 'browser' | 'node',
+  optimizedMappings?: boolean
 ) {
   const projectRoot = path.dirname(tsConfigPath);
   const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
@@ -197,10 +202,12 @@ async function runEsbuild(
     builderOptions.optimization
   );
   const sourcemapOptions = normalizeSourceMaps(builderOptions.sourceMap);
-  const tailwindConfigurationPath = await findTailwindConfigurationFile(
+  const searchDirectories = await generateSearchDirectories([
+    projectRoot,
     workspaceRoot,
-    projectRoot
-  );
+  ]);
+  const tailwindConfigurationPath =
+    findTailwindConfiguration(searchDirectories);
 
   const fullProjectRoot = path.join(workspaceRoot, projectRoot);
   const resolver = createRequire(fullProjectRoot + '/');
@@ -226,11 +233,13 @@ async function runEsbuild(
     }
   }
 
-  tsConfigPath = createTsConfigForFederation(
-    workspaceRoot,
-    tsConfigPath,
-    entryPoints
-  );
+  if (!optimizedMappings) {
+    tsConfigPath = createTsConfigForFederation(
+      workspaceRoot,
+      tsConfigPath,
+      entryPoints
+    );
+  }
 
   const pluginOptions = createCompilerPluginOptions(
     {
@@ -352,11 +361,35 @@ function createTsConfigForFederation(
 
   const tsconfigFedPath = path.join(tsconfigDir, 'tsconfig.federation.json');
 
-  if (!doesFileExist(tsconfigFedPath, content)) {
+  if (!doesFileExistAndJsonEqual(tsconfigFedPath, content)) {
     fs.writeFileSync(tsconfigFedPath, JSON.stringify(tsconfig, null, 2));
   }
   tsConfigPath = tsconfigFedPath;
   return tsConfigPath;
+}
+
+/**
+ * Checks if a file exists and if its content is equal to the provided content.
+ * If the file does not exist, it returns false.
+ * If the file or its content is invalid JSON, it returns false.
+ * @param {string} path - The path to the file
+ * @param {string} content - The content to compare with
+ * @returns {boolean} - Returns true if the file exists and its content is equal to the provided content
+ */
+function doesFileExistAndJsonEqual(path: string, content: string) {
+  if (!fs.existsSync(path)) {
+    return false;
+  }
+
+  try {
+    const currentContent = fs.readFileSync(path, 'utf-8');
+    const currentJson = JSON5.parse(currentContent);
+    const newJson = JSON5.parse(content);
+
+    return isDeepStrictEqual(currentJson, newJson);
+  } catch (_error) {
+    return false;
+  }
 }
 
 function doesFileExist(path: string, content: string): boolean {
@@ -424,7 +457,7 @@ export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
 //
 function setNgServerMode(): void {
   const fileToPatch = 'node_modules/@angular/core/fesm2022/core.mjs';
-  const lineToAdd = `const ngServerMode = (typeof window === 'undefined') ? true : false;`;
+  const lineToAdd = `if (typeof globalThis.ngServerMode ==='undefined') globalThis.ngServerMode = (typeof window === 'undefined') ? true : false;`;
 
   try {
     if (fs.existsSync(fileToPatch)) {
