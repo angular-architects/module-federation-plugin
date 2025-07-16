@@ -247,7 +247,7 @@ loadManifest('assets/mf.manifest.json')
 
 ````
 
-The imported `loadManifest` function also loads the remote entry points.
+   The imported `loadManifest` function also loads the remote entry points.
 
 3. Adjust the shell's lazy route pointing to the Micro Frontend as follows (`projects/shell/src/app/app.routes.ts`):
 
