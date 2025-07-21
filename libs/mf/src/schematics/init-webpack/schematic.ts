@@ -146,7 +146,7 @@ function nxBuildersAvailable(tree: Tree): boolean {
   return true;
 }
 
-function infereNxBuilderNames(tree: Tree): { dev: string; prod: string } {
+function inferNxBuilderNames(tree: Tree): { dev: string; prod: string } {
   const dep = getPackageJsonDependency(tree, '@nx/angular');
 
   const useDevServer =
@@ -334,7 +334,7 @@ export default function config(options: MfSchematicSchema): Rule {
       options.nxBuilders = nxBuildersAvailable(tree); // tree.exists('nx.json');
     }
 
-    const nxBuilderNames = infereNxBuilderNames(tree);
+    const nxBuilderNames = inferNxBuilderNames(tree);
 
     if (options.nxBuilders) {
       console.log('Using Nx builders!');
@@ -354,7 +354,7 @@ export default function config(options: MfSchematicSchema): Rule {
 
     if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
       throw new Error(
-        `The project doen't have a build or serve target in angular.json!`
+        `The project doesn't have a build or serve target in angular.json!`
       );
     }
 

@@ -15,7 +15,7 @@ export const DEFAULT_SKIP_LIST = [
   'zone.js',
 ];
 
-export const DEFAULT_SECONARIES_SKIP_LIST = [
+export const DEFAULT_SECONDARIES_SKIP_LIST = [
   '@angular/router/upgrade',
   '@angular/common/upgrade',
 ];
@@ -135,7 +135,7 @@ function getSecondaries(
   packagePath: string,
   key: string,
   shareObject: SharedConfig,
-  exclude = [...DEFAULT_SECONARIES_SKIP_LIST]
+  exclude = [...DEFAULT_SECONDARIES_SKIP_LIST]
 ): Record<string, SharedConfig> {
   if (typeof includeSecondaries === 'object') {
     if (Array.isArray(includeSecondaries.skip)) {
@@ -217,7 +217,7 @@ function readConfiguredSecondaries(
 
 export function shareAll(
   config: CustomSharedConfig = {},
-  skip: string[] = [...DEFAULT_SKIP_LIST, ...DEFAULT_SECONARIES_SKIP_LIST],
+  skip: string[] = [...DEFAULT_SKIP_LIST, ...DEFAULT_SECONDARIES_SKIP_LIST],
   packageJsonPath = ''
 ): Config {
   if (!packageJsonPath) {
@@ -247,7 +247,7 @@ export function setInferVersion(infer: boolean): void {
 export function share(
   shareObjects: Config,
   packageJsonPath = '',
-  skip: string[] = DEFAULT_SECONARIES_SKIP_LIST
+  skip: string[] = DEFAULT_SECONDARIES_SKIP_LIST
 ): Config {
   if (!packageJsonPath) {
     packageJsonPath = cwd();

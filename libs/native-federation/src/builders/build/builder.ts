@@ -199,7 +199,7 @@ export async function* runBuilder(
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
     outputPath: browserOutputPath,
-    federationConfig: infereConfigPath(options.tsConfig),
+    federationConfig: inferConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose,
     watch: false, // options.watch,
@@ -454,7 +454,7 @@ function getLocaleFilter(
   return localize;
 }
 
-function infereConfigPath(tsConfig: string): string {
+function inferConfigPath(tsConfig: string): string {
   const relProjectPath = path.dirname(tsConfig);
   const relConfigPath = path.join(relProjectPath, 'federation.config.js');
 

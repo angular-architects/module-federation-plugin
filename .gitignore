@@ -16,6 +16,7 @@ node_modules
 *.launch
 .settings/
 *.sublime-workspace
+.tool-versions
 
 # IDE - VSCode
 .vscode/*
@@ -46,6 +47,5 @@ migrations.json
 # Angular
 .angular
 
-.nx
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
