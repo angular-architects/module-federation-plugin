@@ -8,6 +8,7 @@ export interface FederationOptions {
   verbose?: boolean;
   dev?: boolean;
   watch?: boolean;
+  ssr?: boolean;
   packageJson?: string;
   entryPoint?: string;
   buildNotifications?: BuildNotificationOptions;

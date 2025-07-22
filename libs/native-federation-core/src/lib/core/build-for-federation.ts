@@ -58,13 +58,9 @@ export async function buildForFederation(
       'browser'
     );
 
-    const sharedPackageInfoServer = await bundleShared(
-      sharedServer,
-      config,
-      fedOptions,
-      externals,
-      'node'
-    );
+    const sharedPackageInfoServer = fedOptions.ssr
+      ? await bundleShared(sharedServer, config, fedOptions, externals, 'node')
+      : [];
 
     const separatePackageInfoBrowser = await bundleSeparate(
       separateBrowser,
@@ -74,13 +70,15 @@ export async function buildForFederation(
       'browser'
     );
 
-    const separatePackageInfoServer = await bundleSeparate(
-      separateServer,
-      externals,
-      config,
-      fedOptions,
-      'node'
-    );
+    const separatePackageInfoServer = fedOptions.ssr
+      ? await bundleSeparate(
+          separateServer,
+          externals,
+          config,
+          fedOptions,
+          'node'
+        )
+      : [];
 
     sharedPackageInfoCache = [
       ...sharedPackageInfoBrowser,

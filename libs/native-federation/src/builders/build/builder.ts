@@ -204,6 +204,7 @@ export async function* runBuilder(
     verbose: options.verbose,
     watch: false, // options.watch,
     dev: !!nfOptions.dev,
+    ssr: !!nfOptions.ssr,
     entryPoint,
     buildNotifications: nfOptions.buildNotifications,
   };
