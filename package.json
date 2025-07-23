@@ -136,12 +136,16 @@
     "@swc/cli": {
       "chokidar": "^4.0.0"
     },
-    "@angular-devkit/build-angular": "^20.1.0",
     "@angular-devkit/core": "^20.1.0",
     "@angular-devkit/schematics": "^20.1.0",
     "@angular/compiler-cli": "^20.1.0",
     "@angular/core": "^20.1.0",
-    "@angular/platform-browser-dynamic": "^20.1.0"
+    "@angular/platform-browser-dynamic": "^20.1.0",
+    "@angular-devkit/build-angular": {
+      ".": "^20.1.0",
+      "jest": "^30.0.5",
+      "jest-environment-jsdom": "^30.0.5"
+    }
   },
   "nx": {
     "includedScripts": []
