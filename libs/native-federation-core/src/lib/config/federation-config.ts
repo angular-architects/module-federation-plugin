@@ -4,6 +4,7 @@ import { MappedPath } from '../utils/mapped-paths';
 export interface SharedConfig {
   singleton?: boolean;
   strictVersion?: boolean;
+  shareScope?: string;
   requiredVersion?: string;
   version?: string;
   includeSecondaries?: boolean;
@@ -34,6 +35,7 @@ export interface NormalizedSharedConfig {
   singleton: boolean;
   strictVersion: boolean;
   requiredVersion: string;
+  shareScope?: string;
   version?: string;
   includeSecondaries?: boolean;
   platform: 'browser' | 'node';
