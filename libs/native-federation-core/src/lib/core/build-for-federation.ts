@@ -58,13 +58,10 @@ export async function buildForFederation(
       'browser'
     );
 
-    const sharedPackageInfoServer = await bundleShared(
-      sharedServer,
-      config,
-      fedOptions,
-      externals,
-      'node'
-    );
+    // If SSR is not enabled, we can avoid bundling for the server.
+    const sharedPackageInfoServer = fedOptions.ssr
+      ? await bundleShared(sharedServer, config, fedOptions, externals, 'node')
+      : [];
 
     const separatePackageInfoBrowser = await bundleSeparate(
       separateBrowser,
@@ -74,13 +71,16 @@ export async function buildForFederation(
       'browser'
     );
 
-    const separatePackageInfoServer = await bundleSeparate(
-      separateServer,
-      externals,
-      config,
-      fedOptions,
-      'node'
-    );
+    // If SSR is not enabled, we can avoid bundling for the server.
+    const separatePackageInfoServer = fedOptions.ssr
+      ? await bundleSeparate(
+          separateServer,
+          externals,
+          config,
+          fedOptions,
+          'node'
+        )
+      : [];
 
     sharedPackageInfoCache = [
       ...sharedPackageInfoBrowser,
