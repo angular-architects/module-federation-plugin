@@ -88,7 +88,7 @@ function getRemoteNameByOptions(options: LoadRemoteModuleOptions) {
     remoteName = getRemoteNameByBaseUrl(baseUrl);
   } else {
     throw new Error(
-      'unexpcted arguments: Please pass remoteName or remoteEntry'
+      'unexpected arguments: Please pass remoteName or remoteEntry'
     );
   }
 

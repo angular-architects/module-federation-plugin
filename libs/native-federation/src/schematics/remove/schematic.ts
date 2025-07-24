@@ -49,7 +49,7 @@ function updateWorkspaceConfig(
 
   if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
     throw new Error(
-      `The project doen't have a build or serve target in angular.json!`
+      `The project doesn't have a build or serve target in angular.json!`
     );
   }
 
