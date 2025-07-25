@@ -175,7 +175,7 @@ export async function* runBuilder(
     tsConfig: options.tsConfig,
     verbose: options.verbose,
     watch: false, // options.watch,
-    dev: !!nfOptions.dev,
+    dev: typeof options.optimization == "boolean" ? !options.optimization : !!nfOptions.dev,
     entryPoint,
     buildNotifications: nfOptions.buildNotifications,
   };
