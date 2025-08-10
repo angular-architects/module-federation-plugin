@@ -1,16 +1,16 @@
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 
-import { NormalizedFederationConfig } from '../config/federation-config';
-import { FederationOptions } from './federation-options';
-import { bundle } from '../utils/build-utils';
 import { ExposesInfo, SharedInfo } from '@softarc/native-federation-runtime';
+import { NormalizedFederationConfig } from '../config/federation-config';
 import {
   createBuildResultMap,
   lookupInResultMap,
 } from '../utils/build-result-map';
+import { bundle } from '../utils/build-utils';
 import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
+import { FederationOptions } from './federation-options';
 
 export interface ArtefactInfo {
   mappings: SharedInfo[];
@@ -40,18 +40,24 @@ export async function bundleExposedAndMappings(
 
   logger.info('Building federation artefacts');
 
-  const result = await bundle({
-    entryPoints,
-    outdir: fedOptions.outputPath,
-    tsConfigPath: fedOptions.tsConfig,
-    external: externals,
-    dev: !!fedOptions.dev,
-    watch: fedOptions.watch,
-    mappedPaths: config.sharedMappings,
-    kind: 'mapping-or-exposed',
-    hash,
-    optimizedMappings: config.features.ignoreUnusedDeps,
-  });
+  let result;
+  try {
+    result = await bundle({
+      entryPoints,
+      outdir: fedOptions.outputPath,
+      tsConfigPath: fedOptions.tsConfig,
+      external: externals,
+      dev: !!fedOptions.dev,
+      watch: fedOptions.watch,
+      mappedPaths: config.sharedMappings,
+      kind: 'mapping-or-exposed',
+      hash,
+      optimizedMappings: config.features.ignoreUnusedDeps,
+    });
+  } catch (error) {
+    logger.error('Error building federation artefacts');
+    throw error;
+  }
 
   const resultMap = createBuildResultMap(result, hash);
 
@@ -70,8 +76,8 @@ export async function bundleExposedAndMappings(
       dev: !fedOptions.dev
         ? undefined
         : {
-            entryPoint: normalize(path.normalize(item.fileName)),
-          },
+          entryPoint: normalize(path.normalize(item.fileName)),
+        },
     });
   }
 
@@ -84,10 +90,10 @@ export async function bundleExposedAndMappings(
       dev: !fedOptions.dev
         ? undefined
         : {
-            entryPoint: normalize(
-              path.join(fedOptions.workspaceRoot, item.fileName)
-            ),
-          },
+          entryPoint: normalize(
+            path.join(fedOptions.workspaceRoot, item.fileName)
+          ),
+        },
     });
   }
 
@@ -111,8 +117,8 @@ export function describeExposed(
       dev: !options.dev
         ? undefined
         : {
-            entryPoint: localPath,
-          },
+          entryPoint: localPath,
+        },
     });
   }
 
@@ -136,8 +142,8 @@ export function describeSharedMappings(
       dev: !fedOptions.dev
         ? undefined
         : {
-            entryPoint: normalize(path.normalize(m.path)),
-          },
+          entryPoint: normalize(path.normalize(m.path)),
+        },
     });
   }
 
