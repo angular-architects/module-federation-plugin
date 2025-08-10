@@ -1,16 +1,16 @@
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 
-import { NormalizedFederationConfig } from '../config/federation-config';
-import { FederationOptions } from './federation-options';
-import { bundle } from '../utils/build-utils';
 import { ExposesInfo, SharedInfo } from '@softarc/native-federation-runtime';
+import { NormalizedFederationConfig } from '../config/federation-config';
 import {
   createBuildResultMap,
   lookupInResultMap,
 } from '../utils/build-result-map';
+import { bundle } from '../utils/build-utils';
 import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
+import { FederationOptions } from './federation-options';
 
 export interface ArtefactInfo {
   mappings: SharedInfo[];
@@ -40,7 +40,9 @@ export async function bundleExposedAndMappings(
 
   logger.info('Building federation artefacts');
 
-  const result = await bundle({
+  let result;
+  try {
+    result = await bundle({
     entryPoints,
     outdir: fedOptions.outputPath,
     tsConfigPath: fedOptions.tsConfig,
@@ -50,8 +52,12 @@ export async function bundleExposedAndMappings(
     mappedPaths: config.sharedMappings,
     kind: 'mapping-or-exposed',
     hash,
-    optimizedMappings: config.features.ignoreUnusedDeps,
-  });
+      optimizedMappings: config.features.ignoreUnusedDeps,
+    });
+  } catch (error) {
+    logger.error('Error building federation artefacts');
+    throw error;
+  }
 
   const resultMap = createBuildResultMap(result, hash);
 
