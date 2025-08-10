@@ -57,11 +57,11 @@ export function updateScriptTags(
 `;
 
   indexContent = indexContent.replace(
-    /<script src="(.*?polyfills.*?)".*?><\/script>/,
+    /<script\s+src="([^"]*polyfills[^"]*)"[^>]*><\/script>/,
     '<script type="module" src="$1"></script>'
   );
   indexContent = indexContent.replace(
-    /<script src="(.*?main.*?)".*?><\/script>/,
+    /<script\s+src="([^"]*main[^"]*)"[^>]*><\/script>/,
     '<script type="module-shim" src="$1"></script>'
   );
 
