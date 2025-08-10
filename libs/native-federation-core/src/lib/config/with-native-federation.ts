@@ -80,6 +80,7 @@ function normalizeShared(
           requiredVersion: shared[cur].requiredVersion ?? 'auto',
           singleton: shared[cur].singleton ?? false,
           strictVersion: shared[cur].strictVersion ?? false,
+          shareScope: shared[cur].shareScope,
           version: shared[cur].version,
           includeSecondaries: shared[cur].includeSecondaries,
           packageInfo: shared[cur].packageInfo,
