@@ -1,6 +1,6 @@
 export * from './src/rspack';
 export {
-  DEFAULT_SECONARIES_SKIP_LIST,
+  DEFAULT_SECONDARIES_SKIP_LIST,
   DEFAULT_SKIP_LIST,
   SharedMappings,
   findRootTsConfigJson,

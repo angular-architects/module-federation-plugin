@@ -37,7 +37,7 @@ export async function bundleShared(
 
   fs.mkdirSync(cachePath, { recursive: true });
 
-  const inferedPackageInfos = Object.keys(sharedBundles)
+  const inferredPackageInfos = Object.keys(sharedBundles)
     .filter((packageName) => !sharedBundles[packageName].packageInfo)
     .map((packageName) => getPackageInfo(packageName, folder))
     .filter((pi) => !!pi) as PackageInfo[];
@@ -49,7 +49,7 @@ export async function bundleShared(
       ...sharedBundles[packageName].packageInfo,
     })) as PackageInfo[];
 
-  const packageInfos = [...inferedPackageInfos, ...configuredPackageInfos];
+  const packageInfos = [...inferredPackageInfos, ...configuredPackageInfos];
 
   const configState =
     'BUNDLER_CHUNKS' + // TODO: Replace this with lib version

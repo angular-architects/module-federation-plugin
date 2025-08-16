@@ -89,7 +89,7 @@ export function resolveAndComposeImportMap(parsed) {
   let sortedAndNormalizedImports = {};
 
   // Step 4
-  if (parsed.hasOwnProperty('imports')) {
+  if (Object.prototype.hasOwnProperty.call(parsed, 'imports')) {
     // Step 4.1
     if (!isPlainObject(parsed.imports)) {
       throw Error(`Invalid import map - "imports" property must be an object`);
@@ -106,7 +106,7 @@ export function resolveAndComposeImportMap(parsed) {
   let sortedAndNormalizedScopes = {};
 
   // Step 6
-  if (parsed.hasOwnProperty('scopes')) {
+  if (Object.prototype.hasOwnProperty.call(parsed, 'scopes')) {
     // Step 6.1
     if (!isPlainObject(parsed.scopes)) {
       throw Error(`Invalid import map - "scopes" property must be an object`);
@@ -250,7 +250,7 @@ export async function load(url, context, defaultLoad) {
     const source = await res.text();
     return {
       shortCircuit: true,
-      format: 'module', 
+      format: 'module',
       source,
     };
   }
@@ -258,7 +258,7 @@ export async function load(url, context, defaultLoad) {
   if (!url.startsWith('node:')) {
     context.format = 'module';
   }
-  
+
   return defaultLoad(url, context, defaultLoad);
 }
 
