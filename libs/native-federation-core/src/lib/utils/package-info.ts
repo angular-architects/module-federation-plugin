@@ -350,6 +350,16 @@ export function _getPackageInfo(
     };
   }
 
+  // cand = secondaryPgkPath;
+  // if (fs.existsSync(cand) && cand.match(/\.(m|c)?js$/)) {
+  //   return {
+  //     entryPoint: cand,
+  //     packageName,
+  //     version,
+  //     esm,
+  //   };
+  // }
+
   // TODO: Add logger
   logger.warn('No entry point found for ' + packageName);
   logger.warn(

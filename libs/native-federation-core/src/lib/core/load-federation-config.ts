@@ -25,6 +25,8 @@ export async function loadFederationConfig(
   }
 
   if (config.features.ignoreUnusedDeps) {
+    // const entryPoint = path.join(fedOptions.workspaceRoot, fedOptions.entryPoint ?? '');
+
     return removeUnusedDeps(
       config,
       fedOptions.entryPoint ?? '',
