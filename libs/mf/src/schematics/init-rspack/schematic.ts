@@ -140,7 +140,7 @@ function normalizeOptions(tree, options: MfSchematicSchema): NormalizedOptions {
   const projectConfig = workspace.projects[projectName];
 
   if (!projectConfig) {
-    throw new Error(`Project ${projectName} not found!`);
+    throw new Error(`Project ${projectName} not found in angular.json.`);
   }
 
   const projectRoot: string = projectConfig.root?.replace(/\\/g, '/');
