@@ -1,5 +1,5 @@
 import {
-  DEFAULT_SECONARIES_SKIP_LIST,
+  DEFAULT_SECONDARY_SKIP_LIST,
   DEFAULT_SKIP_LIST,
   findRootTsConfigJson,
   shareAll,
@@ -15,7 +15,7 @@ export function withModuleFederationPlugin(config: unknown) {
 
   const skip = [
     ...DEFAULT_SKIP_LIST,
-    ...DEFAULT_SECONARIES_SKIP_LIST,
+    ...DEFAULT_SECONDARY_SKIP_LIST,
     ...(config['skip'] || []),
   ];
 

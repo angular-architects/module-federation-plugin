@@ -26,7 +26,7 @@ import {
 
 let inferVersion = false;
 
-export const DEFAULT_SECONARIES_SKIP_LIST = [
+export const DEFAULT_SECONDARY_SKIP_LIST = [
   '@angular/router/upgrade',
   '@angular/common/upgrade',
 ];
@@ -156,7 +156,7 @@ function getSecondaries(
   key: string,
   shareObject: SharedConfig
 ): Record<string, SharedConfig> | null {
-  let exclude = [...DEFAULT_SECONARIES_SKIP_LIST];
+  let exclude = [...DEFAULT_SECONDARY_SKIP_LIST];
 
   if (typeof includeSecondaries === 'object') {
     if (Array.isArray(includeSecondaries.skip)) {
