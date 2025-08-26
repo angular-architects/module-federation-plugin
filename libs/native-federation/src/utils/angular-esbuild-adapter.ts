@@ -278,7 +278,7 @@ async function runEsbuild(
     external,
     logLevel,
     bundle: true,
-    sourcemap: dev,
+    sourcemap: sourcemapOptions.scripts,
     minify: !dev,
     supported: {
       'async-await': false,
