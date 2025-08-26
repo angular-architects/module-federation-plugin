@@ -53,6 +53,7 @@ export async function translateFederationArtefacts(
 
   const translationFiles = locales
     .map((loc) => i18n.locales[loc])
+    .map((config) => Array.isArray(config) ? config : config['translation'])
     .map((value) => JSON.stringify(value))
     .join(' ');
 
