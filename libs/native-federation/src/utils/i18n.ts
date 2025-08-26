@@ -76,7 +76,9 @@ export async function translateFederationArtefacts(
 
   const sourceLocalePath = path.join(outputPath, 'browser', sourceLocale);
 
-  const cmd = `node node_modules/.bin/localize-translate -r ${sourceLocalePath} -s "${sourcePattern}" -t ${translationFiles} -o ${translationOutPath} --target-locales ${targetLocales} -l ${sourceLocale}`;
+  const localizeTranslate = path.resolve("node_modules/.bin/localize-translate");
+
+  const cmd = `${localizeTranslate} -r ${sourceLocalePath} -s "${sourcePattern}" -t ${translationFiles} -o ${translationOutPath} --target-locales ${targetLocales} -l ${sourceLocale}`;
 
   ensureDistFolders(locales, outputPath);
   copyRemoteEntry(locales, outputPath, sourceLocalePath);
