@@ -7,9 +7,10 @@ import {
   PlatformRef,
   Type,
   Version,
+  VERSION,
 } from '@angular/core';
 import { platformBrowser } from '@angular/platform-browser';
-import { VERSION } from '@angular/core';
+import { APP_BASE_HREF } from '@angular/common';
 import {
   getGlobalStateSlice,
   setGlobalStateSlice,
@@ -211,6 +212,7 @@ function shareShellZone(injector: Injector) {
 
 function connectMicroFrontendRouter(injector: Injector) {
   const router = injector.get(Router);
+  const baseHref = injector.get(APP_BASE_HREF, '');
   const useHash = location.href.includes('#');
 
   if (!router) {
@@ -218,5 +220,5 @@ function connectMicroFrontendRouter(injector: Injector) {
     return;
   }
 
-  connectRouter(router, useHash);
+  connectRouter(router, useHash, baseHref);
 }
