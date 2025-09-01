@@ -20,17 +20,10 @@ export function endsWith(prefix: string): UrlMatcher {
   };
 }
 
-export function connectRouter(
-  router: Router,
-  useHash = false,
-  baseHref?: string
-): void {
+export function connectRouter(router: Router, useHash = false): void {
   let url: string;
   if (!useHash) {
     url = `${location.pathname.substring(1)}${location.search}`;
-    if (baseHref && url.startsWith(baseHref)) {
-      url = url.replace(baseHref, '');
-    }
     router.navigateByUrl(url);
     window.addEventListener('popstate', () => {
       router.navigateByUrl(url);
