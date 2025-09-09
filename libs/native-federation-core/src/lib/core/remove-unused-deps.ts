@@ -73,8 +73,8 @@ function findUsedDeps(
     }
 
     const fullFileName = path.join(workspaceRoot, fileName);
-    const mappings = config.sharedMappings.filter(
-      (sm) => sm.path === fullFileName
+    const mappings = config.sharedMappings.filter((sm) =>
+      fullFileName.startsWith(sm.path)
     );
 
     for (const mapping of mappings) {
