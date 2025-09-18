@@ -47,6 +47,7 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { updateScriptTags } from '../../utils/updateIndexHtml';
 import { federationBuildNotifier } from './federation-build-notifier';
 import { NfBuilderSchema } from './schema';
+import { Schema as DevServerSchema } from '@angular-devkit/build-angular/src/builders/dev-server/schema';
 
 const originalWrite = process.stderr.write.bind(process.stderr);
 
@@ -89,7 +90,7 @@ export async function* runBuilder(
 ): AsyncIterable<BuilderOutput> {
   let target = targetFromTargetString(nfOptions.target);
 
-  let _options = (await context.getTargetOptions(
+  let targetOptions = (await context.getTargetOptions(
     target
   )) as unknown as JsonObject & ApplicationBuilderOptions;
 
@@ -117,14 +118,9 @@ export async function* runBuilder(
   }
 
   let options = (await context.validateOptions(
-    _options,
+    targetOptions,
     builder
   )) as JsonObject & ApplicationBuilderOptions;
-
-  const outerOptions = options as any;
-  const normOuterOptions = nfOptions.dev
-    ? await normalizeOptions(context, context.target.project, outerOptions)
-    : null;
 
   /**
    * Explicitly defined as devServer or if the target contains "serve"
@@ -134,18 +130,28 @@ export async function* runBuilder(
       ? !!nfOptions.devServer
       : target.target.includes('serve');
 
+  let serverOptions = null;
+
   const write = true;
   const watch = nfOptions.watch;
 
-  if (runServer) {
-    target = targetFromTargetString(outerOptions.buildTarget);
-    _options = (await context.getTargetOptions(
+  if (!!options['buildTarget']) {
+    serverOptions = await normalizeOptions(
+      context,
+      context.target.project,
+      options as unknown as DevServerSchema
+    );
+
+    target = targetFromTargetString(options['buildTarget'] as string);
+    targetOptions = (await context.getTargetOptions(
       target
     )) as unknown as JsonObject & ApplicationBuilderOptions;
 
     builder = await context.getBuilderNameForTarget(target);
-    options = (await context.validateOptions(_options, builder)) as JsonObject &
-      ApplicationBuilderOptions;
+    options = (await context.validateOptions(
+      targetOptions,
+      builder
+    )) as JsonObject & ApplicationBuilderOptions;
   }
 
   options.watch = watch;
@@ -238,7 +244,7 @@ export async function* runBuilder(
     options.externalDependencies = externals;
   }
 
-  const isLocalDevelopment = runServer && nfOptions.dev;
+  const isLocalDevelopment = runServer || nfOptions.dev;
 
   // Initialize SSE reloader only for local development
   if (isLocalDevelopment && nfOptions.buildNotifications?.enable) {
@@ -336,7 +342,7 @@ export async function* runBuilder(
 
   const builderRun = runServer
     ? serveWithVite(
-        normOuterOptions,
+        serverOptions,
         appBuilderName,
         _buildApplication,
         context,
