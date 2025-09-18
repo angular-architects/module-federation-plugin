@@ -126,7 +126,14 @@ export async function* runBuilder(
     ? await normalizeOptions(context, context.target.project, outerOptions)
     : null;
 
-  const runServer = nfOptions.dev && nfOptions.devServer !== false;
+  /**
+   * Explicitly defined as devServer or if the target contains "serve"
+   */
+  const runServer =
+    typeof nfOptions.devServer !== 'undefined'
+      ? !!nfOptions.devServer
+      : target.target.includes('serve');
+
   const write = true;
   const watch = nfOptions.watch;
 
