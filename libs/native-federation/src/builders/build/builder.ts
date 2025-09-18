@@ -244,7 +244,7 @@ export async function* runBuilder(
     options.externalDependencies = externals;
   }
 
-  const isLocalDevelopment = runServer || nfOptions.dev;
+  const isLocalDevelopment = runServer && nfOptions.dev;
 
   // Initialize SSE reloader only for local development
   if (isLocalDevelopment && nfOptions.buildNotifications?.enable) {
