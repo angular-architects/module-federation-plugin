@@ -7,6 +7,7 @@ import {
 } from './federation-config';
 import {
   isInSkipList,
+  PREPARED_UNUSED_DEPS_SKIP_LIST,
   PreparedSkipList,
   prepareSkipList,
 } from '../core/default-skip-list';
@@ -42,19 +43,9 @@ export function withNativeFederation(
 function filterShared(
   shared: Record<string, NormalizedSharedConfig>
 ): Record<string, NormalizedSharedConfig> {
-  const keys = Object.keys(shared).filter(
-    (k) => !k.startsWith('@angular/common/locales')
-  );
-
-  const filtered = keys.reduce(
-    (acc, curr) => ({
-      ...acc,
-      [curr]: shared[curr],
-    }),
-    {}
-  );
-
-  return filtered;
+  return Object.keys(shared)
+    .filter((k) => !isInSkipList(k, PREPARED_UNUSED_DEPS_SKIP_LIST))
+    .reduce((acc, c) => ({ ...acc, [c]: shared[c] }), {});
 }
 
 function normalizeShared(

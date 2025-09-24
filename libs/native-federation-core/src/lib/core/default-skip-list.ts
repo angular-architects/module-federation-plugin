@@ -30,6 +30,14 @@ export const DEFAULT_SKIP_LIST: SkipList = [
 
 export const PREPARED_DEFAULT_SKIP_LIST = prepareSkipList(DEFAULT_SKIP_LIST);
 
+export const UNUSED_DEPS_SKIP_LIST: SkipList = [
+  (pkg) => pkg.startsWith('@angular/common/locales'),
+];
+
+export const PREPARED_UNUSED_DEPS_SKIP_LIST = prepareSkipList(
+  UNUSED_DEPS_SKIP_LIST
+);
+
 export type PreparedSkipList = {
   strings: Set<string>;
   functions: SkipFn[];

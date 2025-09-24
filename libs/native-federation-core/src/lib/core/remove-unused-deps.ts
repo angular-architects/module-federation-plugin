@@ -2,10 +2,17 @@ import { getProjectData, ProjectData } from '@softarc/sheriff-core';
 import path from 'path';
 import fs from 'fs';
 import { cwd } from 'process';
-import { NormalizedFederationConfig } from '../config/federation-config';
+import {
+  NormalizedFederationConfig,
+  NormalizedSharedConfig,
+} from '../config/federation-config';
 import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { getExternalImports as extractExternalImports } from '../utils/get-external-imports';
 import { MappedPath } from '../utils/mapped-paths';
+import {
+  isInSkipList,
+  PREPARED_UNUSED_DEPS_SKIP_LIST,
+} from './default-skip-list';
 
 export function removeUnusedDeps(
   config: NormalizedFederationConfig,
@@ -37,14 +44,26 @@ function filterShared(
   config: NormalizedFederationConfig,
   usedPackageNamesWithTransient: Set<string>
 ) {
-  const filteredSharedNames = Object.keys(config.shared).filter((shared) =>
-    usedPackageNamesWithTransient.has(shared)
-  );
+  const usedPackageCollections = new Set();
+  const filteredShared: Record<string, NormalizedSharedConfig> = {};
 
-  const filteredShared = filteredSharedNames.reduce(
-    (acc, curr) => ({ ...acc, [curr]: config.shared[curr] }),
-    {}
-  );
+  for (const [sharedName, sharedConfig] of Object.entries(config.shared)) {
+    const packageRoot = sharedName.split('/')[0];
+
+    if (usedPackageNamesWithTransient.has(sharedName)) {
+      filteredShared[sharedName] = sharedConfig;
+      usedPackageCollections.add(packageRoot);
+      continue;
+    }
+
+    if (
+      usedPackageCollections.has(packageRoot) &&
+      !isInSkipList(sharedName, PREPARED_UNUSED_DEPS_SKIP_LIST)
+    ) {
+      filteredShared[sharedName] = sharedConfig;
+    }
+  }
+
   return filteredShared;
 }
 
