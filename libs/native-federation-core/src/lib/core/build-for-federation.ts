@@ -13,6 +13,7 @@ import { bundleShared } from './bundle-shared';
 import { FederationOptions } from './federation-options';
 import { writeFederationInfo } from './write-federation-info';
 import { writeImportMap } from './write-import-map';
+import { logger } from '../utils/logger';
 
 export interface BuildParams {
   skipMappingsAndExposed: boolean;
@@ -35,11 +36,13 @@ export async function buildForFederation(
   let artefactInfo: ArtefactInfo | undefined;
 
   if (!buildParams.skipMappingsAndExposed) {
+    var start = process.hrtime();
     artefactInfo = await bundleExposedAndMappings(
       config,
       fedOptions,
       externals
     );
+    logDuration(start, 'To bundle all mappings and exposed.');
   }
 
   const exposedInfo = !artefactInfo
@@ -49,6 +52,8 @@ export async function buildForFederation(
   if (!buildParams.skipShared) {
     const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
       splitShared(config.shared);
+
+    var start = process.hrtime();
 
     const sharedPackageInfoBrowser = await bundleShared(
       sharedBrowser,
@@ -81,6 +86,8 @@ export async function buildForFederation(
       fedOptions,
       'node'
     );
+
+    logDuration(start, 'To bundle all dependencies');
 
     sharedPackageInfoCache = [
       ...sharedPackageInfoBrowser,
@@ -119,6 +126,11 @@ type SplitSharedResult = {
   separateServer: Record<string, NormalizedSharedConfig>;
 };
 
+function logDuration(start: [number, number], msg: string) {
+  var [seconds, milliseconds] = process.hrtime(start);
+  logger.debug(`${seconds}s:${milliseconds.toFixed(3)}ms - ${msg}`);
+}
+
 function inferPackageFromSecondary(secondary: string): string {
   const parts = secondary.split('/');
   if (secondary.startsWith('@') && parts.length >= 2) {
@@ -134,24 +146,24 @@ async function bundleSeparate(
   fedOptions: FederationOptions,
   platform: 'node' | 'browser'
 ) {
-  const result: SharedInfo[] = [];
-  for (const key in separateBrowser) {
-    const shared = separateBrowser[key];
-    const packageName = inferPackageFromSecondary(key);
-    const filteredExternals = externals.filter(
-      (e) => !e.startsWith(packageName)
-    );
-    const record = { [key]: shared };
-    const buildResult = await bundleShared(
-      record,
-      config,
-      fedOptions,
-      filteredExternals,
-      platform
-    );
-    buildResult.forEach((item) => result.push(item));
-  }
-  return result;
+  const bundlePromises = Object.entries(separateBrowser).map(
+    async ([key, shared]) => {
+      const packageName = inferPackageFromSecondary(key);
+      const filteredExternals = externals.filter(
+        (e) => !e.startsWith(packageName)
+      );
+      return bundleShared(
+        { [key]: shared },
+        config,
+        fedOptions,
+        filteredExternals,
+        platform
+      );
+    }
+  );
+
+  const buildResults = await Promise.all(bundlePromises);
+  return buildResults.flat();
 }
 
 function splitShared(
