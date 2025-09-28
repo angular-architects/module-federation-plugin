@@ -45,7 +45,13 @@ export async function initFederation(
 }
 
 async function loadManifest(remotes: string): Promise<Record<string, string>> {
-  return (await fetch(remotes).then((r) => r.json())) as Record<string, string>;
+  const manifestData = await fetch(remotes).then((r) => r.json());
+  
+  if (manifestData.imports && typeof manifestData.imports === 'object') {
+    return manifestData.imports as Record<string, string>;
+  }
+
+  return manifestData as Record<string, string>;
 }
 
 export async function processRemoteInfos(
