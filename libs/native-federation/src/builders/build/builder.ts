@@ -118,7 +118,10 @@ export async function* runBuilder(
   }
 
   let options = (await context.validateOptions(
-    targetOptions,
+    {
+      ...targetOptions,
+      port: nfOptions.port || targetOptions['port'],
+    },
     builder
   )) as JsonObject & ApplicationBuilderOptions;
 
