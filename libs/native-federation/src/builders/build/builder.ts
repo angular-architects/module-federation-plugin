@@ -117,14 +117,6 @@ export async function* runBuilder(
     return;
   }
 
-  let options = (await context.validateOptions(
-    {
-      ...targetOptions,
-      port: nfOptions.port || targetOptions['port'],
-    },
-    builder
-  )) as JsonObject & ApplicationBuilderOptions;
-
   /**
    * Explicitly defined as devServer or if the target contains "serve"
    */
@@ -132,6 +124,16 @@ export async function* runBuilder(
     typeof nfOptions.devServer !== 'undefined'
       ? !!nfOptions.devServer
       : target.target.includes('serve');
+
+  let options = (await context.validateOptions(
+    runServer
+      ? {
+          ...targetOptions,
+          port: nfOptions.port || targetOptions['port'],
+        }
+      : targetOptions,
+    builder
+  )) as JsonObject & ApplicationBuilderOptions;
 
   let serverOptions = null;
 
