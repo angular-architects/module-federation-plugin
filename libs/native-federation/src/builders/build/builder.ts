@@ -135,7 +135,7 @@ export async function* runBuilder(
   const write = true;
   const watch = nfOptions.watch;
 
-  if (!!options['buildTarget']) {
+  if (options['buildTarget']) {
     serverOptions = await normalizeOptions(
       context,
       context.target.project,
