@@ -93,11 +93,15 @@ export async function bundleShared(
 
   let bundleResult: BuildResult[] | null = null;
 
+  const internalImports = new Set(Object.keys(sharedBundles));
   try {
     bundleResult = await bundle({
       entryPoints,
       tsConfigPath: fedOptions.tsConfig,
-      external: [...additionalExternals, ...externals],
+      external: [
+        ...additionalExternals,
+        ...externals.filter((e) => !internalImports.has(e)),
+      ],
       outdir: cachePath,
       mappedPaths: config.sharedMappings,
       dev: fedOptions.dev,
