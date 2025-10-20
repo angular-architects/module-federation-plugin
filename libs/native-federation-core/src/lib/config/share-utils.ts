@@ -17,7 +17,6 @@ import {
 } from '../utils/package-info';
 import { getConfigContext } from './configuration-context';
 import { logger } from '../utils/logger';
-import { resolveGlobSync } from '../utils/resolve-glob';
 
 import {
   KeyValuePair,
@@ -224,10 +223,10 @@ function readConfiguredSecondaries(
   );
 
   const result = {} as Record<string, SharedConfig>;
+  const discoveredFiles = new Set<string>();
 
   for (const key of keys) {
     const secondaryName = path.join(parent, key).replace(/\\/g, '/');
-
     if (exclude.includes(secondaryName)) {
       continue;
     }
@@ -256,7 +255,11 @@ function readConfiguredSecondaries(
       libPath,
       parent,
       secondaryName,
-      entry
+      entry,
+      discoveredFiles
+    );
+    items.forEach((e) =>
+      discoveredFiles.add(typeof e === 'string' ? e : e.value)
     );
 
     for (const item of items) {
@@ -285,15 +288,18 @@ function resolveSecondaries(
   libPath: string,
   parent: string,
   secondaryName: string,
-  entry: string
+  entry: string,
+  discoveredFiles: Set<string>
 ): Array<string | KeyValuePair> {
   let items: Array<string | KeyValuePair> = [];
   if (key.includes('*')) {
     const expanded = resolveWildcardKeys(key, entry, libPath);
-    items = expanded.map((e) => ({
-      key: path.join(parent, e.key),
-      value: path.join(libPath, e.value),
-    }));
+    items = expanded
+      .map((e) => ({
+        key: path.join(parent, e.key),
+        value: path.join(libPath, e.value),
+      }))
+      .filter((e) => !discoveredFiles.has(typeof e === 'string' ? e : e.value));
   } else {
     items = [secondaryName];
   }
