@@ -29,7 +29,7 @@ declare const __webpack_share_scopes__: { default: Scope };
 type ContainerMap = { [key: string]: Container };
 
 const containerMap: ContainerMap = {};
-const remoteMap = {};
+const remoteMap: { [key: string]: boolean } = {};
 
 let isDefaultScopeInitialized = false;
 
@@ -70,6 +70,7 @@ export type LoadRemoteEntryScriptOptions = {
   type?: 'script';
   remoteEntry: string;
   remoteName: string;
+  nonce?: string;
 };
 
 export type LoadRemoteEntryEsmOptions = {
@@ -86,14 +87,19 @@ export async function loadRemoteEntry(
 ): Promise<void>;
 export async function loadRemoteEntry(
   remoteEntryOrOptions: string | LoadRemoteEntryOptions,
-  remoteName?: string
+  remoteName?: string,
+  nonce?: string
 ): Promise<void> {
   if (typeof remoteEntryOrOptions === 'string') {
     const remoteEntry = remoteEntryOrOptions;
-    return await loadRemoteScriptEntry(remoteEntry, remoteName);
+    return await loadRemoteScriptEntry(remoteEntry, remoteName, nonce);
   } else if (remoteEntryOrOptions.type === 'script') {
     const options = remoteEntryOrOptions;
-    return await loadRemoteScriptEntry(options.remoteEntry, options.remoteName);
+    return await loadRemoteScriptEntry(
+      options.remoteEntry,
+      options.remoteName,
+      options.nonce
+    );
   } else if (remoteEntryOrOptions.type === 'module') {
     const options = remoteEntryOrOptions;
     await loadRemoteModuleEntry(options.remoteEntry);
@@ -114,7 +120,8 @@ async function loadRemoteModuleEntry(remoteEntry: string): Promise<void> {
 
 async function loadRemoteScriptEntry(
   remoteEntry: string,
-  remoteName: string
+  remoteName: string,
+  nonce?: string
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     // Is remoteEntry already loaded?
@@ -125,6 +132,9 @@ async function loadRemoteScriptEntry(
 
     const script = document.createElement('script');
     script.src = remoteEntry;
+    if (nonce) {
+      script.setAttribute('nonce', nonce);
+    }
 
     script.onerror = reject;
 
@@ -149,6 +159,7 @@ export type LoadRemoteModuleScriptOptions = {
   remoteEntry?: string;
   remoteName: string;
   exposedModule: string;
+  nonce?: string;
 };
 
 export type LoadRemoteModuleEsmOptions = {
@@ -218,6 +229,7 @@ export async function loadRemoteModule<T = any>(
       type: 'script',
       remoteEntry: options.remoteEntry,
       remoteName: options.remoteName,
+      nonce: options.nonce,
     };
     key = options.remoteName;
   } else if (options.type === 'module') {
