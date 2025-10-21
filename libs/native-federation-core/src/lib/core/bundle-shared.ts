@@ -67,7 +67,7 @@ export async function bundleShared(
     fedOptions.outputPath
   );
 
-  const exptedResults = allEntryPoints.map((ep) =>
+  const expectedResults = allEntryPoints.map((ep) =>
     path.join(fullOutputPath, ep.outName)
   );
   const entryPoints = allEntryPoints.filter(
@@ -168,7 +168,7 @@ export async function bundleShared(
     return cachedResult;
   }
 
-  const outFileNames = [...exptedResults];
+  const outFileNames = [...expectedResults];
 
   const result = buildResult(
     packageInfos,

@@ -61,7 +61,11 @@ export async function translateFederationArtefacts(
 
   const translationFiles = locales
     .map((loc) => i18n.locales[loc])
-    .map((config) => typeof config === 'string' || Array.isArray(config) ? config : config.translation)
+    .map((config) =>
+      typeof config === 'string' || Array.isArray(config)
+        ? config
+        : config.translation
+    )
     .map((files) => JSON.stringify(files))
     .join(' ');
 
@@ -85,7 +89,9 @@ export async function translateFederationArtefacts(
 
   const sourceLocalePath = path.join(outputPath, 'browser', sourceLocale);
 
-  const localizeTranslate = path.resolve("node_modules/.bin/localize-translate");
+  const localizeTranslate = path.resolve(
+    'node_modules/.bin/localize-translate'
+  );
 
   const cmd = `${localizeTranslate} -r ${sourceLocalePath} -s "${sourcePattern}" -t ${translationFiles} -o ${translationOutPath} --target-locales ${targetLocales} -l ${sourceLocale}`;
 

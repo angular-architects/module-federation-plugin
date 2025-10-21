@@ -55,66 +55,75 @@ export async function buildForFederation(
 
     var start = process.hrtime();
 
-    const sharedPackageInfoBrowser = await bundleShared(
-      sharedBrowser,
-      config,
-      fedOptions,
-      externals,
-      'browser'
-    );
+    const sharedPackageInfoCache: Array<SharedInfo> = [];
 
-    const sharedPackageInfoServer = await bundleShared(
-      sharedServer,
-      config,
-      fedOptions,
-      externals,
-      'node'
-    );
+    if (Object.keys(sharedBrowser).length > 0) {
+      const sharedPackageInfoBrowser = await bundleShared(
+        sharedBrowser,
+        config,
+        fedOptions,
+        externals,
+        'browser'
+      );
+      sharedPackageInfoCache.push(...sharedPackageInfoBrowser);
+    }
 
-    const separatePackageInfoBrowser = await bundleSeparate(
-      separateBrowser,
-      externals,
-      config,
-      fedOptions,
-      'browser'
-    );
+    if (Object.keys(sharedServer).length > 0) {
+      const sharedPackageInfoServer = await bundleShared(
+        sharedServer,
+        config,
+        fedOptions,
+        externals,
+        'node'
+      );
+      sharedPackageInfoCache.push(...sharedPackageInfoServer);
+    }
 
-    const separatePackageInfoServer = await bundleSeparate(
-      separateServer,
-      externals,
-      config,
-      fedOptions,
-      'node'
-    );
+    if (Object.keys(separateBrowser).length > 0) {
+      const separatePackageInfoBrowser = await bundleSeparate(
+        separateBrowser,
+        externals,
+        config,
+        fedOptions,
+        'browser'
+      );
+      sharedPackageInfoCache.push(...separatePackageInfoBrowser);
+    }
+
+    if (Object.keys(separateServer).length > 0) {
+      const separatePackageInfoServer = await bundleSeparate(
+        separateServer,
+        externals,
+        config,
+        fedOptions,
+        'node'
+      );
+      sharedPackageInfoCache.push(...separatePackageInfoServer);
+    }
 
     logDuration(start, 'To bundle all dependencies');
-
-    sharedPackageInfoCache = [
-      ...sharedPackageInfoBrowser,
-      ...sharedPackageInfoServer,
-      ...separatePackageInfoBrowser,
-      ...separatePackageInfoServer,
-    ];
   }
 
   const sharedMappingInfo = !artefactInfo
     ? describeSharedMappings(config, fedOptions)
     : artefactInfo.mappings;
 
-  const sharedInfo = [...sharedPackageInfoCache, ...sharedMappingInfo];
+  sharedPackageInfoCache.push(...sharedMappingInfo);
+
   const buildNotificationsEndpoint =
     fedOptions.buildNotifications?.enable && fedOptions.dev
       ? fedOptions.buildNotifications?.endpoint
       : undefined;
+
   const federationInfo: FederationInfo = {
     name: config.name,
-    shared: sharedInfo,
+    shared: sharedPackageInfoCache,
     exposes: exposedInfo,
     buildNotificationsEndpoint,
   };
 
   writeFederationInfo(federationInfo, fedOptions);
-  writeImportMap(sharedInfo, fedOptions);
+  writeImportMap(sharedPackageInfoCache, fedOptions);
 
   return federationInfo;
 }
