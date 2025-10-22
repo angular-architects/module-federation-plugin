@@ -22,14 +22,10 @@ export const logger = {
     const milliseconds = nanoseconds / 1000000;
 
     const msFormatted = milliseconds.toFixed(3);
-    const timeStr =
-      minutes > 0
-        ? `${minutes}:${seconds
-            .toString()
-            .padStart(2, '0')}:${msFormatted.padStart(7, '0')}`
-        : seconds > 0
-        ? `${seconds}:${msFormatted.padStart(7, '0')}`
-        : `${msFormatted}ms`;
+    const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds
+      .toString()
+      .padStart(2, '0')}:${msFormatted.padStart(7, '0')}ms`;
+
     console.log(
       chalk.bgGreen.ansi256(15)(' DBG! '),
       `${timeStr} - ${milestone}`
