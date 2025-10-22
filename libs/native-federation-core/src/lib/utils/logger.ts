@@ -13,24 +13,27 @@ export const logger = {
     verbose && console.log(chalk.bgGreen.ansi256(15)(' DBG! '), msg),
   debug: (msg: any) =>
     verbose && console.log(chalk.bgGreen.ansi256(15)(' DBG! '), msg),
-  measure: (start: [number, number], msg: string) => {
+  measure: (start: [number, number], milestone: string) => {
     if (!verbose) return;
 
-    var [seconds, nanoseconds] = process.hrtime(start);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+    const [totalSeconds, nanoseconds] = process.hrtime(start);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
     const milliseconds = nanoseconds / 1000000;
 
     const msFormatted = milliseconds.toFixed(3);
     const timeStr =
       minutes > 0
-        ? `${minutes}:${remainingSeconds
+        ? `${minutes}:${seconds
             .toString()
             .padStart(2, '0')}:${msFormatted.padStart(7, '0')}`
-        : remainingSeconds > 0
-        ? `${remainingSeconds}:${msFormatted.padStart(7, '0')}`
+        : seconds > 0
+        ? `${seconds}:${msFormatted.padStart(7, '0')}`
         : `${msFormatted}ms`;
-    console.log(chalk.bgGreen.ansi256(15)(' DBG! '), `${timeStr} - ${msg}`);
+    console.log(
+      chalk.bgGreen.ansi256(15)(' DBG! '),
+      `${timeStr} - ${milestone}`
+    );
   },
 };
 
