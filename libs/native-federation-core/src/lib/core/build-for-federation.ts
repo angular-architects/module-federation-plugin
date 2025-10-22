@@ -57,7 +57,6 @@ export async function buildForFederation(
       splitShared(config.shared);
 
     let start = process.hrtime();
-
     const sharedPackageInfoBrowser = await bundleShared(
       sharedBrowser,
       config,
@@ -65,7 +64,12 @@ export async function buildForFederation(
       externals,
       'browser'
     );
+    logger.measure(
+      start,
+      '[build artifacts] - To bundle all shared browser externals'
+    );
 
+    start = process.hrtime();
     const sharedPackageInfoServer = await bundleShared(
       sharedServer,
       config,
@@ -73,7 +77,12 @@ export async function buildForFederation(
       externals,
       'node'
     );
+    logger.measure(
+      start,
+      '[build artifacts] - To bundle all shared node externals'
+    );
 
+    start = process.hrtime();
     const separatePackageInfoBrowser = await bundleSeparate(
       separateBrowser,
       externals,
@@ -81,7 +90,12 @@ export async function buildForFederation(
       fedOptions,
       'browser'
     );
+    logger.measure(
+      start,
+      '[build artifacts] - To bundle all separate browser externals'
+    );
 
+    start = process.hrtime();
     const separatePackageInfoServer = await bundleSeparate(
       separateServer,
       externals,
@@ -89,8 +103,10 @@ export async function buildForFederation(
       fedOptions,
       'node'
     );
-
-    logger.measure(start, '[build artifacts] - To bundle all externals');
+    logger.measure(
+      start,
+      '[build artifacts] - To bundle all separate node externals'
+    );
 
     sharedPackageInfoCache = [
       ...sharedPackageInfoBrowser,
