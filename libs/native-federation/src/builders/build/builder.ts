@@ -228,7 +228,10 @@ export async function* runBuilder(
 
   const activateSsr = nfOptions.ssr && !nfOptions.dev;
 
+  let start = process.hrtime();
   const config = await loadFederationConfig(fedOptions);
+  logger.measure(start, 'To load the federation config.');
+
   const externals = getExternals(config);
   const plugins = [
     createSharedMappingsPlugin(config.sharedMappings),
@@ -322,8 +325,11 @@ export async function* runBuilder(
 
   let federationResult: FederationInfo;
   try {
+    let start = process.hrtime();
     federationResult = await buildForFederation(config, fedOptions, externals);
+    logger.measure(start, 'To build the artifacts.');
   } catch (e) {
+    logger.error(e?.message ?? 'Building the artifacts failed');
     process.exit(1);
   }
 
@@ -333,12 +339,15 @@ export async function* runBuilder(
 
   const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
   if (hasLocales && localeFilter) {
+    let start = process.hrtime();
+
     translateFederationArtefacts(
       i18n,
       localeFilter,
       outputOptions.base,
       federationResult
     );
+    logger.measure(start, 'To translate the artifacts.');
   }
 
   options.deleteOutputPath = false;
@@ -392,6 +401,7 @@ export async function* runBuilder(
       if (!first && (nfOptions.dev || watch)) {
         setTimeout(async () => {
           try {
+            let start = process.hrtime();
             federationResult = await buildForFederation(
               config,
               fedOptions,
@@ -417,6 +427,7 @@ export async function* runBuilder(
             if (isLocalDevelopment) {
               federationBuildNotifier.broadcastBuildCompletion();
             }
+            logger.measure(start, 'To rebuild nf.');
           } catch (error) {
             logger.error('Federation rebuild failed!');
 
