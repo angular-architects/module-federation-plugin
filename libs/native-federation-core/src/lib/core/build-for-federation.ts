@@ -36,13 +36,16 @@ export async function buildForFederation(
   let artefactInfo: ArtefactInfo | undefined;
 
   if (!buildParams.skipMappingsAndExposed) {
-    var start = process.hrtime();
+    let start = process.hrtime();
     artefactInfo = await bundleExposedAndMappings(
       config,
       fedOptions,
       externals
     );
-    logDuration(start, 'To bundle all mappings and exposed.');
+    logger.measure(
+      start,
+      '[build artifacts] - To bundle all mappings and exposed.'
+    );
   }
 
   const exposedInfo = !artefactInfo
@@ -53,7 +56,7 @@ export async function buildForFederation(
     const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
       splitShared(config.shared);
 
-    var start = process.hrtime();
+    let start = process.hrtime();
 
     const sharedPackageInfoBrowser = await bundleShared(
       sharedBrowser,
@@ -87,7 +90,7 @@ export async function buildForFederation(
       'node'
     );
 
-    logDuration(start, 'To bundle all dependencies');
+    logger.measure(start, '[build artifacts] - To bundle all externals');
 
     sharedPackageInfoCache = [
       ...sharedPackageInfoBrowser,
@@ -125,11 +128,6 @@ type SplitSharedResult = {
   separateBrowser: Record<string, NormalizedSharedConfig>;
   separateServer: Record<string, NormalizedSharedConfig>;
 };
-
-function logDuration(start: [number, number], msg: string) {
-  var [seconds, milliseconds] = process.hrtime(start);
-  logger.debug(`${seconds}s:${milliseconds.toFixed(3)}ms - ${msg}`);
-}
 
 function inferPackageFromSecondary(secondary: string): string {
   const parts = secondary.split('/');
