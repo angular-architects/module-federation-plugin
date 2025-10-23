@@ -64,12 +64,10 @@ export class FederationBuildNotifier {
     }
 
     return (req: IncomingMessage, res: ServerResponse, next: NextFunction) => {
-      const url = removeBaseHref(req);
-
+      const url = this.endpoint.startsWith('/') ? '/' + removeBaseHref(req) : removeBaseHref(req);
       if (url !== this.endpoint) {
         return next();
       }
-
       this._setupSSEConnection(req, res);
     };
   }
