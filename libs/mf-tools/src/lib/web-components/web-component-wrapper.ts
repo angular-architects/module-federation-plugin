@@ -10,15 +10,17 @@ import { ActivatedRoute } from '@angular/router';
 import {
   LoadRemoteModuleOptions,
   loadRemoteModule,
-} from '@angular-architects/module-federation';
+} from '@angular-architects/module-federation-runtime';
 
 export type WebComponentWrapperOptions = LoadRemoteModuleOptions & {
   elementName: string;
 };
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'mft-wc-wrapper',
   template: '<div #vc></div>',
+  standalone: false,
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class WebComponentWrapper implements AfterContentInit, OnChanges {

@@ -4,19 +4,29 @@ Seamlessly using Webpack Module Federation with the Angular CLI.
 
 ## Thanks
 
-Big thanks to the following people who helped to make this possible:
+We are standing on the shoulders of giants. Big thanks to the following people who helped to make this project possible:
 
+- [Colum Ferry](https://x.com/ferrycolum), Nx Team Member
+- [Zack Jackson](https://x.com/ScriptedAlchemy), Inventor of Module Federation
 - [Tobias Koppers](https://twitter.com/wSokra), Founder of Webpack
 - [Dmitriy Shekhovtsov](https://twitter.com/valorkin), Angular GDE
 - [Michael Egger-Zikes](https://twitter.com/MikeZks), Angular Architects
 
 ## Prequisites
 
-- Angular CLI 12 or higher (13, 14)
+- Angular CLI 12 or higher
 
 ## Motivation 💥
 
 Module Federation allows loading separately compiled and deployed code (like micro frontends or plugins) into an application. This plugin makes Module Federation work together with Angular and the CLI.
+
+## Supporting Several Technologies
+
+✅ Supports webpack, rsbuild (experimental, nextgen), esbuild
+
+✅ Supports Module Federation and Native Federation
+
+✅ Supports the Angular CLI and Nx
 
 ## Features 🔥
 
@@ -36,11 +46,27 @@ Since Version 1.2, we also provide some advanced features like:
 
 ## Which Version to use?
 
+We are going to provide at least one major per Angular major to keep track with the Angular ecosystem and its innovations:
+
 - Angular 12: @angular-architects/module-federation: ^12.0.0
 - Angular 13: @angular-architects/module-federation: ~14.2.0
 - Angular 14: @angular-architects/module-federation: ^14.3.0
+- Angular 15: @angular-architects/module-federation: ^15.0.0
+- Angular 16: @angular-architects/module-federation: ^16.0.0
+- Angular 17: @angular-architects/module-federation: ^17.0.0
+- Angular 18: @angular-architects/module-federation: ^18.0.0
+- Angular 19: @angular-architects/module-federation: ^19.0.0
+- Angular 20: @angular-architects/module-federation: ^20.0.0
 
 Beginning with Angular 13, we had to add some changes to adjust to the Angular CLI. Please see the next section for this.
+
+## webpack, rsbuild, and esbuild
+
+Since version 19, the plugin's ng-add schematic asks whether you want to use the traditional Webpack-based builder, the (currently experimental, fast, next-generation) rsbuild builder, or esbuild (fast, Angular CLI's new default).
+
+The first two are supported via Module Federation. For the rsbuild integration, we are using Colum Ferry's awesome community project, @ng-rsbuild/plugin-angular. So, all credit for making rsbuild work with Angular goes to Colum.
+
+The esbuild integration is technically a wrapper around the Angular CLI's new default builder, the ApplicationBuilder. It is powered by Native Federation, our bundler-agnostic implementation based on web standards like ECMAScript modules and Import Maps.
 
 ## Update
 
@@ -50,7 +76,7 @@ This library supports `ng update`:
 ng update @angular-architects/module-federation
 ```
 
-If you update by hand (e. g. via `npm install`), make sure you also install a respective version of ngx-build-plus (version 14 for Angular 14, version 13 for Angular 13, etc.)
+If you update by hand (e. g. via `npm install`), make sure you also install a respective version of ngx-build-plus (version 15 for Angular 15, version 14 for Angular 14, version 13 for Angular 13, etc.)
 
 ## Upgrade from Angular 12 or lower
 
@@ -72,8 +98,8 @@ If you start from the scratch, `ng add` will take care of these settings.
 
 ### Nx
 
-1. `npm install @angular-architects/module-federation`
-2. `ng g @angular-architects/module-federation:init`
+1. `npm install --save-dev @angular-architects/module-federation`
+2. `nx g @angular-architects/module-federation:init`
 3. Adjust the generated `webpack.config.js` file
 4. Repeat this for further projects in your workspace (if needed)
 

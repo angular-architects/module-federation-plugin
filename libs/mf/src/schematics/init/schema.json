@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "mf",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "The project to add module federation",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "Project name (press enter for default project)"
+    },
+    "port": {
+      "type": "number",
+      "x-aliases": ["p"],
+      "description": "The port to use for the federated module (remote, micro frontend, etc.)",
+      "x-prompt": {
+        "message": "Port to use (press enter for default port 4200)"
+      },
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      }
+    },
+    "type": {
+      "enum": ["host", "dynamic-host", "remote", "legacy"],
+      "x-aliases": ["t"],
+      "type": "string",
+      "default": "remote"
+    },
+    "stack": {
+      "type": "string",
+      "enum": [
+        "module-federation-webpack",
+        "module-federation-rsbuild-experimental",
+        "native-federation-esbuild"
+      ],
+      "x-aliases": ["s"],
+      "x-prompt": {
+        "message": "Which stack do you want to use?",
+        "type": "list",
+        "items": [
+          {
+            "value": "module-federation-webpack",
+            "label": "Module Federation with webpack (classic)"
+          },
+          {
+            "value": "module-federation-rsbuild-experimental",
+            "label": "Module Federation with rsbuild (experimental nextgen); no Angular 20 support yet!"
+          },
+          {
+            "value": "native-federation-esbuild",
+            "label": "Native Federation with esbuild (bundler-agnostic)"
+          }
+        ]
+      }
+    },
+    "nxBuilders": {
+      "type": "boolean",
+      "description": "Use builders provided by Nx instead of ngx-build-plus? Defaults to true for Nx workspaces and false for CLI workspaces."
+    },
+    "skip-confirmation": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": ["port", "stack"]
+}

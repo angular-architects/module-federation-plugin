@@ -1,4 +1,4 @@
-import { SkipList } from '../core/default-skip-list';
+import { PreparedSkipList, SkipList } from '../core/default-skip-list';
 import { MappedPath } from '../utils/mapped-paths';
 
 export interface SharedConfig {
@@ -7,6 +7,14 @@ export interface SharedConfig {
   requiredVersion?: string;
   version?: string;
   includeSecondaries?: boolean;
+  transient?: boolean;
+  platform?: 'browser' | 'node';
+  build?: 'default' | 'separate';
+  packageInfo?: {
+    entryPoint: string;
+    version: string;
+    esm: boolean;
+  };
 }
 
 export interface FederationConfig {
@@ -15,6 +23,11 @@ export interface FederationConfig {
   shared?: Record<string, SharedConfig>;
   sharedMappings?: Array<string>;
   skip?: SkipList;
+  externals?: string[];
+  features?: {
+    mappingVersion?: boolean;
+    ignoreUnusedDeps?: boolean;
+  };
 }
 
 export interface NormalizedSharedConfig {
@@ -23,6 +36,13 @@ export interface NormalizedSharedConfig {
   requiredVersion: string;
   version?: string;
   includeSecondaries?: boolean;
+  platform: 'browser' | 'node';
+  build: 'default' | 'separate';
+  packageInfo?: {
+    entryPoint: string;
+    version: string;
+    esm: boolean;
+  };
 }
 
 export interface NormalizedFederationConfig {
@@ -30,4 +50,10 @@ export interface NormalizedFederationConfig {
   exposes: Record<string, string>;
   shared: Record<string, NormalizedSharedConfig>;
   sharedMappings: Array<MappedPath>;
+  skip: PreparedSkipList;
+  externals: string[];
+  features: {
+    mappingVersion: boolean;
+    ignoreUnusedDeps: boolean;
+  };
 }

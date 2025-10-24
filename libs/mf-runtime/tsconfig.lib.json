@@ -2,22 +2,16 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "target": "es2020",
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
-    "types": [],
-    "lib": ["dom", "es2018"]
-  },
-  "angularCompilerOptions": {
-    "enableIvy": true,
-    "compilationMode": "partial"
+    "types": []
   },
   "exclude": [
-    "src/test-setup.ts",
     "**/*.spec.ts",
-    "**/*.test.ts",
-    "jest.config.ts"
+    "test-setup.ts",
+    "jest.config.ts",
+    "**/*.test.ts"
   ],
   "include": ["**/*.ts"]
 }

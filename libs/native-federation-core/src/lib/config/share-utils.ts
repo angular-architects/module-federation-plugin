@@ -2,7 +2,27 @@ import path = require('path');
 import fs = require('fs');
 import { cwd } from 'process';
 import { SharedConfig } from './federation-config';
-import { DEFAULT_SKIP_LIST, isInSkipList, PREPARED_DEFAULT_SKIP_LIST, prepareSkipList, SkipList } from '../core/default-skip-list';
+import {
+  DEFAULT_SKIP_LIST,
+  isInSkipList,
+  PREPARED_DEFAULT_SKIP_LIST,
+  PreparedSkipList,
+  prepareSkipList,
+  SkipList,
+} from '../core/default-skip-list';
+import {
+  findDepPackageJson,
+  getVersionMaps,
+  VersionMap,
+} from '../utils/package-info';
+import { getConfigContext } from './configuration-context';
+import { logger } from '../utils/logger';
+import { resolveGlobSync } from '../utils/resolve-glob';
+
+import {
+  KeyValuePair,
+  resolveWildcardKeys,
+} from '../utils/resolve-wildcard-keys';
 
 let inferVersion = false;
 
@@ -11,7 +31,6 @@ export const DEFAULT_SECONARIES_SKIP_LIST = [
   '@angular/common/upgrade',
 ];
 
-type VersionMap = Record<string, string>;
 type IncludeSecondariesOptions = { skip: string | string[] } | boolean;
 type CustomSharedConfig = SharedConfig & {
   includeSecondaries?: IncludeSecondariesOptions;
@@ -53,16 +72,23 @@ function findPackageJson(folder: string): string {
   );
 }
 
-function readVersionMap(packagePath: string): VersionMap {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const json = require(packagePath);
-  const versions = {
-    ...json['dependencies'],
-  };
-  return versions;
+function lookupVersion(key: string, workspaceRoot: string): string {
+  const versionMaps = getVersionMaps(workspaceRoot, workspaceRoot);
+
+  for (const versionMap of versionMaps) {
+    const version = lookupVersionInMap(key, versionMap);
+
+    if (version) {
+      return version;
+    }
+  }
+
+  throw new Error(
+    `Shared Dependency ${key} has requiredVersion:'auto'. However, this dependency is not found in your package.json`
+  );
 }
 
-function lookupVersion(key: string, versions: VersionMap): string {
+function lookupVersionInMap(key: string, versions: VersionMap): string | null {
   const parts = key.split('/');
   if (parts.length >= 2 && parts[0].startsWith('@')) {
     key = parts[0] + '/' + parts[1];
@@ -75,9 +101,7 @@ function lookupVersion(key: string, versions: VersionMap): string {
   }
 
   if (!versions[key]) {
-    throw new Error(
-      `Shared Dependency ${key} has requiredVersion:'auto'. However, this dependency is not found in your package.json`
-    );
+    return null;
   }
   return versions[key];
 }
@@ -90,26 +114,28 @@ function _findSecondaries(
 ): void {
   const files = fs.readdirSync(libPath);
 
-  const dirs = files
+  const secondaries = files
     .map((f) => path.join(libPath, f))
-    .filter((f) => fs.lstatSync(f).isDirectory() && f !== 'node_modules');
+    .filter(
+      (f) => fs.lstatSync(f).isDirectory() && !f.endsWith('node_modules')
+    );
 
-  const secondaries = dirs.filter((d) =>
-    fs.existsSync(path.join(d, 'package.json'))
-  );
   for (const s of secondaries) {
-    const secondaryLibName = s
-      .replace(/\\/g, '/')
-      .replace(/^.*node_modules[/]/, '');
-    if (excludes.includes(secondaryLibName)) {
-      continue;
+    if (fs.existsSync(path.join(s, 'package.json'))) {
+      const secondaryLibName = s
+        .replace(/\\/g, '/')
+        .replace(/^.*node_modules[/]/, '');
+      if (excludes.includes(secondaryLibName)) {
+        continue;
+      }
+
+      if (isInSkipList(secondaryLibName, PREPARED_DEFAULT_SKIP_LIST)) {
+        continue;
+      }
+
+      acc[secondaryLibName] = { ...shareObject };
     }
 
-    if (isInSkipList(secondaryLibName, PREPARED_DEFAULT_SKIP_LIST)) {
-      continue;
-    }
-
-    acc[secondaryLibName] = { ...shareObject };
     _findSecondaries(s, excludes, shareObject, acc);
   }
 }
@@ -126,7 +152,7 @@ function findSecondaries(
 
 function getSecondaries(
   includeSecondaries: IncludeSecondariesOptions,
-  packagePath: string,
+  libPath: string,
   key: string,
   shareObject: SharedConfig
 ): Record<string, SharedConfig> | null {
@@ -140,7 +166,7 @@ function getSecondaries(
     }
   }
 
-  const libPath = path.join(path.dirname(packagePath), 'node_modules', key);
+  // const libPath = path.join(path.dirname(packagePath), 'node_modules', key);
 
   if (!fs.existsSync(libPath)) {
     return {};
@@ -174,6 +200,10 @@ function readConfiguredSecondaries(
   }
 
   const packageJson = JSON.parse(fs.readFileSync(libPackageJson, 'utf-8'));
+
+  const version = packageJson['version'] as string;
+  const esm = packageJson['type'] === 'module';
+
   const exports = packageJson['exports'] as Record<
     string,
     Record<string, string>
@@ -187,14 +217,15 @@ function readConfiguredSecondaries(
     (key) =>
       key != '.' &&
       key != './package.json' &&
-      !key.endsWith('*') &&
-      exports[key]['default']
+      key.startsWith('./') &&
+      (exports[key]['default'] ||
+        exports[key]['import'] ||
+        typeof exports[key] === 'string')
   );
 
   const result = {} as Record<string, SharedConfig>;
 
   for (const key of keys) {
-    // const relPath = exports[key]['default'];
     const secondaryName = path.join(parent, key).replace(/\\/g, '/');
 
     if (exclude.includes(secondaryName)) {
@@ -205,54 +236,289 @@ function readConfiguredSecondaries(
       continue;
     }
 
-    result[secondaryName] = {
-      ...shareObject,
-      // import: path.join(libPath, relPath)
-    };
+    const entry = getDefaultEntry(exports, key);
+
+    if (typeof entry !== 'string') {
+      console.log('No entry point found for ' + secondaryName);
+      continue;
+    }
+
+    if (
+      !entry?.endsWith('.js') &&
+      !entry?.endsWith('.mjs') &&
+      !entry?.endsWith('.cjs')
+    ) {
+      continue;
+    }
+
+    const items = resolveSecondaries(
+      key,
+      libPath,
+      parent,
+      secondaryName,
+      entry
+    );
+
+    for (const item of items) {
+      if (typeof item === 'object') {
+        result[item.key] = {
+          ...shareObject,
+          packageInfo: {
+            entryPoint: item.value,
+            version: shareObject.version ?? version,
+            esm,
+          },
+        };
+      } else {
+        result[item] = {
+          ...shareObject,
+        };
+      }
+    }
   }
 
   return result;
 }
 
+function resolveSecondaries(
+  key: string,
+  libPath: string,
+  parent: string,
+  secondaryName: string,
+  entry: string
+): Array<string | KeyValuePair> {
+  let items: Array<string | KeyValuePair> = [];
+  if (key.includes('*')) {
+    const expanded = resolveWildcardKeys(key, entry, libPath);
+    items = expanded.map((e) => ({
+      key: path.join(parent, e.key),
+      value: path.join(libPath, e.value),
+    }));
+  } else {
+    items = [secondaryName];
+  }
+  return items;
+}
+
+function getDefaultEntry(
+  exports: Record<string, Record<string, string>>,
+  key: string
+) {
+  let entry = '';
+  if (typeof exports[key] === 'string') {
+    entry = exports[key] as unknown as string;
+  }
+
+  if (!entry) {
+    entry = exports[key]?.['default'];
+    if (typeof entry === 'object') {
+      entry = entry['default'];
+    }
+  }
+
+  if (!entry) {
+    entry = exports[key]?.['import'];
+    if (typeof entry === 'object') {
+      entry = entry['import'] ?? entry['default'];
+    }
+  }
+
+  if (!entry) {
+    entry = exports[key]?.['require'];
+    if (typeof entry === 'object') {
+      entry = entry['require'] ?? entry['default'];
+    }
+  }
+
+  return entry;
+}
+
 export function shareAll(
   config: CustomSharedConfig = {},
   skip: SkipList = DEFAULT_SKIP_LIST,
-  packageJsonPath = ''
+  projectPath = ''
 ): Config | null {
-  if (!packageJsonPath) {
-    packageJsonPath = cwd();
-  }
+  // let workspacePath: string | undefined = undefined;
 
-  const packagePath = findPackageJson(packageJsonPath);
+  projectPath = inferProjectPath(projectPath);
 
-  const versions = readVersionMap(packagePath);
-  const share: any = {};
+  // workspacePath = getConfigContext().workspaceRoot ?? '';
 
-  const preparedSkipList = prepareSkipList(skip);
+  // if (!workspacePath) {
+  //   workspacePath = projectPath;
+  // }
 
-  for (const key in versions) {
-    if (isInSkipList(key, preparedSkipList)) {
-      continue;
+  const versionMaps = getVersionMaps(projectPath, projectPath);
+  const share: Record<string, unknown> = {};
+
+  for (const versions of versionMaps) {
+    const preparedSkipList = prepareSkipList(skip);
+
+    for (const key in versions) {
+      if (isInSkipList(key, preparedSkipList)) {
+        continue;
+      }
+
+      const inferVersion =
+        !config.requiredVersion || config.requiredVersion === 'auto';
+      const requiredVersion = inferVersion
+        ? versions[key]
+        : config.requiredVersion;
+
+      if (!share[key]) {
+        share[key] = { ...config, requiredVersion };
+      }
     }
-
-    share[key] = { ...config };
   }
 
-  return module.exports.share(share, packageJsonPath);
+  return module.exports.share(share, projectPath, skip);
+}
+
+function inferProjectPath(projectPath: string) {
+  if (!projectPath && getConfigContext().packageJson) {
+    projectPath = path.dirname(getConfigContext().packageJson || '');
+  }
+
+  if (!projectPath && getConfigContext().workspaceRoot) {
+    projectPath = getConfigContext().workspaceRoot || '';
+  }
+
+  if (!projectPath) {
+    projectPath = cwd();
+  }
+  return projectPath;
 }
 
 export function setInferVersion(infer: boolean): void {
   inferVersion = infer;
 }
 
-export function share(shareObjects: Config, packageJsonPath = ''): Config {
-  if (!packageJsonPath) {
-    packageJsonPath = cwd();
+type TransientDependency = {
+  packageName: string;
+  requiredVersion: string;
+  packagePath: string;
+};
+
+function findTransientDeps(
+  configuredShareObjects: Config,
+  projectRoot: string,
+  preparedSkipList: PreparedSkipList
+): TransientDependency[] {
+  const discovered = new Set<string>();
+  const result: TransientDependency[] = [];
+
+  const packageNames = Object.keys(configuredShareObjects) as Array<
+    keyof typeof configuredShareObjects
+  >;
+
+  for (const packageName of packageNames) {
+    const shareConfig = configuredShareObjects[packageName];
+
+    if (typeof shareConfig === 'object' && shareConfig.transient) {
+      logger.warn(
+        'PLEASE NOTE: The transient flag in your federation.config.js'
+      );
+      logger.warn(
+        'is deprecated. Please remove it. Meanwhile, Native Federation'
+      );
+      logger.warn('uses the underlying bundler for splitting transient');
+      logger.warn('dependencies into separate chunks, _when_ necessary.');
+      const packagePath = path.join(
+        projectRoot,
+        'node_modules',
+        packageName,
+        'package.json'
+      );
+      _findTransientDeps(
+        packagePath,
+        projectRoot,
+        preparedSkipList,
+        discovered,
+        result
+      );
+    }
   }
 
-  const packagePath = findPackageJson(packageJsonPath);
+  return result;
+}
 
-  const versions = readVersionMap(packagePath);
+function _findTransientDeps(
+  packagePath: string,
+  projectRoot: string,
+  preparedSkipList: PreparedSkipList,
+  discovered: Set<string>,
+  result: TransientDependency[]
+) {
+  if (!fs.existsSync(packagePath)) {
+    return;
+  }
+
+  const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf-8'));
+
+  const deps = Object.keys(packageJson.dependencies ?? {});
+  for (const dep of deps) {
+    const depPackageJson = path.join(
+      projectRoot,
+      'node_modules',
+      dep,
+      'package.json'
+    );
+    const depPath = path.dirname(depPackageJson);
+
+    if (
+      !discovered.has(depPackageJson) &&
+      !isInSkipList(dep, preparedSkipList) &&
+      fs.existsSync(depPackageJson)
+    ) {
+      discovered.add(depPackageJson);
+      const version = packageJson.dependencies[dep];
+      result.push({
+        packageName: dep,
+        requiredVersion: version,
+        packagePath: depPath,
+      });
+      _findTransientDeps(
+        depPackageJson,
+        projectRoot,
+        preparedSkipList,
+        discovered,
+        result
+      );
+    }
+  }
+}
+
+export function share(
+  configuredShareObjects: Config,
+  projectPath = '',
+  skipList = DEFAULT_SKIP_LIST
+): Config {
+  projectPath = inferProjectPath(projectPath);
+  const packagePath = findPackageJson(projectPath);
+
+  const packageDirectory = path.dirname(packagePath);
+
+  const preparedSkipList = prepareSkipList(skipList);
+
+  const transientDeps = findTransientDeps(
+    configuredShareObjects,
+    packageDirectory,
+    preparedSkipList
+  );
+
+  const transientShareObject = transientDeps.reduce(
+    (acc, curr) => ({
+      ...acc,
+      [curr.packageName]: { path: curr.packagePath },
+    }),
+    {}
+  );
+
+  const shareObjects = {
+    ...configuredShareObjects,
+    ...transientShareObject,
+  };
+
   const result: any = {};
   let includeSecondaries;
 
@@ -264,7 +530,8 @@ export function share(shareObjects: Config, packageJsonPath = ''): Config {
       shareObject.requiredVersion === 'auto' ||
       (inferVersion && typeof shareObject.requiredVersion === 'undefined')
     ) {
-      const version = lookupVersion(key, versions);
+      const version = lookupVersion(key, projectPath);
+
       shareObject.requiredVersion = version;
       shareObject.version = version.replace(/^\D*/, '');
     }
@@ -281,9 +548,18 @@ export function share(shareObjects: Config, packageJsonPath = ''): Config {
     result[key] = shareObject;
 
     if (includeSecondaries) {
+      const libPackageJson = findDepPackageJson(key, path.dirname(packagePath));
+
+      if (!libPackageJson) {
+        logger.error('Could not find folder containing dep ' + key);
+        continue;
+      }
+
+      const libPath = path.dirname(libPackageJson);
+
       const secondaries = getSecondaries(
         includeSecondaries,
-        packagePath,
+        libPath,
         key,
         shareObject
       );
@@ -298,7 +574,7 @@ export function share(shareObjects: Config, packageJsonPath = ''): Config {
 
 function addSecondaries(
   secondaries: Record<string, SharedConfig>,
-  result: any
+  result: Record<string, SharedConfig>
 ) {
   for (const key in secondaries) {
     result[key] = secondaries[key];

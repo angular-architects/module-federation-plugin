@@ -1,0 +1,40 @@
+{
+  "name": "native-federation-runtime",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/native-federation-runtime/src",
+  "prefix": "angular-architects",
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "libs/native-federation-runtime/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/native-federation-runtime/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "libs/native-federation-runtime/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "publish": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs native-federation-runtime npm {args.ver} {args.tag}"
+      }
+    },
+    "publish-local": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs native-federation-runtime verdaccio {args.ver}"
+      }
+    }
+  },
+  "tags": ["org:softarc", "scope:nf"]
+}

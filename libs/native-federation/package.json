@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/native-federation",
-  "version": "1.0.0-beta.1",
+  "version": "20.1.7",
   "main": "src/index.js",
   "generators": "./collection.json",
   "builders": "./builders.json",
@@ -10,17 +10,23 @@
     "name": "Manfred Steyer",
     "url": "http://www.angulararchitects.io"
   },
+  "homepage": "https://github.com/angular-architects/module-federation-plugin/tree/main/libs/native-federation",
   "repository": {
     "type": "git",
     "url": "https://github.com/angular-architects/module-federation-plugin"
   },
+  "ng-update": {
+    "migrations": "./migration-collection.json"
+  },
   "dependencies": {
-    "@angular-architects/build-angular": "^14.2.0-next.0",
-    "@rollup/plugin-commonjs": "^22.0.2",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "@rollup/plugin-replace": "^4.0.0",
-    "rollup": "^2.79.0",
-    "rollup-plugin-node-externals": "^4.1.1",
-    "esbuild": "^0.15.5"
-  }
+    "@babel/core": "^7.19.0",
+    "@softarc/native-federation": "3.3.6",
+    "@softarc/native-federation-runtime": "3.3.6",
+    "@chialab/esbuild-plugin-commonjs": "^0.18.0",
+    "esbuild": "^0.25.1",
+    "mrmime": "^1.0.1",
+    "signale": "^1.4.0",
+    "process": "0.11.10"
+  },
+  "peerDependencies": {}
 }

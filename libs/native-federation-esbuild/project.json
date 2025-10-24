@@ -1,45 +1,36 @@
 {
+  "name": "native-federation-esbuild",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/native-federation-esbuild/src",
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/native-federation-esbuild",
         "main": "libs/native-federation-esbuild/src/index.ts",
         "tsConfig": "libs/native-federation-esbuild/tsconfig.lib.json",
-        "assets": ["libs/native-federation-esbuild/*.md"]
+        "assets": [
+          "libs/native-federation-esbuild/*.md",
+          "libs/native-federation-esbuild/LICENSE"
+        ]
       }
     },
     "publish": {
-      "executor": "@nrwl/workspace:run-commands",
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
       "options": {
-        "command": "node tools/scripts/publish.mjs native-federation-esbuild {args.ver} {args.tag}"
-      },
-      "dependsOn": [
-        {
-          "projects": "self",
-          "target": "build"
-        }
-      ]
-    },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/native-federation-esbuild/**/*.ts"]
+        "command": "node tools/scripts/publish.mjs native-federation-esbuild npm {args.ver} {args.tag}"
       }
     },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/native-federation-esbuild"],
+    "publish-local": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
       "options": {
-        "jestConfig": "libs/native-federation-esbuild/jest.config.ts",
-        "passWithNoTests": true
+        "command": "node tools/scripts/publish.mjs native-federation-esbuild verdaccio {args.ver}"
       }
     }
   },
-  "tags": []
+  "tags": ["org:softarc", "scope:nf"]
 }

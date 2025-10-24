@@ -1,25 +1,42 @@
-import {
-  Scopes,
-  Imports,
-  ImportMap,
-  mergeImportMaps,
-} from './model/import-map';
 import { getExternalUrl, setExternalUrl } from './model/externals';
-import { joinPaths, getDirectory } from './utils/path-utils';
+import {
+  FederationInfo,
+  InitFederationOptions,
+  ProcessRemoteInfoOptions,
+} from './model/federation-info';
+import {
+  ImportMap,
+  Imports,
+  mergeImportMaps,
+  Scopes,
+} from './model/import-map';
 import { addRemote } from './model/remotes';
 import { appendImportMap } from './utils/add-import-map';
-import { FederationInfo } from './model/federation-info';
+import { getDirectory, joinPaths } from './utils/path-utils';
+import { watchFederationBuildCompletion } from './watch-federation-build';
 
+/**
+ * Initialize the federation runtime
+ * @param remotesOrManifestUrl
+ * @param options The cacheTag allows you to invalidate the cache of the remoteEntry.json files, pass a new value with every release (f.ex. the version number)
+ */
 export async function initFederation(
-  remotesOrManifestUrl: Record<string, string> | string = {}
+  remotesOrManifestUrl: Record<string, string> | string = {},
+  options?: InitFederationOptions
 ): Promise<ImportMap> {
+  const cacheOption = options?.cacheTag ? `?t=${options.cacheTag}` : '';
   const remotes =
     typeof remotesOrManifestUrl === 'string'
-      ? await loadManifest(remotesOrManifestUrl)
+      ? await loadManifest(remotesOrManifestUrl + cacheOption)
       : remotesOrManifestUrl;
 
-  const hostImportMap = await processHostInfo();
-  const remotesImportMap = await processRemoteInfos(remotes);
+  const url = './remoteEntry.json' + cacheOption;
+  const hostInfo = await loadFederationInfo(url);
+  const hostImportMap = await processHostInfo(hostInfo);
+  const remotesImportMap = await processRemoteInfos(remotes, {
+    throwIfRemoteNotFound: false,
+    ...options,
+  });
 
   const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
   appendImportMap(importMap);
@@ -31,19 +48,40 @@ async function loadManifest(remotes: string): Promise<Record<string, string>> {
   return (await fetch(remotes).then((r) => r.json())) as Record<string, string>;
 }
 
-async function processRemoteInfos(
-  remotes: Record<string, string>
+export async function processRemoteInfos(
+  remotes: Record<string, string>,
+  options: ProcessRemoteInfoOptions = { throwIfRemoteNotFound: false }
 ): Promise<ImportMap> {
-  let importMap: ImportMap = {
-    imports: {},
-    scopes: {},
-  };
+  const processRemoteInfoPromises = Object.keys(remotes).map(
+    async (remoteName) => {
+      try {
+        let url = remotes[remoteName];
+        if (options.cacheTag) {
+          const addAppend = remotes[remoteName].includes('?') ? '&' : '?';
+          url += `${addAppend}t=${options.cacheTag}`;
+        }
 
-  for (const remoteName of Object.keys(remotes)) {
-    const url = remotes[remoteName];
-    const remoteMap = await processRemoteInfo(url, remoteName);
-    importMap = mergeImportMaps(importMap, remoteMap);
-  }
+        return await processRemoteInfo(url, remoteName);
+      } catch (e) {
+        const error = `Error loading remote entry for ${remoteName} from file ${remotes[remoteName]}`;
+
+        if (options.throwIfRemoteNotFound) {
+          throw new Error(error);
+        }
+
+        console.error(error);
+        return null;
+      }
+    }
+  );
+
+  const remoteImportMaps = await Promise.all(processRemoteInfoPromises);
+
+  const importMap = remoteImportMaps.reduce<ImportMap>(
+    (acc, remoteImportMap) =>
+      remoteImportMap ? mergeImportMaps(acc, remoteImportMap) : acc,
+    { imports: {}, scopes: {} }
+  );
 
   return importMap;
 }
@@ -57,6 +95,12 @@ export async function processRemoteInfo(
 
   if (!remoteName) {
     remoteName = remoteInfo.name;
+  }
+
+  if (remoteInfo.buildNotificationsEndpoint) {
+    watchFederationBuildCompletion(
+      baseUrl + remoteInfo.buildNotificationsEndpoint
+    );
   }
 
   const importMap = createRemoteImportMap(remoteInfo, remoteName, baseUrl);
@@ -114,16 +158,20 @@ function processExposed(
   return imports;
 }
 
-async function processHostInfo(): Promise<ImportMap> {
-  const hostInfo = await loadFederationInfo('./remoteEntry.json');
-
+export async function processHostInfo(
+  hostInfo: FederationInfo,
+  relBundlesPath = './'
+): Promise<ImportMap> {
   const imports = hostInfo.shared.reduce(
-    (acc, cur) => ({ ...acc, [cur.packageName]: './' + cur.outFileName }),
+    (acc, cur) => ({
+      ...acc,
+      [cur.packageName]: relBundlesPath + cur.outFileName,
+    }),
     {}
   ) as Imports;
 
   for (const shared of hostInfo.shared) {
-    setExternalUrl(shared, './' + shared.outFileName);
+    setExternalUrl(shared, relBundlesPath + shared.outFileName);
   }
   return { imports, scopes: {} };
 }

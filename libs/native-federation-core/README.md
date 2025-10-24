@@ -1,6 +1,6 @@
 # @softarc/native-federation
 
-Native Federation is a "browser-native"  implementation of the successful mental model behind wepback Module Federation for building Micro Frontends and plugin-based solutions. It can be **used with any framework and build tool** for implementing **Micro Frontends** and plugin-based architectures.
+Native Federation is a "browser-native" implementation of the successful mental model behind wepback Module Federation for building Micro Frontends and plugin-based solutions. It can be **used with any framework and build tool** for implementing **Micro Frontends** and plugin-based architectures.
 
 ## Features
 
@@ -20,7 +20,9 @@ While this core library can be used with any framework and build tool, there is 
 
 > Please find the [Angular-based version here](https://www.npmjs.com/package/@angular-architects/native-federation).
 
-Also, other higher level abstractions on top of this core library are possible. 
+> Please find the [vite plugin here](https://www.npmjs.com/package/@gioboa/vite-module-federation).
+
+Also, other higher level abstractions on top of this core library are possible.
 
 ## About the Mental Model
 
@@ -33,10 +35,14 @@ For this, the mental model introduces several concepts:
 - **Shared Dependencies:** If a several remotes and the host use the same library, you might not want to download it several times. Instead, you might want to just download it once and share it at runtime. For this use case, the mental model allows for defining such shared dependencies.
 - **Version Mismatch:** If two or more applications use a different version of the same shared library, we need to prevent a version mismatch. To deal with it, the mental model defines several strategies, like falling back to another version that fits the application, using a different compatible one (according to semantic versioning) or throwing an error.
 
-## Example 
+## Example
 
 - [VanillaJS example](https://github.com/manfredsteyer/native-federation-core-microfrontend).
 - [React example](https://github.com/manfredsteyer/native-federation-react-example)
+  - This example also shows the **watch mode** for compiling a federated application
+- [Vite + Svelte example](https://github.com/gioboa/svelte-microfrontend-demo)
+- [Vite + Angular example powered by AnalogJS](https://github.com/manfredsteyer/native-federation-vite-angular-demo)
+- **Your Example:** If you have an example with aspects not covered here, let us know. We are happy to link it here.
 
 ## Credits
 
@@ -44,10 +50,11 @@ Big thanks to:
 
 - [Zack Jackson](https://twitter.com/ScriptedAlchemy) for originally coming up with the great idea of Module Federation and its successful mental model
 - [Tobias Koppers](https://twitter.com/wSokra) for helping to make Module Federation a first class citizen of webpack
-- [Florian Rappl](https://twitter.com/FlorianRappl) for an good discussion about these topics during a speakers dinner in Nuremberg 
+- [Florian Rappl](https://twitter.com/FlorianRappl) for an good discussion about these topics during a speakers dinner in Nuremberg
 - [The Nx Team](https://twitter.com/NxDevTools), esp. [Colum Ferry](https://twitter.com/FerryColum), who seamlessly integrated webpack Module Federation into Nx and hence helped to spread the word about it (Nx + Module Federation === ❤️)
 - [Michael Egger-Zikes](https://twitter.com/MikeZks) for contributing to our Module Federation efforts and brining in valuable feedback
 - The Angular CLI-Team, esp. [Alan Agius](https://twitter.com/AlanAgius4) and [Charles Lyding](https://twitter.com/charleslyding), for working on the experimental esbuild builder for Angular
+- [Giorgio Boa](https://twitter.com/giorgio_boa) for implementing the awesome vite plugin for module federation.
 
 ## Using this Library
 
@@ -57,7 +64,7 @@ Big thanks to:
 npm i @softarc/native-federation
 ```
 
-As Native Federation is tooling agnostic, we need an adapter to make it work with specific build tools. The package ``@softarc/native-federation-esbuild`` contains a simple adapter that uses esbuild:
+As Native Federation is tooling agnostic, we need an adapter to make it work with specific build tools. The package `@softarc/native-federation-esbuild` contains a simple adapter that uses esbuild:
 
 ```
 npm i @softarc/native-federation-esbuild
@@ -65,12 +72,11 @@ npm i @softarc/native-federation-esbuild
 
 In some situations, this builder also delegates to rollup. This is necessary b/c esbuild does not provide all features we need (yet). We hope to minimize the usage of rollup in the future.
 
-You can also provide your own adapter by providing a function aligning with the ``BuildAdapter`` type.
-
+You can also provide your own adapter by providing a function aligning with the `BuildAdapter` type.
 
 ### Augment your Build Process
 
-Just call three helper methods provided by our ``federationBuilder`` in your build process to adjust it for Native Federation.
+Just call three helper methods provided by our `federationBuilder` in your build process to adjust it for Native Federation.
 
 ```typescript
 import * as esbuild from 'esbuild';
@@ -85,9 +91,8 @@ const tsConfig = 'tsconfig.json';
 const outputPath = `dist/${projectName}`;
 
 /*
-    *  Step 1: Initialize Native Federation
+  *  Step 1: Initialize Native Federation
 */
-
 await federationBuilder.init({
     options: {
         workspaceRoot: path.join(__dirname, '..'),
@@ -108,10 +113,10 @@ await federationBuilder.init({
 /*
   * Step 2: Trigger your build process
   *
-  * You can use any tool for this. Here, we go 
+  * You can use any tool for this. Here, we go
   * with a very simple esbuild-based build.
-  * 
-  * Just respect the externals in 
+  *
+  * Just respect the externals in
   * `federationBuilder.externals`.
 */
 
@@ -133,11 +138,11 @@ await esbuild.build({
 await federationBuilder.build();
 ```
 
-The method ``federationBuilder.build`` bundles the shared and exposed parts of your app. 
+The method `federationBuilder.build` bundles the shared and exposed parts of your app.
 
-### Configuring Hosts 
+### Configuring Hosts
 
-The ``withNativeFederation`` function sets up a configuration for your applications. This is an example configuration for a host:
+The `withNativeFederation` function sets up a configuration for your applications. This is an example configuration for a host:
 
 ```typescript
 // shell/federation.config.js
@@ -145,20 +150,19 @@ The ``withNativeFederation`` function sets up a configuration for your applicati
 const {
   withNativeFederation,
   shareAll,
-} = require("@softarc/native-federation/build");
+} = require('@softarc/native-federation/build');
 
 module.exports = withNativeFederation({
-  name: "host",
+  name: 'host',
 
   shared: {
     ...shareAll({
       singleton: true,
       strictVersion: true,
-      requiredVersion: "auto",
+      requiredVersion: 'auto',
       includeSecondaries: false,
     }),
   },
-
 });
 ```
 
@@ -166,7 +170,7 @@ The API for configuring and using Native Federation is very similar to the one p
 
 ### Sharing
 
-The ``shareAll``-helper used here shares all dependencies found in your ``package.json``. Hence, they only need to be loaded once (instead of once per remote and host). If you don't want to share all of them, you can opt-out of sharing by using the ``skip`` option:
+The `shareAll`-helper used here shares all dependencies found in your `package.json`. Hence, they only need to be loaded once (instead of once per remote and host). If you don't want to share all of them, you can opt-out of sharing by using the `skip` option:
 
 ```typescript
 module.exports = withNativeFederation({
@@ -183,7 +187,7 @@ module.exports = withNativeFederation({
 
 ### Sharing Mapped Paths (Monorepo-internal Libraries)
 
-Paths mapped in your ``tsconfig.json`` are shared by default too. While they are part of your (mono) repository, they are treaded like libraries:
+Paths mapped in your `tsconfig.json` are shared by default too. While they are part of your (mono) repository, they are treaded like libraries:
 
 ```json
 {
@@ -208,42 +212,39 @@ When configuring a remote, you can expose files that can be loaded into the shel
 const {
   withNativeFederation,
   shareAll,
-} = require("@softarc/native-federation/build");
+} = require('@softarc/native-federation/build');
 
 module.exports = withNativeFederation({
-  name: "mfe1",
+  name: 'mfe1',
 
   exposes: {
-    "./component": "./mfe1/component"
+    './component': './mfe1/component',
   },
 
   shared: {
     ...shareAll({
       singleton: true,
       strictVersion: true,
-      requiredVersion: "auto",
+      requiredVersion: 'auto',
       includeSecondaries: false,
     }),
   },
-
 });
 ```
 
 ### Initializing a Host
 
-On startup, call the ``initFederation`` method. It takes a mapping between the names of remotes and their ``remoteEntry.json``. This is a file containing meta data generated by the augmented build process (see above).
+On startup, call the `initFederation` method. It takes a mapping between the names of remotes and their `remoteEntry.json`. This is a file containing meta data generated by the augmented build process (see above).
 
 ```typescript
 import { initFederation } from '@softarc/native-federation';
 
 (async () => {
+  await initFederation({
+    mfe1: 'http://localhost:3001/remoteEntry.json',
+  });
 
-    await initFederation({
-        "mfe1": "http://localhost:3001/remoteEntry.json"
-    });
-    
-    await import('./app');
-
+  await import('./app');
 })();
 ```
 
@@ -253,11 +254,9 @@ You can also pass the name of a file with the key data about your remotes:
 import { initFederation } from '@softarc/native-federation';
 
 (async () => {
+  await initFederation('assets/manifest.json');
 
-    await initFederation('assets/manifest.json');
-    
-    await import('./app');
-
+  await import('./app');
 })();
 ```
 
@@ -265,7 +264,7 @@ Following the ideas of our friends at [Nrwl](https://nrwl.io), we call such a fi
 
 ```json
 {
-        "mfe1": "http://localhost:3001/remoteEntry.json"
+  "mfe1": "http://localhost:3001/remoteEntry.json"
 }
 ```
 
@@ -273,27 +272,25 @@ Manifests allow to adjust your application to different environments without any
 
 ## Initializing a Remote
 
-For initializing a remote, also call ``initFederation``. If you don't plan to load further remotes into your remote, you don't need to pass any parameters:
+For initializing a remote, also call `initFederation`. If you don't plan to load further remotes into your remote, you don't need to pass any parameters:
 
 ```typescript
 import { initFederation } from '@softarc/native-federation';
 
 (async () => {
-
-    await initFederation();
-    await import('./component');
-
+  await initFederation();
+  await import('./component');
 })();
 ```
 
 ### Loading a Remote
 
-To load a remote, just call the ``loadRemoteModule`` function:
+To load a remote, just call the `loadRemoteModule` function:
 
 ```typescript
 const module = await loadRemoteModule({
-    remoteName: 'mfe1',
-    exposedModule: './component'
+  remoteName: 'mfe1',
+  exposedModule: './component',
 });
 ```
 
@@ -301,20 +298,21 @@ If you know the type of the loaded module (perhaps you have a shared interface),
 
 ```typescript
 const module = await loadRemoteModule<MyRemoteType>({
-    remoteName: 'mfe1',
-    exposedModule: './component'
+  remoteName: 'mfe1',
+  exposedModule: './component',
 });
 ```
 
 ### Polyfill
 
-This library uses Import Maps. As currently not all browsers support this emerging browser feature, we need a polyfill. We recommend the polyfill ``es-module-shims`` which has been developed for production use cases:
+This library uses Import Maps. As currently not all browsers support this emerging browser feature, we need a polyfill. We recommend the polyfill `es-module-shims` which has been developed for production use cases:
 
 ```html
 <script type="esms-options">
-    {
-        "shimMode": true
-    }
+  {
+      "shimMode": true,
+      "mapOverrides": true
+  }
 </script>
 
 <script src="https://ga.jspm.io/npm:es-module-shims@1.5.17/dist/es-module-shims.js"></script>
@@ -322,9 +320,41 @@ This library uses Import Maps. As currently not all browsers support this emergi
 <script type="module-shim" src="main.js"></script>
 ```
 
-The script with the type ``esms-options`` configures the polyfill. This library was built for shim mode. In this mode, the polyfill provides some additional features beyond the proposal for Import Maps. These features, for instance, allow for dynamically creating an import map after loading a first EcmaScript module. Native Federation uses this possibility.
+The script with the type `esms-options` configures the polyfill. This library was built for shim mode. In this mode, the polyfill provides some additional features beyond the proposal for Import Maps. These features, for instance, allow for dynamically creating an import map after loading a first EcmaScript module. Native Federation uses this possibility.
 
-To make the polyfill to load your EcmaScript modules (bundles) in shim mode, assign the type ``module-shim``.
+To make the polyfill to load your EcmaScript modules (bundles) in shim mode, assign the type `module-shim`.
+
+## React and Other CommonJS Libs
+
+Native Federation uses Web Standards like EcmaScript Modules. Most libs and frameworks support them meanwhile. Unfortunately, React still uses CommonJS (und UMD). We do our best to convert these libs to EcmaScript Modules. In the case of React there are some challenges due to the dynamic way the React bundles use the `exports` object.
+
+As the community is moving to EcmaScrpt Modules, we expect that these issues will vanish over time. In between, we provide some solutions for dealing with CommonJS-based libraries using `exports` in a dynamic way.
+
+One of them is `fileReplacemnts`:
+
+```javascript
+import { reactReplacements } from '@softarc/native-federation-esbuild/src/lib/react-replacements';
+import { createEsBuildAdapter } from '@softarc/native-federation-esbuild';
+
+[...]
+
+createEsBuildAdapter({
+  plugins: [],
+  fileReplacements: reactReplacements.prod
+})
+```
+
+Please note that the adapter comes with `fileReplacements` settings for React for both, `dev` mode and `prod` mode. For similar libraries you can add your own replacements. Also, using the `compensateExports` property, you can activate some additional logic for such libraries to make sure the exports are not lost
+
+```javascript
+createEsBuildAdapter({
+  plugins: [],
+  fileReplacements: reactReplacements.prod,
+  compensateExports: [new RegExp('/my-lib/')],
+});
+```
+
+The default value for `compensateExports` is `[new RegExp('/react/')]`.
 
 ## More: Blog Articles
 

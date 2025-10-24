@@ -1,0 +1,40 @@
+{
+  "name": "mf-tools",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/mf-tools/src",
+  "prefix": "angular-architects",
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "libs/mf-tools/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/mf-tools/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "libs/mf-tools/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "publish": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs mf-tools npm {args.ver} {args.tag}"
+      }
+    },
+    "publish-local": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs mf-tools verdaccio {args.ver}"
+      }
+    }
+  },
+  "tags": ["org:angular-architects", "scope:mf"]
+}

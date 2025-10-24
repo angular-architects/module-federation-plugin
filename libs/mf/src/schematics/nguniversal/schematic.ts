@@ -4,7 +4,7 @@ import {
   generateSsrMappings,
   getWorkspaceFileName,
   adjustSSR,
-} from '../mf/schematic';
+} from '../init-webpack/schematic';
 
 export default function nguniversal(options: NgUniversalSchema): Rule {
   return async function (tree) {

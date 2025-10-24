@@ -1,0 +1,13 @@
+import { createConfig } from '@ng-rsbuild/plugin-angular';
+import applyFederation from './federation.config';
+
+export default createConfig(
+  {
+    browser: './src/main.ts',
+  },
+  {
+    server: {
+      port: <%=port%>,
+    },
+  }
+);

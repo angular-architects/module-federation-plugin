@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { logger } from './logger';
+import { normalize } from './normalize';
 
 export interface PackageInfo {
   packageName: string;
@@ -13,24 +15,154 @@ export interface PartialPackageJson {
   main: string;
 }
 
+export type VersionMap = Record<string, string>;
+
+export type PackageJsonInfo = {
+  content: any;
+  directory: string;
+};
+
+const packageCache: Record<string, PackageJsonInfo[]> = {};
+
+export function findPackageJsonFiles(
+  project: string,
+  workspace: string
+): string[] {
+  return expandFolders(project, workspace)
+    .map((f) => path.join(f, 'package.json'))
+    .filter((f) => fs.existsSync(f));
+}
+
+export function expandFolders(child: string, parent: string): string[] {
+  const result: string[] = [];
+  parent = normalize(parent, true);
+  child = normalize(child, true);
+
+  if (!child.startsWith(parent)) {
+    throw new Error(
+      `Workspace folder ${path} needs to be a parent of the project folder ${child}`
+    );
+  }
+
+  let current = child;
+
+  while (current !== parent) {
+    result.push(current);
+
+    const cand = normalize(path.dirname(current), true);
+    if (cand === current) {
+      break;
+    }
+    current = cand;
+  }
+  result.push(parent);
+  return result;
+}
+
 export function getPackageInfo(
   packageName: string,
   workspaceRoot: string
 ): PackageInfo | null {
-  const projectRoot = workspaceRoot;
+  workspaceRoot = normalize(workspaceRoot, true);
+
+  const packageJsonInfos = getPackageJsonFiles(workspaceRoot, workspaceRoot);
+
+  for (const info of packageJsonInfos) {
+    const cand = _getPackageInfo(packageName, info.directory);
+    if (cand) {
+      return cand;
+    }
+  }
+
+  logger.warn('No meta data found for shared lib ' + packageName);
+  return null;
+}
+
+function getVersionMapCacheKey(project: string, workspace: string): string {
+  return `${project}**${workspace}`;
+}
+
+export function getVersionMaps(
+  project: string,
+  workspace: string
+): VersionMap[] {
+  return getPackageJsonFiles(project, workspace).map((json) => ({
+    ...json.content['dependencies'],
+  }));
+}
+
+export function getPackageJsonFiles(
+  project: string,
+  workspace: string
+): PackageJsonInfo[] {
+  const cacheKey = getVersionMapCacheKey(project, workspace);
+
+  let maps = packageCache[cacheKey];
+
+  if (maps) {
+    return maps;
+  }
+
+  maps = findPackageJsonFiles(project, workspace).map((f) => {
+    const content = JSON.parse(fs.readFileSync(f, 'utf-8'));
+    const directory = normalize(path.dirname(f), true);
+    const result: PackageJsonInfo = {
+      content,
+      directory,
+    };
+    return result;
+  });
+
+  packageCache[cacheKey] = maps;
+  return maps;
+}
+
+export function findDepPackageJson(
+  packageName: string,
+  projectRoot: string
+): string | null {
   const mainPkgName = getPkgFolder(packageName);
 
-  const mainPkgPath = path.join(projectRoot, 'node_modules', mainPkgName);
-  const mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
+  let mainPkgPath = path.join(projectRoot, 'node_modules', mainPkgName);
+  let mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
 
-  if (!fs.existsSync(mainPkgPath)) {
+  let directory = projectRoot;
+
+  while (path.dirname(directory) !== directory) {
+    if (fs.existsSync(mainPkgJsonPath)) {
+      break;
+    }
+
+    directory = normalize(path.dirname(directory), true);
+
+    mainPkgPath = path.join(directory, 'node_modules', mainPkgName);
+    mainPkgJsonPath = path.join(mainPkgPath, 'package.json');
+  }
+
+  if (!fs.existsSync(mainPkgJsonPath)) {
     // TODO: Add logger
     // context.logger.warn('No package.json found for ' + packageName);
-    console.warn('No package.json found for ' + packageName);
+    logger.verbose(
+      'No package.json found for ' + packageName + ' in ' + mainPkgPath
+    );
 
     return null;
   }
+  return mainPkgJsonPath;
+}
 
+export function _getPackageInfo(
+  packageName: string,
+  directory: string
+): PackageInfo | null {
+  const mainPkgName = getPkgFolder(packageName);
+  const mainPkgJsonPath = findDepPackageJson(packageName, directory);
+
+  if (!mainPkgJsonPath) {
+    return null;
+  }
+
+  const mainPkgPath = path.dirname(mainPkgJsonPath);
   const mainPkgJson = readJson(mainPkgJsonPath);
 
   const version = mainPkgJson['version'] as string;
@@ -39,7 +171,7 @@ export function getPackageInfo(
   if (!version) {
     // TODO: Add logger
     // context.logger.warn('No version found for ' + packageName);
-    console.warn('No version found for ' + packageName);
+    logger.warn('No version found for ' + packageName);
 
     return null;
   }
@@ -51,23 +183,94 @@ export function getPackageInfo(
     relSecondaryPath = './' + relSecondaryPath.replace(/\\/g, '/');
   }
 
-  let cand = mainPkgJson?.exports?.[relSecondaryPath]?.import;
+  let cand = mainPkgJson?.exports?.[relSecondaryPath];
+
+  if (typeof cand === 'string') {
+    return {
+      entryPoint: path.join(mainPkgPath, cand),
+      packageName,
+      version,
+      esm,
+    };
+  }
+
+  cand = mainPkgJson?.exports?.[relSecondaryPath]?.import;
+
+  if (typeof cand === 'object') {
+    if (cand.module) {
+      cand = cand.module;
+    } else if (cand.import) {
+      cand = cand.import;
+    } else if (cand.default) {
+      cand = cand.default;
+    } else {
+      cand = null;
+    }
+  }
+
+  if (cand) {
+    if (typeof cand === 'object') {
+      if (cand.module) {
+        cand = cand.module;
+      } else if (cand.import) {
+        cand = cand.import;
+      } else if (cand.default) {
+        cand = cand.default;
+      } else {
+        cand = null;
+      }
+    }
+
+    return {
+      entryPoint: path.join(mainPkgPath, cand),
+      packageName,
+      version,
+      esm,
+    };
+  }
+
+  cand = mainPkgJson?.exports?.[relSecondaryPath]?.module;
+
+  if (typeof cand === 'object') {
+    if (cand.module) {
+      cand = cand.module;
+    } else if (cand.import) {
+      cand = cand.import;
+    } else if (cand.default) {
+      cand = cand.default;
+    } else {
+      cand = null;
+    }
+  }
+
   if (cand) {
     return {
       entryPoint: path.join(mainPkgPath, cand),
       packageName,
       version,
-      esm
+      esm,
     };
   }
 
   cand = mainPkgJson?.exports?.[relSecondaryPath]?.default;
   if (cand) {
+    if (typeof cand === 'object') {
+      if (cand.module) {
+        cand = cand.module;
+      } else if (cand.import) {
+        cand = cand.import;
+      } else if (cand.default) {
+        cand = cand.default;
+      } else {
+        cand = null;
+      }
+    }
+
     return {
       entryPoint: path.join(mainPkgPath, cand),
       packageName,
       version,
-      esm
+      esm,
     };
   }
 
@@ -78,11 +281,11 @@ export function getPackageInfo(
       entryPoint: path.join(mainPkgPath, cand),
       packageName,
       version,
-      esm: true
+      esm: true,
     };
   }
 
-  const secondaryPgkPath = path.join(projectRoot, 'node_modules', packageName);
+  const secondaryPgkPath = path.join(mainPkgPath, relSecondaryPath);
   const secondaryPgkJsonPath = path.join(secondaryPgkPath, 'package.json');
   let secondaryPgkJson: PartialPackageJson | null = null;
   if (fs.existsSync(secondaryPgkJsonPath)) {
@@ -94,7 +297,7 @@ export function getPackageInfo(
       entryPoint: path.join(secondaryPgkPath, secondaryPgkJson.module),
       packageName,
       version,
-      esm: true
+      esm: true,
     };
   }
 
@@ -104,7 +307,7 @@ export function getPackageInfo(
       entryPoint: cand,
       packageName,
       version,
-      esm: true
+      esm: true,
     };
   }
 
@@ -113,7 +316,7 @@ export function getPackageInfo(
       entryPoint: path.join(secondaryPgkPath, secondaryPgkJson.main),
       packageName,
       version,
-      esm
+      esm,
     };
   }
 
@@ -123,14 +326,44 @@ export function getPackageInfo(
       entryPoint: cand,
       packageName,
       version,
-      esm
+      esm,
     };
   }
 
+  cand = secondaryPgkPath + '.js';
+  if (fs.existsSync(cand)) {
+    return {
+      entryPoint: cand,
+      packageName,
+      version,
+      esm,
+    };
+  }
+
+  cand = secondaryPgkPath + '.mjs';
+  if (fs.existsSync(cand)) {
+    return {
+      entryPoint: cand,
+      packageName,
+      version,
+      esm,
+    };
+  }
+
+  // cand = secondaryPgkPath;
+  // if (fs.existsSync(cand) && cand.match(/\.(m|c)?js$/)) {
+  //   return {
+  //     entryPoint: cand,
+  //     packageName,
+  //     version,
+  //     esm,
+  //   };
+  // }
+
   // TODO: Add logger
-  console.warn('No entry point found for ' + packageName);
-  console.warn(
-    '  >> Did you confuse dependencies with depDependencies in your package.json or your federation config?'
+  logger.warn('No entry point found for ' + packageName);
+  logger.warn(
+    "If you don't need this package, skip it in your federation.config.js or consider moving it into depDependencies in your package.json"
   );
 
   return null;

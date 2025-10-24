@@ -1,6 +1,6 @@
-import * as path from 'path';
-import * as fs from 'fs';
 import { FederationInfo } from '@softarc/native-federation-runtime';
+import * as fs from 'fs';
+import * as path from 'path';
 import { FederationOptions } from './federation-options';
 
 export function writeFederationInfo(

@@ -1,0 +1,30 @@
+{
+  "name": "playground-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/playground-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/playground-e2e/cypress.json",
+        "tsConfig": "apps/playground-e2e/tsconfig.e2e.json",
+        "devServerTarget": "playground:serve:development"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "playground:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/playground-e2e/**/*.{js,ts}"]
+      },
+      "outputs": ["{options.outputFile}"]
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["playground"]
+}

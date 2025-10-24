@@ -1,8 +1,10 @@
 {
   "name": "@softarc/native-federation-runtime",
-  "version": "1.0.0",
-  "peerDependencies": {},
+  "version": "3.3.6",
   "dependencies": {
     "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4"
   }
 }

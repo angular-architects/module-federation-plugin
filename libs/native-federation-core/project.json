@@ -1,45 +1,36 @@
 {
+  "name": "native-federation-core",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/native-federation-core/src",
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/native-federation-core",
         "main": "libs/native-federation-core/src/index.ts",
         "tsConfig": "libs/native-federation-core/tsconfig.lib.json",
-        "assets": ["libs/native-federation-core/*.md"]
+        "assets": [
+          "libs/native-federation-core/*.md",
+          "libs/native-federation-core/LICENSE"
+        ]
       }
     },
     "publish": {
-      "executor": "@nrwl/workspace:run-commands",
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
       "options": {
-        "command": "node tools/scripts/publish.mjs native-federation-core {args.ver} {args.tag}"
-      },
-      "dependsOn": [
-        {
-          "projects": "self",
-          "target": "build"
-        }
-      ]
-    },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/native-federation-core/**/*.ts"]
+        "command": "node tools/scripts/publish.mjs native-federation-core npm {args.ver} {args.tag}"
       }
     },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/native-federation-core"],
+    "publish-local": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
       "options": {
-        "jestConfig": "libs/native-federation-core/jest.config.ts",
-        "passWithNoTests": true
+        "command": "node tools/scripts/publish.mjs native-federation-core verdaccio {args.ver}"
       }
     }
   },
-  "tags": []
+  "tags": ["org:softarc", "scope:nf"]
 }

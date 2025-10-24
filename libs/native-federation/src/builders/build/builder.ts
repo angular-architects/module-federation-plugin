@@ -1,103 +1,475 @@
+import * as fs from 'fs';
+import * as mrmime from 'mrmime';
+import * as path from 'path';
+
+import { ApplicationBuilderOptions, buildApplication } from '@angular/build';
+import {
+  buildApplicationInternal,
+  serveWithVite,
+} from '@angular/build/private';
+
 import {
   BuilderContext,
   BuilderOutput,
   createBuilder,
+  targetFromTargetString,
 } from '@angular-devkit/architect';
 
-import { buildEsbuildBrowser } from '@angular-architects/build-angular/src/builders/browser-esbuild/index';
-import { Schema } from '@angular-architects/build-angular/src/builders/browser-esbuild/schema';
-import { ExecutionTransformer } from '@angular-architects/build-angular';
-import * as path from 'path';
-import * as fs from 'fs';
-import { NormalizedFederationConfig } from '@softarc/native-federation/build';
+import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
-import { BuildOptions } from 'esbuild';
+import {
+  buildForFederation,
+  FederationOptions,
+  getExternals,
+  loadFederationConfig,
+  logger,
+  setBuildAdapter,
+  setLogLevel,
+} from '@softarc/native-federation/build';
+import {
+  createAngularBuildAdapter,
+  setMemResultHandler,
+} from '../../utils/angular-esbuild-adapter';
+
+import { JsonObject } from '@angular-devkit/core';
+import { existsSync, mkdirSync, rmSync } from 'fs';
+import { fstart } from '../../tools/fstart-as-data-url';
+import {
+  EsBuildResult,
+  MemResults,
+  NgCliAssetResult,
+} from '../../utils/mem-resuts';
+import { FederationInfo } from '@softarc/native-federation-runtime';
+import { PluginBuild } from 'esbuild';
+import { getI18nConfig, translateFederationArtefacts } from '../../utils/i18n';
+import { RebuildHubs } from '../../utils/rebuild-events';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
-import { FederationOptions } from '@softarc/native-federation/build';
-import { setBuildAdapter } from '@softarc/native-federation/build';
-import { AngularEsBuildAdapter } from '../../utils/angular-esbuild-adapter';
-import { getExternals } from '@softarc/native-federation/build';
-import { loadFederationConfig } from '@softarc/native-federation/build';
-import { buildForFederation } from '@softarc/native-federation/build';
+import { updateScriptTags } from '../../utils/updateIndexHtml';
+import { federationBuildNotifier } from './federation-build-notifier';
+import { NfBuilderSchema } from './schema';
+import { Schema as DevServerSchema } from '@angular-devkit/build-angular/src/builders/dev-server/schema';
 
-export async function runBuilder(
-  options: Schema,
+const originalWrite = process.stderr.write.bind(process.stderr);
+
+process.stderr.write = function (
+  chunk: string | Uint8Array,
+  encodingOrCallback?: BufferEncoding | ((err?: Error) => void),
+  callback?: (err?: Error) => void
+): boolean {
+  const str = typeof chunk === 'string' ? chunk : chunk.toString();
+
+  if (
+    str.includes('vite:import-analysis') &&
+    str.includes('es-module-shims.js')
+  ) {
+    return true;
+  }
+
+  if (typeof encodingOrCallback === 'function') {
+    return originalWrite(chunk, encodingOrCallback);
+  }
+
+  return originalWrite(chunk, encodingOrCallback as BufferEncoding, callback);
+};
+
+function _buildApplication(options, context, pluginsOrExtensions) {
+  let extensions;
+  if (pluginsOrExtensions && Array.isArray(pluginsOrExtensions)) {
+    extensions = {
+      codePlugins: pluginsOrExtensions,
+    };
+  } else {
+    extensions = pluginsOrExtensions;
+  }
+  return buildApplicationInternal(options, context, extensions);
+}
+
+export async function* runBuilder(
+  nfOptions: NfBuilderSchema,
   context: BuilderContext
-): Promise<BuilderOutput> {
-  setBuildAdapter(AngularEsBuildAdapter);
+): AsyncIterable<BuilderOutput> {
+  let target = targetFromTargetString(nfOptions.target);
+
+  let targetOptions = (await context.getTargetOptions(
+    target
+  )) as unknown as JsonObject & ApplicationBuilderOptions;
+
+  let builder = await context.getBuilderNameForTarget(target);
+
+  if (builder === '@angular-devkit/build-angular:browser-esbuild') {
+    logger.info('.: NATIVE FEDERATION - UPDATE NEEDED :.');
+    logger.info('');
+    logger.info("Since version 17.1, Native Federation uses Angular's");
+    logger.info('Application-Builder and its Dev-Server.');
+    logger.info('');
+    logger.info('If you are sill on Angular 17.0.x, please update to');
+    logger.info('Angular 17.1.x or downgrade to Native Federation 17.0.x.');
+    logger.info('');
+    logger.info('For working with Native Federation 17.1.x (recommented), ');
+    logger.info('please update your project config, e.g. in angular.json');
+    logger.info('');
+    logger.info('This command performs the needed update for default configs:');
+    logger.info('');
+    logger.info('\tng g @angular-architects/native-federation:appbuilder');
+    logger.info('');
+    logger.info('You need to run it once per application to migrate');
+    logger.info('Please find more information here: https://shorturl.at/gADJW');
+    return;
+  }
+
+  /**
+   * Explicitly defined as devServer or if the target contains "serve"
+   */
+  const runServer =
+    typeof nfOptions.devServer !== 'undefined'
+      ? !!nfOptions.devServer
+      : target.target.includes('serve');
+
+  let options = (await context.validateOptions(
+    runServer
+      ? {
+          ...targetOptions,
+          port: nfOptions.port || targetOptions['port'],
+        }
+      : targetOptions,
+    builder
+  )) as JsonObject & ApplicationBuilderOptions;
+
+  let serverOptions = null;
+
+  const write = true;
+  const watch = nfOptions.watch;
+
+  if (options['buildTarget']) {
+    serverOptions = await normalizeOptions(
+      context,
+      context.target.project,
+      options as unknown as DevServerSchema
+    );
+
+    target = targetFromTargetString(options['buildTarget'] as string);
+    targetOptions = (await context.getTargetOptions(
+      target
+    )) as unknown as JsonObject & ApplicationBuilderOptions;
+
+    builder = await context.getBuilderNameForTarget(target);
+    options = (await context.validateOptions(
+      targetOptions,
+      builder
+    )) as JsonObject & ApplicationBuilderOptions;
+  }
+
+  options.watch = watch;
+
+  if (nfOptions.baseHref) {
+    options.baseHref = nfOptions.baseHref;
+  }
+
+  if (nfOptions.outputPath) {
+    options.outputPath = nfOptions.outputPath;
+  }
+
+  const rebuildEvents = new RebuildHubs();
+
+  const adapter = createAngularBuildAdapter(options, context, rebuildEvents);
+  setBuildAdapter(adapter);
+
+  setLogLevel(options.verbose ? 'verbose' : 'info');
+
+  if (!options.outputPath) {
+    options.outputPath = `dist/${context.target.project}`;
+  }
+
+  const outputPath = options.outputPath;
+  const outputOptions: Required<
+    Exclude<ApplicationBuilderOptions['outputPath'], string>
+  > = {
+    browser: 'browser',
+    server: 'server',
+    media: 'media',
+    ...(typeof outputPath === 'string' ? undefined : outputPath),
+    base: typeof outputPath === 'string' ? outputPath : outputPath.base,
+  };
+
+  const i18n = await getI18nConfig(context);
+
+  const localeFilter = getLocaleFilter(options, runServer);
+
+  const sourceLocaleSegment =
+    typeof i18n?.sourceLocale === 'string'
+      ? i18n.sourceLocale
+      : i18n?.sourceLocale?.subPath || i18n?.sourceLocale?.code || '';
+
+  const browserOutputPath = path.join(
+    outputOptions.base,
+    outputOptions.browser,
+    options.localize ? sourceLocaleSegment : ''
+  );
+
+  const differentDevServerOutputPath =
+    Array.isArray(localeFilter) && localeFilter.length === 1;
+  const devServerOutputPath = !differentDevServerOutputPath
+    ? browserOutputPath
+    : path.join(outputOptions.base, outputOptions.browser, options.localize[0]);
+
+  const entryPoint = path.join(path.dirname(options.tsConfig), 'src/main.ts');
 
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
-    outputPath: options.outputPath,
+    outputPath: browserOutputPath,
     federationConfig: infereConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose,
+    watch: false, // options.watch,
+    dev: !!nfOptions.dev,
+    entryPoint,
+    buildNotifications: nfOptions.buildNotifications,
   };
+
+  const activateSsr = nfOptions.ssr && !nfOptions.dev;
 
   const config = await loadFederationConfig(fedOptions);
   const externals = getExternals(config);
+  const plugins = [
+    createSharedMappingsPlugin(config.sharedMappings),
+    {
+      name: 'externals',
+      setup(build: PluginBuild) {
+        if (!activateSsr && build.initialOptions.platform !== 'node') {
+          build.initialOptions.external = externals.filter(
+            (e) => e !== 'tslib'
+          );
+        }
+      },
+    },
+  ];
 
-  options.externalDependencies = externals;
-  const output = await build(config, options, context);
+  // SSR build fails when externals are provided via the plugin
+  if (activateSsr) {
+    options.externalDependencies = externals;
+  }
 
-  await buildForFederation(config, fedOptions, externals);
+  const isLocalDevelopment = runServer && nfOptions.dev;
 
-  updateIndexHtml(fedOptions);
+  // Initialize SSE reloader only for local development
+  if (isLocalDevelopment && nfOptions.buildNotifications?.enable) {
+    federationBuildNotifier.initialize(nfOptions.buildNotifications.endpoint);
+  }
 
-  return output;
+  const middleware = [
+    ...(isLocalDevelopment
+      ? [
+          federationBuildNotifier.createEventMiddleware((req) =>
+            removeBaseHref(req, options.baseHref)
+          ),
+        ]
+      : []),
+
+    (req, res, next) => {
+      const url = removeBaseHref(req, options.baseHref);
+
+      const fileName = path.join(
+        fedOptions.workspaceRoot,
+        devServerOutputPath,
+        url
+      );
+
+      const exists = fs.existsSync(fileName);
+
+      if (url !== '/' && url !== '' && exists) {
+        const lookup = mrmime.lookup;
+        const mimeType = lookup(path.extname(fileName)) || 'text/javascript';
+        const rawBody = fs.readFileSync(fileName, 'utf-8');
+
+        // TODO: Evaluate need for debug infos
+        // const body = addDebugInformation(url, rawBody);
+        const body = rawBody;
+
+        res.writeHead(200, {
+          'Content-Type': mimeType,
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        });
+        res.end(body);
+      } else {
+        next();
+      }
+    },
+  ];
+
+  const memResults = new MemResults();
+
+  let first = true;
+  let lastResult: { success: boolean } | undefined;
+
+  if (existsSync(fedOptions.outputPath)) {
+    rmSync(fedOptions.outputPath, { recursive: true });
+  }
+
+  if (!existsSync(fedOptions.outputPath)) {
+    mkdirSync(fedOptions.outputPath, { recursive: true });
+  }
+
+  if (!write) {
+    setMemResultHandler((outFiles, outDir) => {
+      const fullOutDir = outDir
+        ? path.join(fedOptions.workspaceRoot, outDir)
+        : null;
+      memResults.add(outFiles.map((f) => new EsBuildResult(f, fullOutDir)));
+    });
+  }
+
+  let federationResult: FederationInfo;
+  try {
+    federationResult = await buildForFederation(config, fedOptions, externals);
+  } catch (e) {
+    process.exit(1);
+  }
+
+  if (activateSsr) {
+    writeFstartScript(fedOptions);
+  }
+
+  const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
+  if (hasLocales && localeFilter) {
+    translateFederationArtefacts(
+      i18n,
+      localeFilter,
+      outputOptions.base,
+      federationResult
+    );
+  }
+
+  options.deleteOutputPath = false;
+
+  const appBuilderName = '@angular/build:application';
+
+  const builderRun = runServer
+    ? serveWithVite(
+        serverOptions,
+        appBuilderName,
+        _buildApplication,
+        context,
+        nfOptions.skipHtmlTransform
+          ? {}
+          : { indexHtml: transformIndexHtml(nfOptions) },
+        {
+          buildPlugins: plugins as any,
+          middleware,
+        }
+      )
+    : buildApplication(options, context, {
+        codePlugins: plugins as any,
+        indexHtmlTransformer: transformIndexHtml(nfOptions),
+      });
+
+  try {
+    // builderRun.output.subscribe(async (output) => {
+    for await (const output of builderRun) {
+      lastResult = output;
+
+      if (!write && output['outputFiles']) {
+        memResults.add(
+          output['outputFiles'].map((file) => new EsBuildResult(file))
+        );
+      }
+
+      if (!write && output['assetFiles']) {
+        memResults.add(
+          output['assetFiles'].map((file) => new NgCliAssetResult(file))
+        );
+      }
+
+      // if (write && !runServer && !nfOptions.skipHtmlTransform) {
+      //   updateIndexHtml(fedOptions, nfOptions);
+      // }
+
+      // if (!runServer) {
+      //   yield output;
+      // }
+
+      if (!first && (nfOptions.dev || watch)) {
+        setTimeout(async () => {
+          try {
+            federationResult = await buildForFederation(
+              config,
+              fedOptions,
+              externals,
+              {
+                skipMappingsAndExposed: false,
+                skipShared: true,
+              }
+            );
+
+            if (hasLocales && localeFilter) {
+              translateFederationArtefacts(
+                i18n,
+                localeFilter,
+                outputOptions.base,
+                federationResult
+              );
+            }
+
+            logger.info('Done!');
+
+            // Notifies about build completion
+            if (isLocalDevelopment) {
+              federationBuildNotifier.broadcastBuildCompletion();
+            }
+          } catch (error) {
+            logger.error('Federation rebuild failed!');
+
+            // Notifies about build failure
+            if (isLocalDevelopment) {
+              federationBuildNotifier.broadcastBuildError(error);
+            }
+          }
+        }, nfOptions.rebuildDelay);
+      }
+
+      first = false;
+    }
+  } finally {
+    if (isLocalDevelopment) {
+      federationBuildNotifier.stopEventServer();
+    }
+  }
+
+  yield lastResult || { success: false };
 }
 
-export default createBuilder(runBuilder);
+function removeBaseHref(req: any, baseHref?: string) {
+  let url = req.url;
 
-function updateIndexHtml(fedOptions: FederationOptions) {
-  const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
-  const indexPath = path.join(outputPath, 'index.html');
-  const mainName = fs
-    .readdirSync(outputPath)
-    .find((f) => f.startsWith('main.') && f.endsWith('.js'));
-  const polyfillsName = fs
-    .readdirSync(outputPath)
-    .find((f) => f.startsWith('polyfills.') && f.endsWith('.js'));
-
-  const htmlFragment = `
-<script type="esms-options">
-{
-  "shimMode": true
-}
-</script>
-
-<script type="module" src="${polyfillsName}"></script>
-<script type="module-shim" src="${mainName}"></script>
-`;
-
-  const indexContent = fs.readFileSync(indexPath, 'utf-8');
-  const updatedContent = indexContent.replace(
-    '</body>',
-    `${htmlFragment}</body>`
-  );
-  fs.writeFileSync(indexPath, updatedContent, 'utf-8');
+  if (baseHref && url.startsWith(baseHref)) {
+    url = url.substr(baseHref.length);
+  }
+  return url;
 }
 
-async function build(
-  config: NormalizedFederationConfig,
-  options: Schema,
-  context: BuilderContext
+function writeFstartScript(fedOptions: FederationOptions) {
+  const serverOutpath = path.join(fedOptions.outputPath, '../server');
+  const fstartPath = path.join(serverOutpath, 'fstart.mjs');
+  const buffer = Buffer.from(fstart, 'base64');
+  fs.mkdirSync(serverOutpath, { recursive: true });
+  fs.writeFileSync(fstartPath, buffer, 'utf-8');
+}
+
+function getLocaleFilter(
+  options: ApplicationBuilderOptions,
+  runServer: boolean
 ) {
-  const esbuildConfiguration: ExecutionTransformer<BuildOptions> = (
-    options
-  ) => {
-    options.plugins = [
-      ...options.plugins,
-      createSharedMappingsPlugin(config.sharedMappings),
-    ];
-    return options;
-  };
+  let localize = options.localize || false;
 
-  // TODO: Remove cast to any after updating version
-  const output = await buildEsbuildBrowser(options, context as any, {
-    esbuildConfiguration,
-  });
-  return output;
+  if (runServer && Array.isArray(localize) && localize.length > 1) {
+    localize = false;
+  }
+
+  if (runServer && localize === true) {
+    localize = false;
+  }
+  return localize;
 }
 
 function infereConfigPath(tsConfig: string): string {
@@ -106,3 +478,37 @@ function infereConfigPath(tsConfig: string): string {
 
   return relConfigPath;
 }
+
+function transformIndexHtml(
+  nfOptions: NfBuilderSchema
+): (content: string) => Promise<string> {
+  return (content: string): Promise<string> =>
+    Promise.resolve(
+      updateScriptTags(content, 'main.js', 'polyfills.js', nfOptions)
+    );
+}
+
+function addDebugInformation(fileName: string, rawBody: string): string {
+  if (fileName !== '/remoteEntry.json') {
+    return rawBody;
+  }
+
+  const remoteEntry = JSON.parse(rawBody) as FederationInfo;
+  const shared = remoteEntry.shared;
+
+  if (!shared) {
+    return rawBody;
+  }
+
+  const sharedForVite = shared.map((s) => ({
+    ...s,
+    packageName: `/@id/${s.packageName}`,
+  }));
+
+  remoteEntry.shared = [...shared, ...sharedForVite];
+
+  return JSON.stringify(remoteEntry, null, 2);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default createBuilder(runBuilder) as any;

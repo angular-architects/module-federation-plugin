@@ -1,4 +1,0 @@
-- [ ] Rename -runtime to @softarc-
-- [ ] Add share helper to core
-- [ ] rename core->index.ts to config
-- [ ] Tunnle -runtime through -core->index.ts

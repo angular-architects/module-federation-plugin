@@ -1,0 +1,85 @@
+{
+  "name": "mf",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/mf/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/mf",
+        "tsConfig": "libs/mf/tsconfig.lib.json",
+        "packageJson": "libs/mf/package.json",
+        "main": "libs/mf/src/index.ts",
+        "assets": [
+          {
+            "input": "./packages/mf/tutorial",
+            "glob": "**/*",
+            "output": "tutorial"
+          },
+          "libs/mf/*.md",
+          "libs/mf/LICENSE",
+          {
+            "input": "./libs/mf/src",
+            "glob": "index.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./libs/mf/src",
+            "glob": "**/*.!(ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./libs/mf",
+            "glob": "generators.json",
+            "output": "."
+          },
+          {
+            "input": "./libs/mf",
+            "glob": "executors.json",
+            "output": "."
+          },
+          {
+            "input": "./libs/mf",
+            "glob": "collection.json",
+            "output": "."
+          },
+          {
+            "input": ".",
+            "glob": "migrations.json",
+            "output": "."
+          },
+          {
+            "input": "./libs/mf",
+            "glob": "builders.json",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "post-build": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "libs/mf",
+        "command": "node post-build.js"
+      }
+    },
+    "publish": {
+      "dependsOn": ["build", "post-build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs mf npm {args.ver} {args.tag}"
+      }
+    },
+    "publish-local": {
+      "dependsOn": ["build", "post-build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs mf verdaccio {args.ver}"
+      }
+    }
+  },
+  "tags": ["org:angular-architects", "scope:mf"]
+}

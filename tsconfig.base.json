@@ -7,6 +7,7 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "esModuleInterop": true,
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
@@ -15,12 +16,19 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@angular-architects/build_angular": ["libs/build-angular/src/index.ts"],
       "@angular-architects/module-federation": ["libs/mf/src/index.ts"],
       "@angular-architects/module-federation-runtime": [
         "libs/mf-runtime/src/index.ts"
       ],
+      "@angular-architects/module-federation-runtime/enhanced": [
+        "libs/mf-runtime/enhanced/src/index.ts"
+      ],
       "@angular-architects/module-federation-tools": [
         "libs/mf-tools/src/index.ts"
+      ],
+      "@angular-architects/module-federation/rsbuild": [
+        "libs/mf/rsbuild/src/index.ts"
       ],
       "@angular-architects/native-federation": [
         "libs/native-federation/src/index.ts"
@@ -34,12 +42,16 @@
       "@softarc/native-federation-esbuild": [
         "libs/native-federation-esbuild/src/index.ts"
       ],
+      "@softarc/native-federation-node": [
+        "libs/native-federation-node/src/index.ts"
+      ],
       "@softarc/native-federation-runtime": [
         "libs/native-federation-runtime/src/index.ts"
       ],
       "@softarc/native-federation/build": [
         "libs/native-federation-core/build.ts"
-      ]
+      ],
+      "mf-rsbuild": ["mf-rsbuild/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

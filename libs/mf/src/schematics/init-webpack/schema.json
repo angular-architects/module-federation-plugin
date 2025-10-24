@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "mf",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "The project to add module federation",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "Project name (press enter for default project)"
+    },
+    "port": {
+      "type": "number",
+      "description": "The port to use for the federated module (remote, micro frontend, etc.)",
+      "x-prompt": {
+        "message": "Port to use",
+        "type": "number"
+      },
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      }
+    },
+    "type": {
+      "enum": ["host", "dynamic-host", "remote", "legacy"],
+      "type": "string",
+      "default": "legacy"
+    },
+    "nxBuilders": {
+      "type": "boolean",
+      "description": "Use builders provided by Nx instead of ngx-build-plus? Defaults to true for Nx workspaces and false for CLI workspaces."
+    },
+    "skip-confirmation": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": ["port"]
+}

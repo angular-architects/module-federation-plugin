@@ -1,6 +1,6 @@
-const crypt = require('crypto');
-const chalk = require('chalk');
-const wordWrap = require('word-wrap');
+import crypt = require('crypto');
+import chalk from 'chalk';
+import wordWrap = require('word-wrap');
 
 function correctColor(color: string): string {
   let result = '';
@@ -31,12 +31,12 @@ export function print(
 ): void {
   const hash = crypt.createHash('sha256').update(prefix).digest('hex');
 
-  const color = '#' + correctColor(hash.substr(6, 6));
+  const color = '#' + correctColor(hash.substring(6, 12));
 
   prefix = prefix.padEnd(prefixSize);
 
   if (message.endsWith('\n')) {
-    message = message.substr(0, message.length - 1);
+    message = message.substring(0, message.length - 1);
   }
 
   const coloredPrefix = chalk.hex(color)(prefix) + ' | ';

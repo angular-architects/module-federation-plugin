@@ -1,6 +1,7 @@
 import { SharedInfo } from './federation-info';
+import { globalCache } from './global-cache';
 
-const externals = new Map<string, string>();
+const externals = globalCache.externals;
 
 function getExternalKey(shared: SharedInfo) {
   return `${shared.packageName}@${shared.version}`;

@@ -1,0 +1,13 @@
+{
+  "$schema": "../../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "name": "native-federation",
+  "version": "0.0.1",
+  "schematics": {
+    "update18": {
+      "version": "18",
+      "factory": "./src/schematics/update18/schematic",
+      "schema": "./src/schematics/update18/schema.json",
+      "description": "migrating to v18"
+    }
+  }
+}

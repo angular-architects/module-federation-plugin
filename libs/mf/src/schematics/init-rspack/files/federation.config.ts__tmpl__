@@ -1,0 +1,31 @@
+import { withFederation, shareAll } from '@angular-architects/module-federation/rspack'
+
+export default withFederation({
+  options: {
+<% if (type === 'remote') { %>
+    name: '<%=project%>',
+
+    exposes: {
+      './Component': './<%=appComponent%>',
+    },
+<% } else if (type === 'host') { %>
+    remotes: {<% for (key in remoteMap) { %>
+      "<%=key%>": "<%=remoteMap[key]%>",<% } %>    
+    },
+<% } %>
+    shared: {
+      ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+    },
+
+  },
+  skip: [
+    // Add the names of packages, entrypoints 
+    // and libs you don't want to share here
+    // Strings are compared with ===
+
+    // Examples:
+    // 'rxjs/ajax'
+    // p => p.startsWith('rxjs/ajax')
+    // /^rxjs\/ajax/
+  ]
+});

@@ -1,11 +1,5 @@
-const { getJestProjects } = require('@nrwl/jest');
+import { getJestProjectsAsync } from '@nx/jest';
 
-export default {
-  projects: [
-    ...getJestProjects(),
-    '<rootDir>/libs/mf',
-    '<rootDir>/libs/mf-runtime',
-    '<rootDir>/libs/mf-tools',
-    '<rootDir>/apps/playground',
-  ],
-};
+export default async () => ({
+  projects: await getJestProjectsAsync(),
+});

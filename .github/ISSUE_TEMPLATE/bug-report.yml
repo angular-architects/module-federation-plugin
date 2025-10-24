@@ -1,0 +1,57 @@
+name: Bug Report
+description: Report a bug or regression in functionality
+
+body:
+  - type: dropdown
+    id: affected-packages
+    attributes:
+      label: With what library do you have an issue?
+      options:
+        - native-federation
+        - module-federation
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction of the bug/regression with instructions
+      description: If on Native Federation, use our [Stackblitz template](https://stackblitz.com/github/rainerhahnekamp/native-federation-stackblitz?file=projects%2Fhost%2Fsrc%2Fapp%2Fapp.routes.ts) to reproduce the issue
+      placeholder: If the bug/regression does not include a reproduction via StackBlitz or GitHub repo, your issue may be closed without resolution.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected behavior
+      description: Describe what the expected behavior would be.
+    validations:
+      required: true
+
+  - type: textarea
+    id: version
+    attributes:
+      label: Versions of Native/Module Federation, Angular, Node, Browser, and operating system
+      placeholder: |
+        Native/Module Federation:
+        Angular:
+        Node:
+        Browser:
+        Operating system(s):
+    validations:
+      required: true
+
+  - type: textarea
+    id: other
+    attributes:
+      label: Other information
+
+  - type: checkboxes
+    id: assistance
+    attributes:
+      label: I would be willing to submit a PR to fix this issue
+      description: Assistance is provided if you need help submitting a pull request
+      options:
+        - label: 'Yes'
+        - label: 'No'
