@@ -56,64 +56,71 @@ export async function buildForFederation(
     const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
       splitShared(config.shared);
 
-    let start = process.hrtime();
-    const sharedPackageInfoBrowser = await bundleShared(
-      sharedBrowser,
-      config,
-      fedOptions,
-      externals,
-      'browser'
-    );
-    logger.measure(
-      start,
-      '[build artifacts] - To bundle all shared browser externals'
-    );
+    sharedPackageInfoCache = [];
+    if (Object.keys(sharedBrowser).length > 0) {
+      const start = process.hrtime();
+      const sharedPackageInfoBrowser = await bundleShared(
+        sharedBrowser,
+        config,
+        fedOptions,
+        externals,
+        'browser'
+      );
 
-    start = process.hrtime();
-    const sharedPackageInfoServer = await bundleShared(
-      sharedServer,
-      config,
-      fedOptions,
-      externals,
-      'node'
-    );
-    logger.measure(
-      start,
-      '[build artifacts] - To bundle all shared node externals'
-    );
+      logger.measure(
+        start,
+        '[build artifacts] - To bundle all shared browser externals'
+      );
+      sharedPackageInfoCache.push(...sharedPackageInfoBrowser);
+    }
 
-    start = process.hrtime();
-    const separatePackageInfoBrowser = await bundleSeparate(
-      separateBrowser,
-      externals,
-      config,
-      fedOptions,
-      'browser'
-    );
-    logger.measure(
-      start,
-      '[build artifacts] - To bundle all separate browser externals'
-    );
+    if (Object.keys(sharedServer).length > 0) {
+      const start = process.hrtime();
+      const sharedPackageInfoServer = await bundleShared(
+        sharedServer,
+        config,
+        fedOptions,
+        externals,
+        'node'
+      );
+      logger.measure(
+        start,
+        '[build artifacts] - To bundle all shared node externals'
+      );
+      sharedPackageInfoCache.push(...sharedPackageInfoServer);
+    }
 
-    start = process.hrtime();
-    const separatePackageInfoServer = await bundleSeparate(
-      separateServer,
-      externals,
-      config,
-      fedOptions,
-      'node'
-    );
-    logger.measure(
-      start,
-      '[build artifacts] - To bundle all separate node externals'
-    );
+    if (Object.keys(separateBrowser).length > 0) {
+      const start = process.hrtime();
+      const separatePackageInfoBrowser = await bundleSeparate(
+        separateBrowser,
+        externals,
+        config,
+        fedOptions,
+        'browser'
+      );
+      logger.measure(
+        start,
+        '[build artifacts] - To bundle all separate browser externals'
+      );
+      sharedPackageInfoCache.push(...separatePackageInfoBrowser);
+    }
 
-    sharedPackageInfoCache = [
-      ...sharedPackageInfoBrowser,
-      ...sharedPackageInfoServer,
-      ...separatePackageInfoBrowser,
-      ...separatePackageInfoServer,
-    ];
+    if (Object.keys(separateServer).length > 0) {
+      const start = process.hrtime();
+      const separatePackageInfoServer = await bundleSeparate(
+        separateServer,
+        externals,
+        config,
+        fedOptions,
+        'node'
+      );
+      logger.measure(
+        start,
+        '[build artifacts] - To bundle all separate node externals'
+      );
+      sharedPackageInfoCache.push(...separatePackageInfoServer);
+    }
   }
 
   const sharedMappingInfo = !artefactInfo
