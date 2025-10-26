@@ -25,7 +25,9 @@ export const defaultBuildParams: BuildParams = {
   skipShared: false,
 };
 
-let sharedPackageInfoCache: SharedInfo[] = [];
+// Externals cache
+const sharedPackageInfoCache: SharedInfo[] = [];
+const cachedSharedPackages = new Set<string>();
 
 export async function buildForFederation(
   config: NormalizedFederationConfig,
@@ -56,7 +58,6 @@ export async function buildForFederation(
     const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
       splitShared(config.shared);
 
-    sharedPackageInfoCache = [];
     if (Object.keys(sharedBrowser).length > 0) {
       const start = process.hrtime();
       const sharedPackageInfoBrowser = await bundleShared(
@@ -71,7 +72,11 @@ export async function buildForFederation(
         start,
         '[build artifacts] - To bundle all shared browser externals'
       );
+
       sharedPackageInfoCache.push(...sharedPackageInfoBrowser);
+      Object.keys(sharedBrowser).forEach((packageName) =>
+        cachedSharedPackages.add(packageName)
+      );
     }
 
     if (Object.keys(sharedServer).length > 0) {
@@ -88,6 +93,9 @@ export async function buildForFederation(
         '[build artifacts] - To bundle all shared node externals'
       );
       sharedPackageInfoCache.push(...sharedPackageInfoServer);
+      Object.keys(sharedServer).forEach((packageName) =>
+        cachedSharedPackages.add(packageName)
+      );
     }
 
     if (Object.keys(separateBrowser).length > 0) {
@@ -104,6 +112,9 @@ export async function buildForFederation(
         '[build artifacts] - To bundle all separate browser externals'
       );
       sharedPackageInfoCache.push(...separatePackageInfoBrowser);
+      Object.keys(separateBrowser).forEach((packageName) =>
+        cachedSharedPackages.add(packageName)
+      );
     }
 
     if (Object.keys(separateServer).length > 0) {
@@ -120,6 +131,9 @@ export async function buildForFederation(
         '[build artifacts] - To bundle all separate node externals'
       );
       sharedPackageInfoCache.push(...separatePackageInfoServer);
+      Object.keys(separateServer).forEach((packageName) =>
+        cachedSharedPackages.add(packageName)
+      );
     }
   }
 
@@ -196,6 +210,7 @@ function splitShared(
   const separateServer: Record<string, NormalizedSharedConfig> = {};
 
   for (const key in shared) {
+    if (cachedSharedPackages.has(key)) continue;
     const obj = shared[key];
     if (obj.platform === 'node' && obj.build === 'default') {
       sharedServer[key] = obj;
