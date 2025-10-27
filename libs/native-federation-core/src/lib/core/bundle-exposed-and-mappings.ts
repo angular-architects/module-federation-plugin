@@ -76,8 +76,8 @@ export async function bundleExposedAndMappings(
       dev: !fedOptions.dev
         ? undefined
         : {
-          entryPoint: normalize(path.normalize(item.fileName)),
-        },
+            entryPoint: normalize(path.normalize(item.fileName)),
+          },
     });
   }
 
@@ -90,10 +90,10 @@ export async function bundleExposedAndMappings(
       dev: !fedOptions.dev
         ? undefined
         : {
-          entryPoint: normalize(
-            path.join(fedOptions.workspaceRoot, item.fileName)
-          ),
-        },
+            entryPoint: normalize(
+              path.join(fedOptions.workspaceRoot, item.fileName)
+            ),
+          },
     });
   }
 
@@ -117,8 +117,8 @@ export function describeExposed(
       dev: !options.dev
         ? undefined
         : {
-          entryPoint: localPath,
-        },
+            entryPoint: localPath,
+          },
     });
   }
 
@@ -142,8 +142,8 @@ export function describeSharedMappings(
       dev: !fedOptions.dev
         ? undefined
         : {
-          entryPoint: normalize(path.normalize(m.path)),
-        },
+            entryPoint: normalize(path.normalize(m.path)),
+          },
     });
   }
 

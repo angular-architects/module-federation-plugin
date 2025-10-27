@@ -44,7 +44,7 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
 
     for (const entryPoint of entryPoints) {
       const isPkg = entryPoint.fileName.includes('node_modules');
-      const pkgName = isPkg ? inferePkgName(entryPoint.fileName) : '';
+      const pkgName = isPkg ? inferPkgName(entryPoint.fileName) : '';
       const tmpFolder = `node_modules/.tmp/${pkgName}`;
 
       if (isPkg) {
@@ -170,7 +170,7 @@ async function prepareNodePackage(
   });
 }
 
-function inferePkgName(entryPoint: string) {
+function inferPkgName(entryPoint: string) {
   return entryPoint
     .replace(/.*?node_modules/g, '')
     .replace(/[^A-Za-z0-9.]/g, '_');

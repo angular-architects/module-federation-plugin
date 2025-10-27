@@ -5,7 +5,6 @@ import { SharedConfig } from './federation-config';
 import {
   DEFAULT_SKIP_LIST,
   isInSkipList,
-  PREPARED_DEFAULT_SKIP_LIST,
   PreparedSkipList,
   prepareSkipList,
   SkipList,
@@ -17,7 +16,6 @@ import {
 } from '../utils/package-info';
 import { getConfigContext } from './configuration-context';
 import { logger } from '../utils/logger';
-import { resolveGlobSync } from '../utils/resolve-glob';
 
 import {
   KeyValuePair,
@@ -26,7 +24,7 @@ import {
 
 let inferVersion = false;
 
-export const DEFAULT_SECONARIES_SKIP_LIST = [
+export const DEFAULT_SECONDARIES_SKIP_LIST = [
   '@angular/router/upgrade',
   '@angular/common/upgrade',
 ];
@@ -110,7 +108,8 @@ function _findSecondaries(
   libPath: string,
   excludes: string[],
   shareObject: SharedConfig,
-  acc: Record<string, SharedConfig>
+  acc: Record<string, SharedConfig>,
+  preparedSkipList: PreparedSkipList
 ): void {
   const files = fs.readdirSync(libPath);
 
@@ -129,24 +128,25 @@ function _findSecondaries(
         continue;
       }
 
-      if (isInSkipList(secondaryLibName, PREPARED_DEFAULT_SKIP_LIST)) {
+      if (isInSkipList(secondaryLibName, preparedSkipList)) {
         continue;
       }
 
       acc[secondaryLibName] = { ...shareObject };
     }
 
-    _findSecondaries(s, excludes, shareObject, acc);
+    _findSecondaries(s, excludes, shareObject, acc, preparedSkipList);
   }
 }
 
 function findSecondaries(
   libPath: string,
   excludes: string[],
-  shareObject: SharedConfig
+  shareObject: SharedConfig,
+  preparedSkipList: PreparedSkipList
 ): Record<string, SharedConfig> {
   const acc = {} as Record<string, SharedConfig>;
-  _findSecondaries(libPath, excludes, shareObject, acc);
+  _findSecondaries(libPath, excludes, shareObject, acc, preparedSkipList);
   return acc;
 }
 
@@ -154,9 +154,10 @@ function getSecondaries(
   includeSecondaries: IncludeSecondariesOptions,
   libPath: string,
   key: string,
-  shareObject: SharedConfig
+  shareObject: SharedConfig,
+  preparedSkipList: PreparedSkipList
 ): Record<string, SharedConfig> | null {
-  let exclude = [...DEFAULT_SECONARIES_SKIP_LIST];
+  let exclude = [...DEFAULT_SECONDARIES_SKIP_LIST];
 
   if (typeof includeSecondaries === 'object') {
     if (Array.isArray(includeSecondaries.skip)) {
@@ -176,14 +177,20 @@ function getSecondaries(
     key,
     libPath,
     exclude,
-    shareObject
+    shareObject,
+    preparedSkipList
   );
   if (configured) {
     return configured;
   }
 
   // Fallback: Search folders
-  const secondaries = findSecondaries(libPath, exclude, shareObject);
+  const secondaries = findSecondaries(
+    libPath,
+    exclude,
+    shareObject,
+    preparedSkipList
+  );
   return secondaries;
 }
 
@@ -191,7 +198,8 @@ function readConfiguredSecondaries(
   parent: string,
   libPath: string,
   exclude: string[],
-  shareObject: SharedConfig
+  shareObject: SharedConfig,
+  preparedSkipList: PreparedSkipList
 ): Record<string, SharedConfig> | null {
   const libPackageJson = path.join(libPath, 'package.json');
 
@@ -232,7 +240,7 @@ function readConfiguredSecondaries(
       continue;
     }
 
-    if (isInSkipList(secondaryName, PREPARED_DEFAULT_SKIP_LIST)) {
+    if (isInSkipList(secondaryName, preparedSkipList)) {
       continue;
     }
 
@@ -350,10 +358,9 @@ export function shareAll(
 
   const versionMaps = getVersionMaps(projectPath, projectPath);
   const share: Record<string, unknown> = {};
+  const preparedSkipList = prepareSkipList(skip);
 
   for (const versions of versionMaps) {
-    const preparedSkipList = prepareSkipList(skip);
-
     for (const key in versions) {
       if (isInSkipList(key, preparedSkipList)) {
         continue;
@@ -561,7 +568,8 @@ export function share(
         includeSecondaries,
         libPath,
         key,
-        shareObject
+        shareObject,
+        preparedSkipList
       );
       if (secondaries) {
         addSecondaries(secondaries, result);
