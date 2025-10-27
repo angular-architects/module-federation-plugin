@@ -27,7 +27,7 @@ import {
 
 import * as path from 'path';
 
-const SSR_VERSION = '^2.0.10';
+const SSR_VERSION = '^3.3.4';
 
 type NormalizedOptions = {
   polyfills: string;
@@ -348,7 +348,7 @@ function normalizeOptions(
   const projectConfig = workspace.projects[projectName];
 
   if (!projectConfig) {
-    throw new Error(`Project ${projectName} not found!`);
+    throw new Error(`Project ${projectName} not found in angular.json.`);
   }
 
   const projectRoot: string = projectConfig.root?.replace(/\\/g, '/');

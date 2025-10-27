@@ -47,6 +47,7 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { updateScriptTags } from '../../utils/updateIndexHtml';
 import { federationBuildNotifier } from './federation-build-notifier';
 import { NfBuilderSchema } from './schema';
+import { Schema as DevServerSchema } from '@angular-devkit/build-angular/src/builders/dev-server/schema';
 
 const originalWrite = process.stderr.write.bind(process.stderr);
 
@@ -89,7 +90,7 @@ export async function* runBuilder(
 ): AsyncIterable<BuilderOutput> {
   let target = targetFromTargetString(nfOptions.target);
 
-  let _options = (await context.getTargetOptions(
+  let targetOptions = (await context.getTargetOptions(
     target
   )) as unknown as JsonObject & ApplicationBuilderOptions;
 
@@ -116,29 +117,46 @@ export async function* runBuilder(
     return;
   }
 
+  /**
+   * Explicitly defined as devServer or if the target contains "serve"
+   */
+  const runServer =
+    typeof nfOptions.devServer !== 'undefined'
+      ? !!nfOptions.devServer
+      : target.target.includes('serve');
+
   let options = (await context.validateOptions(
-    _options,
+    runServer
+      ? {
+          ...targetOptions,
+          port: nfOptions.port || targetOptions['port'],
+        }
+      : targetOptions,
     builder
   )) as JsonObject & ApplicationBuilderOptions;
 
-  const outerOptions = options as any;
-  const normOuterOptions = nfOptions.dev
-    ? await normalizeOptions(context, context.target.project, outerOptions)
-    : null;
+  let serverOptions = null;
 
-  const runServer = nfOptions.dev && nfOptions.devServer !== false;
   const write = true;
   const watch = nfOptions.watch;
 
-  if (runServer) {
-    target = targetFromTargetString(outerOptions.buildTarget);
-    _options = (await context.getTargetOptions(
+  if (options['buildTarget']) {
+    serverOptions = await normalizeOptions(
+      context,
+      context.target.project,
+      options as unknown as DevServerSchema
+    );
+
+    target = targetFromTargetString(options['buildTarget'] as string);
+    targetOptions = (await context.getTargetOptions(
       target
     )) as unknown as JsonObject & ApplicationBuilderOptions;
 
     builder = await context.getBuilderNameForTarget(target);
-    options = (await context.validateOptions(_options, builder)) as JsonObject &
-      ApplicationBuilderOptions;
+    options = (await context.validateOptions(
+      targetOptions,
+      builder
+    )) as JsonObject & ApplicationBuilderOptions;
   }
 
   options.watch = watch;
@@ -210,7 +228,10 @@ export async function* runBuilder(
 
   const activateSsr = nfOptions.ssr && !nfOptions.dev;
 
+  let start = process.hrtime();
   const config = await loadFederationConfig(fedOptions);
+  logger.measure(start, 'To load the federation config.');
+
   const externals = getExternals(config);
   const plugins = [
     createSharedMappingsPlugin(config.sharedMappings),
@@ -304,8 +325,11 @@ export async function* runBuilder(
 
   let federationResult: FederationInfo;
   try {
+    let start = process.hrtime();
     federationResult = await buildForFederation(config, fedOptions, externals);
+    logger.measure(start, 'To build the artifacts.');
   } catch (e) {
+    logger.error(e?.message ?? 'Building the artifacts failed');
     process.exit(1);
   }
 
@@ -315,12 +339,15 @@ export async function* runBuilder(
 
   const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
   if (hasLocales && localeFilter) {
+    let start = process.hrtime();
+
     translateFederationArtefacts(
       i18n,
       localeFilter,
       outputOptions.base,
       federationResult
     );
+    logger.measure(start, 'To translate the artifacts.');
   }
 
   options.deleteOutputPath = false;
@@ -329,7 +356,7 @@ export async function* runBuilder(
 
   const builderRun = runServer
     ? serveWithVite(
-        normOuterOptions,
+        serverOptions,
         appBuilderName,
         _buildApplication,
         context,
@@ -374,6 +401,7 @@ export async function* runBuilder(
       if (!first && (nfOptions.dev || watch)) {
         setTimeout(async () => {
           try {
+            let start = process.hrtime();
             federationResult = await buildForFederation(
               config,
               fedOptions,
@@ -399,6 +427,7 @@ export async function* runBuilder(
             if (isLocalDevelopment) {
               federationBuildNotifier.broadcastBuildCompletion();
             }
+            logger.measure(start, 'To rebuild nf.');
           } catch (error) {
             logger.error('Federation rebuild failed!');
 

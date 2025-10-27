@@ -9,9 +9,17 @@ export type WorkspaceConfig = {
   i18n?: I18nConfig;
 };
 
+export type LocaleTranslation = string | string[];
+
+export type LocaleObject = {
+  translation: LocaleTranslation;
+  baseHref?: string;
+  subPath?: string;
+};
+
 export type I18nConfig = {
   sourceLocale: string | SourceLocaleObject;
-  locales: Record<string, string>;
+  locales: Record<string, LocaleTranslation | LocaleObject>;
 };
 
 export type SourceLocaleObject = {
@@ -53,7 +61,8 @@ export async function translateFederationArtefacts(
 
   const translationFiles = locales
     .map((loc) => i18n.locales[loc])
-    .map((value) => JSON.stringify(value))
+    .map((config) => typeof config === 'string' || Array.isArray(config) ? config : config.translation)
+    .map((files) => JSON.stringify(files))
     .join(' ');
 
   const targetLocales = locales.join(' ');
@@ -76,7 +85,9 @@ export async function translateFederationArtefacts(
 
   const sourceLocalePath = path.join(outputPath, 'browser', sourceLocale);
 
-  const cmd = `node node_modules/.bin/localize-translate -r ${sourceLocalePath} -s "${sourcePattern}" -t ${translationFiles} -o ${translationOutPath} --target-locales ${targetLocales} -l ${sourceLocale}`;
+  const localizeTranslate = path.resolve("node_modules/.bin/localize-translate");
+
+  const cmd = `${localizeTranslate} -r ${sourceLocalePath} -s "${sourcePattern}" -t ${translationFiles} -o ${translationOutPath} --target-locales ${targetLocales} -l ${sourceLocale}`;
 
   ensureDistFolders(locales, outputPath);
   copyRemoteEntry(locales, outputPath, sourceLocalePath);

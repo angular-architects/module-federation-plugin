@@ -13,6 +13,7 @@ import { bundleShared } from './bundle-shared';
 import { FederationOptions } from './federation-options';
 import { writeFederationInfo } from './write-federation-info';
 import { writeImportMap } from './write-import-map';
+import { logger } from '../utils/logger';
 
 export interface BuildParams {
   skipMappingsAndExposed: boolean;
@@ -35,10 +36,15 @@ export async function buildForFederation(
   let artefactInfo: ArtefactInfo | undefined;
 
   if (!buildParams.skipMappingsAndExposed) {
+    let start = process.hrtime();
     artefactInfo = await bundleExposedAndMappings(
       config,
       fedOptions,
       externals
+    );
+    logger.measure(
+      start,
+      '[build artifacts] - To bundle all mappings and exposed.'
     );
   }
 
@@ -50,6 +56,7 @@ export async function buildForFederation(
     const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
       splitShared(config.shared);
 
+    let start = process.hrtime();
     const sharedPackageInfoBrowser = await bundleShared(
       sharedBrowser,
       config,
@@ -57,7 +64,12 @@ export async function buildForFederation(
       externals,
       'browser'
     );
+    logger.measure(
+      start,
+      '[build artifacts] - To bundle all shared browser externals'
+    );
 
+    start = process.hrtime();
     const sharedPackageInfoServer = await bundleShared(
       sharedServer,
       config,
@@ -65,7 +77,12 @@ export async function buildForFederation(
       externals,
       'node'
     );
+    logger.measure(
+      start,
+      '[build artifacts] - To bundle all shared node externals'
+    );
 
+    start = process.hrtime();
     const separatePackageInfoBrowser = await bundleSeparate(
       separateBrowser,
       externals,
@@ -73,13 +90,22 @@ export async function buildForFederation(
       fedOptions,
       'browser'
     );
+    logger.measure(
+      start,
+      '[build artifacts] - To bundle all separate browser externals'
+    );
 
+    start = process.hrtime();
     const separatePackageInfoServer = await bundleSeparate(
       separateServer,
       externals,
       config,
       fedOptions,
       'node'
+    );
+    logger.measure(
+      start,
+      '[build artifacts] - To bundle all separate node externals'
     );
 
     sharedPackageInfoCache = [
@@ -134,24 +160,24 @@ async function bundleSeparate(
   fedOptions: FederationOptions,
   platform: 'node' | 'browser'
 ) {
-  const result: SharedInfo[] = [];
-  for (const key in separateBrowser) {
-    const shared = separateBrowser[key];
-    const packageName = inferPackageFromSecondary(key);
-    const filteredExternals = externals.filter(
-      (e) => !e.startsWith(packageName)
-    );
-    const record = { [key]: shared };
-    const buildResult = await bundleShared(
-      record,
-      config,
-      fedOptions,
-      filteredExternals,
-      platform
-    );
-    buildResult.forEach((item) => result.push(item));
-  }
-  return result;
+  const bundlePromises = Object.entries(separateBrowser).map(
+    async ([key, shared]) => {
+      const packageName = inferPackageFromSecondary(key);
+      const filteredExternals = externals.filter(
+        (e) => !e.startsWith(packageName)
+      );
+      return bundleShared(
+        { [key]: shared },
+        config,
+        fedOptions,
+        filteredExternals,
+        platform
+      );
+    }
+  );
+
+  const buildResults = await Promise.all(bundlePromises);
+  return buildResults.flat();
 }
 
 function splitShared(

@@ -1,4 +1,4 @@
-import { getProjectData } from '@softarc/sheriff-core';
+import { getProjectData, ProjectData } from '@softarc/sheriff-core';
 import path from 'path';
 import fs from 'fs';
 import { cwd } from 'process';
@@ -6,7 +6,6 @@ import { NormalizedFederationConfig } from '../config/federation-config';
 import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { getExternalImports as extractExternalImports } from '../utils/get-external-imports';
 import { MappedPath } from '../utils/mapped-paths';
-import { ProjectData } from '@softarc/sheriff-core/src/lib/api/get-project-data';
 
 export function removeUnusedDeps(
   config: NormalizedFederationConfig,
@@ -74,8 +73,8 @@ function findUsedDeps(
     }
 
     const fullFileName = path.join(workspaceRoot, fileName);
-    const mappings = config.sharedMappings.filter(
-      (sm) => sm.path === fullFileName
+    const mappings = config.sharedMappings.filter((sm) =>
+      fullFileName.startsWith(sm.path)
     );
 
     for (const mapping of mappings) {

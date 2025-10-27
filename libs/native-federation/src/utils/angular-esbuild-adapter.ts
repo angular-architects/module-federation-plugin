@@ -12,6 +12,7 @@ import {
   getSupportedBrowsers,
   generateSearchDirectories,
   findTailwindConfiguration,
+  loadPostcssConfiguration,
 } from '@angular/build/private';
 
 import { createCompilerPluginOptions } from './create-compiler-options';
@@ -202,22 +203,17 @@ async function runEsbuild(
     builderOptions.optimization
   );
   const sourcemapOptions = normalizeSourceMaps(builderOptions.sourceMap);
+
   const searchDirectories = await generateSearchDirectories([
     projectRoot,
     workspaceRoot,
   ]);
-  const tailwindConfigurationPath =
-    findTailwindConfiguration(searchDirectories);
-
-  const fullProjectRoot = path.join(workspaceRoot, projectRoot);
-  const resolver = createRequire(fullProjectRoot + '/');
-
-  const tailwindConfiguration = tailwindConfigurationPath
-    ? {
-        file: tailwindConfigurationPath,
-        package: resolver.resolve('tailwindcss'),
-      }
-    : undefined;
+  const postcssConfiguration = await loadPostcssConfiguration(
+    searchDirectories
+  );
+  const tailwindConfiguration = postcssConfiguration
+    ? undefined
+    : await getTailwindConfig(searchDirectories);
 
   const outputNames = {
     bundles: '[name]',
@@ -256,6 +252,7 @@ async function runEsbuild(
       inlineStyleLanguage: builderOptions.inlineStyleLanguage,
       jit: false,
       tailwindConfiguration,
+      postcssConfiguration,
     } as any,
     target,
     undefined
@@ -278,7 +275,7 @@ async function runEsbuild(
     external,
     logLevel,
     bundle: true,
-    sourcemap: dev,
+    sourcemap: sourcemapOptions.scripts,
     minify: !dev,
     supported: {
       'async-await': false,
@@ -303,6 +300,7 @@ async function runEsbuild(
       ...(!dev ? { ngDevMode: 'false' } : {}),
       ngJitMode: 'false',
     },
+    ...(builderOptions.loader ? { loader: builderOptions.loader } : {}),
   };
 
   const ctx = await esbuild.context(config);
@@ -327,6 +325,22 @@ async function runEsbuild(
   }
 
   return writtenFiles;
+}
+
+async function getTailwindConfig(
+  searchDirectories: { root: string; files: Set<string> }[]
+): Promise<{ file: string; package: string } | undefined> {
+  const tailwindConfigurationPath =
+    findTailwindConfiguration(searchDirectories);
+
+  if (!tailwindConfigurationPath) {
+    return undefined;
+  }
+
+  return {
+    file: tailwindConfigurationPath,
+    package: createRequire(tailwindConfigurationPath).resolve('tailwindcss'),
+  };
 }
 
 function createTsConfigForFederation(
