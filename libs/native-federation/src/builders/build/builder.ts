@@ -228,7 +228,7 @@ export async function* runBuilder(
 
   const activateSsr = nfOptions.ssr && !nfOptions.dev;
 
-  let start = process.hrtime();
+  const start = process.hrtime();
   const config = await loadFederationConfig(fedOptions);
   logger.measure(start, 'To load the federation config.');
 
@@ -325,7 +325,7 @@ export async function* runBuilder(
 
   let federationResult: FederationInfo;
   try {
-    let start = process.hrtime();
+    const start = process.hrtime();
     federationResult = await buildForFederation(config, fedOptions, externals);
     logger.measure(start, 'To build the artifacts.');
   } catch (e) {
@@ -339,7 +339,7 @@ export async function* runBuilder(
 
   const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
   if (hasLocales && localeFilter) {
-    let start = process.hrtime();
+    const start = process.hrtime();
 
     translateFederationArtefacts(
       i18n,
@@ -401,7 +401,7 @@ export async function* runBuilder(
       if (!first && (nfOptions.dev || watch)) {
         setTimeout(async () => {
           try {
-            let start = process.hrtime();
+            const start = process.hrtime();
             federationResult = await buildForFederation(
               config,
               fedOptions,

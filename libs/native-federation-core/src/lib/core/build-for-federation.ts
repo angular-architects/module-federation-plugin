@@ -36,7 +36,7 @@ export async function buildForFederation(
   let artefactInfo: ArtefactInfo | undefined;
 
   if (!buildParams.skipMappingsAndExposed) {
-    let start = process.hrtime();
+    const start = process.hrtime();
     artefactInfo = await bundleExposedAndMappings(
       config,
       fedOptions,
