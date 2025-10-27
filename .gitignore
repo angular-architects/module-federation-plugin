@@ -47,5 +47,6 @@ migrations.json
 # Angular
 .angular
 
+.nx
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md

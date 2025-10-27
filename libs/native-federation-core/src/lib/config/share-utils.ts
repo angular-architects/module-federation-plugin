@@ -5,7 +5,6 @@ import { SharedConfig } from './federation-config';
 import {
   DEFAULT_SKIP_LIST,
   isInSkipList,
-  PREPARED_DEFAULT_SKIP_LIST,
   PreparedSkipList,
   prepareSkipList,
   SkipList,
@@ -129,7 +128,7 @@ function _findSecondaries(
         continue;
       }
 
-      if (isInSkipList(secondaryLibName, PREPARED_DEFAULT_SKIP_LIST)) {
+      if (isInSkipList(secondaryLibName, preparedSkipList)) {
         continue;
       }
 
