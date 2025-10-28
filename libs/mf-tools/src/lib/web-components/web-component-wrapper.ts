@@ -35,8 +35,6 @@ export class WebComponentWrapper implements AfterContentInit, OnChanges {
   element: HTMLElement;
   private route = inject(ActivatedRoute);
 
-  constructor() {}
-
   ngOnChanges(): void {
     if (!this.element) return;
 
