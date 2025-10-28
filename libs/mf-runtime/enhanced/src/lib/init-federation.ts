@@ -1,5 +1,5 @@
 import { init } from '@module-federation/enhanced/runtime';
-import { FederationHost, UserOptions } from '@module-federation/runtime-core';
+import { Federation, UserOptions } from '@module-federation/runtime-core';
 
 export type ManifestFile<T extends RemoteConfig = RemoteConfig> = {
   [key: string]: string | T;
@@ -38,7 +38,7 @@ let config: Manifest = {};
 export async function initFederation(
   manifest: string | ManifestFile,
   options?: InitFederationOptions
-): Promise<FederationHost> {
+): Promise<Federation> {
   if (typeof manifest === 'string') {
     config = await loadManifest(manifest);
   } else {
