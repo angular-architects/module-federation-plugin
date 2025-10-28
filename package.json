@@ -111,7 +111,7 @@
     "json5": "^2.2.0",
     "jsonc-eslint-parser": "^2.1.0",
     "mrmime": "^1.0.1",
-    "ng-packagr": "20.0.0",
+    "ng-packagr": "^20.3.0",
     "node-fetch": "^2.6.7",
     "node-watch": "^0.7.3",
     "nx": "22.0.1",
