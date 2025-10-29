@@ -3,10 +3,10 @@
   "license": "MIT",
   "version": "20.0.0",
   "peerDependencies": {
-    "@angular/common": ">=20.0.0",
-    "@angular/core": ">=20.0.0",
-    "@module-federation/enhanced": "^0.9.0",
-    "@module-federation/runtime-core": "^0.6.21"
+    "@angular/common": ">=20.1.0",
+    "@angular/core": ">=20.1.0",
+    "@module-federation/enhanced": "^0.21.2",
+    "@module-federation/runtime-core": "^0.21.0"
   },
   "dependencies": {
     "tslib": "^2.0.0"
