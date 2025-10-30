@@ -6,7 +6,7 @@
     "@angular/common": ">=20.1.0",
     "@angular/core": ">=20.1.0",
     "@module-federation/enhanced": "^0.21.2",
-    "@module-federation/runtime-core": "^0.21.0"
+    "@module-federation/runtime-core": "^0.21.2"
   },
   "dependencies": {
     "tslib": "^2.0.0"
