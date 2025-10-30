@@ -6,7 +6,7 @@ import {
 import * as esbuild from 'esbuild';
 import { rollup } from 'rollup';
 import resolve from '@rollup/plugin-node-resolve';
-import { externals } from 'rollup-plugin-node-externals';
+import { nodeExternals } from 'rollup-plugin-node-externals';
 import * as fs from 'fs';
 import path from 'path';
 
@@ -151,7 +151,7 @@ async function prepareNodePackage(
 
     plugins: [
       commonjs(),
-      externals({ include: external }),
+      nodeExternals({ include: external }),
       resolve(),
       replace({
         preventAssignment: true,

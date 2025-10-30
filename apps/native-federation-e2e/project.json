@@ -3,6 +3,8 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "apps/native-federation-e2e/src",
+  "tags": [],
+  "implicitDependencies": ["native-federation"],
   "targets": {
     "e2e": {
       "executor": "@nx/jest:jest",
@@ -16,7 +18,5 @@
     "test": {
       "command": "echo Noop"
     }
-  },
-  "tags": [],
-  "implicitDependencies": ["native-federation"]
+  }
 }

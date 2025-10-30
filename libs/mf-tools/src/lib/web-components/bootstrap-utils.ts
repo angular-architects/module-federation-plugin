@@ -130,7 +130,7 @@ function getPlatformCache(): Map<Version, PlatformRef> {
 
 function setPlatform(version: Version, platform: PlatformRef): void {
   if (platformSharing) {
-    legacyMode && setLegacyPlatform(version.full, platform);
+    if (legacyMode) setLegacyPlatform(version.full, platform);
     getPlatformCache().set(version, platform);
   }
 }
@@ -151,7 +151,7 @@ function getPlatform(options: Options): PlatformRef {
   if (!platform) {
     platform = options.platformFactory();
     setPlatform(VERSION, platform);
-    options.production && enableProdMode();
+    if (options.production) enableProdMode();
   }
 
   return platform;
@@ -166,7 +166,7 @@ function getNgZone(): NgZone {
 
 export function shareNgZone(zone: NgZone): void {
   if (ngZoneSharing) {
-    legacyMode && setLegacyNgZone(zone);
+    if (legacyMode) setLegacyNgZone(zone);
     setGlobalStateSlice({ ngZone: zone });
   }
 }
