@@ -8,7 +8,6 @@ import { bundle } from '../utils/build-utils';
 import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
-import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 import { logger } from '../utils/logger';
 import crypto from 'crypto';
 import { DEFAULT_EXTERNAL_LIST } from './default-external-list';
@@ -24,18 +23,14 @@ export async function bundleShared(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
-  platform: 'browser' | 'node' = 'browser'
+  platform: 'browser' | 'node' = 'browser',
+  dest: string
 ): Promise<Array<SharedInfo>> {
   const folder = fedOptions.packageJson
     ? path.dirname(fedOptions.packageJson)
     : fedOptions.workspaceRoot;
 
-  const cachePath = path.join(
-    fedOptions.workspaceRoot,
-    'node_modules/.cache/native-federation'
-  );
-
-  fs.mkdirSync(cachePath, { recursive: true });
+  fs.mkdirSync(dest, { recursive: true });
 
   const inferredPackageInfos = Object.keys(sharedBundles)
     .filter((packageName) => !sharedBundles[packageName].packageInfo)
@@ -67,11 +62,11 @@ export async function bundleShared(
     fedOptions.outputPath
   );
 
-  const exptedResults = allEntryPoints.map((ep) =>
+  const expectedResults = allEntryPoints.map((ep) =>
     path.join(fullOutputPath, ep.outName)
   );
   const entryPoints = allEntryPoints.filter(
-    (ep) => !fs.existsSync(path.join(cachePath, ep.outName))
+    (ep) => !fs.existsSync(path.join(dest, ep.outName))
   );
 
   if (entryPoints.length > 0) {
@@ -98,7 +93,7 @@ export async function bundleShared(
       entryPoints,
       tsConfigPath: fedOptions.tsConfig,
       external: [...additionalExternals, ...externals],
-      outdir: cachePath,
+      outdir: dest,
       mappedPaths: config.sharedMappings,
       dev: fedOptions.dev,
       kind: 'shared-package',
@@ -108,9 +103,9 @@ export async function bundleShared(
     });
 
     const cachedFiles = bundleResult.map((br) => path.basename(br.fileName));
-    rewriteImports(cachedFiles, cachePath);
+    rewriteImports(cachedFiles, dest);
 
-    copyCacheToOutput(cachedFiles, cachePath, fullOutputPath);
+    // copyCacheToOutput(cachedFiles, cachePath, fullOutputPath);
   } catch (e) {
     logger.error('Error bundling shared npm package ');
     if (e instanceof Error) {
@@ -143,28 +138,7 @@ export async function bundleShared(
     throw e;
   }
 
-  const resultCacheFile = createCacheFileName(
-    configState,
-    sharedBundles,
-    fedOptions,
-    cachePath,
-    platform
-  );
-
-  if (fs.existsSync(resultCacheFile)) {
-    const cachedResult: SharedInfo[] = JSON.parse(
-      fs.readFileSync(resultCacheFile, 'utf-8')
-    );
-    const cachedFiles = cachedResult.map((cr) => cr.outFileName);
-
-    // Chunks are overwritten by the bundler, so we need to reprocess them
-    rewriteImports(cachedFiles, cachePath);
-
-    copyCacheToOutput(cachedFiles, cachePath, fullOutputPath);
-    return cachedResult;
-  }
-
-  const outFileNames = [...exptedResults];
+  const outFileNames = [...expectedResults];
 
   const result = buildResult(
     packageInfos,
@@ -182,12 +156,6 @@ export async function bundleShared(
 
   addChunksToResult(chunks, result, fedOptions.dev);
 
-  fs.writeFileSync(
-    resultCacheFile,
-    JSON.stringify(result, undefined, 2),
-    'utf-8'
-  );
-
   return result;
 }
 
@@ -200,18 +168,18 @@ function rewriteImports(cachedFiles: string[], cachePath: string) {
   }
 }
 
-function copyCacheToOutput(
-  cachedFiles: string[],
-  cachePath: string,
-  fullOutputPath: string
-) {
-  for (const fileName of cachedFiles) {
-    const cachedFile = path.join(cachePath, fileName);
-    const distFileName = path.join(fullOutputPath, fileName);
-    copyFileIfExists(cachedFile, distFileName);
-    copySrcMapIfExists(cachedFile, distFileName);
-  }
-}
+// function copyCacheToOutput(
+//   cachedFiles: string[],
+//   cachePath: string,
+//   fullOutputPath: string
+// ) {
+//   for (const fileName of cachedFiles) {
+//     const cachedFile = path.join(cachePath, fileName);
+//     const distFileName = path.join(fullOutputPath, fileName);
+//     copyFileIfExists(cachedFile, distFileName);
+//     copySrcMapIfExists(cachedFile, distFileName);
+//   }
+// }
 
 function createOutName(
   pi: PackageInfo,

@@ -14,6 +14,15 @@ import { FederationOptions } from './federation-options';
 import { writeFederationInfo } from './write-federation-info';
 import { writeImportMap } from './write-import-map';
 import { logger } from '../utils/logger';
+import {
+  copyCacheToDist,
+  getCachedMetadata,
+  getCachePath,
+  getChecksum,
+  storeCachedMetadata,
+} from './get-cache';
+import path from 'path';
+import { normalizeFilename } from '../utils/normalize';
 
 export interface BuildParams {
   skipMappingsAndExposed: boolean;
@@ -27,7 +36,7 @@ export const defaultBuildParams: BuildParams = {
 
 // Externals cache
 const sharedPackageInfoCache: SharedInfo[] = [];
-const cachedSharedPackages = new Set<string>();
+// const cachedSharedPackages = new Set<string>();
 
 export async function buildForFederation(
   config: NormalizedFederationConfig,
@@ -54,7 +63,22 @@ export async function buildForFederation(
     ? describeExposed(config, fedOptions)
     : artefactInfo.exposes;
 
-  if (!buildParams.skipShared) {
+  const cacheFolder = getCachePath(
+    fedOptions.workspaceRoot,
+    normalizeFilename(config.name)
+  );
+  const cacheChecksum = getChecksum(config.shared);
+
+  const sharedPackageInfoCache: SharedInfo[] = getCachedMetadata(
+    cacheFolder,
+    cacheChecksum
+  );
+
+  if (!buildParams.skipShared && sharedPackageInfoCache.length === 0) {
+    logger.debug('Checksum matched, re-using cached externals.');
+  }
+
+  if (!buildParams.skipShared && sharedPackageInfoCache.length > 0) {
     const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
       splitShared(config.shared);
 
@@ -65,7 +89,8 @@ export async function buildForFederation(
         config,
         fedOptions,
         externals,
-        'browser'
+        'browser',
+        cacheFolder
       );
 
       logger.measure(
@@ -74,9 +99,6 @@ export async function buildForFederation(
       );
 
       sharedPackageInfoCache.push(...sharedPackageInfoBrowser);
-      Object.keys(sharedBrowser).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
-      );
     }
 
     if (Object.keys(sharedServer).length > 0) {
@@ -86,16 +108,14 @@ export async function buildForFederation(
         config,
         fedOptions,
         externals,
-        'node'
+        'node',
+        cacheFolder
       );
       logger.measure(
         start,
         '[build artifacts] - To bundle all shared node externals'
       );
       sharedPackageInfoCache.push(...sharedPackageInfoServer);
-      Object.keys(sharedServer).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
-      );
     }
 
     if (Object.keys(separateBrowser).length > 0) {
@@ -105,16 +125,14 @@ export async function buildForFederation(
         externals,
         config,
         fedOptions,
-        'browser'
+        'browser',
+        cacheFolder
       );
       logger.measure(
         start,
         '[build artifacts] - To bundle all separate browser externals'
       );
       sharedPackageInfoCache.push(...separatePackageInfoBrowser);
-      Object.keys(separateBrowser).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
-      );
     }
 
     if (Object.keys(separateServer).length > 0) {
@@ -124,17 +142,21 @@ export async function buildForFederation(
         externals,
         config,
         fedOptions,
-        'node'
+        'node',
+        cacheFolder
       );
       logger.measure(
         start,
         '[build artifacts] - To bundle all separate node externals'
       );
       sharedPackageInfoCache.push(...separatePackageInfoServer);
-      Object.keys(separateServer).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
-      );
     }
+
+    copyCacheToDist(
+      cacheFolder,
+      path.join(fedOptions.workspaceRoot, fedOptions.outputPath)
+    );
+    storeCachedMetadata(cacheFolder, cacheChecksum, sharedPackageInfoCache);
   }
 
   const sharedMappingInfo = !artefactInfo
@@ -179,7 +201,8 @@ async function bundleSeparate(
   externals: string[],
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
-  platform: 'node' | 'browser'
+  platform: 'node' | 'browser',
+  dest: string
 ) {
   const bundlePromises = Object.entries(separateBrowser).map(
     async ([key, shared]) => {
@@ -192,7 +215,8 @@ async function bundleSeparate(
         config,
         fedOptions,
         filteredExternals,
-        platform
+        platform,
+        dest
       );
     }
   );
@@ -210,7 +234,7 @@ function splitShared(
   const separateServer: Record<string, NormalizedSharedConfig> = {};
 
   for (const key in shared) {
-    if (cachedSharedPackages.has(key)) continue;
+    // if (cachedSharedPackages.has(key)) continue;
     const obj = shared[key];
     if (obj.platform === 'node' && obj.build === 'default') {
       sharedServer[key] = obj;
