@@ -54,12 +54,12 @@ export const copyCacheToDist = (
   fullOutputPath: string
 ) => {
   fs.readdirSync(pathToCache).forEach((file) => {
-    if (file === '.checksum') return;
+    if (file === 'metadata.json') return;
     const cachedFile = path.join(pathToCache, file);
-    //const distFileName = path.join(fullOutputPath, file);
+    const distFileName = path.join(fullOutputPath, file);
 
     if (fs.existsSync(cachedFile)) {
-      fs.copyFileSync(cachedFile, fullOutputPath);
+      fs.copyFileSync(cachedFile, distFileName);
     }
     console.log(file);
   });

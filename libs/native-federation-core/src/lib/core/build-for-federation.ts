@@ -34,10 +34,6 @@ export const defaultBuildParams: BuildParams = {
   skipShared: false,
 };
 
-// Externals cache
-const sharedPackageInfoCache: SharedInfo[] = [];
-// const cachedSharedPackages = new Set<string>();
-
 export async function buildForFederation(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
@@ -63,6 +59,14 @@ export async function buildForFederation(
     ? describeExposed(config, fedOptions)
     : artefactInfo.exposes;
 
+  let cacheProjectFolder = normalizeFilename(config.name);
+  if (cacheProjectFolder.length < 1) {
+    logger.warn(
+      "Project name in 'federation.config.js' is empty, defaulting to 'NF_PROJECT'"
+    );
+    cacheProjectFolder = 'NF_PROJECT';
+  }
+
   const cacheFolder = getCachePath(
     fedOptions.workspaceRoot,
     normalizeFilename(config.name)
@@ -74,11 +78,11 @@ export async function buildForFederation(
     cacheChecksum
   );
 
-  if (!buildParams.skipShared && sharedPackageInfoCache.length === 0) {
+  if (!buildParams.skipShared && sharedPackageInfoCache.length > 0) {
     logger.debug('Checksum matched, re-using cached externals.');
   }
 
-  if (!buildParams.skipShared && sharedPackageInfoCache.length > 0) {
+  if (!buildParams.skipShared && sharedPackageInfoCache.length === 0) {
     const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
       splitShared(config.shared);
 
