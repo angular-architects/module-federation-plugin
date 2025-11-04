@@ -168,19 +168,6 @@ function rewriteImports(cachedFiles: string[], cachePath: string) {
   }
 }
 
-// function copyCacheToOutput(
-//   cachedFiles: string[],
-//   cachePath: string,
-//   fullOutputPath: string
-// ) {
-//   for (const fileName of cachedFiles) {
-//     const cachedFile = path.join(cachePath, fileName);
-//     const distFileName = path.join(fullOutputPath, fileName);
-//     copyFileIfExists(cachedFile, distFileName);
-//     copySrcMapIfExists(cachedFile, distFileName);
-//   }
-// }
-
 function createOutName(
   pi: PackageInfo,
   configState: string,
@@ -279,12 +266,4 @@ function calcHash(hashBase: string) {
     .replace(/=/g, '')
     .substring(0, 10);
   return hash;
-}
-
-function copyFileIfExists(cachedFile: string, fullOutputPath: string) {
-  fs.mkdirSync(path.dirname(fullOutputPath), { recursive: true });
-
-  if (fs.existsSync(cachedFile)) {
-    fs.copyFileSync(cachedFile, fullOutputPath);
-  }
 }

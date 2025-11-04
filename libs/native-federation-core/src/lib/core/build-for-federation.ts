@@ -19,6 +19,7 @@ import {
   getCachedMetadata,
   getCachePath,
   getChecksum,
+  purgeCacheFolder,
   storeCachedMetadata,
 } from './get-cache';
 import path from 'path';
@@ -62,9 +63,8 @@ export async function buildForFederation(
   let cacheProjectFolder = normalizeFilename(config.name);
   if (cacheProjectFolder.length < 1) {
     logger.warn(
-      "Project name in 'federation.config.js' is empty, defaulting to 'NF_PROJECT'"
+      "Project name in 'federation.config.js' is empty, defaulting to root cache folder."
     );
-    cacheProjectFolder = 'NF_PROJECT';
   }
 
   const cacheFolder = getCachePath(
@@ -79,10 +79,12 @@ export async function buildForFederation(
   );
 
   if (!buildParams.skipShared && sharedPackageInfoCache.length > 0) {
-    logger.debug('Checksum matched, re-using cached externals.');
+    logger.info('Checksum matched, re-using cached externals.');
   }
 
   if (!buildParams.skipShared && sharedPackageInfoCache.length === 0) {
+    purgeCacheFolder(cacheFolder);
+
     const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
       splitShared(config.shared);
 

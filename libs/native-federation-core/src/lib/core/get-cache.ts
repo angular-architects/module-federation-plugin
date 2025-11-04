@@ -65,3 +65,21 @@ export const copyCacheToDist = (
   });
   fs.mkdirSync(path.dirname(fullOutputPath), { recursive: true });
 };
+
+export const purgeCacheFolder = (pathToCache: string) => {
+  if (!fs.existsSync(pathToCache)) return;
+
+  try {
+    fs.rmSync(pathToCache, { recursive: true, force: true });
+  } catch (error) {
+    // Fallback for older Node.js versions or if rmSync fails
+    try {
+      fs.rmdirSync(pathToCache, { recursive: true });
+    } catch (fallbackError) {
+      console.warn(
+        `Failed to purge cache folder: ${pathToCache}`,
+        fallbackError
+      );
+    }
+  }
+};
