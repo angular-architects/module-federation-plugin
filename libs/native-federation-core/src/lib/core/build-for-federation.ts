@@ -14,15 +14,7 @@ import { FederationOptions } from './federation-options';
 import { writeFederationInfo } from './write-federation-info';
 import { writeImportMap } from './write-import-map';
 import { logger } from '../utils/logger';
-import {
-  copyCacheToDist,
-  getCachedMetadata,
-  getCachePath,
-  getChecksum,
-  purgeCacheFolder,
-  storeCachedMetadata,
-} from './get-cache';
-import path from 'path';
+import { getCachePath } from './get-cache';
 import { normalizeFilename } from '../utils/normalize';
 
 export interface BuildParams {
@@ -34,6 +26,8 @@ export const defaultBuildParams: BuildParams = {
   skipMappingsAndExposed: false,
   skipShared: false,
 };
+
+const sharedPackageInfoCache: SharedInfo[] = [];
 
 export async function buildForFederation(
   config: NormalizedFederationConfig,
@@ -67,15 +61,9 @@ export async function buildForFederation(
     );
   }
 
-  const cacheFolder = getCachePath(
+  const pathToCache = getCachePath(
     fedOptions.workspaceRoot,
     normalizeFilename(config.name)
-  );
-  const cacheChecksum = getChecksum(config.shared);
-
-  const sharedPackageInfoCache: SharedInfo[] = getCachedMetadata(
-    cacheFolder,
-    cacheChecksum
   );
 
   if (!buildParams.skipShared && sharedPackageInfoCache.length > 0) {
@@ -83,8 +71,6 @@ export async function buildForFederation(
   }
 
   if (!buildParams.skipShared && sharedPackageInfoCache.length === 0) {
-    purgeCacheFolder(cacheFolder);
-
     const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
       splitShared(config.shared);
 
@@ -96,7 +82,7 @@ export async function buildForFederation(
         fedOptions,
         externals,
         'browser',
-        cacheFolder
+        { pathToCache, metaDataFile: 'meta-browser-shared.json' }
       );
 
       logger.measure(
@@ -115,7 +101,7 @@ export async function buildForFederation(
         fedOptions,
         externals,
         'node',
-        cacheFolder
+        { pathToCache, metaDataFile: 'meta-node-shared.json' }
       );
       logger.measure(
         start,
@@ -132,7 +118,7 @@ export async function buildForFederation(
         config,
         fedOptions,
         'browser',
-        cacheFolder
+        pathToCache
       );
       logger.measure(
         start,
@@ -149,7 +135,7 @@ export async function buildForFederation(
         config,
         fedOptions,
         'node',
-        cacheFolder
+        pathToCache
       );
       logger.measure(
         start,
@@ -157,12 +143,6 @@ export async function buildForFederation(
       );
       sharedPackageInfoCache.push(...separatePackageInfoServer);
     }
-
-    copyCacheToDist(
-      cacheFolder,
-      path.join(fedOptions.workspaceRoot, fedOptions.outputPath)
-    );
-    storeCachedMetadata(cacheFolder, cacheChecksum, sharedPackageInfoCache);
   }
 
   const sharedMappingInfo = !artefactInfo
@@ -208,7 +188,7 @@ async function bundleSeparate(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   platform: 'node' | 'browser',
-  dest: string
+  pathToCache: string
 ) {
   const bundlePromises = Object.entries(separateBrowser).map(
     async ([key, shared]) => {
@@ -222,7 +202,10 @@ async function bundleSeparate(
         fedOptions,
         filteredExternals,
         platform,
-        dest
+        {
+          pathToCache,
+          metaDataFile: `meta-${platform}-${normalizeFilename(key)}.json`,
+        }
       );
     }
   );

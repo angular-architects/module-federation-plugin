@@ -3,6 +3,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { NormalizedSharedConfig } from '../config/federation-config';
 import { SharedInfo } from '@softarc/native-federation-runtime';
+import { logger } from '../utils/logger';
 
 export const getCachePath = (workspaceRoot: string, project: string) =>
   path.join(workspaceRoot, 'node_modules/.cache/native-federation', project);
@@ -26,60 +27,79 @@ export const getChecksum = (
 
 export const getCachedMetadata = (
   pathToCache: string,
+  file: string,
   checksum: string
-): SharedInfo[] => {
-  const metadataFile = path.join(pathToCache, 'metadata.json');
-  if (!fs.existsSync(metadataFile)) return [];
+): SharedInfo[] | false => {
+  const metadataFile = path.join(pathToCache, file);
+  if (!fs.existsSync(metadataFile)) return false;
 
-  const cachedResult: { checksum: string; externals: SharedInfo[] } =
-    JSON.parse(fs.readFileSync(metadataFile, 'utf-8'));
-  if (cachedResult.checksum !== checksum) return [];
+  const cachedResult: {
+    checksum: string;
+    externals: SharedInfo[];
+    files: string[];
+  } = JSON.parse(fs.readFileSync(metadataFile, 'utf-8'));
+  if (cachedResult.checksum !== checksum) return false;
   return cachedResult.externals;
 };
 
 export const storeCachedMetadata = (
   pathToCache: string,
-  checksum: string,
-  externals: SharedInfo[]
+  file: string,
+  payload: { checksum: string; externals: SharedInfo[]; files: string[] }
 ) => {
   fs.writeFileSync(
-    path.join(pathToCache, 'metadata.json'),
-    JSON.stringify({ checksum, externals }, undefined, 2),
+    path.join(pathToCache, file),
+    JSON.stringify(payload, undefined, 2),
     'utf-8'
   );
 };
 
 export const copyCacheToDist = (
   pathToCache: string,
+  file: string,
   fullOutputPath: string
 ) => {
-  fs.readdirSync(pathToCache).forEach((file) => {
-    if (file === 'metadata.json') return;
+  const metadataFile = path.join(pathToCache, file);
+  if (!fs.existsSync(metadataFile))
+    throw new Error(
+      'Error copying artifacts to dist, metadata file could not be found.'
+    );
+
+  const cachedResult: {
+    checksum: string;
+    externals: SharedInfo[];
+    files: string[];
+  } = JSON.parse(fs.readFileSync(metadataFile, 'utf-8'));
+
+  fs.mkdirSync(path.dirname(fullOutputPath), { recursive: true });
+
+  cachedResult.files.forEach((file) => {
     const cachedFile = path.join(pathToCache, file);
     const distFileName = path.join(fullOutputPath, file);
 
     if (fs.existsSync(cachedFile)) {
       fs.copyFileSync(cachedFile, distFileName);
     }
-    console.log(file);
   });
-  fs.mkdirSync(path.dirname(fullOutputPath), { recursive: true });
 };
 
-export const purgeCacheFolder = (pathToCache: string) => {
-  if (!fs.existsSync(pathToCache)) return;
-
-  try {
-    fs.rmSync(pathToCache, { recursive: true, force: true });
-  } catch (error) {
-    // Fallback for older Node.js versions or if rmSync fails
-    try {
-      fs.rmdirSync(pathToCache, { recursive: true });
-    } catch (fallbackError) {
-      console.warn(
-        `Failed to purge cache folder: ${pathToCache}`,
-        fallbackError
-      );
-    }
+export const purgeCacheFolder = (pathToCache: string, file: string) => {
+  const metadataFile = path.join(pathToCache, file);
+  if (!fs.existsSync(metadataFile)) {
+    logger.warn(
+      `Could not purge cache, metadata file '${file}' could not be found.`
+    );
   }
+
+  const cachedResult: {
+    checksum: string;
+    externals: SharedInfo[];
+    files: string[];
+  } = JSON.parse(fs.readFileSync(metadataFile, 'utf-8'));
+
+  cachedResult.files.forEach((file) => {
+    const cachedFile = path.join(pathToCache, file);
+
+    if (fs.existsSync(cachedFile)) fs.unlinkSync(cachedFile);
+  });
 };
