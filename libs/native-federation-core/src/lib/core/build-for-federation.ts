@@ -54,7 +54,7 @@ export async function buildForFederation(
     ? describeExposed(config, fedOptions)
     : artefactInfo.exposes;
 
-  let cacheProjectFolder = normalizeFilename(config.name);
+  const cacheProjectFolder = normalizeFilename(config.name);
   if (cacheProjectFolder.length < 1) {
     logger.warn(
       "Project name in 'federation.config.js' is empty, defaulting to root cache folder."
