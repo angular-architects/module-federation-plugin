@@ -2,6 +2,7 @@ import {
   AfterContentInit,
   Component,
   ElementRef,
+  inject,
   Input,
   OnChanges,
   ViewChild,
@@ -32,8 +33,7 @@ export class WebComponentWrapper implements AfterContentInit, OnChanges {
   @Input() events: { [event: string]: (event: Event) => void };
 
   element: HTMLElement;
-
-  constructor(private route: ActivatedRoute) {}
+  private route = inject(ActivatedRoute);
 
   ngOnChanges(): void {
     if (!this.element) return;
