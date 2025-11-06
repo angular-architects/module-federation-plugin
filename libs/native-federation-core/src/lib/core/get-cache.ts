@@ -31,7 +31,7 @@ export const getCachedMetadata = (
   checksum: string
 ): SharedInfo[] | false => {
   const metadataFile = path.join(pathToCache, file);
-  if (!fs.existsSync(metadataFile)) return false;
+  if (!fs.existsSync(pathToCache) || !fs.existsSync(metadataFile)) return false;
 
   const cachedResult: {
     checksum: string;
@@ -85,10 +85,14 @@ export const copyCacheToDist = (
 
 export const purgeCacheFolder = (pathToCache: string, file: string) => {
   const metadataFile = path.join(pathToCache, file);
+  if (!fs.existsSync(pathToCache)) {
+    return;
+  }
   if (!fs.existsSync(metadataFile)) {
     logger.warn(
       `Could not purge cache, metadata file '${file}' could not be found.`
     );
+    return;
   }
 
   const cachedResult: {

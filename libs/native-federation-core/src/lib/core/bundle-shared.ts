@@ -38,8 +38,6 @@ export async function bundleShared(
     ? path.dirname(fedOptions.packageJson)
     : fedOptions.workspaceRoot;
 
-  fs.mkdirSync(cache.pathToCache, { recursive: true });
-
   const sharedPackageInfoCache = getCachedMetadata(
     cache.pathToCache,
     cache.metaDataFile,
@@ -59,6 +57,7 @@ export async function bundleShared(
   }
 
   purgeCacheFolder(cache.pathToCache, cache.metaDataFile);
+  fs.mkdirSync(cache.pathToCache, { recursive: true });
 
   const inferredPackageInfos = Object.keys(sharedBundles)
     .filter((packageName) => !sharedBundles[packageName].packageInfo)
