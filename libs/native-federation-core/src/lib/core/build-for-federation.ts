@@ -18,6 +18,7 @@ import { logger } from '../utils/logger';
 export interface BuildParams {
   skipMappingsAndExposed: boolean;
   skipShared: boolean;
+  signal?: AbortSignal;
 }
 
 export const defaultBuildParams: BuildParams = {
@@ -35,15 +36,30 @@ export async function buildForFederation(
   externals: string[],
   buildParams = defaultBuildParams
 ): Promise<FederationInfo> {
+  const signal = buildParams.signal;
+
+  const checkAbort = () => {
+    if (signal?.aborted) {
+      const error = new Error('Build aborted');
+      error.name = 'AbortError';
+      throw error;
+    }
+  };
+
   let artefactInfo: ArtefactInfo | undefined;
 
   if (!buildParams.skipMappingsAndExposed) {
+    checkAbort();
+
     const start = process.hrtime();
     artefactInfo = await bundleExposedAndMappings(
       config,
       fedOptions,
-      externals
+      externals,
+      signal
     );
+    checkAbort();
+
     logger.measure(
       start,
       '[build artifacts] - To bundle all mappings and exposed.'

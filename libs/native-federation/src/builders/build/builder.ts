@@ -25,6 +25,7 @@ import {
   logger,
   setBuildAdapter,
   setLogLevel,
+  RebuildQueue,
 } from '@softarc/native-federation/build';
 import {
   createAngularBuildAdapter,
@@ -373,8 +374,9 @@ export async function* runBuilder(
         indexHtmlTransformer: transformIndexHtml(nfOptions),
       });
 
+  const rebuildQueue = new RebuildQueue();
+
   try {
-    // builderRun.output.subscribe(async (output) => {
     for await (const output of builderRun) {
       lastResult = output;
 
@@ -399,49 +401,92 @@ export async function* runBuilder(
       // }
 
       if (!first && (nfOptions.dev || watch)) {
-        setTimeout(async () => {
-          try {
-            const start = process.hrtime();
-            federationResult = await buildForFederation(
-              config,
-              fedOptions,
-              externals,
-              {
-                skipMappingsAndExposed: false,
-                skipShared: true,
+        rebuildQueue
+          .enqueue(async () => {
+            const signal = rebuildQueue.signal;
+            if (signal?.aborted) {
+              throw new Error('Build cancelled before starting');
+            }
+
+            await new Promise((resolve, reject) => {
+              const timeout = setTimeout(resolve, nfOptions.rebuildDelay);
+
+              if (signal) {
+                const abortHandler = () => {
+                  clearTimeout(timeout);
+                  reject(new Error('Build cancelled during delay'));
+                };
+                signal.addEventListener('abort', abortHandler, { once: true });
               }
-            );
+            });
 
-            if (hasLocales && localeFilter) {
-              translateFederationArtefacts(
-                i18n,
-                localeFilter,
-                outputOptions.base,
-                federationResult
+            if (signal?.aborted) {
+              throw new Error('Build cancelled after delay');
+            }
+
+            try {
+              const start = process.hrtime();
+              federationResult = await buildForFederation(
+                config,
+                fedOptions,
+                externals,
+                {
+                  skipMappingsAndExposed: false,
+                  skipShared: true,
+                  signal,
+                }
               );
-            }
 
-            logger.info('Done!');
+              if (signal?.aborted) {
+                throw new Error('Build cancelled after federation build');
+              }
 
-            // Notifies about build completion
-            if (isLocalDevelopment) {
-              federationBuildNotifier.broadcastBuildCompletion();
-            }
-            logger.measure(start, 'To rebuild nf.');
-          } catch (error) {
-            logger.error('Federation rebuild failed!');
+              if (hasLocales && localeFilter) {
+                if (signal?.aborted) {
+                  throw new Error('Build cancelled before i18n');
+                }
 
-            // Notifies about build failure
-            if (isLocalDevelopment) {
-              federationBuildNotifier.broadcastBuildError(error);
+                translateFederationArtefacts(
+                  i18n,
+                  localeFilter,
+                  outputOptions.base,
+                  federationResult
+                );
+              }
+
+              logger.info('Done!');
+
+              if (isLocalDevelopment) {
+                federationBuildNotifier.broadcastBuildCompletion();
+              }
+              logger.measure(start, 'To rebuild nf.');
+            } catch (error) {
+              if (signal?.aborted || error.message?.includes('cancelled')) {
+                throw error; // Propagate cancellation
+              } else {
+                logger.error('Federation rebuild failed!');
+                if (options.verbose) console.error(error);
+                if (isLocalDevelopment) {
+                  federationBuildNotifier.broadcastBuildError(error);
+                }
+                throw error;
+              }
             }
-          }
-        }, nfOptions.rebuildDelay);
+          })
+          .catch((error) => {
+            // Only log non-cancellation errors
+            if (!error.message?.includes('cancelled')) {
+              logger.error('Rebuild error:');
+              if (options.verbose) console.error(error);
+            }
+          });
       }
 
       first = false;
     }
   } finally {
+    rebuildQueue.abort();
+
     if (isLocalDevelopment) {
       federationBuildNotifier.stopEventServer();
     }

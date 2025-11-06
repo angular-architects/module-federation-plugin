@@ -32,6 +32,7 @@ export interface BuildAdapterOptions {
   hash: boolean;
   platform?: 'browser' | 'node';
   optimizedMappings?: boolean;
+  signal?: AbortSignal;
 }
 
 export interface BuildResult {

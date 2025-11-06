@@ -71,6 +71,7 @@ export function createAngularBuildAdapter(
       hash,
       platform,
       optimizedMappings,
+      signal,
     } = options;
 
     setNgServerMode();
@@ -191,8 +192,13 @@ async function runEsbuild(
   absWorkingDir: string | undefined = undefined,
   logLevel: esbuild.LogLevel = 'warning',
   platform?: 'browser' | 'node',
-  optimizedMappings?: boolean
+  optimizedMappings?: boolean,
+  signal?: AbortSignal
 ) {
+  if (signal?.aborted) {
+    throw new Error('Build aborted before esbuild start');
+  }
+
   const projectRoot = path.dirname(tsConfigPath);
   const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
   const target = transformSupportedBrowsersToTargets(browsers);
@@ -304,27 +310,48 @@ async function runEsbuild(
   };
 
   const ctx = await esbuild.context(config);
-  const result = await ctx.rebuild();
 
-  const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
-
-  const writtenFiles = writeResult(result, outdir, memOnly);
-
-  if (watch) {
-    registerForRebuilds(
-      kind,
-      rebuildRequested,
-      ctx,
-      entryPoints,
-      outdir,
-      hash,
-      memOnly
-    );
-  } else {
+  const abortHandler = () => {
+    ctx.cancel();
     ctx.dispose();
+  };
+
+  if (signal) {
+    signal.addEventListener('abort', abortHandler, { once: true });
   }
 
-  return writtenFiles;
+  try {
+    const result = await ctx.rebuild();
+
+    if (signal?.aborted) {
+      throw new Error('Build aborted after esbuild completion');
+    }
+
+    const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
+
+    const writtenFiles = writeResult(result, outdir, memOnly);
+
+    if (watch) {
+      registerForRebuilds(
+        kind,
+        rebuildRequested,
+        ctx,
+        entryPoints,
+        outdir,
+        hash,
+        memOnly,
+        signal
+      );
+    } else {
+      ctx.dispose();
+    }
+    return writtenFiles;
+  } catch (error) {
+    ctx.dispose();
+    throw error;
+  } finally {
+    if (signal) signal.removeEventListener('abort', abortHandler);
+  }
 }
 
 async function getTailwindConfig(
@@ -448,13 +475,52 @@ function registerForRebuilds(
   entryPoints: EntryPoint[],
   outdir: string,
   hash: boolean,
-  memOnly: boolean
+  memOnly: boolean,
+  signal?: AbortSignal
 ) {
   if (kind !== 'shared-package') {
-    rebuildRequested.rebuild.register(async () => {
-      const result = await ctx.rebuild();
-      writeResult(result, outdir, memOnly);
-    });
+    if (signal?.aborted) {
+      logger.info('Skipping rebuild registration due to abort signal');
+      ctx.dispose();
+      return;
+    }
+
+    const rebuilder = async () => {
+      if (signal?.aborted) {
+        logger.info('Skipping rebuild due to abort signal');
+        return;
+      }
+
+      try {
+        const result = await ctx.rebuild();
+
+        if (signal?.aborted) {
+          logger.info('Rebuild completed but was aborted');
+          return;
+        }
+
+        writeResult(result, outdir, memOnly);
+      } catch (error) {
+        if (signal?.aborted) {
+          logger.info('Rebuild was aborted');
+          return;
+        }
+        throw error;
+      }
+    };
+
+    rebuildRequested.rebuild.register(rebuilder);
+
+    if (signal) {
+      signal.addEventListener(
+        'abort',
+        async () => {
+          await ctx.cancel();
+          ctx.dispose();
+        },
+        { once: true }
+      );
+    }
   }
 }
 

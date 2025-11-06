@@ -21,7 +21,7 @@ export { loadFederationConfig } from './lib/core/load-federation-config';
 export { writeFederationInfo } from './lib/core/write-federation-info';
 export { writeImportMap } from './lib/core/write-import-map';
 export { MappedPath } from './lib/utils/mapped-paths';
-
+export { RebuildQueue } from './lib/utils/rebuild-queue';
 export {
   findRootTsConfigJson,
   share,
