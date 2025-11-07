@@ -64,7 +64,6 @@ export async function bundleExposedAndMappings(
     }
   } catch (error) {
     if (signal?.aborted) {
-      logger.info('Bundle operation was aborted');
       throw error;
     }
     logger.error('Error building federation artefacts');

@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 export class RebuildQueue {
   private activeBuilds: Map<number, AbortController> = new Map();
   private buildCounter = 0;
@@ -8,6 +10,8 @@ export class RebuildQueue {
     for (const [id, controller] of this.activeBuilds) {
       controller.abort();
     }
+    if (this.activeBuildCount > 0)
+      logger.info(`Aborted ${this.activeBuildCount} previous bundling task(s)`);
     this.activeBuilds.clear();
 
     const controller = new AbortController();
