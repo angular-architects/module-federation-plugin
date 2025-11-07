@@ -67,7 +67,7 @@ export async function bundleShared(
     fedOptions.outputPath
   );
 
-  const exptedResults = allEntryPoints.map((ep) =>
+  const expectedResults = allEntryPoints.map((ep) =>
     path.join(fullOutputPath, ep.outName)
   );
   const entryPoints = allEntryPoints.filter(
@@ -93,11 +93,15 @@ export async function bundleShared(
 
   let bundleResult: BuildResult[] | null = null;
 
+  const internalImports = new Set(Object.keys(sharedBundles));
   try {
     bundleResult = await bundle({
       entryPoints,
       tsConfigPath: fedOptions.tsConfig,
-      external: [...additionalExternals, ...externals],
+      external: [
+        ...additionalExternals,
+        ...externals.filter((e) => !internalImports.has(e)),
+      ],
       outdir: cachePath,
       mappedPaths: config.sharedMappings,
       dev: fedOptions.dev,
@@ -164,7 +168,7 @@ export async function bundleShared(
     return cachedResult;
   }
 
-  const outFileNames = [...exptedResults];
+  const outFileNames = [...expectedResults];
 
   const result = buildResult(
     packageInfos,
