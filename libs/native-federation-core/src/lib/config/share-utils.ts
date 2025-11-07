@@ -299,7 +299,7 @@ function resolveSecondaries(
   parent: string,
   secondaryName: string,
   entry: string,
-  excludes: { discovered: Set<string>; skip: String[] }
+  excludes: { discovered: Set<string>; skip: string[] }
 ): Array<string | KeyValuePair> {
   let items: Array<string | KeyValuePair> = [];
   if (key.includes('*')) {

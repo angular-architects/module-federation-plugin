@@ -177,7 +177,7 @@ export function _getPackageInfo(
   }
 
   const pathToSecondary = path.relative(mainPkgName, packageName);
-  let relSecondaryPath = !pathToSecondary
+  const relSecondaryPath = !pathToSecondary
     ? '.'
     : './' + pathToSecondary.replace(/\\/g, '/');
 
@@ -188,7 +188,7 @@ export function _getPackageInfo(
     const wildcardEntry = Object.keys(mainPkgJson?.exports ?? []).find((e) =>
       e.startsWith('./*')
     );
-    if (!!wildcardEntry) {
+    if (wildcardEntry) {
       secondaryEntryPoint = mainPkgJson?.exports?.[wildcardEntry];
       if (typeof secondaryEntryPoint === 'string')
         secondaryEntryPoint = secondaryEntryPoint.replace('*', pathToSecondary);
