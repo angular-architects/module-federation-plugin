@@ -17,13 +17,7 @@ import {
   isSourceFile,
   rewriteChunkImports,
 } from '../utils/rewrite-chunk-imports';
-import {
-  copyCacheToDist,
-  getCachedMetadata,
-  getChecksum,
-  purgeCacheFolder,
-  storeCachedMetadata,
-} from './get-cache';
+import { cacheEntry, getChecksum, getFilename } from './bundle-caching';
 
 export async function bundleShared(
   sharedBundles: Record<string, NormalizedSharedConfig>,
@@ -31,33 +25,30 @@ export async function bundleShared(
   fedOptions: FederationOptions,
   externals: string[],
   platform: 'browser' | 'node' = 'browser',
-  cache: { pathToCache: string; metaDataFile: string }
+  cacheOptions: { pathToCache: string; bundleName: string }
 ): Promise<Array<SharedInfo>> {
   const checksum = getChecksum(sharedBundles);
   const folder = fedOptions.packageJson
     ? path.dirname(fedOptions.packageJson)
     : fedOptions.workspaceRoot;
 
-  const sharedPackageInfoCache = getCachedMetadata(
-    cache.pathToCache,
-    cache.metaDataFile,
-    checksum
+  const bundleCache = cacheEntry(
+    cacheOptions.pathToCache,
+    getFilename(checksum, cacheOptions.bundleName)
   );
 
-  if (sharedPackageInfoCache) {
+  const cacheMetadata = bundleCache.getMetadata(checksum);
+  if (cacheMetadata) {
     logger.info(
-      `Checksum of ${cache.metaDataFile} matched, Skipped artifact bundling`
+      `Checksum of ${cacheOptions.bundleName} matched, Skipped artifact bundling`
     );
-    copyCacheToDist(
-      cache.pathToCache,
-      cache.metaDataFile,
+    bundleCache.copyFiles(
       path.join(fedOptions.workspaceRoot, fedOptions.outputPath)
     );
-    return sharedPackageInfoCache;
+    return cacheMetadata.externals;
   }
 
-  purgeCacheFolder(cache.pathToCache, cache.metaDataFile);
-  fs.mkdirSync(cache.pathToCache, { recursive: true });
+  bundleCache.clear();
 
   const inferredPackageInfos = Object.keys(sharedBundles)
     .filter((packageName) => !sharedBundles[packageName].packageInfo)
@@ -93,7 +84,7 @@ export async function bundleShared(
     path.join(fullOutputPath, ep.outName)
   );
   const entryPoints = allEntryPoints.filter(
-    (ep) => !fs.existsSync(path.join(cache.pathToCache, ep.outName))
+    (ep) => !fs.existsSync(path.join(cacheOptions.pathToCache, ep.outName))
   );
 
   if (entryPoints.length > 0) {
@@ -120,7 +111,7 @@ export async function bundleShared(
       entryPoints,
       tsConfigPath: fedOptions.tsConfig,
       external: [...additionalExternals, ...externals],
-      outdir: cache.pathToCache,
+      outdir: cacheOptions.pathToCache,
       mappedPaths: config.sharedMappings,
       dev: fedOptions.dev,
       kind: 'shared-package',
@@ -130,7 +121,7 @@ export async function bundleShared(
     });
 
     const cachedFiles = bundleResult.map((br) => path.basename(br.fileName));
-    rewriteImports(cachedFiles, cache.pathToCache);
+    rewriteImports(cachedFiles, cacheOptions.pathToCache);
   } catch (e) {
     logger.error('Error bundling shared npm package ');
     if (e instanceof Error) {
@@ -165,12 +156,7 @@ export async function bundleShared(
 
   const outFileNames = [...expectedResults];
 
-  const result = buildResult(
-    packageInfos,
-    sharedBundles,
-    outFileNames,
-    fedOptions
-  );
+  const result = buildResult(packageInfos, sharedBundles, outFileNames);
 
   // TODO: Decide whether/when to add .map files
   const chunks = bundleResult.filter(
@@ -181,15 +167,13 @@ export async function bundleShared(
 
   addChunksToResult(chunks, result, fedOptions.dev);
 
-  storeCachedMetadata(cache.pathToCache, cache.metaDataFile, {
+  bundleCache.persist({
     checksum,
     externals: result,
     files: bundleResult.map((r) => r.fileName.split('/').pop() ?? r.fileName),
   });
 
-  copyCacheToDist(
-    cache.pathToCache,
-    cache.metaDataFile,
+  bundleCache.copyFiles(
     path.join(fedOptions.workspaceRoot, fedOptions.outputPath)
   );
 
@@ -220,28 +204,10 @@ function createOutName(
   return outName;
 }
 
-function createCacheFileName(
-  configState: string,
-  sharedBundles: Record<string, NormalizedSharedConfig>,
-  fedOptions: FederationOptions,
-  cachePath: string,
-  platform: string
-) {
-  const resultCacheState = configState + JSON.stringify(sharedBundles);
-  const resultHash = calcHash(resultCacheState);
-  const dev = fedOptions.dev ? '-dev' : '';
-  const resultCacheFile = path.join(
-    cachePath,
-    'result-' + resultHash + '-' + platform + dev + '.json'
-  );
-  return resultCacheFile;
-}
-
 function buildResult(
   packageInfos: PackageInfo[],
   sharedBundles: Record<string, NormalizedSharedConfig>,
-  outFileNames: string[],
-  fedOptions: FederationOptions
+  outFileNames: string[]
 ) {
   return packageInfos.map((pi) => {
     const shared = sharedBundles[pi.packageName];

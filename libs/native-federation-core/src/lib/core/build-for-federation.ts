@@ -14,7 +14,7 @@ import { FederationOptions } from './federation-options';
 import { writeFederationInfo } from './write-federation-info';
 import { writeImportMap } from './write-import-map';
 import { logger } from '../utils/logger';
-import { getCachePath } from './get-cache';
+import { getCachePath } from './bundle-caching';
 import { normalizeFilename } from '../utils/normalize';
 
 export interface BuildParams {
@@ -82,7 +82,7 @@ export async function buildForFederation(
         fedOptions,
         externals,
         'browser',
-        { pathToCache, metaDataFile: 'meta-browser-shared.json' }
+        { pathToCache, bundleName: 'browser-shared' }
       );
 
       logger.measure(
@@ -101,7 +101,7 @@ export async function buildForFederation(
         fedOptions,
         externals,
         'node',
-        { pathToCache, metaDataFile: 'meta-node-shared.json' }
+        { pathToCache, bundleName: 'node-shared' }
       );
       logger.measure(
         start,
@@ -204,7 +204,7 @@ async function bundleSeparate(
         platform,
         {
           pathToCache,
-          metaDataFile: `meta-${platform}-${normalizeFilename(key)}.json`,
+          bundleName: `${platform}-${normalizeFilename(key)}`,
         }
       );
     }
@@ -223,7 +223,6 @@ function splitShared(
   const separateServer: Record<string, NormalizedSharedConfig> = {};
 
   for (const key in shared) {
-    // if (cachedSharedPackages.has(key)) continue;
     const obj = shared[key];
     if (obj.platform === 'node' && obj.build === 'default') {
       sharedServer[key] = obj;
