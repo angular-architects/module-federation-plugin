@@ -1,4 +1,5 @@
 import {
+  AbortedError,
   BuildAdapter,
   logger,
   MappedPath,
@@ -71,6 +72,7 @@ export function createAngularBuildAdapter(
       hash,
       platform,
       optimizedMappings,
+      signal,
     } = options;
 
     setNgServerMode();
@@ -92,7 +94,8 @@ export function createAngularBuildAdapter(
       undefined,
       undefined,
       platform,
-      optimizedMappings
+      optimizedMappings,
+      signal
     );
 
     if (kind === 'shared-package') {
@@ -191,8 +194,13 @@ async function runEsbuild(
   absWorkingDir: string | undefined = undefined,
   logLevel: esbuild.LogLevel = 'warning',
   platform?: 'browser' | 'node',
-  optimizedMappings?: boolean
+  optimizedMappings?: boolean,
+  signal?: AbortSignal
 ) {
+  if (signal?.aborted) {
+    throw new AbortedError('[angular-esbuild-adapter] Before building');
+  }
+
   const projectRoot = path.dirname(tsConfigPath);
   const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
   const target = transformSupportedBrowsersToTargets(browsers);
@@ -304,27 +312,49 @@ async function runEsbuild(
   };
 
   const ctx = await esbuild.context(config);
-  const result = await ctx.rebuild();
 
-  const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
-
-  const writtenFiles = writeResult(result, outdir, memOnly);
-
-  if (watch) {
-    registerForRebuilds(
-      kind,
-      rebuildRequested,
-      ctx,
-      entryPoints,
-      outdir,
-      hash,
-      memOnly
-    );
-  } else {
+  const abortHandler = () => {
+    ctx.cancel();
     ctx.dispose();
+  };
+
+  if (signal) {
+    signal.addEventListener('abort', abortHandler, { once: true });
   }
 
-  return writtenFiles;
+  try {
+    const result = await ctx.rebuild();
+
+    if (signal?.aborted) {
+      throw new AbortedError('[angular-esbuild-adapter] After building.');
+    }
+
+    const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
+
+    const writtenFiles = writeResult(result, outdir, memOnly);
+
+    if (watch) {
+      registerForRebuilds(
+        kind,
+        rebuildRequested,
+        ctx,
+        entryPoints,
+        outdir,
+        hash,
+        memOnly
+      );
+    } else {
+      ctx.dispose();
+      if (signal) signal.removeEventListener('abort', abortHandler);
+    }
+    return writtenFiles;
+  } catch (error) {
+    ctx.dispose();
+    if (signal?.aborted && error?.message?.includes('canceled')) {
+      throw new AbortedError('[runEsbuild] ESBuild was canceled.');
+    }
+    throw error;
+  }
 }
 
 async function getTailwindConfig(
