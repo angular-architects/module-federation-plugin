@@ -341,18 +341,17 @@ async function runEsbuild(
         entryPoints,
         outdir,
         hash,
-        memOnly,
-        signal
+        memOnly
       );
     } else {
       ctx.dispose();
+      if (signal) signal.removeEventListener('abort', abortHandler);
     }
     return writtenFiles;
   } catch (error) {
     ctx.dispose();
     throw error;
   } finally {
-    if (signal) signal.removeEventListener('abort', abortHandler);
   }
 }
 
@@ -477,42 +476,13 @@ function registerForRebuilds(
   entryPoints: EntryPoint[],
   outdir: string,
   hash: boolean,
-  memOnly: boolean,
-  signal?: AbortSignal
+  memOnly: boolean
 ) {
   if (kind !== 'shared-package') {
-    if (signal?.aborted) {
-      throw new AbortedError(
-        '[angular-esbuild-adapter] Before rebuild register'
-      );
-    }
-
-    const rebuilder = async () => {
-      if (signal?.aborted) {
-        throw new AbortedError('[angular-esbuild-adapter] Rebuild aborted');
-      }
-
-      try {
-        const result = await ctx.rebuild();
-
-        if (signal?.aborted) {
-          throw new AbortedError(
-            '[angular-esbuild-adapter] Aborted after rebuild'
-          );
-        }
-
-        writeResult(result, outdir, memOnly);
-      } catch (error) {
-        if (signal?.aborted && !(error instanceof AbortedError)) {
-          throw new AbortedError(
-            '[angular-esbuild-adapter] Rebuild interrupted'
-          );
-        }
-        throw error;
-      }
-    };
-
-    rebuildRequested.rebuild.register(rebuilder);
+    rebuildRequested.rebuild.register(async () => {
+      const result = await ctx.rebuild();
+      writeResult(result, outdir, memOnly);
+    });
   }
 }
 
