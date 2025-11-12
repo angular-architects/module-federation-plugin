@@ -33,4 +33,5 @@ export {
 } from './lib/core/federation-builder';
 export * from './lib/utils/build-result-map';
 export { hashFile } from './lib/utils/hash-file';
+export * from './lib/utils/errors';
 export { logger, setLogLevel } from './lib/utils/logger';

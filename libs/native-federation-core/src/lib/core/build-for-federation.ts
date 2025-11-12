@@ -14,6 +14,7 @@ import { FederationOptions } from './federation-options';
 import { writeFederationInfo } from './write-federation-info';
 import { writeImportMap } from './write-import-map';
 import { logger } from '../utils/logger';
+import { AbortedError } from '../utils/errors';
 
 export interface BuildParams {
   skipMappingsAndExposed: boolean;
@@ -38,9 +39,9 @@ export async function buildForFederation(
 ): Promise<FederationInfo> {
   const signal = buildParams.signal;
 
-  const checkAbort = () => {
+  const checkIfBuildAborted = () => {
     if (signal?.aborted) {
-      const error = new Error('Build aborted');
+      const error = new AbortedError('Abort signal was called');
       error.name = 'AbortError';
       throw error;
     }
@@ -49,8 +50,6 @@ export async function buildForFederation(
   let artefactInfo: ArtefactInfo | undefined;
 
   if (!buildParams.skipMappingsAndExposed) {
-    checkAbort();
-
     const start = process.hrtime();
     artefactInfo = await bundleExposedAndMappings(
       config,
@@ -58,12 +57,11 @@ export async function buildForFederation(
       externals,
       signal
     );
-    checkAbort();
-
     logger.measure(
       start,
       '[build artifacts] - To bundle all mappings and exposed.'
     );
+    checkIfBuildAborted();
   }
 
   const exposedInfo = !artefactInfo
@@ -93,6 +91,7 @@ export async function buildForFederation(
       Object.keys(sharedBrowser).forEach((packageName) =>
         cachedSharedPackages.add(packageName)
       );
+      checkIfBuildAborted();
     }
 
     if (Object.keys(sharedServer).length > 0) {
@@ -112,6 +111,7 @@ export async function buildForFederation(
       Object.keys(sharedServer).forEach((packageName) =>
         cachedSharedPackages.add(packageName)
       );
+      checkIfBuildAborted();
     }
 
     if (Object.keys(separateBrowser).length > 0) {
@@ -131,6 +131,7 @@ export async function buildForFederation(
       Object.keys(separateBrowser).forEach((packageName) =>
         cachedSharedPackages.add(packageName)
       );
+      checkIfBuildAborted();
     }
 
     if (Object.keys(separateServer).length > 0) {
@@ -151,6 +152,8 @@ export async function buildForFederation(
         cachedSharedPackages.add(packageName)
       );
     }
+
+    checkIfBuildAborted();
   }
 
   const sharedMappingInfo = !artefactInfo
@@ -169,6 +172,7 @@ export async function buildForFederation(
     buildNotificationsEndpoint,
   };
 
+  checkIfBuildAborted();
   writeFederationInfo(federationInfo, fedOptions);
   writeImportMap(sharedInfo, fedOptions);
 

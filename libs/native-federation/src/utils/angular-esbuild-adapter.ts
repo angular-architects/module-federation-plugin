@@ -1,4 +1,5 @@
 import {
+  AbortedError,
   BuildAdapter,
   logger,
   MappedPath,
@@ -93,7 +94,8 @@ export function createAngularBuildAdapter(
       undefined,
       undefined,
       platform,
-      optimizedMappings
+      optimizedMappings,
+      signal
     );
 
     if (kind === 'shared-package') {
@@ -196,7 +198,7 @@ async function runEsbuild(
   signal?: AbortSignal
 ) {
   if (signal?.aborted) {
-    throw new Error('Build aborted before esbuild start');
+    throw new AbortedError('[angular-esbuild-adapter] Before building');
   }
 
   const projectRoot = path.dirname(tsConfigPath);
@@ -324,7 +326,7 @@ async function runEsbuild(
     const result = await ctx.rebuild();
 
     if (signal?.aborted) {
-      throw new Error('Build aborted after esbuild completion');
+      throw new AbortedError('[angular-esbuild-adapter] After building.');
     }
 
     const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
@@ -480,47 +482,37 @@ function registerForRebuilds(
 ) {
   if (kind !== 'shared-package') {
     if (signal?.aborted) {
-      logger.info('Skipping rebuild registration due to abort signal');
-      ctx.dispose();
-      return;
+      throw new AbortedError(
+        '[angular-esbuild-adapter] Before rebuild register'
+      );
     }
 
     const rebuilder = async () => {
       if (signal?.aborted) {
-        logger.info('Skipping rebuild due to abort signal');
-        return;
+        throw new AbortedError('[angular-esbuild-adapter] Rebuild aborted');
       }
 
       try {
         const result = await ctx.rebuild();
 
         if (signal?.aborted) {
-          logger.info('Rebuild completed but was aborted');
-          return;
+          throw new AbortedError(
+            '[angular-esbuild-adapter] Aborted after rebuild'
+          );
         }
 
         writeResult(result, outdir, memOnly);
       } catch (error) {
-        if (signal?.aborted) {
-          logger.info('Rebuild was aborted');
-          return;
+        if (signal?.aborted && !(error instanceof AbortedError)) {
+          throw new AbortedError(
+            '[angular-esbuild-adapter] Rebuild interrupted'
+          );
         }
         throw error;
       }
     };
 
     rebuildRequested.rebuild.register(rebuilder);
-
-    if (signal) {
-      signal.addEventListener(
-        'abort',
-        async () => {
-          await ctx.cancel();
-          ctx.dispose();
-        },
-        { once: true }
-      );
-    }
   }
 }
 

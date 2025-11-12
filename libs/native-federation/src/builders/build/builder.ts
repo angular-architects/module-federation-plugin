@@ -26,6 +26,7 @@ import {
   setBuildAdapter,
   setLogLevel,
   RebuildQueue,
+  AbortedError,
 } from '@softarc/native-federation/build';
 import {
   createAngularBuildAdapter,
@@ -405,7 +406,7 @@ export async function* runBuilder(
           .enqueue(async () => {
             const signal = rebuildQueue.signal;
             if (signal?.aborted) {
-              throw new Error('Build cancelled before starting');
+              throw new AbortedError('Build cancelled before starting');
             }
 
             await new Promise((resolve, reject) => {
@@ -414,70 +415,65 @@ export async function* runBuilder(
               if (signal) {
                 const abortHandler = () => {
                   clearTimeout(timeout);
-                  reject(new Error('Build cancelled during delay'));
+                  reject(new AbortedError('[builder] During delay.'));
                 };
                 signal.addEventListener('abort', abortHandler, { once: true });
               }
             });
 
             if (signal?.aborted) {
-              throw new Error('Build cancelled after delay');
+              throw new AbortedError('[builder] Before federation build.');
             }
 
-            try {
-              const start = process.hrtime();
-              federationResult = await buildForFederation(
-                config,
-                fedOptions,
-                externals,
-                {
-                  skipMappingsAndExposed: false,
-                  skipShared: true,
-                  signal,
-                }
+            const start = process.hrtime();
+            federationResult = await buildForFederation(
+              config,
+              fedOptions,
+              externals,
+              {
+                skipMappingsAndExposed: false,
+                skipShared: true,
+                signal,
+              }
+            );
+
+            if (signal?.aborted) {
+              throw new AbortedError('[builder] After federation build.');
+            }
+
+            if (hasLocales && localeFilter) {
+              translateFederationArtefacts(
+                i18n,
+                localeFilter,
+                outputOptions.base,
+                federationResult
               );
-
-              if (signal?.aborted) {
-                throw new Error('Build cancelled after federation build');
-              }
-
-              if (hasLocales && localeFilter) {
-                if (signal?.aborted) {
-                  throw new Error('Build cancelled before i18n');
-                }
-
-                translateFederationArtefacts(
-                  i18n,
-                  localeFilter,
-                  outputOptions.base,
-                  federationResult
-                );
-              }
-
-              logger.info('Done!');
-
-              if (isLocalDevelopment) {
-                federationBuildNotifier.broadcastBuildCompletion();
-              }
-              logger.measure(start, 'To rebuild nf.');
-            } catch (error) {
-              if (signal?.aborted || error.message?.includes('cancelled')) {
-                throw error; // Propagate cancellation
-              } else {
-                logger.error('Federation rebuild failed!');
-                if (options.verbose) console.error(error);
-                if (isLocalDevelopment) {
-                  federationBuildNotifier.broadcastBuildError(error);
-                }
-                throw error;
-              }
             }
+
+            if (signal?.aborted) {
+              throw new AbortedError(
+                '[builder] After federation translations.'
+              );
+            }
+
+            logger.info('Done!');
+
+            if (isLocalDevelopment) {
+              federationBuildNotifier.broadcastBuildCompletion();
+            }
+            logger.measure(start, 'To rebuild nf.');
           })
           .catch((error) => {
-            // Only log non-cancellation errors
-            if (!error.message?.includes('cancelled')) {
-              logger.error('Rebuild error:');
+            if (error instanceof AbortedError) {
+              logger.warn('Rebuild was cancelled.');
+              if (options.verbose)
+                logger.warn('Cancellation point: ' + error?.message);
+            } else {
+              logger.error('Federation rebuild failed!');
               if (options.verbose) console.error(error);
+              if (isLocalDevelopment) {
+                federationBuildNotifier.broadcastBuildError(error);
+              }
             }
           });
       }
