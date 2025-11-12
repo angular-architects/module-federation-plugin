@@ -11,7 +11,9 @@ export class RebuildQueue {
       controller.abort();
     }
     if (this.activeBuildCount > 0)
-      logger.info(`Aborted ${this.activeBuildCount} previous bundling task(s)`);
+      logger.debug(
+        `Aborted ${this.activeBuildCount} previous bundling task(s)`
+      );
     this.activeBuilds.clear();
 
     const controller = new AbortController();

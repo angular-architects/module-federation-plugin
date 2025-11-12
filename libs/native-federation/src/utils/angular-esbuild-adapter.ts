@@ -354,7 +354,6 @@ async function runEsbuild(
       throw new AbortedError('[runEsbuild] ESBuild was canceled.');
     }
     throw error;
-  } finally {
   }
 }
 

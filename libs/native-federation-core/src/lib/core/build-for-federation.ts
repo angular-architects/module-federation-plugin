@@ -39,14 +39,6 @@ export async function buildForFederation(
 ): Promise<FederationInfo> {
   const signal = buildParams.signal;
 
-  const checkIfBuildAborted = () => {
-    if (signal?.aborted) {
-      const error = new AbortedError('Abort signal was called');
-      error.name = 'AbortError';
-      throw error;
-    }
-  };
-
   let artefactInfo: ArtefactInfo | undefined;
 
   if (!buildParams.skipMappingsAndExposed) {
@@ -61,7 +53,11 @@ export async function buildForFederation(
       start,
       '[build artifacts] - To bundle all mappings and exposed.'
     );
-    checkIfBuildAborted();
+
+    if (signal?.aborted)
+      throw new AbortedError(
+        '[buildForFederation] After exposed-and-mappings bundle'
+      );
   }
 
   const exposedInfo = !artefactInfo
@@ -91,7 +87,10 @@ export async function buildForFederation(
       Object.keys(sharedBrowser).forEach((packageName) =>
         cachedSharedPackages.add(packageName)
       );
-      checkIfBuildAborted();
+      if (signal?.aborted)
+        throw new AbortedError(
+          '[buildForFederation] After shared-browser bundle'
+        );
     }
 
     if (Object.keys(sharedServer).length > 0) {
@@ -111,7 +110,8 @@ export async function buildForFederation(
       Object.keys(sharedServer).forEach((packageName) =>
         cachedSharedPackages.add(packageName)
       );
-      checkIfBuildAborted();
+      if (signal?.aborted)
+        throw new AbortedError('[buildForFederation] After shared-node bundle');
     }
 
     if (Object.keys(separateBrowser).length > 0) {
@@ -131,7 +131,10 @@ export async function buildForFederation(
       Object.keys(separateBrowser).forEach((packageName) =>
         cachedSharedPackages.add(packageName)
       );
-      checkIfBuildAborted();
+      if (signal?.aborted)
+        throw new AbortedError(
+          '[buildForFederation] After separate-browser bundle'
+        );
     }
 
     if (Object.keys(separateServer).length > 0) {
@@ -153,7 +156,8 @@ export async function buildForFederation(
       );
     }
 
-    checkIfBuildAborted();
+    if (signal?.aborted)
+      throw new AbortedError('[buildForFederation] After separate-node bundle');
   }
 
   const sharedMappingInfo = !artefactInfo
@@ -172,7 +176,6 @@ export async function buildForFederation(
     buildNotificationsEndpoint,
   };
 
-  checkIfBuildAborted();
   writeFederationInfo(federationInfo, fedOptions);
   writeImportMap(sharedInfo, fedOptions);
 

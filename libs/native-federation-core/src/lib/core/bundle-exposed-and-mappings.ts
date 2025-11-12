@@ -25,7 +25,9 @@ export async function bundleExposedAndMappings(
   signal?: AbortSignal
 ): Promise<ArtefactInfo> {
   if (signal?.aborted) {
-    throw new AbortedError('Aborted before bundling');
+    throw new AbortedError(
+      '[bundle-exposed-and-mappings] Aborted before bundling'
+    );
   }
 
   const shared = config.sharedMappings.map((sm) => {
@@ -62,13 +64,14 @@ export async function bundleExposedAndMappings(
       signal,
     });
     if (signal?.aborted) {
-      throw new AbortedError('Aborted after bundle');
+      throw new AbortedError(
+        '[bundle-exposed-and-mappings] Aborted after bundle'
+      );
     }
   } catch (error) {
-    if (signal?.aborted) {
-      throw error;
+    if (!(error instanceof AbortedError)) {
+      logger.error('Error building federation artefacts');
     }
-    logger.error('Error building federation artefacts');
     throw error;
   }
 
