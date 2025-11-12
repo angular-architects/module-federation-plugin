@@ -19,12 +19,6 @@ export class RebuildQueue {
 
     try {
       await rebuildFn();
-    } catch (error) {
-      if (controller.signal.aborted) {
-        throw new Error(`Build ${buildId} cancelled`);
-      } else {
-        throw error;
-      }
     } finally {
       this.activeBuilds.delete(buildId);
     }

@@ -350,6 +350,9 @@ async function runEsbuild(
     return writtenFiles;
   } catch (error) {
     ctx.dispose();
+    if (signal?.aborted && error?.message?.includes('canceled')) {
+      throw new AbortedError('[runEsbuild] ESBuild was canceled.');
+    }
     throw error;
   } finally {
   }

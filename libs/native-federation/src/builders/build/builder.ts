@@ -406,7 +406,7 @@ export async function* runBuilder(
           .enqueue(async () => {
             const signal = rebuildQueue.signal;
             if (signal?.aborted) {
-              throw new AbortedError('Build cancelled before starting');
+              throw new AbortedError('Build canceled before starting');
             }
 
             await new Promise((resolve, reject) => {
@@ -461,11 +461,11 @@ export async function* runBuilder(
             if (isLocalDevelopment) {
               federationBuildNotifier.broadcastBuildCompletion();
             }
-            logger.measure(start, 'To rebuild nf.');
+            logger.measure(start, 'To rebuild the federation artifacts.');
           })
           .catch((error) => {
             if (error instanceof AbortedError) {
-              logger.warn('Rebuild was cancelled.');
+              logger.warn('Rebuild was canceled.');
               if (options.verbose)
                 logger.warn('Cancellation point: ' + error?.message);
             } else {

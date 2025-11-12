@@ -11,6 +11,7 @@ import { bundle } from '../utils/build-utils';
 import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
 import { FederationOptions } from './federation-options';
+import { AbortedError } from '../utils/errors';
 
 export interface ArtefactInfo {
   mappings: SharedInfo[];
@@ -24,7 +25,7 @@ export async function bundleExposedAndMappings(
   signal?: AbortSignal
 ): Promise<ArtefactInfo> {
   if (signal?.aborted) {
-    throw new Error('Aborted before bundling');
+    throw new AbortedError('Aborted before bundling');
   }
 
   const shared = config.sharedMappings.map((sm) => {
@@ -58,9 +59,10 @@ export async function bundleExposedAndMappings(
       kind: 'mapping-or-exposed',
       hash,
       optimizedMappings: config.features.ignoreUnusedDeps,
+      signal,
     });
     if (signal?.aborted) {
-      throw new Error('Aborted after bundle');
+      throw new AbortedError('Aborted after bundle');
     }
   } catch (error) {
     if (signal?.aborted) {
