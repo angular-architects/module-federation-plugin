@@ -1,10 +1,19 @@
 {
   "name": "@softarc/native-federation-runtime",
   "version": "3.3.6",
+  "type": "module",
   "dependencies": {
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@types/node": "^22.5.4"
+    "@types/node": "^22.5.4",
+    "vitest": "^3.0.0",
+    "@vitest/ui": "^3.0.0"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
   }
 }
