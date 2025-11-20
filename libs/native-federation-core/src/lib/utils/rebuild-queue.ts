@@ -7,13 +7,12 @@ export class RebuildQueue {
   async enqueue(rebuildFn: () => Promise<void>): Promise<void> {
     const buildId = ++this.buildCounter;
 
-    for (const [id, controller] of this.activeBuilds) {
+    for (const [_, controller] of this.activeBuilds) {
       controller.abort();
     }
     if (this.activeBuildCount > 0)
-      logger.debug(
-        `Aborted ${this.activeBuildCount} previous bundling task(s)`
-      );
+      logger.info(`Aborted ${this.activeBuildCount} previous bundling task(s)`);
+
     this.activeBuilds.clear();
 
     const controller = new AbortController();

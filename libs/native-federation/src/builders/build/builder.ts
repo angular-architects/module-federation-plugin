@@ -465,9 +465,10 @@ export async function* runBuilder(
           })
           .catch((error) => {
             if (error instanceof AbortedError) {
-              logger.warn('Rebuild was canceled.');
-              if (options.verbose)
-                logger.warn('Cancellation point: ' + error?.message);
+              logger.verbose(
+                'Rebuild was canceled. Cancellation point: ' + error?.message
+              );
+              federationBuildNotifier.broadcastBuildCancellation();
             } else {
               logger.error('Federation rebuild failed!');
               if (options.verbose) console.error(error);

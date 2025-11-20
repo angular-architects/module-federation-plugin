@@ -313,21 +313,17 @@ async function runEsbuild(
 
   const ctx = await esbuild.context(config);
 
-  const abortHandler = () => {
-    ctx.cancel();
-    ctx.dispose();
-  };
-
-  if (signal) {
-    signal.addEventListener('abort', abortHandler, { once: true });
-  }
-
   try {
-    const result = await ctx.rebuild();
+    const abortHandler = async () => {
+      await ctx.cancel();
+      await ctx.dispose();
+    };
 
-    if (signal?.aborted) {
-      throw new AbortedError('[angular-esbuild-adapter] After building.');
+    if (signal) {
+      signal.addEventListener('abort', abortHandler, { once: true });
     }
+
+    const result = await ctx.rebuild();
 
     const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
 
@@ -344,12 +340,13 @@ async function runEsbuild(
         memOnly
       );
     } else {
-      ctx.dispose();
       if (signal) signal.removeEventListener('abort', abortHandler);
+      await ctx.dispose();
     }
     return writtenFiles;
   } catch (error) {
-    ctx.dispose();
+    // ESBuild throws an error if the request is cancelled.
+    // if it is, it's changed to an 'AbortedError'
     if (signal?.aborted && error?.message?.includes('canceled')) {
       throw new AbortedError('[runEsbuild] ESBuild was canceled.');
     }
@@ -434,14 +431,6 @@ function doesFileExistAndJsonEqual(path: string, content: string) {
   } catch (_error) {
     return false;
   }
-}
-
-function doesFileExist(path: string, content: string): boolean {
-  if (!fs.existsSync(path)) {
-    return false;
-  }
-  const currentContent = fs.readFileSync(path, 'utf-8');
-  return currentContent === content;
 }
 
 function writeResult(
