@@ -2,7 +2,7 @@
 import { promises } from 'fs';
 import { normalize } from 'path';
 
-import fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 export type AbortablePromise<T> = Promise<T> & {
   abort: () => unknown;
