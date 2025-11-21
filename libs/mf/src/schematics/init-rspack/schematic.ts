@@ -45,7 +45,7 @@ type PackageJson = {
 };
 
 const RSPACK_DEPS = {
-  '@module-federation/enhanced': '0.21.2',
+  '@module-federation/enhanced': '0.21.4',
 };
 
 const RSPACK_DEV_DEPS = {
