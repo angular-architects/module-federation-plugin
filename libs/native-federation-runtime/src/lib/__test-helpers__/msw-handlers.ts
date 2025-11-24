@@ -116,3 +116,47 @@ export const createFederationHandlers = (config: {
 
   return handlers;
 };
+
+/**
+ * Creates a handler that returns a JavaScript module
+ */
+export const moduleHandler = (url: string, moduleContent: any) => {
+  return http.get(url, () => {
+    // Return JavaScript module as text
+    const moduleCode = `
+      export default ${JSON.stringify(moduleContent.default || {})};
+      ${Object.entries(moduleContent)
+        .filter(([key]) => key !== 'default')
+        .map(([key, value]) => `export const ${key} = ${JSON.stringify(value)};`)
+        .join('\n')}
+    `;
+    
+    return new HttpResponse(moduleCode, {
+      headers: {
+        'Content-Type': 'application/javascript',
+      },
+    });
+  });
+};
+
+/**
+ * Creates a handler that returns a 404 for a module
+ */
+export const moduleNotFoundHandler = (url: string) => {
+  return http.get(url, () => {
+    return new HttpResponse(null, { status: 404 });
+  });
+};
+
+/**
+ * Creates a handler that returns invalid JavaScript
+ */
+export const invalidModuleHandler = (url: string) => {
+  return http.get(url, () => {
+    return new HttpResponse('this is not valid javascript {{{', {
+      headers: {
+        'Content-Type': 'application/javascript',
+      },
+    });
+  });
+};
