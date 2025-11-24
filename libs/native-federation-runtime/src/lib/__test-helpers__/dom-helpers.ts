@@ -28,7 +28,7 @@ export const getImportMapContent = (): {
   if (scripts.length === 0) {
     return null;
   }
-  
+
   try {
     return JSON.parse(scripts[0].innerHTML);
   } catch {
@@ -60,4 +60,3 @@ export const clearFederationDOMEffects = (): void => {
   clearImportMapScripts();
   // Add more cleanup here if federation adds other DOM elements
 };
-

@@ -18,15 +18,15 @@ export type LoadRemoteModuleOptions<T = any> = {
 };
 
 export async function loadRemoteModule<T = any>(
-  options: LoadRemoteModuleOptions
+  options: LoadRemoteModuleOptions,
 ): Promise<T>;
 export async function loadRemoteModule<T = any>(
   remoteName: string,
-  exposedModule: string
+  exposedModule: string,
 ): Promise<T>;
 export async function loadRemoteModule<T = any>(
   optionsOrRemoteName: LoadRemoteModuleOptions<T> | string,
-  exposedModule?: string
+  exposedModule?: string,
 ): Promise<T> {
   const options = normalizeOptions(optionsOrRemoteName, exposedModule);
 
@@ -88,7 +88,7 @@ function getRemoteNameByOptions(options: LoadRemoteModuleOptions) {
     remoteName = getRemoteNameByBaseUrl(baseUrl);
   } else {
     throw new Error(
-      'unexpected arguments: Please pass remoteName or remoteEntry'
+      'unexpected arguments: Please pass remoteName or remoteEntry',
     );
   }
 
@@ -99,7 +99,7 @@ function getRemoteNameByOptions(options: LoadRemoteModuleOptions) {
 }
 
 async function ensureRemoteInitialized(
-  options: LoadRemoteModuleOptions
+  options: LoadRemoteModuleOptions,
 ): Promise<void> {
   if (
     options.remoteEntry &&
@@ -112,7 +112,7 @@ async function ensureRemoteInitialized(
 
 function normalizeOptions(
   optionsOrRemoteName: string | LoadRemoteModuleOptions,
-  exposedModule: string | undefined
+  exposedModule: string | undefined,
 ): LoadRemoteModuleOptions {
   let options: LoadRemoteModuleOptions;
 
@@ -125,7 +125,7 @@ function normalizeOptions(
     options = optionsOrRemoteName;
   } else {
     throw new Error(
-      'unexpected arguments: please pass options or a remoteName/exposedModule-pair'
+      'unexpected arguments: please pass options or a remoteName/exposedModule-pair',
     );
   }
   return options;

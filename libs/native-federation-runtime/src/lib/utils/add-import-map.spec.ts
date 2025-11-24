@@ -15,7 +15,7 @@ describe('appendImportMap', () => {
 
     // Assert - check that a new script element was added
     const scriptElements = document.head.querySelectorAll(
-      'script[type="importmap-shim"]'
+      'script[type="importmap-shim"]',
     );
     expect(scriptElements).toHaveLength(1);
 

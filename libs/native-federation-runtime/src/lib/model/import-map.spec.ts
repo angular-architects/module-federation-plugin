@@ -31,10 +31,10 @@ describe('import-map', () => {
       const result = mergeImportMaps(fakeImportMap1, fakeImportMap2);
 
       expect(result.imports['@angular/core']).toBe(
-        'http://localhost:4200/angular-core.js'
+        'http://localhost:4200/angular-core.js',
       );
       expect(result.imports['@angular/common']).toBe(
-        'http://localhost:4201/angular-common.js'
+        'http://localhost:4201/angular-common.js',
       );
       expect(result.imports['lodash']).toBe('http://localhost:4201/lodash.js'); // Second map wins
     });
@@ -43,10 +43,10 @@ describe('import-map', () => {
       const result = mergeImportMaps(fakeImportMap1, fakeImportMap2);
 
       expect(result.scopes['http://localhost:4200/']['react']).toBe(
-        'http://localhost:4200/react.js'
+        'http://localhost:4200/react.js',
       );
       expect(result.scopes['http://localhost:4201/']['vue']).toBe(
-        'http://localhost:4201/vue.js'
+        'http://localhost:4201/vue.js',
       );
     });
 

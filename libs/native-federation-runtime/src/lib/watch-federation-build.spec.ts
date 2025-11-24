@@ -21,14 +21,14 @@ describe('watch-federation-build', () => {
     };
     vi.stubGlobal(
       'EventSource',
-      vi.fn(() => eventSourceInstance)
+      vi.fn(() => eventSourceInstance),
     );
   });
 
   describe('watchFederationBuildCompletion', () => {
     it('reloads page when build completion is received', () => {
       watchFederationBuildCompletion(
-        'http://localhost:4200/build-notifications'
+        'http://localhost:4200/build-notifications',
       );
 
       eventSourceInstance.onmessage({
@@ -36,14 +36,14 @@ describe('watch-federation-build', () => {
       });
 
       expect(mockConsoleLog).toHaveBeenCalledWith(
-        '[Federation] Rebuild completed, reloading...'
+        '[Federation] Rebuild completed, reloading...',
       );
       expect(fakeReload).toHaveBeenCalled();
     });
 
     it('does not reload page for non-completion messages', () => {
       watchFederationBuildCompletion(
-        'http://localhost:4200/build-notifications'
+        'http://localhost:4200/build-notifications',
       );
 
       eventSourceInstance.onmessage({
@@ -55,7 +55,7 @@ describe('watch-federation-build', () => {
 
     it('logs warning on SSE connection error', () => {
       watchFederationBuildCompletion(
-        'http://localhost:4200/build-notifications'
+        'http://localhost:4200/build-notifications',
       );
 
       const errorEvent = {};
@@ -63,7 +63,7 @@ describe('watch-federation-build', () => {
 
       expect(mockConsoleWarn).toHaveBeenCalledWith(
         '[Federation] SSE connection error:',
-        errorEvent
+        errorEvent,
       );
     });
   });

@@ -1,6 +1,10 @@
 import { delay, http, HttpResponse } from 'msw';
 import type { FederationInfo } from '../model/federation-info';
-import { createHostInfo, createRemoteInfo, TEST_URLS } from './federation-fixtures';
+import {
+  createHostInfo,
+  createRemoteInfo,
+  TEST_URLS,
+} from './federation-fixtures';
 
 /**
  * MSW request handlers for federation tests
@@ -11,7 +15,7 @@ import { createHostInfo, createRemoteInfo, TEST_URLS } from './federation-fixtur
  */
 export const hostRemoteEntryHandler = (
   info: FederationInfo = createHostInfo(),
-  options?: { delay?: number }
+  options?: { delay?: number },
 ) => {
   return http.get(TEST_URLS.HOST_REMOTE_ENTRY, async () => {
     if (options?.delay) {
@@ -27,17 +31,17 @@ export const hostRemoteEntryHandler = (
 export const remoteEntryHandler = (
   url: string,
   info: FederationInfo,
-  options?: { delay?: number; status?: number }
+  options?: { delay?: number; status?: number },
 ) => {
   return http.get(url, async () => {
     if (options?.delay) {
       await delay(options.delay);
     }
-    
+
     if (options?.status && options.status !== 200) {
       return new HttpResponse(null, { status: options.status });
     }
-    
+
     return HttpResponse.json(info);
   });
 };
@@ -89,9 +93,10 @@ export const timeoutHandler = (url: string, timeoutMs = 5000) => {
 export const defaultHandlers = [
   hostRemoteEntryHandler(),
   remoteEntryHandler(TEST_URLS.MFE1_REMOTE_ENTRY, createRemoteInfo('mfe1')),
-  remoteEntryHandler(TEST_URLS.MFE2_REMOTE_ENTRY, createRemoteInfo('mfe2', [
-    { key: './Button', outFileName: 'Button.js' },
-  ])),
+  remoteEntryHandler(
+    TEST_URLS.MFE2_REMOTE_ENTRY,
+    createRemoteInfo('mfe2', [{ key: './Button', outFileName: 'Button.js' }]),
+  ),
 ];
 
 /**
@@ -101,9 +106,7 @@ export const createFederationHandlers = (config: {
   host?: FederationInfo;
   remotes?: Array<{ url: string; info: FederationInfo }>;
 }) => {
-  const handlers = [
-    hostRemoteEntryHandler(config.host || createHostInfo()),
-  ];
+  const handlers = [hostRemoteEntryHandler(config.host || createHostInfo())];
 
   if (config.remotes) {
     config.remotes.forEach(({ url, info }) => {
@@ -113,4 +116,3 @@ export const createFederationHandlers = (config: {
 
   return handlers;
 };
-
