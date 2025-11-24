@@ -1,12 +1,12 @@
 import { defineConfig } from 'vitest/config';
 
+const testPatterns = ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'];
+const browserTestPatterns = ['src/**/*.e2e.spec.ts'];
+
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'jsdom',
     setupFiles: ['src/test-setup.ts'],
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    exclude: ['node_modules', 'dist', '.angular'],
     reporters: ['default'],
     coverage: {
       reportsDirectory: '../../coverage/libs/native-federation-runtime',
@@ -14,5 +14,36 @@ export default defineConfig({
     },
     watch: false,
     pool: 'threads',
+    exclude: ['node_modules', 'dist', '.angular'],
+    projects: [
+      {
+        test: {
+          name: 'unit',
+          environment: 'jsdom',
+          include: testPatterns,
+          exclude: [...browserTestPatterns, 'node_modules', 'dist', '.angular'],
+        },
+      },
+      {
+        test: {
+          name: 'browser',
+          include: browserTestPatterns,
+          browser: {
+            enabled: true,
+            provider: 'playwright',
+            headless: false,
+            instances: [
+              {
+                browser: 'chromium',
+              },
+            ],
+            // Serve static assets for MSW
+            api: {
+              host: '127.0.0.1',
+            },
+          }
+        },
+      },
+    ],
   },
 });

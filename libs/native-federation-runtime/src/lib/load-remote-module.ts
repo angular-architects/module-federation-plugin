@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { appendImportMap } from './utils/add-import-map';
-import { processRemoteInfo } from './init-federation';
+import { fetchAndRegisterRemote } from './init-federation';
 import {
   getRemote,
   getRemoteNameByBaseUrl,
   isRemoteInitialized,
 } from './model/remotes';
+import { appendImportMap } from './utils/add-import-map';
 import { getDirectory, joinPaths } from './utils/path-utils';
 
 declare function importShim<T>(url: string): T;
@@ -105,7 +105,7 @@ async function ensureRemoteInitialized(
     options.remoteEntry &&
     !isRemoteInitialized(getDirectory(options.remoteEntry))
   ) {
-    const importMap = await processRemoteInfo(options.remoteEntry);
+    const importMap = await fetchAndRegisterRemote(options.remoteEntry);
     appendImportMap(importMap);
   }
 }
