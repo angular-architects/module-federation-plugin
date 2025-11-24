@@ -102,7 +102,6 @@ export async function loadRemoteModule<T = any>(
   optionsOrRemoteName: LoadRemoteModuleOptions<T> | string,
   exposedModule?: string,
 ): Promise<T> {
-
   // Step 1: Normalize the input arguments into a standard options object
   const options = normalizeOptions(optionsOrRemoteName, exposedModule);
 
