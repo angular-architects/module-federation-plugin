@@ -301,7 +301,7 @@ async function runEsbuild(
       ngJitMode: 'false',
     },
     ...(builderOptions.loader ? { loader: builderOptions.loader } : {}),
-    resolveExtensions: ['.ts', '.tsx', '.mjs', '.js', '.cjs']
+    resolveExtensions: ['.ts', '.tsx', '.mjs', '.js', '.cjs', '.json', '.jsx', '.css'],
   };
 
   const ctx = await esbuild.context(config);
