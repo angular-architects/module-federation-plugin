@@ -10,7 +10,7 @@ import { MappedPath } from '../utils/mapped-paths';
 export function removeUnusedDeps(
   config: NormalizedFederationConfig,
   main: string,
-  workspaceRoot: string
+  workspaceRoot: string,
 ): NormalizedFederationConfig {
   const fileInfos = getProjectData(main, cwd(), {
     includeExternalLibraries: true,
@@ -22,7 +22,7 @@ export function removeUnusedDeps(
 
   const usedPackageNamesWithTransient = addTransientDeps(
     usedPackageNames,
-    workspaceRoot
+    workspaceRoot,
   );
   const filteredShared = filterShared(config, usedPackageNamesWithTransient);
 
@@ -35,15 +35,15 @@ export function removeUnusedDeps(
 
 function filterShared(
   config: NormalizedFederationConfig,
-  usedPackageNamesWithTransient: Set<string>
+  usedPackageNamesWithTransient: Set<string>,
 ) {
   const filteredSharedNames = Object.keys(config.shared).filter((shared) =>
-    usedPackageNamesWithTransient.has(shared)
+    usedPackageNamesWithTransient.has(shared),
   );
 
   const filteredShared = filteredSharedNames.reduce(
     (acc, curr) => ({ ...acc, [curr]: config.shared[curr] }),
-    {}
+    {},
   );
   return filteredShared;
 }
@@ -51,7 +51,7 @@ function filterShared(
 function findUsedDeps(
   fileInfos: ProjectData,
   workspaceRoot: string,
-  config: NormalizedFederationConfig
+  config: NormalizedFederationConfig,
 ) {
   const usedPackageNames = new Set<string>();
   const usedMappings = new Set<MappedPath>();
@@ -74,7 +74,7 @@ function findUsedDeps(
 
     const fullFileName = path.join(workspaceRoot, fileName);
     const mappings = config.sharedMappings.filter((sm) =>
-      fullFileName.startsWith(sm.path)
+      fullFileName.startsWith(sm.path),
     );
 
     for (const mapping of mappings) {
@@ -120,7 +120,7 @@ function getExternalImports(pInfo: PackageInfo, workspaceRoot: string) {
   const cacheFileName = `${encodedPackageName}-${pInfo.version}.deps.json`;
   const cachePath = path.join(
     workspaceRoot,
-    'node_modules/.cache/native-federation'
+    'node_modules/.cache/native-federation',
   );
   const cacheFilePath = path.join(cachePath, cacheFileName);
 
@@ -135,7 +135,7 @@ function getExternalImports(pInfo: PackageInfo, workspaceRoot: string) {
     fs.writeFileSync(
       cacheFilePath,
       JSON.stringify(peerDeps, undefined, 2),
-      'utf-8'
+      'utf-8',
     );
   }
   return peerDeps;

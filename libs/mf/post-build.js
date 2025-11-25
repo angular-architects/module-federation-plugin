@@ -25,5 +25,5 @@ const webpack2 = fs.readFileSync(path.join(__dirname, 'webpack.ts'), {
 });
 fs.writeFileSync(
   path.join(__dirname, '../../dist/libs/mf/webpack.js'),
-  'module.exports = require("./src/webpack.js");'
+  'module.exports = require("./src/webpack.js");',
 );

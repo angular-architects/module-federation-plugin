@@ -13,7 +13,7 @@ export function createSharedMappingsPlugin(mappedPaths: MappedPath[]): Plugin {
         if (args.kind === 'import-statement') {
           const importPath = path.join(args.resolveDir, args.path);
           mappedPath = mappedPaths.find((p) =>
-            importPath.startsWith(path.dirname(p.path))
+            importPath.startsWith(path.dirname(p.path)),
           );
         }
 

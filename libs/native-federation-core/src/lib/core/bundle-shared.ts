@@ -24,7 +24,7 @@ export async function bundleShared(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
-  platform: 'browser' | 'node' = 'browser'
+  platform: 'browser' | 'node' = 'browser',
 ): Promise<Array<SharedInfo>> {
   const folder = fedOptions.packageJson
     ? path.dirname(fedOptions.packageJson)
@@ -32,7 +32,7 @@ export async function bundleShared(
 
   const cachePath = path.join(
     fedOptions.workspaceRoot,
-    'node_modules/.cache/native-federation'
+    'node_modules/.cache/native-federation',
   );
 
   fs.mkdirSync(cachePath, { recursive: true });
@@ -64,21 +64,21 @@ export async function bundleShared(
 
   const fullOutputPath = path.join(
     fedOptions.workspaceRoot,
-    fedOptions.outputPath
+    fedOptions.outputPath,
   );
 
   const exptedResults = allEntryPoints.map((ep) =>
-    path.join(fullOutputPath, ep.outName)
+    path.join(fullOutputPath, ep.outName),
   );
   const entryPoints = allEntryPoints.filter(
-    (ep) => !fs.existsSync(path.join(cachePath, ep.outName))
+    (ep) => !fs.existsSync(path.join(cachePath, ep.outName)),
   );
 
   if (entryPoints.length > 0) {
     logger.info('Preparing shared npm packages for the platform ' + platform);
     logger.notice('This only needs to be done once, as results are cached');
     logger.notice(
-      "Skip packages you don't want to share in your federation config"
+      "Skip packages you don't want to share in your federation config",
     );
   }
 
@@ -124,14 +124,14 @@ export async function bundleShared(
 
     logger.notice('** Important Information: ***');
     logger.notice(
-      'The error message above shows an issue with bundling a node_module.'
+      'The error message above shows an issue with bundling a node_module.',
     );
     logger.notice(
-      'In most cases this is because you (indirectly) shared a Node.js package,'
+      'In most cases this is because you (indirectly) shared a Node.js package,',
     );
     logger.notice('while Native Federation builds for the browser.');
     logger.notice(
-      'You can move such packages into devDependencies or skip them in your federation.config.js.'
+      'You can move such packages into devDependencies or skip them in your federation.config.js.',
     );
     logger.notice('');
     logger.notice('More Details: https://bit.ly/nf-issue');
@@ -148,12 +148,12 @@ export async function bundleShared(
     sharedBundles,
     fedOptions,
     cachePath,
-    platform
+    platform,
   );
 
   if (fs.existsSync(resultCacheFile)) {
     const cachedResult: SharedInfo[] = JSON.parse(
-      fs.readFileSync(resultCacheFile, 'utf-8')
+      fs.readFileSync(resultCacheFile, 'utf-8'),
     );
     const cachedFiles = cachedResult.map((cr) => cr.outFileName);
 
@@ -170,14 +170,14 @@ export async function bundleShared(
     packageInfos,
     sharedBundles,
     outFileNames,
-    fedOptions
+    fedOptions,
   );
 
   // TODO: Decide whether/when to add .map files
   const chunks = bundleResult.filter(
     (br) =>
       !br.fileName.endsWith('.map') &&
-      !result.find((r) => r.outFileName === path.basename(br.fileName))
+      !result.find((r) => r.outFileName === path.basename(br.fileName)),
   );
 
   addChunksToResult(chunks, result, fedOptions.dev);
@@ -185,7 +185,7 @@ export async function bundleShared(
   fs.writeFileSync(
     resultCacheFile,
     JSON.stringify(result, undefined, 2),
-    'utf-8'
+    'utf-8',
   );
 
   return result;
@@ -203,7 +203,7 @@ function rewriteImports(cachedFiles: string[], cachePath: string) {
 function copyCacheToOutput(
   cachedFiles: string[],
   cachePath: string,
-  fullOutputPath: string
+  fullOutputPath: string,
 ) {
   for (const fileName of cachedFiles) {
     const cachedFile = path.join(cachePath, fileName);
@@ -217,7 +217,7 @@ function createOutName(
   pi: PackageInfo,
   configState: string,
   fedOptions: FederationOptions,
-  encName: string
+  encName: string,
 ) {
   const hashBase = pi.version + '_' + pi.entryPoint + '_' + configState;
   const hash = calcHash(hashBase);
@@ -233,14 +233,14 @@ function createCacheFileName(
   sharedBundles: Record<string, NormalizedSharedConfig>,
   fedOptions: FederationOptions,
   cachePath: string,
-  platform: string
+  platform: string,
 ) {
   const resultCacheState = configState + JSON.stringify(sharedBundles);
   const resultHash = calcHash(resultCacheState);
   const dev = fedOptions.dev ? '-dev' : '';
   const resultCacheFile = path.join(
     cachePath,
-    'result-' + resultHash + '-' + platform + dev + '.json'
+    'result-' + resultHash + '-' + platform + dev + '.json',
   );
   return resultCacheFile;
 }
@@ -249,7 +249,7 @@ function buildResult(
   packageInfos: PackageInfo[],
   sharedBundles: Record<string, NormalizedSharedConfig>,
   outFileNames: string[],
-  fedOptions: FederationOptions
+  fedOptions: FederationOptions,
 ) {
   return packageInfos.map((pi) => {
     const shared = sharedBundles[pi.packageName];
@@ -273,7 +273,7 @@ function buildResult(
 function addChunksToResult(
   chunks: BuildResult[],
   result: SharedInfo[],
-  dev?: boolean
+  dev?: boolean,
 ) {
   for (const item of chunks) {
     const fileName = path.basename(item.fileName);

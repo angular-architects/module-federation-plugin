@@ -9,10 +9,7 @@ The schematics and ng add use this new way automatically if you set the `--type`
 This is an example for configuring a remote with the new streamlined form:
 
 ```javascript
-const {
-  shareAll,
-  withModuleFederationPlugin,
-} = require('@angular-architects/module-federation/webpack');
+const { shareAll, withModuleFederationPlugin } = require('@angular-architects/module-federation/webpack');
 
 // Version 14
 module.exports = withModuleFederationPlugin({
@@ -43,9 +40,7 @@ const path = require('path');
 const share = mf.share;
 
 const sharedMappings = new mf.SharedMappings();
-sharedMappings.register(path.join(__dirname, '../../tsconfig.json'), [
-  'auth-lib',
-]);
+sharedMappings.register(path.join(__dirname, '../../tsconfig.json'), ['auth-lib']);
 
 module.exports = {
   output: {

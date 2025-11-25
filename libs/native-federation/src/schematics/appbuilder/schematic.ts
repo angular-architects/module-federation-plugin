@@ -29,13 +29,13 @@ function updateWorkspaceConfig(
   tree: Tree,
   options: NormalizedOptions,
   workspace: any,
-  workspaceFileName: string
+  workspaceFileName: string,
 ) {
   const { projectConfig } = options;
 
   if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
     throw new Error(
-      `The project doesn't have a build or serve target in angular.json!`
+      `The project doesn't have a build or serve target in angular.json!`,
     );
   }
 
@@ -53,14 +53,14 @@ function updateWorkspaceConfig(
       target.configurations.production.buildTarget =
         target.configurations.production.buildTarget.replace(
           ':build:',
-          ':esbuild:'
+          ':esbuild:',
         );
     }
     if (target.configurations?.development) {
       target.configurations.development.buildTarget =
         target.configurations.development.buildTarget.replace(
           ':build:',
-          ':esbuild:'
+          ':esbuild:',
         );
     }
   }
@@ -69,7 +69,7 @@ function updateWorkspaceConfig(
     const target = projectConfig.architect.serve;
     target.options.target = target.options.target.replace(
       ':esbuild:',
-      ':serve-original:'
+      ':serve-original:',
     );
     delete target.options.port;
   }
@@ -79,7 +79,7 @@ function updateWorkspaceConfig(
 
 function normalizeOptions(
   options: MfSchematicSchema,
-  workspace: any
+  workspace: any,
 ): NormalizedOptions {
   if (!options.project) {
     options.project = workspace.defaultProject;
@@ -89,13 +89,13 @@ function normalizeOptions(
 
   if (!options.project && projects.length === 0) {
     throw new Error(
-      `No default project found. Please specifiy a project name!`
+      `No default project found. Please specifiy a project name!`,
     );
   }
 
   if (!options.project) {
     console.log(
-      'Using first configured project as default project: ' + projects[0]
+      'Using first configured project as default project: ' + projects[0],
     );
     options.project = projects[0];
   }
@@ -110,7 +110,7 @@ function normalizeOptions(
   const projectRoot: string = projectConfig.root?.replace(/\\/g, '/');
   const projectSourceRoot: string = projectConfig.sourceRoot?.replace(
     /\\/g,
-    '/'
+    '/',
   );
 
   const manifestPath = path
@@ -143,6 +143,6 @@ export function getWorkspaceFileName(tree: Tree): string {
     return 'workspace.json';
   }
   throw new Error(
-    "angular.json or workspace.json expected! Did you call this in your project's root?"
+    "angular.json or workspace.json expected! Did you call this in your project's root?",
   );
 }

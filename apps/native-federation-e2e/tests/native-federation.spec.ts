@@ -16,7 +16,7 @@ describe('native-federation e2e', () => {
   beforeAll(() => {
     ensureNxProject(
       '@angular-architects/native-federation',
-      'dist/libs/native-federation'
+      'dist/libs/native-federation',
     );
   });
 
@@ -29,7 +29,7 @@ describe('native-federation e2e', () => {
   it('should create native-federation', async () => {
     const project = uniq('native-federation');
     await runNxCommandAsync(
-      `generate @angular-architects/native-federation:native-federation ${project}`
+      `generate @angular-architects/native-federation:native-federation ${project}`,
     );
     const result = await runNxCommandAsync(`build ${project}`);
     expect(result.stdout).toContain('Executor ran');
@@ -39,10 +39,10 @@ describe('native-federation e2e', () => {
     it('should create src in the specified directory', async () => {
       const project = uniq('native-federation');
       await runNxCommandAsync(
-        `generate @angular-architects/native-federation:native-federation ${project} --directory subdir`
+        `generate @angular-architects/native-federation:native-federation ${project} --directory subdir`,
       );
       expect(() =>
-        checkFilesExist(`libs/subdir/${project}/src/index.ts`)
+        checkFilesExist(`libs/subdir/${project}/src/index.ts`),
       ).not.toThrow();
     }, 120000);
   });
@@ -52,10 +52,10 @@ describe('native-federation e2e', () => {
       const projectName = uniq('native-federation');
       ensureNxProject(
         '@angular-architects/native-federation',
-        'dist/libs/native-federation'
+        'dist/libs/native-federation',
       );
       await runNxCommandAsync(
-        `generate @angular-architects/native-federation:native-federation ${projectName} --tags e2etag,e2ePackage`
+        `generate @angular-architects/native-federation:native-federation ${projectName} --tags e2etag,e2ePackage`,
       );
       const project = readJson(`libs/${projectName}/project.json`);
       expect(project.tags).toEqual(['e2etag', 'e2ePackage']);

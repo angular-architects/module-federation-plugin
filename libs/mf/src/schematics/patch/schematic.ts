@@ -20,7 +20,7 @@ export default function init(options: { workspaceRoot: string }): Rule {
     } catch (e) {
       console.error('Error patching Angular for rspack');
       console.error(
-        'This is only needed while the rspack integration is experimental'
+        'This is only needed while the rspack integration is experimental',
       );
       console.error('Try to run this command by hand:');
       console.error('\t' + cmd);

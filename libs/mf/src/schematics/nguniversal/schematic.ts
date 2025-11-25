@@ -18,7 +18,7 @@ export default function nguniversal(options: NgUniversalSchema): Rule {
 
     if (!options.project) {
       throw new Error(
-        `No default project found. Please specifiy a project name!`
+        `No default project found. Please specifiy a project name!`,
       );
     }
 
@@ -29,7 +29,7 @@ export default function nguniversal(options: NgUniversalSchema): Rule {
 
     if (!projectConfig?.architect?.server) {
       console.error(
-        'No server target found. Did you add Angular Universal? Try ng add @nguniversal/common'
+        'No server target found. Did you add Angular Universal? Try ng add @nguniversal/common',
       );
     }
 

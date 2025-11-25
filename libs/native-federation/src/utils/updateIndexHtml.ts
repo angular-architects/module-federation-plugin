@@ -5,7 +5,7 @@ import { NfBuilderSchema } from '../builders/build/schema';
 
 export function updateIndexHtml(
   fedOptions: FederationOptions,
-  nfOptions: NfBuilderSchema
+  nfOptions: NfBuilderSchema,
 ) {
   const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
   const indexPathCands = [
@@ -18,7 +18,7 @@ export function updateIndexHtml(
   if (!indexPath) {
     console.error(
       'No index.html found! Searched locations: ',
-      indexPathCands.join(', ')
+      indexPathCands.join(', '),
     );
     return;
   }
@@ -36,7 +36,7 @@ export function updateIndexHtml(
     indexContent,
     mainName,
     polyfillsName,
-    nfOptions
+    nfOptions,
   );
   fs.writeFileSync(indexPath, indexContent, 'utf-8');
 }
@@ -45,7 +45,7 @@ export function updateScriptTags(
   indexContent: string,
   mainName: string,
   polyfillsName: string,
-  nfOptions: NfBuilderSchema
+  nfOptions: NfBuilderSchema,
 ) {
   const esmsOptions = {
     shimMode: true,
@@ -58,11 +58,11 @@ export function updateScriptTags(
 
   indexContent = indexContent.replace(
     /<script\s+src="([^"]*polyfills[^"]*)"[^>]*><\/script>/,
-    '<script type="module" src="$1"></script>'
+    '<script type="module" src="$1"></script>',
   );
   indexContent = indexContent.replace(
     /<script\s+src="([^"]*main[^"]*)"[^>]*><\/script>/,
-    '<script type="module-shim" src="$1"></script>'
+    '<script type="module-shim" src="$1"></script>',
   );
 
   indexContent = indexContent.replace(/(<body.*?>)/, `$1\n\t\t${htmlFragment}`);
