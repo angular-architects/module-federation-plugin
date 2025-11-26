@@ -43,7 +43,7 @@ function applyWildcards(template: string, wildcardValues: string[]) {
 export function resolveWildcardKeys(
   keyPattern: string,
   valuePattern: string,
-  cwd: string
+  cwd: string,
 ): KeyValuePair[] {
   const normalizedPattern = valuePattern.replace(/^\.?\/+/, '');
   const regex = compilePattern(normalizedPattern);

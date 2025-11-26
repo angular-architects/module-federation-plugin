@@ -15,13 +15,13 @@ export class SharedMappings {
   register(
     tsConfigPath: string,
     shared: string[] = null,
-    rootPath: string = path.normalize(path.dirname(tsConfigPath))
+    rootPath: string = path.normalize(path.dirname(tsConfigPath)),
   ): void {
     const result: Array<Library> = [];
 
     if (!path.isAbsolute(tsConfigPath)) {
       throw new Error(
-        'SharedMappings.register: tsConfigPath needs to be an absolute path!'
+        'SharedMappings.register: tsConfigPath needs to be an absolute path!',
       );
     }
 
@@ -32,7 +32,7 @@ export class SharedMappings {
     }
 
     const tsConfig = JSON5.parse(
-      fs.readFileSync(tsConfigPath, { encoding: 'utf-8' })
+      fs.readFileSync(tsConfigPath, { encoding: 'utf-8' }),
     );
     const mappings = tsConfig?.compilerOptions?.paths;
 
@@ -70,7 +70,7 @@ export class SharedMappings {
     const packageJsonPath = path.join(libPath, '..', 'package.json');
     if (fs.existsSync(packageJsonPath)) {
       const packageJson = JSON5.parse(
-        fs.readFileSync(packageJsonPath, { encoding: 'utf-8' })
+        fs.readFileSync(packageJsonPath, { encoding: 'utf-8' }),
       );
 
       return packageJson.version ?? null;

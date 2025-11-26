@@ -18,7 +18,7 @@ export const devExternalsMixin = {
     const VALID_ID_PREFIX = `/@id/`;
     const reg = new RegExp(
       `${VALID_ID_PREFIX}(${federationBuilder.externals.join('|')})`,
-      'g'
+      'g',
     );
     resolvedConfig.plugins.push({
       name: 'vite-plugin-ignore-static-import-replace-idprefix',

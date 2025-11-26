@@ -37,7 +37,7 @@ let config: Manifest = {};
 
 export async function initFederation(
   manifest: string | ManifestFile,
-  options?: InitFederationOptions
+  options?: InitFederationOptions,
 ): Promise<ModuleFederation> {
   if (typeof manifest === 'string') {
     config = await loadManifest(manifest);
@@ -51,7 +51,7 @@ export async function initFederation(
 
 export function toRuntimeConfig(
   config: Manifest<RemoteConfig>,
-  options?: InitFederationOptions
+  options?: InitFederationOptions,
 ): UserOptions {
   return {
     //
@@ -87,7 +87,7 @@ export async function setManifest(manifest: ManifestFile) {
 }
 
 export async function loadManifest<T extends Manifest = Manifest>(
-  configFile: string
+  configFile: string,
 ): Promise<T> {
   const result = await fetch(configFile);
 

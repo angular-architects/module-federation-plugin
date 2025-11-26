@@ -29,10 +29,10 @@ export type SourceLocaleObject = {
 };
 
 export async function getI18nConfig(
-  context: BuilderContext
+  context: BuilderContext,
 ): Promise<I18nConfig | undefined> {
   const workspaceConfig = (await context.getProjectMetadata(
-    context.target?.project || ''
+    context.target?.project || '',
   )) as WorkspaceConfig;
 
   const i18nConfig = workspaceConfig?.i18n;
@@ -43,14 +43,14 @@ export async function translateFederationArtefacts(
   i18n: I18nConfig,
   localize: boolean | string[],
   outputPath: string,
-  federationResult: FederationInfo
+  federationResult: FederationInfo,
 ) {
   const neededLocales = Array.isArray(localize)
     ? localize
     : Object.keys(i18n.locales);
 
   const locales = Object.keys(i18n.locales).filter((locale) =>
-    neededLocales.includes(locale)
+    neededLocales.includes(locale),
   );
 
   if (locales.length === 0) {
@@ -64,7 +64,7 @@ export async function translateFederationArtefacts(
     .map((config) =>
       typeof config === 'string' || Array.isArray(config)
         ? config
-        : config.translation
+        : config.translation,
     )
     .map((files) => JSON.stringify(files))
     .join(' ');
@@ -90,7 +90,7 @@ export async function translateFederationArtefacts(
   const sourceLocalePath = path.join(outputPath, 'browser', sourceLocale);
 
   const localizeTranslate = path.resolve(
-    'node_modules/.bin/localize-translate'
+    'node_modules/.bin/localize-translate',
   );
 
   const cmd = `${localizeTranslate} -r ${sourceLocalePath} -s "${sourcePattern}" -t ${translationFiles} -o ${translationOutPath} --target-locales ${targetLocales} -l ${sourceLocale}`;
@@ -115,7 +115,7 @@ function execCommand(cmd: string, defaultSuccessInfo: string) {
 function copyRemoteEntry(
   locales: string[],
   outputPath: string,
-  sourceLocalePath: string
+  sourceLocalePath: string,
 ) {
   const remoteEntry = path.join(sourceLocalePath, 'remoteEntry.json');
 
@@ -124,7 +124,7 @@ function copyRemoteEntry(
       outputPath,
       'browser',
       locale,
-      'remoteEntry.json'
+      'remoteEntry.json',
     );
     fs.copyFileSync(remoteEntry, localePath);
   }

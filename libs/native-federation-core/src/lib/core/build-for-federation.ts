@@ -33,7 +33,7 @@ export async function buildForFederation(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
-  buildParams = defaultBuildParams
+  buildParams = defaultBuildParams,
 ): Promise<FederationInfo> {
   let artefactInfo: ArtefactInfo | undefined;
 
@@ -42,11 +42,11 @@ export async function buildForFederation(
     artefactInfo = await bundleExposedAndMappings(
       config,
       fedOptions,
-      externals
+      externals,
     );
     logger.measure(
       start,
-      '[build artifacts] - To bundle all mappings and exposed.'
+      '[build artifacts] - To bundle all mappings and exposed.',
     );
   }
 
@@ -65,17 +65,17 @@ export async function buildForFederation(
         config,
         fedOptions,
         externals,
-        'browser'
+        'browser',
       );
 
       logger.measure(
         start,
-        '[build artifacts] - To bundle all shared browser externals'
+        '[build artifacts] - To bundle all shared browser externals',
       );
 
       sharedPackageInfoCache.push(...sharedPackageInfoBrowser);
       Object.keys(sharedBrowser).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
+        cachedSharedPackages.add(packageName),
       );
     }
 
@@ -86,15 +86,15 @@ export async function buildForFederation(
         config,
         fedOptions,
         externals,
-        'node'
+        'node',
       );
       logger.measure(
         start,
-        '[build artifacts] - To bundle all shared node externals'
+        '[build artifacts] - To bundle all shared node externals',
       );
       sharedPackageInfoCache.push(...sharedPackageInfoServer);
       Object.keys(sharedServer).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
+        cachedSharedPackages.add(packageName),
       );
     }
 
@@ -105,15 +105,15 @@ export async function buildForFederation(
         externals,
         config,
         fedOptions,
-        'browser'
+        'browser',
       );
       logger.measure(
         start,
-        '[build artifacts] - To bundle all separate browser externals'
+        '[build artifacts] - To bundle all separate browser externals',
       );
       sharedPackageInfoCache.push(...separatePackageInfoBrowser);
       Object.keys(separateBrowser).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
+        cachedSharedPackages.add(packageName),
       );
     }
 
@@ -124,15 +124,15 @@ export async function buildForFederation(
         externals,
         config,
         fedOptions,
-        'node'
+        'node',
       );
       logger.measure(
         start,
-        '[build artifacts] - To bundle all separate node externals'
+        '[build artifacts] - To bundle all separate node externals',
       );
       sharedPackageInfoCache.push(...separatePackageInfoServer);
       Object.keys(separateServer).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
+        cachedSharedPackages.add(packageName),
       );
     }
   }
@@ -179,22 +179,22 @@ async function bundleSeparate(
   externals: string[],
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
-  platform: 'node' | 'browser'
+  platform: 'node' | 'browser',
 ) {
   const bundlePromises = Object.entries(separateBrowser).map(
     async ([key, shared]) => {
       const packageName = inferPackageFromSecondary(key);
       const filteredExternals = externals.filter(
-        (e) => !e.startsWith(packageName)
+        (e) => !e.startsWith(packageName),
       );
       return bundleShared(
         { [key]: shared },
         config,
         fedOptions,
         filteredExternals,
-        platform
+        platform,
       );
-    }
+    },
   );
 
   const buildResults = await Promise.all(bundlePromises);
@@ -202,7 +202,7 @@ async function bundleSeparate(
 }
 
 function splitShared(
-  shared: Record<string, NormalizedSharedConfig>
+  shared: Record<string, NormalizedSharedConfig>,
 ): SplitSharedResult {
   const sharedServer: Record<string, NormalizedSharedConfig> = {};
   const sharedBrowser: Record<string, NormalizedSharedConfig> = {};

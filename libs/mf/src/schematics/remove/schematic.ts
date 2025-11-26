@@ -77,7 +77,7 @@ function normalize(options: RemoveSchema, workspace: any) {
 
   if (!options.project) {
     throw new Error(
-      `No default project found. Please specifiy a project name!`
+      `No default project found. Please specifiy a project name!`,
     );
   }
 
@@ -86,7 +86,7 @@ function normalize(options: RemoveSchema, workspace: any) {
 
   if (!projectConfig?.architect?.build?.options?.main) {
     throw new Error(
-      `architect.build.options.main not found for project ` + projectName
+      `architect.build.options.main not found for project ` + projectName,
     );
   }
   return { projectConfig, projectName };

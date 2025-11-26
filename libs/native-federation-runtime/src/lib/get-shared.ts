@@ -42,7 +42,7 @@ export function getShared(options = defaultShareOptions) {
       (k) =>
         !k.startsWith('/@id/') &&
         !k.startsWith('@angular-architects/module-federation') &&
-        !k.endsWith('@')
+        !k.endsWith('@'),
     )
     .sort();
 

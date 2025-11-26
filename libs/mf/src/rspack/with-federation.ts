@@ -29,7 +29,7 @@ export function withFederation(config: FederationConfig) {
 
 export function applyFederation(
   rsbuildConfig: RsbuildConfig,
-  federationConfig: FederationConfig
+  federationConfig: FederationConfig,
 ): RsbuildConfig {
   const { skip, ...mfConfig } = federationConfig;
   const normalizedSkip = normalizeSkipList(skip);

@@ -88,7 +88,7 @@ export function readProjectInfos(): ProjectInfo[] {
         port: workspace.projects[name].architect?.['serve']?.options?.port,
         outputPath:
           workspace.projects[name].architect?.['build']?.options?.outputPath,
-      } as ProjectInfo)
+      }) as ProjectInfo,
   );
 }
 
@@ -101,7 +101,7 @@ function loadProjectDef(projectDef: string): Project {
     return def;
   } catch {
     throw new Error(
-      `File ${projectDef} not found. Please start this command from your workspace root.`
+      `File ${projectDef} not found. Please start this command from your workspace root.`,
     );
   }
 }

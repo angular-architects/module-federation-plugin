@@ -37,7 +37,7 @@ const apps = projects.filter(
   (p) =>
     p.projectType === 'application' &&
     !p.name.endsWith('-e2e') &&
-    (startAll || filter.includes(p.name))
+    (startAll || filter.includes(p.name)),
 );
 padding = apps.reduce((acc, p) => Math.max(acc, p.name.length), 0);
 padding = Math.max(6, padding);
