@@ -6,6 +6,7 @@ import { NormalizedFederationConfig } from '../config/federation-config';
 import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { getExternalImports as extractExternalImports } from '../utils/get-external-imports';
 import { MappedPath } from '../utils/mapped-paths';
+import { normalizePackageName } from '../utils/normalize';
 
 export function removeUnusedDeps(
   config: NormalizedFederationConfig,
@@ -116,11 +117,11 @@ function addTransientDeps(packages: Set<string>, workspaceRoot: string) {
 }
 
 function getExternalImports(pInfo: PackageInfo, workspaceRoot: string) {
-  const encodedPackageName = pInfo.packageName.replace(/[^A-Za-z0-9]/g, '_');
+  const encodedPackageName = normalizePackageName(pInfo.packageName);
   const cacheFileName = `${encodedPackageName}-${pInfo.version}.deps.json`;
   const cachePath = path.join(
     workspaceRoot,
-    'node_modules/.cache/native-federation',
+    'node_modules/.cache/native-federation/_externals-metadata',
   );
   const cacheFilePath = path.join(cachePath, cacheFileName);
 
