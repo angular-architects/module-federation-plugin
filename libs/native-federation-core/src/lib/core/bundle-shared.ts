@@ -34,12 +34,12 @@ export async function bundleShared(
 
   const bundleCache = cacheEntry(
     cacheOptions.pathToCache,
-    getFilename(checksum, cacheOptions.bundleName),
+    getFilename(cacheOptions.bundleName),
   );
 
   const cacheMetadata = bundleCache.getMetadata(checksum);
   if (cacheMetadata) {
-    logger.info(
+    logger.debug(
       `Checksum of ${cacheOptions.bundleName} matched, Skipped artifact bundling`,
     );
     bundleCache.copyFiles(
@@ -48,6 +48,7 @@ export async function bundleShared(
     return cacheMetadata.externals;
   }
 
+  // Delete older packages if checksum didnt match
   bundleCache.clear();
 
   const inferredPackageInfos = Object.keys(sharedBundles)

@@ -8,8 +8,8 @@ import { logger } from '../utils/logger';
 export const getCachePath = (workspaceRoot: string, project: string) =>
   path.join(workspaceRoot, 'node_modules/.cache/native-federation', project);
 
-export const getFilename = (checksum: string, title: string) => {
-  return `${title}-meta-${checksum.substring(0, 10)}.json`;
+export const getFilename = (title: string) => {
+  return `${title}.meta.json`;
 };
 
 export const getChecksum = (
@@ -89,11 +89,12 @@ export const cacheEntry = (pathToCache: string, fileName: string) => ({
     const metadataFile = path.join(pathToCache, fileName);
     if (!fs.existsSync(pathToCache)) {
       fs.mkdirSync(pathToCache, { recursive: true });
+      logger.debug(`Creating cache folder '${pathToCache}' for '${fileName}'.`);
       return;
     }
     if (!fs.existsSync(metadataFile)) {
-      logger.warn(
-        `Could not purge cache, metadata file '${fileName}' could not be found.`,
+      logger.debug(
+        `Could not purge cached bundle, metadata file '${metadataFile}' does not exist.`,
       );
       return;
     }
@@ -108,5 +109,7 @@ export const cacheEntry = (pathToCache: string, fileName: string) => ({
       const cachedFile = path.join(pathToCache, file);
       if (fs.existsSync(cachedFile)) fs.unlinkSync(cachedFile);
     });
+
+    fs.unlinkSync(metadataFile);
   },
 });

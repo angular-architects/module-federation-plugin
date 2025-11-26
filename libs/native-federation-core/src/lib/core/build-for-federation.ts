@@ -35,7 +35,7 @@ export async function buildForFederation(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
-  buildParams = defaultBuildParams,
+  buildParams = defaultBuildParams
 ): Promise<FederationInfo> {
   const signal = buildParams.signal;
 
@@ -47,16 +47,16 @@ export async function buildForFederation(
       config,
       fedOptions,
       externals,
-      signal,
+      signal
     );
     logger.measure(
       start,
-      '[build artifacts] - To bundle all mappings and exposed.',
+      '[build artifacts] - To bundle all mappings and exposed.'
     );
 
     if (signal?.aborted)
       throw new AbortedError(
-        '[buildForFederation] After exposed-and-mappings bundle',
+        '[buildForFederation] After exposed-and-mappings bundle'
       );
   }
 
@@ -67,13 +67,13 @@ export async function buildForFederation(
   const cacheProjectFolder = normalizePackageName(config.name);
   if (cacheProjectFolder.length < 1) {
     logger.warn(
-      "Project name in 'federation.config.js' is empty, defaulting to root cache folder.",
+      "Project name in 'federation.config.js' is empty, defaulting to root cache folder (could collide with other projects in the workspace)."
     );
   }
 
   const pathToCache = getCachePath(
     fedOptions.workspaceRoot,
-    normalizePackageName(config.name),
+    cacheProjectFolder
   );
 
   if (!buildParams.skipShared && sharedPackageInfoCache.length > 0) {
@@ -92,19 +92,19 @@ export async function buildForFederation(
         fedOptions,
         externals,
         'browser',
-        { pathToCache, bundleName: 'browser-shared' },
+        { pathToCache, bundleName: 'browser-shared' }
       );
 
       logger.measure(
         start,
-        '[build artifacts] - To bundle all shared browser externals',
+        '[build artifacts] - To bundle all shared browser externals'
       );
 
       sharedPackageInfoCache.push(...sharedPackageInfoBrowser);
 
       if (signal?.aborted)
         throw new AbortedError(
-          '[buildForFederation] After shared-browser bundle',
+          '[buildForFederation] After shared-browser bundle'
         );
     }
 
@@ -116,11 +116,11 @@ export async function buildForFederation(
         fedOptions,
         externals,
         'node',
-        { pathToCache, bundleName: 'node-shared' },
+        { pathToCache, bundleName: 'node-shared' }
       );
       logger.measure(
         start,
-        '[build artifacts] - To bundle all shared node externals',
+        '[build artifacts] - To bundle all shared node externals'
       );
       sharedPackageInfoCache.push(...sharedPackageInfoServer);
 
@@ -136,17 +136,17 @@ export async function buildForFederation(
         config,
         fedOptions,
         'browser',
-        pathToCache,
+        pathToCache
       );
       logger.measure(
         start,
-        '[build artifacts] - To bundle all separate browser externals',
+        '[build artifacts] - To bundle all separate browser externals'
       );
       sharedPackageInfoCache.push(...separatePackageInfoBrowser);
 
       if (signal?.aborted)
         throw new AbortedError(
-          '[buildForFederation] After separate-browser bundle',
+          '[buildForFederation] After separate-browser bundle'
         );
     }
 
@@ -158,11 +158,11 @@ export async function buildForFederation(
         config,
         fedOptions,
         'node',
-        pathToCache,
+        pathToCache
       );
       logger.measure(
         start,
-        '[build artifacts] - To bundle all separate node externals',
+        '[build artifacts] - To bundle all separate node externals'
       );
       sharedPackageInfoCache.push(...separatePackageInfoServer);
     }
@@ -214,13 +214,13 @@ async function bundleSeparate(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   platform: 'node' | 'browser',
-  pathToCache: string,
+  pathToCache: string
 ) {
   const bundlePromises = Object.entries(separateBrowser).map(
     async ([key, shared]) => {
       const packageName = inferPackageFromSecondary(key);
       const filteredExternals = externals.filter(
-        (e) => !e.startsWith(packageName),
+        (e) => !e.startsWith(packageName)
       );
       return bundleShared(
         { [key]: shared },
@@ -231,9 +231,9 @@ async function bundleSeparate(
         {
           pathToCache,
           bundleName: `${platform}-${normalizePackageName(key)}`,
-        },
+        }
       );
-    },
+    }
   );
 
   const buildResults = await Promise.all(bundlePromises);
@@ -241,7 +241,7 @@ async function bundleSeparate(
 }
 
 function splitShared(
-  shared: Record<string, NormalizedSharedConfig>,
+  shared: Record<string, NormalizedSharedConfig>
 ): SplitSharedResult {
   const sharedServer: Record<string, NormalizedSharedConfig> = {};
   const sharedBrowser: Record<string, NormalizedSharedConfig> = {};
