@@ -251,20 +251,25 @@ Some optional flags are offered to provide options for custom behavior of the `b
   });
   ```
 - `platformSharing: false`: Deactivate Platform sharing in the window object (not recommended):
+
   ```typescript
   bootstrap(AppModule, {
     production: environment.production,
     platformSharing: false, // defaults to true
   });
   ```
+
   - Possible, if dependencies are not shared or each bootstrapped remote app uses a different version.
+
 - `activeLegacyMode: false`: Deactivates the legacy mode that provides backwards compatibility for Platform sharing:
+
   ```typescript
   bootstrap(AppModule, {
     production: environment.production,
     activeLegacyMode: false, // defaults to true
   });
   ```
+
   - If all your micro frontends use `@angular-architects/module-federation-tools` in version `^12.6.0`, `^13.1.0` or any newer major version you can switch off the legacy mode manually.
   - Those versions introduced new features on how to share the Platform in the window object.
   - This allows to use the `bootstrap()` function even in such cases, where the same version is packed into different micro frontend bundles.
