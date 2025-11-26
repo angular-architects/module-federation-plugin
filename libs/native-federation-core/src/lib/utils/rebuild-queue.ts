@@ -1,45 +1,60 @@
 import { logger } from './logger';
 
+interface BuildControl {
+  controller: AbortController;
+  buildFinished: { resolve: () => void; promise: Promise<void> };
+}
+
 export class RebuildQueue {
-  private activeBuilds: Map<number, AbortController> = new Map();
+  private activeBuilds: Map<number, BuildControl> = new Map();
   private buildCounter = 0;
 
-  async enqueue(rebuildFn: () => Promise<void>): Promise<void> {
+  async enqueue(
+    rebuildFn: (signal: AbortSignal) => Promise<void>,
+  ): Promise<void> {
     const buildId = ++this.buildCounter;
 
-    for (const [_, controller] of this.activeBuilds) {
-      controller.abort();
+    const pendingCancellations = Array.from(this.activeBuilds.values()).map(
+      (buildInfo) => {
+        buildInfo.controller.abort();
+        return buildInfo.buildFinished.promise;
+      },
+    );
+
+    if (pendingCancellations.length > 0) {
+      logger.info(`Aborting ${pendingCancellations.length} bundling task(s)..`);
     }
-    if (this.activeBuildCount > 0)
-      logger.info(`Aborted ${this.activeBuildCount} previous bundling task(s)`);
 
-    this.activeBuilds.clear();
+    if (pendingCancellations.length > 0) {
+      await Promise.all(pendingCancellations);
+    }
 
-    const controller = new AbortController();
-    this.activeBuilds.set(buildId, controller);
+    let buildFinished: () => void;
+    const completionPromise = new Promise<void>((resolve) => {
+      buildFinished = resolve;
+    });
+
+    const control: BuildControl = {
+      controller: new AbortController(),
+      buildFinished: {
+        resolve: buildFinished!,
+        promise: completionPromise,
+      },
+    };
+    this.activeBuilds.set(buildId, control);
 
     try {
-      await rebuildFn();
+      await rebuildFn(control.controller.signal);
     } finally {
+      control.buildFinished.resolve();
       this.activeBuilds.delete(buildId);
     }
   }
 
-  abort(): void {
-    for (const [_, controller] of this.activeBuilds) {
-      controller.abort();
+  dispose(): void {
+    for (const [_, buildInfo] of this.activeBuilds) {
+      buildInfo.controller.abort();
     }
     this.activeBuilds.clear();
-  }
-
-  get signal(): AbortSignal | undefined {
-    if (this.activeBuilds.size === 0) return undefined;
-
-    const latestBuildId = Math.max(...this.activeBuilds.keys());
-    return this.activeBuilds.get(latestBuildId)?.signal;
-  }
-
-  get activeBuildCount(): number {
-    return this.activeBuilds.size;
   }
 }
