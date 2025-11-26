@@ -16,10 +16,12 @@ import { writeImportMap } from './write-import-map';
 import { logger } from '../utils/logger';
 import { getCachePath } from './bundle-caching';
 import { normalizeFilename } from '../utils/normalize';
+import { AbortedError } from '../utils/errors';
 
 export interface BuildParams {
   skipMappingsAndExposed: boolean;
   skipShared: boolean;
+  signal?: AbortSignal;
 }
 
 export const defaultBuildParams: BuildParams = {
@@ -35,6 +37,8 @@ export async function buildForFederation(
   externals: string[],
   buildParams = defaultBuildParams,
 ): Promise<FederationInfo> {
+  const signal = buildParams.signal;
+
   let artefactInfo: ArtefactInfo | undefined;
 
   if (!buildParams.skipMappingsAndExposed) {
@@ -43,11 +47,17 @@ export async function buildForFederation(
       config,
       fedOptions,
       externals,
+      signal,
     );
     logger.measure(
       start,
       '[build artifacts] - To bundle all mappings and exposed.',
     );
+
+    if (signal?.aborted)
+      throw new AbortedError(
+        '[buildForFederation] After exposed-and-mappings bundle',
+      );
   }
 
   const exposedInfo = !artefactInfo
@@ -91,6 +101,11 @@ export async function buildForFederation(
       );
 
       sharedPackageInfoCache.push(...sharedPackageInfoBrowser);
+
+      if (signal?.aborted)
+        throw new AbortedError(
+          '[buildForFederation] After shared-browser bundle',
+        );
     }
 
     if (Object.keys(sharedServer).length > 0) {
@@ -108,6 +123,9 @@ export async function buildForFederation(
         '[build artifacts] - To bundle all shared node externals',
       );
       sharedPackageInfoCache.push(...sharedPackageInfoServer);
+
+      if (signal?.aborted)
+        throw new AbortedError('[buildForFederation] After shared-node bundle');
     }
 
     if (Object.keys(separateBrowser).length > 0) {
@@ -125,6 +143,11 @@ export async function buildForFederation(
         '[build artifacts] - To bundle all separate browser externals',
       );
       sharedPackageInfoCache.push(...separatePackageInfoBrowser);
+
+      if (signal?.aborted)
+        throw new AbortedError(
+          '[buildForFederation] After separate-browser bundle',
+        );
     }
 
     if (Object.keys(separateServer).length > 0) {
@@ -143,6 +166,9 @@ export async function buildForFederation(
       );
       sharedPackageInfoCache.push(...separatePackageInfoServer);
     }
+
+    if (signal?.aborted)
+      throw new AbortedError('[buildForFederation] After separate-node bundle');
   }
 
   const sharedMappingInfo = !artefactInfo

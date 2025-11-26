@@ -1,4 +1,5 @@
 import {
+  AbortedError,
   BuildAdapter,
   logger,
   MappedPath,
@@ -71,6 +72,7 @@ export function createAngularBuildAdapter(
       hash,
       platform,
       optimizedMappings,
+      signal,
     } = options;
 
     setNgServerMode();
@@ -93,6 +95,7 @@ export function createAngularBuildAdapter(
       undefined,
       platform,
       optimizedMappings,
+      signal,
     );
 
     if (kind === 'shared-package') {
@@ -192,7 +195,12 @@ async function runEsbuild(
   logLevel: esbuild.LogLevel = 'warning',
   platform?: 'browser' | 'node',
   optimizedMappings?: boolean,
+  signal?: AbortSignal,
 ) {
+  if (signal?.aborted) {
+    throw new AbortedError('[angular-esbuild-adapter] Before building');
+  }
+
   const projectRoot = path.dirname(tsConfigPath);
   const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
   const target = transformSupportedBrowsersToTargets(browsers);
@@ -304,27 +312,46 @@ async function runEsbuild(
   };
 
   const ctx = await esbuild.context(config);
-  const result = await ctx.rebuild();
 
-  const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
+  try {
+    const abortHandler = async () => {
+      await ctx.cancel();
+      await ctx.dispose();
+    };
 
-  const writtenFiles = writeResult(result, outdir, memOnly);
+    if (signal) {
+      signal.addEventListener('abort', abortHandler, { once: true });
+    }
 
-  if (watch) {
-    registerForRebuilds(
-      kind,
-      rebuildRequested,
-      ctx,
-      entryPoints,
-      outdir,
-      hash,
-      memOnly,
-    );
-  } else {
-    ctx.dispose();
+    const result = await ctx.rebuild();
+
+    const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
+
+    const writtenFiles = writeResult(result, outdir, memOnly);
+
+    if (watch) {
+      registerForRebuilds(
+        kind,
+        rebuildRequested,
+        ctx,
+        entryPoints,
+        outdir,
+        hash,
+        memOnly,
+      );
+    } else {
+      if (signal) signal.removeEventListener('abort', abortHandler);
+      await ctx.dispose();
+    }
+    return writtenFiles;
+  } catch (error) {
+    // ESBuild throws an error if the request is cancelled.
+    // if it is, it's changed to an 'AbortedError'
+    if (signal?.aborted && error?.message?.includes('canceled')) {
+      throw new AbortedError('[runEsbuild] ESBuild was canceled.');
+    }
+    throw error;
   }
-
-  return writtenFiles;
 }
 
 async function getTailwindConfig(
@@ -404,14 +431,6 @@ function doesFileExistAndJsonEqual(path: string, content: string) {
   } catch (_error) {
     return false;
   }
-}
-
-function doesFileExist(path: string, content: string): boolean {
-  if (!fs.existsSync(path)) {
-    return false;
-  }
-  const currentContent = fs.readFileSync(path, 'utf-8');
-  return currentContent === content;
 }
 
 function writeResult(

@@ -193,6 +193,16 @@ export class FederationBuildNotifier {
   }
 
   /**
+   * Notifies about cancellation of a federation rebuild
+   */
+  public broadcastBuildCancellation(): void {
+    this._broadcastEvent({
+      type: BuildNotificationType.CANCELLED,
+      timestamp: Date.now(),
+    });
+  }
+
+  /**
    * Notifies about failed federation rebuild
    */
   public broadcastBuildError(error: unknown): void {

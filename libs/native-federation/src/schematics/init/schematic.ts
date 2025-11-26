@@ -300,7 +300,7 @@ function updateWorkspaceConfig(
     builder: '@angular-architects/native-federation:build',
     options: {
       target: `${projectName}:serve-original:development`,
-      rebuildDelay: 0,
+      rebuildDelay: 500,
       dev: true,
       port: 0,
     },

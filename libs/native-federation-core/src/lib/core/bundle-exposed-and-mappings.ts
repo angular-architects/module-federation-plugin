@@ -11,6 +11,7 @@ import { bundle } from '../utils/build-utils';
 import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
 import { FederationOptions } from './federation-options';
+import { AbortedError } from '../utils/errors';
 
 export interface ArtefactInfo {
   mappings: SharedInfo[];
@@ -21,7 +22,14 @@ export async function bundleExposedAndMappings(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
+  signal?: AbortSignal,
 ): Promise<ArtefactInfo> {
+  if (signal?.aborted) {
+    throw new AbortedError(
+      '[bundle-exposed-and-mappings] Aborted before bundling',
+    );
+  }
+
   const shared = config.sharedMappings.map((sm) => {
     const entryPoint = sm.path;
     const tmp = sm.key.replace(/[^A-Za-z0-9]/g, '_');
@@ -53,9 +61,17 @@ export async function bundleExposedAndMappings(
       kind: 'mapping-or-exposed',
       hash,
       optimizedMappings: config.features.ignoreUnusedDeps,
+      signal,
     });
+    if (signal?.aborted) {
+      throw new AbortedError(
+        '[bundle-exposed-and-mappings] Aborted after bundle',
+      );
+    }
   } catch (error) {
-    logger.error('Error building federation artefacts');
+    if (!(error instanceof AbortedError)) {
+      logger.error('Error building federation artefacts');
+    }
     throw error;
   }
 
