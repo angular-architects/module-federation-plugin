@@ -48,7 +48,7 @@ function withoutWildcard(template: string, wildcardValues: string[]) {
 export function resolveWildcardKeys(
   keyPattern: string,
   valuePattern: string,
-  cwd: string
+  cwd: string,
 ): KeyValuePair[] {
   const normalizedPattern = valuePattern.replace(/^\.?\/+/, '');
 

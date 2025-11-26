@@ -19,7 +19,7 @@ interface NormalizedSchema extends NativeFederationGeneratorSchema {
 
 function normalizeOptions(
   tree: Tree,
-  options: NativeFederationGeneratorSchema
+  options: NativeFederationGeneratorSchema,
 ): NormalizedSchema {
   const name = names(options.name).fileName;
   const projectDirectory = options.directory
@@ -51,13 +51,13 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
     tree,
     path.join(__dirname, 'files'),
     options.projectRoot,
-    templateOptions
+    templateOptions,
   );
 }
 
 export default async function (
   tree: Tree,
-  options: NativeFederationGeneratorSchema
+  options: NativeFederationGeneratorSchema,
 ) {
   const normalizedOptions = normalizeOptions(tree, options);
   addProjectConfiguration(tree, normalizedOptions.projectName, {

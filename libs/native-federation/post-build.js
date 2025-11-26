@@ -6,5 +6,5 @@ const index = fs.readFileSync(path.join(__dirname, 'src/index.ts'), {
 });
 fs.writeFileSync(
   path.join(__dirname, '../../dist/libs/native-federation/src/index.js'),
-  index
+  index,
 );
