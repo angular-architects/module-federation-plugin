@@ -120,7 +120,7 @@ function getExternalImports(pInfo: PackageInfo, workspaceRoot: string) {
   const cacheFileName = `${encodedPackageName}-${pInfo.version}.deps.json`;
   const cachePath = path.join(
     workspaceRoot,
-    'node_modules/.cache/native-federation',
+    'node_modules/.cache/native-federation/_externals-metadata',
   );
   const cacheFilePath = path.join(cachePath, cacheFileName);
 
