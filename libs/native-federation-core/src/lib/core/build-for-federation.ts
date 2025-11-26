@@ -35,7 +35,7 @@ export async function buildForFederation(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
-  buildParams = defaultBuildParams
+  buildParams = defaultBuildParams,
 ): Promise<FederationInfo> {
   const signal = buildParams.signal;
 
@@ -47,16 +47,16 @@ export async function buildForFederation(
       config,
       fedOptions,
       externals,
-      signal
+      signal,
     );
     logger.measure(
       start,
-      '[build artifacts] - To bundle all mappings and exposed.'
+      '[build artifacts] - To bundle all mappings and exposed.',
     );
 
     if (signal?.aborted)
       throw new AbortedError(
-        '[buildForFederation] After exposed-and-mappings bundle'
+        '[buildForFederation] After exposed-and-mappings bundle',
       );
   }
 
@@ -75,21 +75,21 @@ export async function buildForFederation(
         config,
         fedOptions,
         externals,
-        'browser'
+        'browser',
       );
 
       logger.measure(
         start,
-        '[build artifacts] - To bundle all shared browser externals'
+        '[build artifacts] - To bundle all shared browser externals',
       );
 
       sharedPackageInfoCache.push(...sharedPackageInfoBrowser);
       Object.keys(sharedBrowser).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
+        cachedSharedPackages.add(packageName),
       );
       if (signal?.aborted)
         throw new AbortedError(
-          '[buildForFederation] After shared-browser bundle'
+          '[buildForFederation] After shared-browser bundle',
         );
     }
 
@@ -100,15 +100,15 @@ export async function buildForFederation(
         config,
         fedOptions,
         externals,
-        'node'
+        'node',
       );
       logger.measure(
         start,
-        '[build artifacts] - To bundle all shared node externals'
+        '[build artifacts] - To bundle all shared node externals',
       );
       sharedPackageInfoCache.push(...sharedPackageInfoServer);
       Object.keys(sharedServer).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
+        cachedSharedPackages.add(packageName),
       );
       if (signal?.aborted)
         throw new AbortedError('[buildForFederation] After shared-node bundle');
@@ -121,19 +121,19 @@ export async function buildForFederation(
         externals,
         config,
         fedOptions,
-        'browser'
+        'browser',
       );
       logger.measure(
         start,
-        '[build artifacts] - To bundle all separate browser externals'
+        '[build artifacts] - To bundle all separate browser externals',
       );
       sharedPackageInfoCache.push(...separatePackageInfoBrowser);
       Object.keys(separateBrowser).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
+        cachedSharedPackages.add(packageName),
       );
       if (signal?.aborted)
         throw new AbortedError(
-          '[buildForFederation] After separate-browser bundle'
+          '[buildForFederation] After separate-browser bundle',
         );
     }
 
@@ -144,15 +144,15 @@ export async function buildForFederation(
         externals,
         config,
         fedOptions,
-        'node'
+        'node',
       );
       logger.measure(
         start,
-        '[build artifacts] - To bundle all separate node externals'
+        '[build artifacts] - To bundle all separate node externals',
       );
       sharedPackageInfoCache.push(...separatePackageInfoServer);
       Object.keys(separateServer).forEach((packageName) =>
-        cachedSharedPackages.add(packageName)
+        cachedSharedPackages.add(packageName),
       );
     }
 
@@ -202,22 +202,22 @@ async function bundleSeparate(
   externals: string[],
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
-  platform: 'node' | 'browser'
+  platform: 'node' | 'browser',
 ) {
   const bundlePromises = Object.entries(separateBrowser).map(
     async ([key, shared]) => {
       const packageName = inferPackageFromSecondary(key);
       const filteredExternals = externals.filter(
-        (e) => !e.startsWith(packageName)
+        (e) => !e.startsWith(packageName),
       );
       return bundleShared(
         { [key]: shared },
         config,
         fedOptions,
         filteredExternals,
-        platform
+        platform,
       );
-    }
+    },
   );
 
   const buildResults = await Promise.all(bundlePromises);
@@ -225,7 +225,7 @@ async function bundleSeparate(
 }
 
 function splitShared(
-  shared: Record<string, NormalizedSharedConfig>
+  shared: Record<string, NormalizedSharedConfig>,
 ): SplitSharedResult {
   const sharedServer: Record<string, NormalizedSharedConfig> = {};
   const sharedBrowser: Record<string, NormalizedSharedConfig> = {};

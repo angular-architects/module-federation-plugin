@@ -19,7 +19,7 @@ export function normalizeSkipList(skipList: SkipList = []): NormalizedSkipList {
 
 export function applySkipList(
   normalizedSkip: NormalizedSkipList,
-  shared: Shared
+  shared: Shared,
 ) {
   const filtered: Shared = {};
   for (const key in shared) {

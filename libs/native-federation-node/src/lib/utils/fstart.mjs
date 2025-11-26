@@ -78,7 +78,7 @@ function watchFederationBuildCompletion(endpoint) {
 // libs/native-federation-runtime/src/lib/init-federation.ts
 async function processRemoteInfos(
   remotes,
-  options = { throwIfRemoteNotFound: false }
+  options = { throwIfRemoteNotFound: false },
 ) {
   const processRemoteInfoPromises = Object.keys(remotes).map(
     async (remoteName) => {
@@ -97,13 +97,13 @@ async function processRemoteInfos(
         console.error(error);
         return null;
       }
-    }
+    },
   );
   const remoteImportMaps = await Promise.all(processRemoteInfoPromises);
   const importMap = remoteImportMaps.reduce(
     (acc, remoteImportMap) =>
       remoteImportMap ? mergeImportMaps(acc, remoteImportMap) : acc,
-    { imports: {}, scopes: {} }
+    { imports: {}, scopes: {} },
   );
   return importMap;
 }
@@ -115,7 +115,7 @@ async function processRemoteInfo(federationInfoUrl, remoteName) {
   }
   if (remoteInfo.buildNotificationsEndpoint) {
     watchFederationBuildCompletion(
-      baseUrl + remoteInfo.buildNotificationsEndpoint
+      baseUrl + remoteInfo.buildNotificationsEndpoint,
     );
   }
   const importMap = createRemoteImportMap(remoteInfo, remoteName, baseUrl);
@@ -158,7 +158,7 @@ async function processHostInfo(hostInfo, relBundlesPath = './') {
       ...acc,
       [cur.packageName]: relBundlesPath + cur.outFileName,
     }),
-    {}
+    {},
   );
   for (const shared of hostInfo.shared) {
     setExternalUrl(shared, relBundlesPath + shared.outFileName);
@@ -183,7 +183,7 @@ function resolveAndComposeImportMap(parsed) {
     }
     sortedAndNormalizedImports = sortAndNormalizeSpecifierMap(
       parsed.imports,
-      baseURL
+      baseURL,
     );
   }
   let sortedAndNormalizedScopes = {};
@@ -194,13 +194,13 @@ function resolveAndComposeImportMap(parsed) {
     sortedAndNormalizedScopes = sortAndNormalizeScopes(parsed.scopes, baseURL);
   }
   const invalidKeys = Object.keys(parsed).filter(
-    (key) => key !== 'imports' && key !== 'scopes'
+    (key) => key !== 'imports' && key !== 'scopes',
   );
   if (invalidKeys.length > 0) {
     console.warn(
       `Invalid top-level key${
         invalidKeys.length > 0 ? 's' : ''
-      } in import map - ${invalidKeys.join(', ')}`
+      } in import map - ${invalidKeys.join(', ')}`,
     );
   }
   return {
@@ -214,7 +214,7 @@ function sortAndNormalizeSpecifierMap(map, baseURL2) {
     const value = map[specifierKey];
     const normalizedSpecifierKey = normalizeSpecifierKey(
       specifierKey,
-      baseURL2
+      baseURL2,
     );
     if (normalizedSpecifierKey === null) {
       continue;
@@ -222,14 +222,14 @@ function sortAndNormalizeSpecifierMap(map, baseURL2) {
     let addressURL = parseURLLikeSpecifier(value, baseURL2);
     if (addressURL === null) {
       console.warn(
-        `Invalid URL address for import map specifier '${specifierKey}'`
+        `Invalid URL address for import map specifier '${specifierKey}'`,
       );
       normalized[normalizedSpecifierKey] = null;
       continue;
     }
     if (specifierKey.endsWith('/') && !addressURL.endsWith('/')) {
       console.warn(
-        `Invalid URL address for import map specifier '${specifierKey}' - since the specifier ends in slash, so must the address`
+        `Invalid URL address for import map specifier '${specifierKey}' - since the specifier ends in slash, so must the address`,
       );
       normalized[normalizedSpecifierKey] = null;
       continue;
@@ -262,7 +262,7 @@ function sortAndNormalizeScopes(map, baseURL2) {
     const potentialSpecifierMap = map[scopePrefix];
     if (!isPlainObject(potentialSpecifierMap)) {
       throw TypeError(
-        `The value of scope ${scopePrefix} must be a JSON object`
+        `The value of scope ${scopePrefix} must be a JSON object`,
       );
     }
     let scopePrefixURL;
@@ -270,13 +270,13 @@ function sortAndNormalizeScopes(map, baseURL2) {
       scopePrefixURL = new URL(scopePrefix, baseURL2).href;
     } catch {
       console.warn(
-        `Scope prefix URL '${scopePrefix}' was not parseable in import map`
+        `Scope prefix URL '${scopePrefix}' was not parseable in import map`,
       );
       continue;
     }
     normalized[scopePrefixURL] = sortAndNormalizeSpecifierMap(
       potentialSpecifierMap,
-      baseURL2
+      baseURL2,
     );
   }
   return normalized;
@@ -299,7 +299,7 @@ async function getImportMapPromise() {
     json = await JSON.parse(str);
   } catch (err) {
     throw Error(
-      `Import map at ${importMapPath} contains invalid json: ${err.message}`
+      `Import map at ${importMapPath} contains invalid json: ${err.message}`,
     );
   }
   return resolveAndComposeImportMap(json);
@@ -361,7 +361,7 @@ async function writeImportMap(map) {
   await fs2.writeFile(
     IMPORT_MAP_FILE_NAME,
     JSON.stringify(map, null, 2),
-    'utf-8'
+    'utf-8',
   );
 }
 async function writeResolver() {

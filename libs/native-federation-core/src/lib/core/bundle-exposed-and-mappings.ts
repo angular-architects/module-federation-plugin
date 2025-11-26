@@ -22,11 +22,11 @@ export async function bundleExposedAndMappings(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<ArtefactInfo> {
   if (signal?.aborted) {
     throw new AbortedError(
-      '[bundle-exposed-and-mappings] Aborted before bundling'
+      '[bundle-exposed-and-mappings] Aborted before bundling',
     );
   }
 
@@ -65,7 +65,7 @@ export async function bundleExposedAndMappings(
     });
     if (signal?.aborted) {
       throw new AbortedError(
-        '[bundle-exposed-and-mappings] Aborted after bundle'
+        '[bundle-exposed-and-mappings] Aborted after bundle',
       );
     }
   } catch (error) {
@@ -107,7 +107,7 @@ export async function bundleExposedAndMappings(
         ? undefined
         : {
             entryPoint: normalize(
-              path.join(fedOptions.workspaceRoot, item.fileName)
+              path.join(fedOptions.workspaceRoot, item.fileName),
             ),
           },
     });
@@ -118,13 +118,13 @@ export async function bundleExposedAndMappings(
 
 export function describeExposed(
   config: NormalizedFederationConfig,
-  options: FederationOptions
+  options: FederationOptions,
 ): Array<ExposesInfo> {
   const result: Array<ExposesInfo> = [];
 
   for (const key in config.exposes) {
     const localPath = normalize(
-      path.normalize(path.join(options.workspaceRoot, config.exposes[key]))
+      path.normalize(path.join(options.workspaceRoot, config.exposes[key])),
     );
 
     result.push({
@@ -143,7 +143,7 @@ export function describeExposed(
 
 export function describeSharedMappings(
   config: NormalizedFederationConfig,
-  fedOptions: FederationOptions
+  fedOptions: FederationOptions,
 ): Array<SharedInfo> {
   const result: Array<SharedInfo> = [];
 

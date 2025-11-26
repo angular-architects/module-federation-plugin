@@ -9,12 +9,12 @@ import { BuildBuilderSchema } from './schema';
 
 export function runBuilder(
   options: BuildBuilderSchema,
-  context: BuilderContext
+  context: BuilderContext,
 ): Observable<BuilderOutput> {
   return of({ success: true }).pipe(
     tap(() => {
       context.logger.info('Builder ran for build');
-    })
+    }),
   );
 }
 

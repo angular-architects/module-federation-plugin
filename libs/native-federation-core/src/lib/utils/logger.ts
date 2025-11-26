@@ -28,7 +28,7 @@ export const logger = {
 
     console.log(
       chalk.bgGreen.ansi256(15)(' DBG! '),
-      `${timeStr} - ${milestone}`
+      `${timeStr} - ${milestone}`,
     );
   },
 };

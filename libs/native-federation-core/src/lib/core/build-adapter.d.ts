@@ -25,7 +25,7 @@ export interface BuildResult {
   fileName: string;
 }
 export type BuildAdapter = (
-  options: BuildAdapterOptions
+  options: BuildAdapterOptions,
 ) => Promise<BuildResult[]>;
 export declare function setBuildAdapter(buildAdapter: BuildAdapter): void;
 export declare function getBuildAdapter(): BuildAdapter;

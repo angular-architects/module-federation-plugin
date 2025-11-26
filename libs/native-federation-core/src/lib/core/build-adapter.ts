@@ -40,7 +40,7 @@ export interface BuildResult {
 }
 
 export type BuildAdapter = (
-  options: BuildAdapterOptions
+  options: BuildAdapterOptions,
 ) => Promise<BuildResult[]>;
 
 export function setBuildAdapter(buildAdapter: BuildAdapter): void {

@@ -5,6 +5,6 @@ export function appendImportMap(importMap: ImportMap) {
     Object.assign(document.createElement('script'), {
       type: 'importmap-shim',
       innerHTML: JSON.stringify(importMap),
-    })
+    }),
   );
 }

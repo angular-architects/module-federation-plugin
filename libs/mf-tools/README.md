@@ -226,11 +226,7 @@ events = {
 ```
 
 ```html
-<mft-wc-wrapper
-  [options]="item"
-  [props]="props"
-  [events]="events"
-></mft-wc-wrapper>
+<mft-wc-wrapper [options]="item" [props]="props" [events]="events"></mft-wc-wrapper>
 ```
 
 ## Some Additional Details

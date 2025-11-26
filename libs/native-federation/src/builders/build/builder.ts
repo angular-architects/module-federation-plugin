@@ -56,7 +56,7 @@ const originalWrite = process.stderr.write.bind(process.stderr);
 process.stderr.write = function (
   chunk: string | Uint8Array,
   encodingOrCallback?: BufferEncoding | ((err?: Error) => void),
-  callback?: (err?: Error) => void
+  callback?: (err?: Error) => void,
 ): boolean {
   const str = typeof chunk === 'string' ? chunk : chunk.toString();
 
@@ -88,12 +88,12 @@ function _buildApplication(options, context, pluginsOrExtensions) {
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
-  context: BuilderContext
+  context: BuilderContext,
 ): AsyncIterable<BuilderOutput> {
   let target = targetFromTargetString(nfOptions.target);
 
   let targetOptions = (await context.getTargetOptions(
-    target
+    target,
   )) as unknown as JsonObject & ApplicationBuilderOptions;
 
   let builder = await context.getBuilderNameForTarget(target);
@@ -134,7 +134,7 @@ export async function* runBuilder(
           port: nfOptions.port || targetOptions['port'],
         }
       : targetOptions,
-    builder
+    builder,
   )) as JsonObject & ApplicationBuilderOptions;
 
   let serverOptions = null;
@@ -146,18 +146,18 @@ export async function* runBuilder(
     serverOptions = await normalizeOptions(
       context,
       context.target.project,
-      options as unknown as DevServerSchema
+      options as unknown as DevServerSchema,
     );
 
     target = targetFromTargetString(options['buildTarget'] as string);
     targetOptions = (await context.getTargetOptions(
-      target
+      target,
     )) as unknown as JsonObject & ApplicationBuilderOptions;
 
     builder = await context.getBuilderNameForTarget(target);
     options = (await context.validateOptions(
       targetOptions,
-      builder
+      builder,
     )) as JsonObject & ApplicationBuilderOptions;
   }
 
@@ -205,7 +205,7 @@ export async function* runBuilder(
   const browserOutputPath = path.join(
     outputOptions.base,
     outputOptions.browser,
-    options.localize ? sourceLocaleSegment : ''
+    options.localize ? sourceLocaleSegment : '',
   );
 
   const differentDevServerOutputPath =
@@ -242,7 +242,7 @@ export async function* runBuilder(
       setup(build: PluginBuild) {
         if (!activateSsr && build.initialOptions.platform !== 'node') {
           build.initialOptions.external = externals.filter(
-            (e) => e !== 'tslib'
+            (e) => e !== 'tslib',
           );
         }
       },
@@ -265,7 +265,7 @@ export async function* runBuilder(
     ...(isLocalDevelopment
       ? [
           federationBuildNotifier.createEventMiddleware((req) =>
-            removeBaseHref(req, options.baseHref)
+            removeBaseHref(req, options.baseHref),
           ),
         ]
       : []),
@@ -276,7 +276,7 @@ export async function* runBuilder(
       const fileName = path.join(
         fedOptions.workspaceRoot,
         devServerOutputPath,
-        url
+        url,
       );
 
       const exists = fs.existsSync(fileName);
@@ -347,7 +347,7 @@ export async function* runBuilder(
       i18n,
       localeFilter,
       outputOptions.base,
-      federationResult
+      federationResult,
     );
     logger.measure(start, 'To translate the artifacts.');
   }
@@ -368,7 +368,7 @@ export async function* runBuilder(
         {
           buildPlugins: plugins as any,
           middleware,
-        }
+        },
       )
     : buildApplication(options, context, {
         codePlugins: plugins as any,
@@ -383,13 +383,13 @@ export async function* runBuilder(
 
       if (!write && output['outputFiles']) {
         memResults.add(
-          output['outputFiles'].map((file) => new EsBuildResult(file))
+          output['outputFiles'].map((file) => new EsBuildResult(file)),
         );
       }
 
       if (!write && output['assetFiles']) {
         memResults.add(
-          output['assetFiles'].map((file) => new NgCliAssetResult(file))
+          output['assetFiles'].map((file) => new NgCliAssetResult(file)),
         );
       }
 
@@ -434,7 +434,7 @@ export async function* runBuilder(
                 skipMappingsAndExposed: false,
                 skipShared: true,
                 signal,
-              }
+              },
             );
 
             if (signal?.aborted) {
@@ -446,13 +446,13 @@ export async function* runBuilder(
                 i18n,
                 localeFilter,
                 outputOptions.base,
-                federationResult
+                federationResult,
               );
             }
 
             if (signal?.aborted) {
               throw new AbortedError(
-                '[builder] After federation translations.'
+                '[builder] After federation translations.',
               );
             }
 
@@ -466,7 +466,7 @@ export async function* runBuilder(
           .catch((error) => {
             if (error instanceof AbortedError) {
               logger.verbose(
-                'Rebuild was canceled. Cancellation point: ' + error?.message
+                'Rebuild was canceled. Cancellation point: ' + error?.message,
               );
               federationBuildNotifier.broadcastBuildCancellation();
             } else {
@@ -511,7 +511,7 @@ function writeFstartScript(fedOptions: FederationOptions) {
 
 function getLocaleFilter(
   options: ApplicationBuilderOptions,
-  runServer: boolean
+  runServer: boolean,
 ) {
   let localize = options.localize || false;
 
@@ -533,11 +533,11 @@ function inferConfigPath(tsConfig: string): string {
 }
 
 function transformIndexHtml(
-  nfOptions: NfBuilderSchema
+  nfOptions: NfBuilderSchema,
 ): (content: string) => Promise<string> {
   return (content: string): Promise<string> =>
     Promise.resolve(
-      updateScriptTags(content, 'main.js', 'polyfills.js', nfOptions)
+      updateScriptTags(content, 'main.js', 'polyfills.js', nfOptions),
     );
 }
 

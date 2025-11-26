@@ -120,7 +120,7 @@ function getPlatformCache(): Map<Version, PlatformRef> {
   return (
     getGlobalStateSlice(
       (state: { platformCache: Map<Version, PlatformRef> }) =>
-        state.platformCache
+        state.platformCache,
     ) ||
     setGlobalStateSlice({
       platformCache: new Map<Version, PlatformRef>(),
@@ -173,7 +173,7 @@ export function shareNgZone(zone: NgZone): void {
 
 export function bootstrap<M>(
   module: Type<M>,
-  options: Options
+  options: Options,
 ): Promise<NgModuleRef<M>> {
   ngZoneSharing = options.ngZoneSharing !== false;
   platformSharing = options.platformSharing !== false;

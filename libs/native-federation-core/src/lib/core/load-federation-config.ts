@@ -5,11 +5,11 @@ import * as fs from 'fs';
 import { removeUnusedDeps } from './remove-unused-deps';
 
 export async function loadFederationConfig(
-  fedOptions: FederationOptions
+  fedOptions: FederationOptions,
 ): Promise<NormalizedFederationConfig> {
   const fullConfigPath = path.join(
     fedOptions.workspaceRoot,
-    fedOptions.federationConfig
+    fedOptions.federationConfig,
   );
 
   if (!fs.existsSync(fullConfigPath)) {
@@ -20,7 +20,7 @@ export async function loadFederationConfig(
 
   if (config.features.ignoreUnusedDeps && !fedOptions.entryPoint) {
     throw new Error(
-      `The feature ignoreUnusedDeps needs the application's entry point. Please set it in your federation options!`
+      `The feature ignoreUnusedDeps needs the application's entry point. Please set it in your federation options!`,
     );
   }
 
@@ -30,7 +30,7 @@ export async function loadFederationConfig(
     return removeUnusedDeps(
       config,
       fedOptions.entryPoint ?? '',
-      fedOptions.workspaceRoot
+      fedOptions.workspaceRoot,
     );
   }
 

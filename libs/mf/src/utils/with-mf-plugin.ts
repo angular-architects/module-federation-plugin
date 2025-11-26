@@ -65,7 +65,7 @@ export function withModuleFederationPlugin(config: unknown) {
 function setDefaults(
   config: unknown,
   mappings: SharedMappings,
-  skip: string[]
+  skip: string[],
 ) {
   if (!config['library']) {
     config['library'] = {
@@ -84,7 +84,7 @@ function setDefaults(
         strictVersion: true,
         requiredVersion: 'auto',
       },
-      skip
+      skip,
     );
   }
 
@@ -122,7 +122,7 @@ function createModifyEntryPlugin(config: unknown) {
         'Pinned dependencies in combination with build-time remotes are not allowed. ',
         'Either remove "pinned: true" from all shared dependencies or delete all ',
         'remotes in your webpack config and use runtime remote loading instead.',
-      ].join('')
+      ].join(''),
     );
   }
 

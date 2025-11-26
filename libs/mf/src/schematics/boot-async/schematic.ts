@@ -16,7 +16,7 @@ export default function bootAsync(options: BootAsyncSchema): Rule {
 
     if (!options.project) {
       throw new Error(
-        `No default project found. Please specifiy a project name!`
+        `No default project found. Please specifiy a project name!`,
       );
     }
 
@@ -25,7 +25,7 @@ export default function bootAsync(options: BootAsyncSchema): Rule {
 
     if (!projectConfig?.architect?.build?.options?.main) {
       throw new Error(
-        `architect.build.options.main not found for project ` + projectName
+        `architect.build.options.main not found for project ` + projectName,
       );
     }
 

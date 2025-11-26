@@ -56,13 +56,13 @@ const mappings = ${ssrMappings};
 CustomResourceLoader.prototype.fetch = createFetch(mappings);
 
 const ssrEngine = new Engine();
-`
+`,
     );
 
     // Compensate for issue with version 12.0.0
     content = content.replace(
       'const HOST = `http://localhost:${PORT}`;',
-      'const HOST = `localhost:${PORT}`;'
+      'const HOST = `localhost:${PORT}`;',
     );
 
     tree.overwrite(server, content);
@@ -108,7 +108,7 @@ export function getWorkspaceFileName(tree: Tree): string {
     return 'workspace.json';
   }
   throw new Error(
-    "angular.json or workspace.json expected! Did you call this in your project's root?"
+    "angular.json or workspace.json expected! Did you call this in your project's root?",
   );
 }
 
@@ -118,7 +118,7 @@ interface PackageJson {
 
 function updatePackageJson(tree: Tree): void {
   const packageJson: PackageJson = JSON.parse(
-    tree.read('package.json').toString('utf-8')
+    tree.read('package.json').toString('utf-8'),
   );
 
   if (!packageJson.scripts) {
@@ -169,7 +169,7 @@ async function generateWebpackConfig(
   projectRoot: string,
   projectSourceRoot: string,
   appComponent: string,
-  options: MfSchematicSchema
+  options: MfSchematicSchema,
 ) {
   const tmpl = url('./files');
 
@@ -205,7 +205,7 @@ export default function config(options: MfSchematicSchema): Rule {
 
     if (!options.project) {
       throw new Error(
-        `No default project found. Please specifiy a project name!`
+        `No default project found. Please specifiy a project name!`,
       );
     }
 
@@ -219,7 +219,7 @@ export default function config(options: MfSchematicSchema): Rule {
     const projectRoot: string = projectConfig.root?.replace(/\\/g, '/');
     const projectSourceRoot: string = projectConfig.sourceRoot?.replace(
       /\\/g,
-      '/'
+      '/',
     );
 
     const configPath = path
@@ -239,13 +239,13 @@ export default function config(options: MfSchematicSchema): Rule {
 
     if (isApplicationBuilder && !options.skipConfirmation) {
       console.warn(
-        `\nWARNING: This package uses the traditional webpack-based Module Federation implementation and not the fast new esbuild-based ApplicationBuilder.`
+        `\nWARNING: This package uses the traditional webpack-based Module Federation implementation and not the fast new esbuild-based ApplicationBuilder.`,
       );
       console.warn(
-        `\nFor new projects, consider Native Federation as an alternative: https://shorturl.at/0ZQ0j`
+        `\nFor new projects, consider Native Federation as an alternative: https://shorturl.at/0ZQ0j`,
       );
       console.warn(
-        `\nHowever, if you want to add a new host or remote to an existing Module Federation-based system, this package is what you are looking for.`
+        `\nHowever, if you want to add a new host or remote to an existing Module Federation-based system, this package is what you are looking for.`,
       );
       console.warn(`\nDo you want to proceeed: [y] Yes [n] No \n`);
 
@@ -295,8 +295,8 @@ export default function config(options: MfSchematicSchema): Rule {
     const appComponent = tree.exists(cand1)
       ? cand1
       : tree.exists(cand2)
-      ? cand2
-      : 'update-this.ts';
+        ? cand2
+        : 'update-this.ts';
 
     let generateRule = null;
 
@@ -306,7 +306,7 @@ export default function config(options: MfSchematicSchema): Rule {
         projectName,
         remotes,
         relTsConfigPath,
-        projectRoot
+        projectRoot,
       );
       tree.create(configPath, webpackConfig);
     } else {
@@ -315,7 +315,7 @@ export default function config(options: MfSchematicSchema): Rule {
         projectRoot,
         projectSourceRoot,
         appComponent,
-        options
+        options,
       );
     }
 
@@ -327,7 +327,7 @@ export default function config(options: MfSchematicSchema): Rule {
 
     if (options.nxBuilders && !nxBuildersAvailable(tree)) {
       console.info(
-        'To use Nx builders, make sure you have Nx version 12.9 or higher!'
+        'To use Nx builders, make sure you have Nx version 12.9 or higher!',
       );
       options.nxBuilders = false;
     } else if (typeof options.nxBuilders === 'undefined') {
@@ -354,7 +354,7 @@ export default function config(options: MfSchematicSchema): Rule {
 
     if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
       throw new Error(
-        `The project doesn't have a build or serve target in angular.json!`
+        `The project doesn't have a build or serve target in angular.json!`,
       );
     }
 
@@ -517,7 +517,7 @@ function generateRemoteConfig(workspace: any, projectName: string) {
       const pPort = project.architect.serve.options?.port ?? 4200;
 
       remotes += `        //     "${strings.camelize(
-        p
+        p,
       )}": "http://localhost:${pPort}/remoteEntry.js",\n`;
     }
   }
@@ -556,7 +556,7 @@ function generateRemoteMap(workspace: any, projectName: string) {
 
 export function generateSsrMappings(
   workspace: any,
-  projectName: string
+  projectName: string,
 ): string {
   let remotes = '{\n';
 
