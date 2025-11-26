@@ -18,12 +18,12 @@ export class ModifyEntryPlugin {
         ...cfgOrRemove(
           (v) => ({ import: v }),
           (c) => c.import,
-          key
+          key,
         ),
         ...cfgOrRemove(
           (v) => ({ dependOn: v }),
           (c) => c.dependOn,
-          key
+          key,
         ),
       };
     });

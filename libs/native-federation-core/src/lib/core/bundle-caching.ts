@@ -13,7 +13,7 @@ export const getFilename = (checksum: string, title: string) => {
 };
 
 export const getChecksum = (
-  shared: Record<string, NormalizedSharedConfig>
+  shared: Record<string, NormalizedSharedConfig>,
 ): string => {
   const denseExternals = Object.keys(shared)
     .sort()
@@ -31,7 +31,7 @@ export const getChecksum = (
 
 export const cacheEntry = (pathToCache: string, fileName: string) => ({
   getMetadata: (
-    checksum: string
+    checksum: string,
   ):
     | {
         checksum: string;
@@ -59,14 +59,14 @@ export const cacheEntry = (pathToCache: string, fileName: string) => ({
     fs.writeFileSync(
       path.join(pathToCache, fileName),
       JSON.stringify(payload),
-      'utf-8'
+      'utf-8',
     );
   },
   copyFiles: (fullOutputPath: string) => {
     const metadataFile = path.join(pathToCache, fileName);
     if (!fs.existsSync(metadataFile))
       throw new Error(
-        'Error copying artifacts to dist, metadata file could not be found.'
+        'Error copying artifacts to dist, metadata file could not be found.',
       );
 
     const cachedResult: {
@@ -93,7 +93,7 @@ export const cacheEntry = (pathToCache: string, fileName: string) => ({
     }
     if (!fs.existsSync(metadataFile)) {
       logger.warn(
-        `Could not purge cache, metadata file '${fileName}' could not be found.`
+        `Could not purge cache, metadata file '${fileName}' could not be found.`,
       );
       return;
     }

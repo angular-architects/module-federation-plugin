@@ -5,7 +5,7 @@ import { FederationOptions } from './federation-options';
 
 export function writeImportMap(
   sharedInfo: SharedInfo[],
-  fedOption: FederationOptions
+  fedOption: FederationOptions,
 ) {
   const imports = sharedInfo.reduce((acc, cur) => {
     return {
@@ -18,7 +18,7 @@ export function writeImportMap(
   const importMapPath = path.join(
     fedOption.workspaceRoot,
     fedOption.outputPath,
-    'importmap.json'
+    'importmap.json',
   );
   fs.writeFileSync(importMapPath, JSON.stringify(importMap, null, 2));
 }

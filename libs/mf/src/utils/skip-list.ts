@@ -1,4 +1,4 @@
-import { SharedObject } from '@module-federation/enhanced/dist/src/declarations/plugins/sharing/SharePlugin';
+import { Shared } from '@rspack/core/dist/sharing/SharePlugin';
 
 export type CheckSkipFn = (packageName: string) => boolean;
 export type SkipListItem = string | RegExp | CheckSkipFn;
@@ -19,9 +19,9 @@ export function normalizeSkipList(skipList: SkipList = []): NormalizedSkipList {
 
 export function applySkipList(
   normalizedSkip: NormalizedSkipList,
-  shared: SharedObject
+  shared: Shared,
 ) {
-  const filtered: SharedObject = {};
+  const filtered: Shared = {};
   for (const key in shared) {
     if (!normalizedSkip.find((f) => f(key))) {
       filtered[key] = shared[key];

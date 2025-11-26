@@ -3,7 +3,7 @@ import * as path from 'path';
 
 export function resolveGlobSync(
   pattern: string,
-  baseDir = process.cwd()
+  baseDir = process.cwd(),
 ): string[] {
   if (pattern.startsWith('./')) {
     pattern = pattern.substring(2);
@@ -25,13 +25,13 @@ export function resolveGlobSync(
       entries
         .filter((entry) => entry.isDirectory())
         .forEach((entry) =>
-          search(path.join(dir, entry.name), segmentIndex + 1)
+          search(path.join(dir, entry.name), segmentIndex + 1),
         );
     } else {
       entries
         .filter((entry) => entry.name === segment)
         .forEach((entry) =>
-          search(path.join(dir, entry.name), segmentIndex + 1)
+          search(path.join(dir, entry.name), segmentIndex + 1),
         );
     }
   }

@@ -27,7 +27,7 @@ export function print(
   prefix: string,
   prefixSize: number,
   message: string,
-  error = false
+  error = false,
 ): void {
   const hash = crypt.createHash('sha256').update(prefix).digest('hex');
 

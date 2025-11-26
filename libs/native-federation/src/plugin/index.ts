@@ -51,7 +51,7 @@ export const federation = (params: BuildHelperParams) => {
 const configureDevServer = async (
   server: any,
   params: BuildHelperParams,
-  fedInfo: FedInfoRef
+  fedInfo: FedInfoRef,
 ) => {
   await federationBuilder.build();
 
@@ -63,10 +63,10 @@ const configureDevServer = async (
 const serveFromDist = (dist: string, fedInfoRef: FedInfoRef) => {
   const fedFiles = new Set([
     ...fedInfoRef.federationInfo.shared.map((s) =>
-      path.join('/', s.outFileName)
+      path.join('/', s.outFileName),
     ),
     ...fedInfoRef.federationInfo.exposes.map((e) =>
-      path.join('/', e.outFileName)
+      path.join('/', e.outFileName),
     ),
     '/remoteEntry.json',
   ]);

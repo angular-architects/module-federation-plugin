@@ -37,7 +37,7 @@ export type PreparedSkipList = {
 export function prepareSkipList(skipList: SkipList): PreparedSkipList {
   return {
     strings: new Set<string>(
-      skipList.filter((e) => typeof e === 'string') as string[]
+      skipList.filter((e) => typeof e === 'string') as string[],
     ),
     functions: skipList.filter((e) => typeof e === 'function') as SkipFn[],
     regexps: skipList.filter((e) => typeof e === 'object') as RegExp[],
@@ -46,7 +46,7 @@ export function prepareSkipList(skipList: SkipList): PreparedSkipList {
 
 export function isInSkipList(
   entry: string,
-  skipList: PreparedSkipList
+  skipList: PreparedSkipList,
 ): boolean {
   if (skipList.strings.has(entry)) {
     return true;

@@ -44,7 +44,7 @@ import { isDeepStrictEqual } from 'node:util';
 
 export type MemResultHandler = (
   outfiles: esbuild.OutputFile[],
-  outdir?: string
+  outdir?: string,
 ) => void;
 
 let _memResultHandler: MemResultHandler;
@@ -56,7 +56,7 @@ export function setMemResultHandler(handler: MemResultHandler): void {
 export function createAngularBuildAdapter(
   builderOptions: ApplicationBuilderOptions,
   context: BuilderContext,
-  rebuildRequested: RebuildEvents = new RebuildHubs()
+  rebuildRequested: RebuildEvents = new RebuildHubs(),
 ): BuildAdapter {
   return async (options) => {
     const {
@@ -92,19 +92,19 @@ export function createAngularBuildAdapter(
       undefined,
       undefined,
       platform,
-      optimizedMappings
+      optimizedMappings,
     );
 
     if (kind === 'shared-package') {
       const scriptFiles = files.filter(
-        (f) => f.endsWith('.js') || f.endsWith('.mjs')
+        (f) => f.endsWith('.js') || f.endsWith('.mjs'),
       );
       for (const file of scriptFiles) {
         link(file, dev);
       }
     }
 
-    return files.map((fileName) => ({ fileName } as BuildResult));
+    return files.map((fileName) => ({ fileName }) as BuildResult);
 
     // TODO: Do we still need rollup as esbuilt evolved?
     // if (kind === 'shared-package') {
@@ -143,7 +143,7 @@ export function createAngularBuildAdapter(
 
     try {
       const linkerEsm = await loadEsmModule<{ default: PluginItem }>(
-        '@angular/compiler-cli/linker/babel'
+        '@angular/compiler-cli/linker/babel',
       );
 
       const linker = linkerEsm.default;
@@ -191,7 +191,7 @@ async function runEsbuild(
   absWorkingDir: string | undefined = undefined,
   logLevel: esbuild.LogLevel = 'warning',
   platform?: 'browser' | 'node',
-  optimizedMappings?: boolean
+  optimizedMappings?: boolean,
 ) {
   const projectRoot = path.dirname(tsConfigPath);
   const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
@@ -200,7 +200,7 @@ async function runEsbuild(
   const workspaceRoot = context.workspaceRoot;
 
   const optimizationOptions = normalizeOptimization(
-    builderOptions.optimization
+    builderOptions.optimization,
   );
   const sourcemapOptions = normalizeSourceMaps(builderOptions.sourceMap);
 
@@ -208,9 +208,8 @@ async function runEsbuild(
     projectRoot,
     workspaceRoot,
   ]);
-  const postcssConfiguration = await loadPostcssConfiguration(
-    searchDirectories
-  );
+  const postcssConfiguration =
+    await loadPostcssConfiguration(searchDirectories);
   const tailwindConfiguration = postcssConfiguration
     ? undefined
     : await getTailwindConfig(searchDirectories);
@@ -233,7 +232,7 @@ async function runEsbuild(
     tsConfigPath = createTsConfigForFederation(
       workspaceRoot,
       tsConfigPath,
-      entryPoints
+      entryPoints,
     );
   }
 
@@ -255,7 +254,7 @@ async function runEsbuild(
       postcssConfiguration,
     } as any,
     target,
-    undefined
+    undefined,
   );
 
   const commonjsPluginModule = await import('@chialab/esbuild-plugin-commonjs');
@@ -289,7 +288,7 @@ async function runEsbuild(
     plugins: (plugins as any) || [
       createCompilerPlugin(
         pluginOptions.pluginOptions,
-        pluginOptions.styleOptions
+        pluginOptions.styleOptions,
       ),
       ...(mappedPaths && mappedPaths.length > 0
         ? [createSharedMappingsPlugin(mappedPaths)]
@@ -301,6 +300,7 @@ async function runEsbuild(
       ngJitMode: 'false',
     },
     ...(builderOptions.loader ? { loader: builderOptions.loader } : {}),
+    resolveExtensions: ['.ts', '.tsx', '.mjs', '.js', '.cjs'],
   };
 
   const ctx = await esbuild.context(config);
@@ -318,7 +318,7 @@ async function runEsbuild(
       entryPoints,
       outdir,
       hash,
-      memOnly
+      memOnly,
     );
   } else {
     ctx.dispose();
@@ -328,7 +328,7 @@ async function runEsbuild(
 }
 
 async function getTailwindConfig(
-  searchDirectories: { root: string; files: Set<string> }[]
+  searchDirectories: { root: string; files: Set<string> }[],
 ): Promise<{ file: string; package: string } | undefined> {
   const tailwindConfigurationPath =
     findTailwindConfiguration(searchDirectories);
@@ -346,7 +346,7 @@ async function getTailwindConfig(
 function createTsConfigForFederation(
   workspaceRoot: string,
   tsConfigPath: string,
-  entryPoints: EntryPoint[]
+  entryPoints: EntryPoint[],
 ) {
   const fullTsConfigPath = path.join(workspaceRoot, tsConfigPath);
   const tsconfigDir = path.dirname(fullTsConfigPath);
@@ -354,7 +354,7 @@ function createTsConfigForFederation(
   const filtered = entryPoints
     .filter(
       (ep) =>
-        !ep.fileName.includes('/node_modules/') && !ep.fileName.startsWith('.')
+        !ep.fileName.includes('/node_modules/') && !ep.fileName.startsWith('.'),
     )
     .map((ep) => path.relative(tsconfigDir, ep.fileName).replace(/\\\\/g, '/'));
 
@@ -417,7 +417,7 @@ function doesFileExist(path: string, content: string): boolean {
 function writeResult(
   result: esbuild.BuildResult<esbuild.BuildOptions>,
   outdir: string,
-  memOnly: boolean
+  memOnly: boolean,
 ) {
   const writtenFiles: string[] = [];
 
@@ -448,7 +448,7 @@ function registerForRebuilds(
   entryPoints: EntryPoint[],
   outdir: string,
   hash: boolean,
-  memOnly: boolean
+  memOnly: boolean,
 ) {
   if (kind !== 'shared-package') {
     rebuildRequested.rebuild.register(async () => {
@@ -460,7 +460,7 @@ function registerForRebuilds(
 
 export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
   return new Function('modulePath', `return import(modulePath);`)(
-    modulePath
+    modulePath,
   ) as Promise<T>;
 }
 
@@ -485,7 +485,7 @@ function setNgServerMode(): void {
     console.error(
       'Error patching file ',
       fileToPatch,
-      '\nIs it write-protected?'
+      '\nIs it write-protected?',
     );
   }
 }

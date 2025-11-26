@@ -25,7 +25,7 @@ export async function bundleShared(
   fedOptions: FederationOptions,
   externals: string[],
   platform: 'browser' | 'node' = 'browser',
-  cacheOptions: { pathToCache: string; bundleName: string }
+  cacheOptions: { pathToCache: string; bundleName: string },
 ): Promise<Array<SharedInfo>> {
   const checksum = getChecksum(sharedBundles);
   const folder = fedOptions.packageJson
@@ -34,16 +34,16 @@ export async function bundleShared(
 
   const bundleCache = cacheEntry(
     cacheOptions.pathToCache,
-    getFilename(checksum, cacheOptions.bundleName)
+    getFilename(checksum, cacheOptions.bundleName),
   );
 
   const cacheMetadata = bundleCache.getMetadata(checksum);
   if (cacheMetadata) {
     logger.info(
-      `Checksum of ${cacheOptions.bundleName} matched, Skipped artifact bundling`
+      `Checksum of ${cacheOptions.bundleName} matched, Skipped artifact bundling`,
     );
     bundleCache.copyFiles(
-      path.join(fedOptions.workspaceRoot, fedOptions.outputPath)
+      path.join(fedOptions.workspaceRoot, fedOptions.outputPath),
     );
     return cacheMetadata.externals;
   }
@@ -77,21 +77,21 @@ export async function bundleShared(
 
   const fullOutputPath = path.join(
     fedOptions.workspaceRoot,
-    fedOptions.outputPath
+    fedOptions.outputPath,
   );
 
   const expectedResults = allEntryPoints.map((ep) =>
-    path.join(fullOutputPath, ep.outName)
+    path.join(fullOutputPath, ep.outName),
   );
   const entryPoints = allEntryPoints.filter(
-    (ep) => !fs.existsSync(path.join(cacheOptions.pathToCache, ep.outName))
+    (ep) => !fs.existsSync(path.join(cacheOptions.pathToCache, ep.outName)),
   );
 
   if (entryPoints.length > 0) {
     logger.info('Preparing shared npm packages for the platform ' + platform);
     logger.notice('This only needs to be done once, as results are cached');
     logger.notice(
-      "Skip packages you don't want to share in your federation config"
+      "Skip packages you don't want to share in your federation config",
     );
   }
 
@@ -135,14 +135,14 @@ export async function bundleShared(
 
     logger.notice('** Important Information: ***');
     logger.notice(
-      'The error message above shows an issue with bundling a node_module.'
+      'The error message above shows an issue with bundling a node_module.',
     );
     logger.notice(
-      'In most cases this is because you (indirectly) shared a Node.js package,'
+      'In most cases this is because you (indirectly) shared a Node.js package,',
     );
     logger.notice('while Native Federation builds for the browser.');
     logger.notice(
-      'You can move such packages into devDependencies or skip them in your federation.config.js.'
+      'You can move such packages into devDependencies or skip them in your federation.config.js.',
     );
     logger.notice('');
     logger.notice('More Details: https://bit.ly/nf-issue');
@@ -162,7 +162,7 @@ export async function bundleShared(
   const chunks = bundleResult.filter(
     (br) =>
       !br.fileName.endsWith('.map') &&
-      !result.find((r) => r.outFileName === path.basename(br.fileName))
+      !result.find((r) => r.outFileName === path.basename(br.fileName)),
   );
 
   addChunksToResult(chunks, result, fedOptions.dev);
@@ -174,7 +174,7 @@ export async function bundleShared(
   });
 
   bundleCache.copyFiles(
-    path.join(fedOptions.workspaceRoot, fedOptions.outputPath)
+    path.join(fedOptions.workspaceRoot, fedOptions.outputPath),
   );
 
   return result;
@@ -193,7 +193,7 @@ function createOutName(
   pi: PackageInfo,
   configState: string,
   fedOptions: FederationOptions,
-  encName: string
+  encName: string,
 ) {
   const hashBase = pi.version + '_' + pi.entryPoint + '_' + configState;
   const hash = calcHash(hashBase);
@@ -207,7 +207,7 @@ function createOutName(
 function buildResult(
   packageInfos: PackageInfo[],
   sharedBundles: Record<string, NormalizedSharedConfig>,
-  outFileNames: string[]
+  outFileNames: string[],
 ) {
   return packageInfos.map((pi) => {
     const shared = sharedBundles[pi.packageName];
@@ -231,7 +231,7 @@ function buildResult(
 function addChunksToResult(
   chunks: BuildResult[],
   result: SharedInfo[],
-  dev?: boolean
+  dev?: boolean,
 ) {
   for (const item of chunks) {
     const fileName = path.basename(item.fileName);

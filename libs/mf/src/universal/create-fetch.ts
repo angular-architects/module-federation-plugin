@@ -2,7 +2,7 @@
 import { promises } from 'fs';
 import { normalize } from 'path';
 
-import fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 export type AbortablePromise<T> = Promise<T> & {
   abort: () => unknown;
@@ -28,7 +28,7 @@ export function createFetch(mappings: StringDict = {}) {
     if (this.fileCache.has(path)) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const filePromise = Promise.resolve(
-        this.fileCache.get(path)!
+        this.fileCache.get(path)!,
       ) as AbortablePromise<Buffer>;
       filePromise.abort = () => undefined;
       return filePromise;

@@ -16,7 +16,10 @@ export class EsBuildResult implements BuildResult {
     }
   }
 
-  constructor(private outputFile: OutputFile, private fullOutDir?: string) {}
+  constructor(
+    private outputFile: OutputFile,
+    private fullOutDir?: string,
+  ) {}
 
   get(): Uint8Array {
     return this.outputFile.contents;
