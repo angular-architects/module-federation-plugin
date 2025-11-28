@@ -232,6 +232,7 @@ function readConfiguredSecondaries(
   );
 
   const result = {} as Record<string, SharedConfig>;
+  const discoveredFiles = new Set<string>();
 
   for (const key of keys) {
     const secondaryName = path.join(parent, key).replace(/\\/g, '/');
@@ -265,6 +266,10 @@ function readConfiguredSecondaries(
       parent,
       secondaryName,
       entry,
+      { discovered: discoveredFiles, skip: exclude },
+    );
+    items.forEach((e) =>
+      discoveredFiles.add(typeof e === 'string' ? e : e.value),
     );
 
     for (const item of items) {
@@ -294,14 +299,29 @@ function resolveSecondaries(
   parent: string,
   secondaryName: string,
   entry: string,
+  excludes: { discovered: Set<string>; skip: string[] },
 ): Array<string | KeyValuePair> {
   let items: Array<string | KeyValuePair> = [];
   if (key.includes('*')) {
     const expanded = resolveWildcardKeys(key, entry, libPath);
-    items = expanded.map((e) => ({
-      key: path.join(parent, e.key),
-      value: path.join(libPath, e.value),
-    }));
+    items = expanded
+      .map((e) => ({
+        key: path.join(parent, e.key),
+        value: path.join(libPath, e.value),
+      }))
+      .filter((i) => {
+        if (
+          excludes.skip.some((e) =>
+            e.endsWith('*') ? i.key.startsWith(e.slice(0, -1)) : e === i.key,
+          )
+        ) {
+          return false;
+        }
+        if (excludes.discovered.has(i.value)) {
+          return false;
+        }
+        return true;
+      });
   } else {
     items = [secondaryName];
   }

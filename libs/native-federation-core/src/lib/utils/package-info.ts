@@ -176,25 +176,42 @@ export function _getPackageInfo(
     return null;
   }
 
-  let relSecondaryPath = path.relative(mainPkgName, packageName);
-  if (!relSecondaryPath) {
-    relSecondaryPath = '.';
-  } else {
-    relSecondaryPath = './' + relSecondaryPath.replace(/\\/g, '/');
+  const pathToSecondary = path.relative(mainPkgName, packageName);
+  const relSecondaryPath = !pathToSecondary
+    ? '.'
+    : './' + pathToSecondary.replace(/\\/g, '/');
+
+  let secondaryEntryPoint = mainPkgJson?.exports?.[relSecondaryPath];
+
+  // wildcard
+  if (!secondaryEntryPoint) {
+    const wildcardEntry = Object.keys(mainPkgJson?.exports ?? []).find((e) =>
+      e.startsWith('./*'),
+    );
+    if (wildcardEntry) {
+      secondaryEntryPoint = mainPkgJson?.exports?.[wildcardEntry];
+      if (typeof secondaryEntryPoint === 'string')
+        secondaryEntryPoint = secondaryEntryPoint.replace('*', pathToSecondary);
+      if (typeof secondaryEntryPoint === 'object')
+        Object.keys(secondaryEntryPoint).forEach(function (key) {
+          secondaryEntryPoint[key] = secondaryEntryPoint[key].replace(
+            '*',
+            pathToSecondary,
+          );
+        });
+    }
   }
 
-  let cand = mainPkgJson?.exports?.[relSecondaryPath];
-
-  if (typeof cand === 'string') {
+  if (typeof secondaryEntryPoint === 'string') {
     return {
-      entryPoint: path.join(mainPkgPath, cand),
+      entryPoint: path.join(mainPkgPath, secondaryEntryPoint),
       packageName,
       version,
       esm,
     };
   }
 
-  cand = mainPkgJson?.exports?.[relSecondaryPath]?.import;
+  let cand = secondaryEntryPoint?.import;
 
   if (typeof cand === 'object') {
     if (cand.module) {
@@ -229,7 +246,7 @@ export function _getPackageInfo(
     };
   }
 
-  cand = mainPkgJson?.exports?.[relSecondaryPath]?.module;
+  cand = secondaryEntryPoint?.module;
 
   if (typeof cand === 'object') {
     if (cand.module) {
@@ -252,7 +269,7 @@ export function _getPackageInfo(
     };
   }
 
-  cand = mainPkgJson?.exports?.[relSecondaryPath]?.default;
+  cand = secondaryEntryPoint?.default;
   if (cand) {
     if (typeof cand === 'object') {
       if (cand.module) {
