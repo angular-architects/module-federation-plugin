@@ -1,15 +1,13 @@
-import { register } from 'node:module';
-import { pathToFileURL } from 'node:url';
 import * as fs from 'node:fs/promises';
+import { register } from 'node:module';
 import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import {
   FederationInfo,
-  ImportMap,
-  InitFederationOptions,
-  mergeImportMaps,
-  processHostInfo,
-  processRemoteInfos,
+  fetchAndRegisterRemotes,
+  ImportMap, mergeImportMaps,
+  processHostInfo
 } from '@softarc/native-federation-runtime';
 import { IMPORT_MAP_FILE_NAME } from '../utils/import-map-loader';
 import { resolver } from '../utils/loader-as-data-url';
@@ -54,7 +52,7 @@ async function createNodeImportMap(
 
   const hostInfo = await loadFsFederationInfo(relBundlePath);
   const hostImportMap = await processHostInfo(hostInfo, './' + relBundlePath);
-  const remotesImportMap = await processRemoteInfos(remotes, {
+  const remotesImportMap = await fetchAndRegisterRemotes(remotes, {
     throwIfRemoteNotFound: options.throwIfRemoteNotFound,
     cacheTag: options.cacheTag,
   });
