@@ -28,6 +28,11 @@ jobs:
           node-version: 24
           cache: 'npm'
       - run: npm ci
+      
+      # Install Playwright browsers
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+      
       - uses: nrwl/nx-set-shas@v4
 
       - run: npx nx format:check

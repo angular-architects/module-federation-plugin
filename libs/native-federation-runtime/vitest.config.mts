@@ -36,7 +36,7 @@ export default defineConfig({
           browser: {
             enabled: true,
             provider: 'playwright',
-            headless: false,
+            headless: process.env.CI === 'true',
             instances: [
               {
                 browser: 'chromium',
