@@ -32,6 +32,7 @@ export interface BuildAdapterOptions {
   hash: boolean;
   platform?: 'browser' | 'node';
   optimizedMappings?: boolean;
+  signal?: AbortSignal;
 }
 
 export interface BuildResult {
@@ -39,7 +40,7 @@ export interface BuildResult {
 }
 
 export type BuildAdapter = (
-  options: BuildAdapterOptions
+  options: BuildAdapterOptions,
 ) => Promise<BuildResult[]>;
 
 export function setBuildAdapter(buildAdapter: BuildAdapter): void {

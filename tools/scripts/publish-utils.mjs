@@ -15,7 +15,7 @@ export function getProject(name) {
   const project = graph.nodes[name];
   invariant(
     project,
-    `Could not find project "${name}" in the workspace. Is the project.json configured correctly?`
+    `Could not find project "${name}" in the workspace. Is the project.json configured correctly?`,
   );
   return project;
 }
@@ -26,7 +26,7 @@ export function getVersion(version, project) {
     const packageJson = readPackageJsonFromPath(project.data.root);
     version = packageJson.version;
     console.log(
-      `Not version provided, take version from package.json ${version}`
+      `Not version provided, take version from package.json ${version}`,
     );
   }
 
@@ -34,7 +34,7 @@ export function getVersion(version, project) {
   const validVersion = /^\d+\.\d+\.\d+(-\w+\.\d+)?/;
   invariant(
     version && validVersion.test(version),
-    `No version provided or version did not match Semantic Versioning, expected: #.#.#-tag.# or #.#.#, got ${version}.`
+    `No version provided or version did not match Semantic Versioning, expected: #.#.#-tag.# or #.#.#, got ${version}.`,
   );
 
   return version;
@@ -47,7 +47,7 @@ export function getOutputPath(project) {
     project.data?.targets?.build?.outputs?.[0];
   invariant(
     outputPath,
-    `Could not find "build.options.outputPath" or "build.options.outputs" of project "${project.name}". Is project.json configured  correctly?`
+    `Could not find "build.options.outputPath" or "build.options.outputs" of project "${project.name}". Is project.json configured  correctly?`,
   );
 
   outputPath = outputPath.replace('{workspaceRoot}/', '');
@@ -61,13 +61,13 @@ export function getOutputPath(project) {
 export function readPackageJsonFromPath(packageJsonPath) {
   try {
     return JSON.parse(
-      readFileSync(join(packageJsonPath, `package.json`)).toString()
+      readFileSync(join(packageJsonPath, `package.json`)).toString(),
     );
   } catch (e) {
     console.error(
       chalk.bold.red(
-        `Error reading package.json file from library build output.`
-      )
+        `Error reading package.json file from library build output.`,
+      ),
     );
   }
 }

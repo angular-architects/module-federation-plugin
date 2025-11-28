@@ -37,7 +37,7 @@ async function build(buildParams = defaultBuildParams): Promise<void> {
     config,
     fedOptions,
     externals,
-    buildParams
+    buildParams,
   );
 }
 

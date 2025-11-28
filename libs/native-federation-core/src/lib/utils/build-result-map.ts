@@ -3,7 +3,7 @@ import { BuildResult } from '../core/build-adapter';
 
 export function createBuildResultMap(
   buildResult: BuildResult[],
-  isHashed: boolean
+  isHashed: boolean,
 ): Record<string, string> {
   const map: Record<string, string> = {};
 
@@ -28,7 +28,7 @@ export function createBuildResultMap(
 
 export function lookupInResultMap(
   map: Record<string, string>,
-  requestName: string
+  requestName: string,
 ): string {
   const key = path.basename(requestName);
   return map[key];

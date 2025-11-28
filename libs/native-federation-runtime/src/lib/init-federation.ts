@@ -178,9 +178,8 @@ export async function fetchAndRegisterRemotes(
 
   // Filter out failed remotes (null values) and merge successful ones
   const importMap = remoteImportMaps
-    .filter((map): map is ImportMap => map !== null)
     .reduce<ImportMap>(
-      (acc, remoteImportMap) => mergeImportMaps(acc, remoteImportMap),
+      (acc, remoteImportMap) => remoteImportMap ? mergeImportMaps(acc, remoteImportMap) : acc,
       { imports: {}, scopes: {} },
     );
 

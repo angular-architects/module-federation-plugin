@@ -4,7 +4,7 @@
 export function createCompilerPluginOptions(
   options: any,
   target: string[],
-  sourceFileCache?: any
+  sourceFileCache?: any,
 ): {
   pluginOptions: any[0];
   styleOptions: any[1];

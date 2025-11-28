@@ -15,3 +15,8 @@ export function normalize(path: string, trailingSlash?: boolean): string {
 
   return cand;
 }
+
+export function normalizePackageName(fileName: string) {
+  const sanitized = fileName.replace(/[^A-Za-z0-9]/g, '_');
+  return sanitized.startsWith('_') ? sanitized.slice(1) : sanitized;
+}

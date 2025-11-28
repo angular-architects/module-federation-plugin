@@ -6,7 +6,7 @@ export function shareAngularLocales(
     singleton: true,
     strictVersion: true,
     requiredVersion: 'auto',
-  }
+  },
 ) {
   return keys.reduce((acc, key) => {
     acc[`@angular/common/locales/${key}`] = {

@@ -11,6 +11,7 @@ import { bundle } from '../utils/build-utils';
 import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
 import { FederationOptions } from './federation-options';
+import { AbortedError } from '../utils/errors';
 
 export interface ArtefactInfo {
   mappings: SharedInfo[];
@@ -20,8 +21,15 @@ export interface ArtefactInfo {
 export async function bundleExposedAndMappings(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
-  externals: string[]
+  externals: string[],
+  signal?: AbortSignal,
 ): Promise<ArtefactInfo> {
+  if (signal?.aborted) {
+    throw new AbortedError(
+      '[bundle-exposed-and-mappings] Aborted before bundling',
+    );
+  }
+
   const shared = config.sharedMappings.map((sm) => {
     const entryPoint = sm.path;
     const tmp = sm.key.replace(/[^A-Za-z0-9]/g, '_');
@@ -53,9 +61,17 @@ export async function bundleExposedAndMappings(
       kind: 'mapping-or-exposed',
       hash,
       optimizedMappings: config.features.ignoreUnusedDeps,
+      signal,
     });
+    if (signal?.aborted) {
+      throw new AbortedError(
+        '[bundle-exposed-and-mappings] Aborted after bundle',
+      );
+    }
   } catch (error) {
-    logger.error('Error building federation artefacts');
+    if (!(error instanceof AbortedError)) {
+      logger.error('Error building federation artefacts');
+    }
     throw error;
   }
 
@@ -91,7 +107,7 @@ export async function bundleExposedAndMappings(
         ? undefined
         : {
             entryPoint: normalize(
-              path.join(fedOptions.workspaceRoot, item.fileName)
+              path.join(fedOptions.workspaceRoot, item.fileName),
             ),
           },
     });
@@ -102,13 +118,13 @@ export async function bundleExposedAndMappings(
 
 export function describeExposed(
   config: NormalizedFederationConfig,
-  options: FederationOptions
+  options: FederationOptions,
 ): Array<ExposesInfo> {
   const result: Array<ExposesInfo> = [];
 
   for (const key in config.exposes) {
     const localPath = normalize(
-      path.normalize(path.join(options.workspaceRoot, config.exposes[key]))
+      path.normalize(path.join(options.workspaceRoot, config.exposes[key])),
     );
 
     result.push({
@@ -127,7 +143,7 @@ export function describeExposed(
 
 export function describeSharedMappings(
   config: NormalizedFederationConfig,
-  fedOptions: FederationOptions
+  fedOptions: FederationOptions,
 ): Array<SharedInfo> {
   const result: Array<SharedInfo> = [];
 

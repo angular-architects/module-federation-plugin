@@ -147,10 +147,7 @@ The `withNativeFederation` function sets up a configuration for your application
 ```typescript
 // shell/federation.config.js
 
-const {
-  withNativeFederation,
-  shareAll,
-} = require('@softarc/native-federation/build');
+const { withNativeFederation, shareAll } = require('@softarc/native-federation/build');
 
 module.exports = withNativeFederation({
   name: 'host',
@@ -209,10 +206,7 @@ If you don't want to share (all of) them, put their names into the skip array (s
 When configuring a remote, you can expose files that can be loaded into the shell at runtime:
 
 ```javascript
-const {
-  withNativeFederation,
-  shareAll,
-} = require('@softarc/native-federation/build');
+const { withNativeFederation, shareAll } = require('@softarc/native-federation/build');
 
 module.exports = withNativeFederation({
   name: 'mfe1',

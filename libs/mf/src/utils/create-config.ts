@@ -4,7 +4,7 @@ export function createConfig(
   projectName: string,
   remotes: string,
   tsConfigName: string,
-  root: string
+  root: string,
 ): string {
   return `const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 const mf = require("@angular-architects/module-federation/webpack");

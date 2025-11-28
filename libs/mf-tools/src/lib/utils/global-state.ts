@@ -10,7 +10,7 @@ function getGlobalState<T>(): T {
 export function getGlobalStateSlice<T>(): T;
 export function getGlobalStateSlice<T, R>(selector: (globalState: T) => R): R;
 export function getGlobalStateSlice<T, R>(
-  selector?: (globalState: T) => R
+  selector?: (globalState: T) => R,
 ): R | T {
   const globalState = getGlobalState<T>();
   return selector ? selector(globalState) : globalState;

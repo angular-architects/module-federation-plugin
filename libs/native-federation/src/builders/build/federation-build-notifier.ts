@@ -22,7 +22,7 @@ type NextFunction = (error?: Error) => void;
 type MiddlewareFunction = (
   req: IncomingMessage,
   res: ServerResponse,
-  next: NextFunction
+  next: NextFunction,
 ) => void;
 
 /**
@@ -48,7 +48,7 @@ export class FederationBuildNotifier {
     this.startCleanup();
 
     logger.info(
-      `[Federation SSE] Local reloader initialized with endpoint ${this.endpoint}`
+      `[Federation SSE] Local reloader initialized with endpoint ${this.endpoint}`,
     );
   }
 
@@ -56,7 +56,7 @@ export class FederationBuildNotifier {
    * Creates SSE middleware for federation events
    */
   public createEventMiddleware(
-    removeBaseHref: (req: IncomingMessage) => string
+    removeBaseHref: (req: IncomingMessage) => string,
   ): MiddlewareFunction {
     if (!this.isActive) {
       return (req: IncomingMessage, res: ServerResponse, next: NextFunction) =>
@@ -101,7 +101,7 @@ export class FederationBuildNotifier {
     req.on('error', () => this._removeConnection(connection));
 
     logger.info(
-      `[Federation SSE] Client connected. Active connections: ${this.connections.length}`
+      `[Federation SSE] Client connected. Active connections: ${this.connections.length}`,
     );
   }
 
@@ -113,7 +113,7 @@ export class FederationBuildNotifier {
     if (index !== -1) {
       this.connections.splice(index, 1);
       logger.info(
-        `[Federation SSE] Client disconnected. Active connections: ${this.connections.length}`
+        `[Federation SSE] Client disconnected. Active connections: ${this.connections.length}`,
       );
     }
   }
@@ -142,7 +142,7 @@ export class FederationBuildNotifier {
 
     if (this.connections.length > 0) {
       logger.info(
-        `[Federation SSE] Event '${event.type}' broadcast to ${this.connections.length} clients`
+        `[Federation SSE] Event '${event.type}' broadcast to ${this.connections.length} clients`,
       );
     }
   }
@@ -169,14 +169,14 @@ export class FederationBuildNotifier {
         (connection) =>
           !connection.response.destroyed &&
           !connection.request.destroyed &&
-          connection.response.writable
+          connection.response.writable,
       );
 
       if (this.connections.length !== aliveBefore) {
         logger.info(
           `[Federation SSE] Cleaned up ${
             aliveBefore - this.connections.length
-          } dead connections`
+          } dead connections`,
         );
       }
     }, 30000); // Clean every 30 seconds
@@ -188,6 +188,16 @@ export class FederationBuildNotifier {
   public broadcastBuildCompletion(): void {
     this._broadcastEvent({
       type: BuildNotificationType.COMPLETED,
+      timestamp: Date.now(),
+    });
+  }
+
+  /**
+   * Notifies about cancellation of a federation rebuild
+   */
+  public broadcastBuildCancellation(): void {
+    this._broadcastEvent({
+      type: BuildNotificationType.CANCELLED,
       timestamp: Date.now(),
     });
   }

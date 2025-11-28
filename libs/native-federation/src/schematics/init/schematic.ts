@@ -78,7 +78,7 @@ export default function config(options: MfSchematicSchema): Rule {
     const workspaceFileName = getWorkspaceFileName(tree);
     const workspace = JSON.parse(tree.read(workspaceFileName).toString('utf8'));
     const packageJson = JSON.parse(
-      tree.read('package.json').toString('utf8')
+      tree.read('package.json').toString('utf8'),
     ) as PackageJson;
 
     const normalized = normalizeOptions(options, workspace, tree);
@@ -115,8 +115,8 @@ export default function config(options: MfSchematicSchema): Rule {
     const appComponent = tree.exists(cand1)
       ? cand1
       : tree.exists(cand2)
-      ? cand2
-      : 'update-this.ts';
+        ? cand2
+        : 'update-this.ts';
 
     const generateRule = !exists
       ? await generateFederationConfig(
@@ -124,7 +124,7 @@ export default function config(options: MfSchematicSchema): Rule {
           projectRoot,
           projectSourceRoot,
           appComponent,
-          options
+          options,
         )
       : noop;
 
@@ -222,13 +222,13 @@ function updateWorkspaceConfig(
   options: NormalizedOptions,
   workspace: any,
   workspaceFileName: string,
-  ssr: boolean
+  ssr: boolean,
 ) {
   const { projectConfig, projectName, port } = options;
 
   if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
     throw new Error(
-      `The project doesn't have a build or serve target in angular.json!`
+      `The project doesn't have a build or serve target in angular.json!`,
     );
   }
 
@@ -239,7 +239,7 @@ function updateWorkspaceConfig(
     originalBuild.builder !== '@angular/build:application'
   ) {
     console.log(
-      'Switching project to the application builder using esbuild ...'
+      'Switching project to the application builder using esbuild ...',
     );
     originalBuild.builder = '@angular/build:application';
     delete originalBuild.configurations?.development?.buildOptimizer;
@@ -300,8 +300,9 @@ function updateWorkspaceConfig(
     builder: '@angular-architects/native-federation:build',
     options: {
       target: `${projectName}:serve-original:development`,
-      rebuildDelay: 0,
+      rebuildDelay: 500,
       dev: true,
+      cacheExternalArtifacts: false,
       port: 0,
     },
   };
@@ -323,7 +324,7 @@ function updateWorkspaceConfig(
 function normalizeOptions(
   options: MfSchematicSchema,
   workspace: any,
-  tree: Tree
+  tree: Tree,
 ): NormalizedOptions {
   if (!options.project) {
     options.project = workspace.defaultProject;
@@ -333,13 +334,13 @@ function normalizeOptions(
 
   if (!options.project && projects.length === 0) {
     throw new Error(
-      `No default project found. Please specifiy a project name!`
+      `No default project found. Please specifiy a project name!`,
     );
   }
 
   if (!options.project) {
     console.log(
-      'Using first configured project as default project: ' + projects[0]
+      'Using first configured project as default project: ' + projects[0],
     );
     options.project = projects[0];
   }
@@ -354,7 +355,7 @@ function normalizeOptions(
   const projectRoot: string = projectConfig.root?.replace(/\\/g, '/');
   const projectSourceRoot: string = projectConfig.sourceRoot?.replace(
     /\\/g,
-    '/'
+    '/',
   );
 
   const publicPath = path.join(projectRoot, 'public').replace(/\\/g, '/');
@@ -447,9 +448,8 @@ function generateRemoteMap(workspace: any, projectName: string) {
         project.architect['serve-original']?.options?.port ??
         project.architect.serve?.options?.port ??
         4200;
-      result[
-        strings.camelize(p)
-      ] = `http://localhost:${pPort}/remoteEntry.json`;
+      result[strings.camelize(p)] =
+        `http://localhost:${pPort}/remoteEntry.json`;
     }
   }
 
@@ -464,7 +464,7 @@ function makeMainAsync(
   main: string,
   options: MfSchematicSchema,
   remoteMap: unknown,
-  manifestRelPath: string
+  manifestRelPath: string,
 ): Rule {
   return async function (tree) {
     const mainPath = path.dirname(main);
@@ -514,7 +514,7 @@ function makeServerAsync(
   server: string,
   options: MfSchematicSchema,
   remoteMap: unknown,
-  manifestRelPath: string
+  manifestRelPath: string,
 ): Rule {
   return async function (tree) {
     const mainPath = path.dirname(server);
@@ -533,11 +533,11 @@ const cors = require("cors");
     const updatedContent = (cors + mainContent)
       .replace(
         `const port = process.env['PORT'] || 4000`,
-        `const port = process.env['PORT'] || ${options.port || 4000}`
+        `const port = process.env['PORT'] || ${options.port || 4000}`,
       )
       .replace(
         `const app = express();`,
-        `const app = express();\n\tapp.use(cors());\n  app.set('view engine', 'html');`
+        `const app = express();\n\tapp.use(cors());\n  app.set('view engine', 'html');`,
       )
       .replace(`if (isMainModule(import.meta.url)) {`, ``)
       .replace(/\}(?![\s\S]*\})/, '');
@@ -605,7 +605,7 @@ export function getWorkspaceFileName(tree: Tree): string {
     return 'workspace.json';
   }
   throw new Error(
-    "angular.json or workspace.json expected! Did you call this in your project's root?"
+    "angular.json or workspace.json expected! Did you call this in your project's root?",
   );
 }
 
@@ -614,7 +614,7 @@ async function generateFederationConfig(
   projectRoot: string,
   projectSourceRoot: string,
   appComponentPath: string,
-  options: MfSchematicSchema
+  options: MfSchematicSchema,
 ) {
   const tmpl = url('./files');
 
