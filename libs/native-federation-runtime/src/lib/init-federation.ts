@@ -170,7 +170,12 @@ export async function fetchAndRegisterRemotes(
         // Fetch and register this specific remote
         return await fetchAndRegisterRemote(urlWithCache, remoteName);
       } catch (e) {
-        return handleRemoteLoadError(remoteName, remoteUrl, options, e as Error);
+        return handleRemoteLoadError(
+          remoteName,
+          remoteUrl,
+          options,
+          e as Error,
+        );
       }
     },
   );

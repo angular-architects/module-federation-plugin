@@ -1,6 +1,11 @@
 {
   "extends": ["../../.eslintrc.json", "../../.eslintrc.base.json"],
-  "ignorePatterns": ["!**/*", "**/*.spec.ts", "**/*.integration.spec.ts", "__test-helpers__/**/*"],
+  "ignorePatterns": [
+    "!**/*",
+    "**/*.spec.ts",
+    "**/*.integration.spec.ts",
+    "__test-helpers__/**/*"
+  ],
   "overrides": [
     {
       "files": ["*.ts"],
