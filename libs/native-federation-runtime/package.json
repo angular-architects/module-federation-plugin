@@ -15,7 +15,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:unit": "vitest run --project=unit",
-    "test:e2e": "vitest run --project=browser"
+    "test:integration": "vitest run --project=integration"
   },
   "msw": {
     "workerDirectory": [

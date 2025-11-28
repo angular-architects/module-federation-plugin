@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitest/config';
 
 const testPatterns = ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'];
-const browserTestPatterns = ['src/**/*.e2e.spec.ts'];
+const integrationTestPatterns = ['src/**/*.integration.spec.ts'];
 
 export default defineConfig({
   test: {
@@ -21,13 +21,13 @@ export default defineConfig({
           name: 'unit',
           environment: 'jsdom',
           include: testPatterns,
-          exclude: [...browserTestPatterns, 'node_modules', 'dist', '.angular'],
+          exclude: [...integrationTestPatterns, 'node_modules', 'dist', '.angular'],
         },
       },
       {
         test: {
-          name: 'browser',
-          include: browserTestPatterns,
+          name: 'integration',
+          include: integrationTestPatterns,
           browser: {
             enabled: true,
             provider: 'playwright',

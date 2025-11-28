@@ -6,8 +6,9 @@ import { pathToFileURL } from 'node:url';
 import {
   FederationInfo,
   fetchAndRegisterRemotes,
-  ImportMap, mergeImportMaps,
-  processHostInfo
+  ImportMap,
+  mergeImportMaps,
+  processHostInfo,
 } from '@softarc/native-federation-runtime';
 import { IMPORT_MAP_FILE_NAME } from '../utils/import-map-loader';
 import { resolver } from '../utils/loader-as-data-url';
