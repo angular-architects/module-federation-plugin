@@ -120,6 +120,7 @@ function handleRemoteLoadError(
   remoteName: string,
   remoteUrl: string,
   options: ProcessRemoteInfoOptions,
+  originalError: Error,
 ): null {
   const errorMessage = `Error loading remote entry for ${remoteName} from file ${remoteUrl}`;
 
@@ -128,6 +129,7 @@ function handleRemoteLoadError(
   }
 
   console.error(errorMessage);
+  console.error(originalError);
   return null;
 }
 
@@ -168,7 +170,7 @@ export async function fetchAndRegisterRemotes(
         // Fetch and register this specific remote
         return await fetchAndRegisterRemote(urlWithCache, remoteName);
       } catch (e) {
-        return handleRemoteLoadError(remoteName, remoteUrl, options);
+        return handleRemoteLoadError(remoteName, remoteUrl, options, e as Error);
       }
     },
   );

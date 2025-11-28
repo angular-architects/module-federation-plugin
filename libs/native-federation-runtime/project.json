@@ -40,7 +40,8 @@
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/libs/native-federation-runtime"
+        "reportsDirectory": "../../coverage/libs/native-federation-runtime",
+        "configFile": "libs/native-federation-runtime/vitest.config.mts"
       }
     },
     "lint": {
