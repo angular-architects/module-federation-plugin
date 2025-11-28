@@ -36,6 +36,7 @@ We will at least provide a new version of this package per Angular major. If nec
 - Use version 19.x for Angular 19.x
 - Use version 20.0.x for Angular 20.0.x
 - Use version 20.1.x for Angular 20.1.x
+- Use version 21.x for Angular 21.x
 
 ## Demo Repo
 
