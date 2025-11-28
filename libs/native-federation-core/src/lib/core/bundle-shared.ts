@@ -37,7 +37,7 @@ export async function bundleShared(
     getFilename(cacheOptions.bundleName),
   );
 
-  if (config?.features?.cacheExternalArtifacts) {
+  if (fedOptions?.cacheExternalArtifacts) {
     const cacheMetadata = bundleCache.getMetadata(checksum);
     if (cacheMetadata) {
       logger.debug(

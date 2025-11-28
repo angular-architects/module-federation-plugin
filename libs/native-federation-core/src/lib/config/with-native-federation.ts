@@ -28,7 +28,6 @@ export function withNativeFederation(
     features: {
       mappingVersion: config.features?.mappingVersion ?? false,
       ignoreUnusedDeps: config.features?.ignoreUnusedDeps ?? false,
-      cacheExternalArtifacts: config.features?.cacheExternalArtifacts ?? false,
     },
   };
 

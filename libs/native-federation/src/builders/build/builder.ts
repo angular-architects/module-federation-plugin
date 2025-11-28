@@ -226,6 +226,7 @@ export async function* runBuilder(
     dev: !!nfOptions.dev,
     entryPoint,
     buildNotifications: nfOptions.buildNotifications,
+    cacheExternalArtifacts: nfOptions.cacheExternalArtifacts,
   };
 
   const activateSsr = nfOptions.ssr && !nfOptions.dev;
