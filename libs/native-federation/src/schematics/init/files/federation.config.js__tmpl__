@@ -28,7 +28,11 @@ module.exports = withNativeFederation({
     // New feature for more performance and avoiding
     // issues with node libs. Comment this out to
     // get the traditional behavior:
-    ignoreUnusedDeps: true
+    ignoreUnusedDeps: true,
+
+    // Will use a checksum to verify if compiled (external) 
+    // artifacts were unchanged since last build (based on 
+    // name and version). If so it will reuse the compiled ones.
+    cacheExternalArtifacts: true
   }
-  
 });

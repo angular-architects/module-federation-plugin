@@ -64,12 +64,14 @@ export async function buildForFederation(
     ? describeExposed(config, fedOptions)
     : artefactInfo.exposes;
 
-  const cacheProjectFolder = normalizePackageName(config.name);
-  if (cacheProjectFolder.length < 1) {
+  const normalizedCacheFolder = normalizePackageName(config.name);
+  if (normalizedCacheFolder.length < 1) {
     logger.warn(
-      "Project name in 'federation.config.js' is empty, defaulting to root cache folder (could collide with other projects in the workspace).",
+      "Project name in 'federation.config.js' is empty, defaulting to 'shell' cache folder (could collide with other projects in the workspace).",
     );
   }
+  const cacheProjectFolder =
+    normalizedCacheFolder.length < 1 ? 'shell' : normalizedCacheFolder;
 
   const pathToCache = getCachePath(
     fedOptions.workspaceRoot,

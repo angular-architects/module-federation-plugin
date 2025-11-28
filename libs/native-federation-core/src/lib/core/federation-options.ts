@@ -4,6 +4,7 @@ export interface FederationOptions {
   workspaceRoot: string;
   outputPath: string;
   federationConfig: string;
+  cacheExternals: boolean;
   tsConfig?: string;
   verbose?: boolean;
   dev?: boolean;

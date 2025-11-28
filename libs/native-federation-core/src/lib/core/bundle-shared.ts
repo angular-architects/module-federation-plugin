@@ -37,18 +37,19 @@ export async function bundleShared(
     getFilename(cacheOptions.bundleName),
   );
 
-  const cacheMetadata = bundleCache.getMetadata(checksum);
-  if (cacheMetadata) {
-    logger.debug(
-      `Checksum of ${cacheOptions.bundleName} matched, Skipped artifact bundling`,
-    );
-    bundleCache.copyFiles(
-      path.join(fedOptions.workspaceRoot, fedOptions.outputPath),
-    );
-    return cacheMetadata.externals;
+  if (config?.features?.cacheExternalArtifacts) {
+    const cacheMetadata = bundleCache.getMetadata(checksum);
+    if (cacheMetadata) {
+      logger.debug(
+        `Checksum of ${cacheOptions.bundleName} matched, Skipped artifact bundling`,
+      );
+      bundleCache.copyFiles(
+        path.join(fedOptions.workspaceRoot, fedOptions.outputPath),
+      );
+      return cacheMetadata.externals;
+    }
   }
 
-  // Delete older packages if checksum didnt match
   bundleCache.clear();
 
   const inferredPackageInfos = Object.keys(sharedBundles)
