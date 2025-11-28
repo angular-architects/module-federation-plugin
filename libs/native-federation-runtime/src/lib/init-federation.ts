@@ -177,11 +177,11 @@ export async function fetchAndRegisterRemotes(
   const remoteImportMaps = await Promise.all(fetchAndRegisterRemotePromises);
 
   // Filter out failed remotes (null values) and merge successful ones
-  const importMap = remoteImportMaps
-    .reduce<ImportMap>(
-      (acc, remoteImportMap) => remoteImportMap ? mergeImportMaps(acc, remoteImportMap) : acc,
-      { imports: {}, scopes: {} },
-    );
+  const importMap = remoteImportMaps.reduce<ImportMap>(
+    (acc, remoteImportMap) =>
+      remoteImportMap ? mergeImportMaps(acc, remoteImportMap) : acc,
+    { imports: {}, scopes: {} },
+  );
 
   return importMap;
 }

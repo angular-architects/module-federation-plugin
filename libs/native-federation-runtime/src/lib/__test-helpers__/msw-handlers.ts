@@ -127,10 +127,12 @@ export const moduleHandler = (url: string, moduleContent: any) => {
       export default ${JSON.stringify(moduleContent.default || {})};
       ${Object.entries(moduleContent)
         .filter(([key]) => key !== 'default')
-        .map(([key, value]) => `export const ${key} = ${JSON.stringify(value)};`)
+        .map(
+          ([key, value]) => `export const ${key} = ${JSON.stringify(value)};`,
+        )
         .join('\n')}
     `;
-    
+
     return new HttpResponse(moduleCode, {
       headers: {
         'Content-Type': 'application/javascript',

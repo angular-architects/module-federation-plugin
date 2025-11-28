@@ -1,30 +1,29 @@
 import { http, HttpResponse } from 'msw';
 import { setupWorker } from 'msw/browser';
 import {
-    afterAll,
-    afterEach,
-    beforeAll,
-    beforeEach,
-    describe,
-    expect,
-    it
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
 } from 'vitest';
 import {
-    clearFederationDOMEffects,
-    getImportMapContent,
+  clearFederationDOMEffects,
+  getImportMapContent,
 } from './__test-helpers__/dom-helpers';
 import {
-    createHostInfo,
-    createRemoteConfig,
-    createRemoteInfo,
-    TEST_URLS
+  createHostInfo,
+  createRemoteConfig,
+  createRemoteInfo,
+  TEST_URLS,
 } from './__test-helpers__/federation-fixtures';
+import { FALLBACK_COMPONENTS } from './__test-helpers__/module-fixtures';
 import {
-    FALLBACK_COMPONENTS
-} from './__test-helpers__/module-fixtures';
-import {
-    createFederationHandlers,
-    hostRemoteEntryHandler, remoteEntryHandler
+  createFederationHandlers,
+  hostRemoteEntryHandler,
+  remoteEntryHandler,
 } from './__test-helpers__/msw-handlers';
 import { initFederation } from './init-federation';
 import { loadRemoteModule } from './load-remote-module';
@@ -144,20 +143,20 @@ describe('loadRemoteModule - Browser Integration Test', () => {
 
       // Verify module was loaded and all exports work
       expect(module).toBeDefined();
-      
+
       // Test default export (class)
       expect(module.default).toBeDefined();
       const instance = new module.default();
       expect(instance.name).toBe('RemoteComponent');
       expect(instance.type).toBe('MFE1');
       expect(instance.render()).toBe('Rendered: RemoteComponent');
-      
+
       // Test named exports
       expect(module.version).toBe('1.0.0');
       expect(module.ComponentName).toBe('MFE1Component');
       expect(module.render).toBeTypeOf('function');
       expect(module.render()).toBe('Rendered from MFE1');
-      
+
       // Test exported object with methods
       expect(module.utils).toBeDefined();
       expect(module.utils.validate()).toBe(true);
@@ -211,7 +210,7 @@ describe('loadRemoteModule - Browser Integration Test', () => {
       expect(module).toBeDefined();
       expect(module.default).toBeDefined();
       expect(module.buttonType).toBe('primary');
-      
+
       const btn = new module.default();
       expect(btn.type).toBe('button');
       expect(btn.click()).toBe('Button clicked!');
@@ -263,7 +262,7 @@ describe('loadRemoteModule - Browser Integration Test', () => {
       expect(module.API_URL).toBe('https://api.example.com');
       expect(module.fetchData).toBeTypeOf('function');
       expect(module.DataService).toBeDefined();
-      
+
       const service = new module.DataService();
       expect(service.getData()).toBe('service data');
     });
@@ -339,9 +338,7 @@ describe('loadRemoteModule - Browser Integration Test', () => {
         }),
       );
 
-      await expect(
-        loadRemoteModule('mfe1', './Invalid'),
-      ).rejects.toThrow();
+      await expect(loadRemoteModule('mfe1', './Invalid')).rejects.toThrow();
     });
   });
 
@@ -355,7 +352,7 @@ describe('loadRemoteModule - Browser Integration Test', () => {
       const remoteInfo = createRemoteInfo('mfe2', [
         { key: './LazyModule', outFileName: 'LazyModule.js' },
       ]);
-      
+
       worker.use(
         remoteEntryHandler(TEST_URLS.MFE2_REMOTE_ENTRY, remoteInfo),
         http.get(`${TEST_URLS.MFE2_BASE}/LazyModule.js`, () => {
@@ -385,7 +382,6 @@ describe('loadRemoteModule - Browser Integration Test', () => {
     });
 
     it('should not refetch remote if already initialized', async () => {
-
       const hostInfo = createHostInfo();
       const remoteInfo = createRemoteInfo('mfe1', [
         { key: './Component', outFileName: 'Component.js' },
@@ -486,9 +482,9 @@ describe('loadRemoteModule - Browser Integration Test', () => {
     it('should throw error when exposed module is not found and no fallback', async () => {
       await setupFederationWithRemote(worker);
 
-      await expect(
-        loadRemoteModule('mfe1', './UnknownModule'),
-      ).rejects.toThrow('Unknown exposed module ./UnknownModule in remote mfe1');
+      await expect(loadRemoteModule('mfe1', './UnknownModule')).rejects.toThrow(
+        'Unknown exposed module ./UnknownModule in remote mfe1',
+      );
     });
 
     it('should return fallback when exposed module is not found', async () => {
@@ -504,7 +500,6 @@ describe('loadRemoteModule - Browser Integration Test', () => {
     });
 
     it('should throw error when module import fails and no fallback', async () => {
-
       const hostInfo = createHostInfo();
       const remoteInfo = createRemoteInfo('mfe1', [
         { key: './Component', outFileName: 'Component.js' },
@@ -528,13 +523,10 @@ describe('loadRemoteModule - Browser Integration Test', () => {
         }),
       );
 
-      await expect(
-        loadRemoteModule('mfe1', './FailModule'),
-      ).rejects.toThrow();
+      await expect(loadRemoteModule('mfe1', './FailModule')).rejects.toThrow();
     });
 
     it('should throw error when module import fails even with fallback', async () => {
-
       const hostInfo = createHostInfo();
       const remoteInfo = createRemoteInfo('mfe1', [
         { key: './Component', outFileName: 'Component.js' },
@@ -617,7 +609,9 @@ describe('loadRemoteModule - Browser Integration Test', () => {
 
       await expect(
         loadRemoteModule('mfe1' as any, undefined as any),
-      ).rejects.toThrow('please pass options or a remoteName/exposedModule-pair');
+      ).rejects.toThrow(
+        'please pass options or a remoteName/exposedModule-pair',
+      );
     });
 
     it('should throw error when exposedModule is missing in options', async () => {
@@ -734,8 +728,12 @@ describe('loadRemoteModule - Browser Integration Test', () => {
 
       // Verify both remotes are registered with different base URLs
       const importMapContent = getImportMapContent();
-      expect(importMapContent?.imports['mfe1/Component']).toContain('localhost:3000');
-      expect(importMapContent?.imports['mfe2/Component']).toContain('localhost:4000');
+      expect(importMapContent?.imports['mfe1/Component']).toContain(
+        'localhost:3000',
+      );
+      expect(importMapContent?.imports['mfe2/Component']).toContain(
+        'localhost:4000',
+      );
     });
   });
 });
@@ -758,4 +756,3 @@ function captureConsoleErrorMessages(): [string[], () => void] {
   };
   return [messages, cleanup];
 }
-

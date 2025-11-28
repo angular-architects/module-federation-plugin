@@ -62,12 +62,11 @@ export const FALLBACK_COMPONENTS = {
   DefaultComponent: class DefaultComponent {
     name = 'DefaultComponent';
   },
-  
+
   ErrorComponent: class ErrorComponent {
     name = 'ErrorComponent';
     error = true;
   },
-  
+
   NullFallback: null,
 };
-
