@@ -175,6 +175,7 @@ The host configuration (`projects/shell/federation.config.js`) looks like what y
 const { withNativeFederation, shareAll } = require('@angular-architects/native-federation/config');
 
 module.exports = withNativeFederation({
+  name: 'my-host',
   shared: {
     ...shareAll({
       singleton: true,

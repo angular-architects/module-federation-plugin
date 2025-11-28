@@ -4,6 +4,7 @@ const {
 } = require('@angular-architects/native-federation/config');
 
 module.exports = withNativeFederation({
+  name: "playground-shell",
   shared: {
     ...shareAll({
       singleton: true,
