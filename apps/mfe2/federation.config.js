@@ -4,7 +4,7 @@ const {
 } = require('@angular-architects/native-federation/config');
 
 module.exports = withNativeFederation({
-  name: "mfe2",
+  name: 'mfe2',
   shared: {
     ...shareAll({
       singleton: true,
