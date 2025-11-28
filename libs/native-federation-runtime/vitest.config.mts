@@ -21,7 +21,12 @@ export default defineConfig({
           name: 'unit',
           environment: 'jsdom',
           include: testPatterns,
-          exclude: [...integrationTestPatterns, 'node_modules', 'dist', '.angular'],
+          exclude: [
+            ...integrationTestPatterns,
+            'node_modules',
+            'dist',
+            '.angular',
+          ],
         },
       },
       {
