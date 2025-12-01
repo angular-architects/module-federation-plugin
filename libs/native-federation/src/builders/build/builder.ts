@@ -1,12 +1,13 @@
+import * as path from 'path';
 import * as fs from 'fs';
 import * as mrmime from 'mrmime';
-import * as path from 'path';
 
-import { ApplicationBuilderOptions, buildApplication } from '@angular/build';
 import {
-  buildApplicationInternal,
-  serveWithVite,
-} from '@angular/build/private';
+  ApplicationBuilderOptions,
+  buildApplication,
+  executeDevServerBuilder,
+  DevServerBuilderOptions,
+} from '@angular/build';
 
 import {
   BuilderContext,
@@ -14,8 +15,6 @@ import {
   createBuilder,
   targetFromTargetString,
 } from '@angular-devkit/architect';
-
-import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
 
 import {
   buildForFederation,
@@ -49,7 +48,6 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { updateScriptTags } from '../../utils/updateIndexHtml';
 import { federationBuildNotifier } from './federation-build-notifier';
 import { NfBuilderSchema } from './schema';
-import { Schema as DevServerSchema } from '@angular-devkit/build-angular/src/builders/dev-server/schema';
 
 const originalWrite = process.stderr.write.bind(process.stderr);
 
@@ -73,18 +71,6 @@ process.stderr.write = function (
 
   return originalWrite(chunk, encodingOrCallback as BufferEncoding, callback);
 };
-
-function _buildApplication(options, context, pluginsOrExtensions) {
-  let extensions;
-  if (pluginsOrExtensions && Array.isArray(pluginsOrExtensions)) {
-    extensions = {
-      codePlugins: pluginsOrExtensions,
-    };
-  } else {
-    extensions = pluginsOrExtensions;
-  }
-  return buildApplicationInternal(options, context, extensions);
-}
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
@@ -137,17 +123,30 @@ export async function* runBuilder(
     builder,
   )) as JsonObject & ApplicationBuilderOptions;
 
-  let serverOptions = null;
+  let serverOptions: DevServerBuilderOptions | null = null;
 
   const write = true;
   const watch = nfOptions.watch;
 
   if (options['buildTarget']) {
-    serverOptions = await normalizeOptions(
-      context,
-      context.target.project,
-      options as unknown as DevServerSchema,
-    );
+    serverOptions = {
+      buildTarget: options['buildTarget'] as string,
+      port: nfOptions.port || options['port'],
+      host: options['host'] as string,
+      watch: watch,
+      verbose: options.verbose,
+      ...(options['ssl'] && { ssl: options['ssl'] as boolean }),
+      ...(options['sslCert'] && { sslCert: options['sslCert'] as string }),
+      ...(options['sslKey'] && { sslKey: options['sslKey'] as string }),
+      ...(options['proxyConfig'] && {
+        proxyConfig: options['proxyConfig'] as string,
+      }),
+      ...(options['open'] && { open: options['open'] as boolean }),
+      ...(options['liveReload'] !== undefined && {
+        liveReload: options['liveReload'] as boolean,
+      }),
+      ...(options['hmr'] !== undefined && { hmr: options['hmr'] as boolean }),
+    } as DevServerBuilderOptions;
 
     target = targetFromTargetString(options['buildTarget'] as string);
     targetOptions = (await context.getTargetOptions(
@@ -355,22 +354,14 @@ export async function* runBuilder(
 
   options.deleteOutputPath = false;
 
-  const appBuilderName = '@angular/build:application';
-
   const builderRun = runServer
-    ? serveWithVite(
-        serverOptions,
-        appBuilderName,
-        _buildApplication,
-        context,
-        nfOptions.skipHtmlTransform
+    ? executeDevServerBuilder(serverOptions, context, {
+        buildPlugins: plugins as any,
+        middleware,
+        ...(nfOptions.skipHtmlTransform
           ? {}
-          : { indexHtml: transformIndexHtml(nfOptions) },
-        {
-          buildPlugins: plugins as any,
-          middleware,
-        },
-      )
+          : { indexHtmlTransformer: transformIndexHtml(nfOptions) }),
+      })
     : buildApplication(options, context, {
         codePlugins: plugins as any,
         indexHtmlTransformer: transformIndexHtml(nfOptions),

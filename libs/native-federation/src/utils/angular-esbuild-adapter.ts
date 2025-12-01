@@ -18,11 +18,6 @@ import {
 
 import { createCompilerPluginOptions } from './create-compiler-options';
 import { BuilderContext } from '@angular-devkit/architect';
-
-import {
-  normalizeOptimization,
-  normalizeSourceMaps,
-} from '@angular-devkit/build-angular/src/utils';
 import { createRequire } from 'node:module';
 
 import { ApplicationBuilderOptions } from '@angular/build';
@@ -484,6 +479,66 @@ export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
   return new Function('modulePath', `return import(modulePath);`)(
     modulePath,
   ) as Promise<T>;
+}
+
+function normalizeOptimization(
+  optimization:
+    | boolean
+    | {
+        scripts?: boolean;
+        styles?: boolean | { minify?: boolean; inlineCritical?: boolean };
+        fonts?: boolean | { inline?: boolean };
+      } = false,
+) {
+  if (typeof optimization === 'boolean') {
+    return {
+      scripts: optimization,
+      styles: { minify: optimization, inlineCritical: optimization },
+      fonts: { inline: optimization },
+    };
+  }
+
+  return {
+    scripts: optimization.scripts ?? false,
+    styles:
+      typeof optimization.styles === 'boolean'
+        ? { minify: optimization.styles, inlineCritical: optimization.styles }
+        : {
+            minify: optimization.styles?.minify ?? false,
+            inlineCritical: optimization.styles?.inlineCritical ?? false,
+          },
+    fonts:
+      typeof optimization.fonts === 'boolean'
+        ? { inline: optimization.fonts }
+        : { inline: optimization.fonts?.inline ?? false },
+  };
+}
+
+function normalizeSourceMaps(
+  sourceMap:
+    | boolean
+    | {
+        scripts?: boolean;
+        styles?: boolean;
+        vendor?: boolean;
+        hidden?: boolean;
+      } = false,
+) {
+  if (typeof sourceMap === 'boolean') {
+    return {
+      scripts: sourceMap,
+      styles: sourceMap,
+      vendor: sourceMap,
+      hidden: false,
+    };
+  }
+
+  return {
+    scripts: sourceMap.scripts ?? false,
+    styles: sourceMap.styles ?? false,
+    vendor: sourceMap.vendor ?? false,
+    hidden: sourceMap.hidden ?? false,
+  };
 }
 
 //
