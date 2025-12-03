@@ -17,7 +17,12 @@ import {
   isSourceFile,
   rewriteChunkImports,
 } from '../utils/rewrite-chunk-imports';
-import { cacheEntry, getChecksum, getFilename } from './bundle-caching';
+import {
+  cacheEntry,
+  getChecksum,
+  getFilename,
+} from './../utils/bundle-caching';
+import { getSeparator } from '../utils/mapped-paths';
 
 export async function bundleShared(
   sharedBundles: Record<string, NormalizedSharedConfig>,
@@ -172,7 +177,9 @@ export async function bundleShared(
   bundleCache.persist({
     checksum,
     externals: result,
-    files: bundleResult.map((r) => r.fileName.split('/').pop() ?? r.fileName),
+    files: bundleResult.map(
+      (r) => r.fileName.split(getSeparator(r.fileName)).pop() ?? r.fileName,
+    ),
   });
 
   bundleCache.copyFiles(
