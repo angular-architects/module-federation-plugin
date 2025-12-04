@@ -13,10 +13,6 @@ export interface GetMappedPathsOptions {
   rootPath?: string;
 }
 
-export function getSeparator(path: string) {
-  return path.includes('\\') ? '\\' : '/';
-}
-
 export function getMappedPaths({
   rootTsConfigPath,
   sharedMappings,

@@ -22,7 +22,6 @@ import {
   getChecksum,
   getFilename,
 } from './../utils/bundle-caching';
-import { getSeparator } from '../utils/mapped-paths';
 
 export async function bundleShared(
   sharedBundles: Record<string, NormalizedSharedConfig>,
@@ -178,7 +177,7 @@ export async function bundleShared(
     checksum,
     externals: result,
     files: bundleResult.map(
-      (r) => r.fileName.split(getSeparator(r.fileName)).pop() ?? r.fileName,
+      (r) => r.fileName.split(path.sep).pop() ?? r.fileName,
     ),
   });
 
