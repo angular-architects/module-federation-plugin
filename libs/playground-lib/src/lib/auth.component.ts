@@ -14,6 +14,7 @@ import { AuthService } from './auth.service';
       }
     `,
   ],
+  standalone: false,
 })
 export class AuthComponent {
   userName = '';
