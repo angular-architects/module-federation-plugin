@@ -208,6 +208,7 @@ function findOptimalExport(
 
   const exportTypes = Object.keys(target);
 
+  // We prefer ESM exports for native support.
   if (typeof isESM === 'undefined') {
     const esmExport = exportTypes.find((e) => isESMExport(e));
     if (esmExport) {
@@ -215,6 +216,7 @@ function findOptimalExport(
     }
   }
 
+  // Node.js looks at the exports object and uses the first key that matches the current environment.
   const secondBestEntry =
     'default' in target && target['default']
       ? 'default'
@@ -246,10 +248,7 @@ export function _getPackageInfo(
   const esm = mainPkgJson['type'] === 'module';
 
   if (!version) {
-    // TODO: Add logger
-    // context.logger.warn('No version found for ' + packageName);
     logger.warn('No version found for ' + packageName);
-
     return null;
   }
 
@@ -260,7 +259,6 @@ export function _getPackageInfo(
 
   let secondaryEntryPoint: ExportEntry = undefined;
 
-  // Node.js looks at the exports object and uses the first key that matches the current environment.
   const packageJsonExportsEntry = Object.keys(mainPkgJson?.exports ?? []).find(
     (e) => {
       if (e === relSecondaryPath) return true;
