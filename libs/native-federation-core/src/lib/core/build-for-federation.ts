@@ -14,7 +14,7 @@ import { FederationOptions } from './federation-options';
 import { writeFederationInfo } from './write-federation-info';
 import { writeImportMap } from './write-import-map';
 import { logger } from '../utils/logger';
-import { getCachePath } from './bundle-caching';
+import { getCachePath } from './../utils/bundle-caching';
 import { normalizePackageName } from '../utils/normalize';
 import { AbortedError } from '../utils/errors';
 

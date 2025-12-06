@@ -1,9 +1,9 @@
 {
   "name": "@softarc/native-federation-node",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "license": "MIT",
   "dependencies": {
-    "@softarc/native-federation-runtime": "^3.4.0",
+    "@softarc/native-federation-runtime": "^3.4.1",
     "tslib": "^2.8.1"
   }
 }
