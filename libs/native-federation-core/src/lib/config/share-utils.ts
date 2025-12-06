@@ -29,7 +29,9 @@ export const DEFAULT_SECONDARIES_SKIP_LIST = [
   '@angular/common/upgrade',
 ];
 
-type IncludeSecondariesOptions = { skip: string | string[] } | boolean;
+type IncludeSecondariesOptions =
+  | { skip: string | string[]; exhaustive?: boolean }
+  | boolean;
 type CustomSharedConfig = SharedConfig & {
   includeSecondaries?: IncludeSecondariesOptions;
 };
@@ -159,12 +161,14 @@ function getSecondaries(
 ): Record<string, SharedConfig> | null {
   let exclude = [...DEFAULT_SECONDARIES_SKIP_LIST];
 
+  let resolveExhaustive = true;
   if (typeof includeSecondaries === 'object') {
     if (Array.isArray(includeSecondaries.skip)) {
       exclude = includeSecondaries.skip;
     } else if (typeof includeSecondaries.skip === 'string') {
       exclude = [includeSecondaries.skip];
     }
+    if (includeSecondaries.exhaustive === false) resolveExhaustive = false;
   }
 
   // const libPath = path.join(path.dirname(packagePath), 'node_modules', key);
@@ -179,6 +183,7 @@ function getSecondaries(
     exclude,
     shareObject,
     preparedSkipList,
+    resolveExhaustive,
   );
   if (configured) {
     return configured;
@@ -200,6 +205,7 @@ function readConfiguredSecondaries(
   exclude: string[],
   shareObject: SharedConfig,
   preparedSkipList: PreparedSkipList,
+  resolveExhaustive: boolean,
 ): Record<string, SharedConfig> | null {
   const libPackageJson = path.join(libPath, 'package.json');
 
@@ -267,6 +273,7 @@ function readConfiguredSecondaries(
       secondaryName,
       entry,
       { discovered: discoveredFiles, skip: exclude },
+      resolveExhaustive,
     );
     items.forEach((e) =>
       discoveredFiles.add(typeof e === 'string' ? e : e.value),
@@ -300,9 +307,11 @@ function resolveSecondaries(
   secondaryName: string,
   entry: string,
   excludes: { discovered: Set<string>; skip: string[] },
+  resolveExhaustive: boolean,
 ): Array<string | KeyValuePair> {
   let items: Array<string | KeyValuePair> = [];
   if (key.includes('*')) {
+    if (!resolveExhaustive) return items;
     const expanded = resolveWildcardKeys(key, entry, libPath);
     items = expanded
       .map((e) => ({

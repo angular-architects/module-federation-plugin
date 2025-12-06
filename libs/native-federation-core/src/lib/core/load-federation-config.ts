@@ -16,7 +16,8 @@ export async function loadFederationConfig(
     throw new Error('Expected ' + fullConfigPath);
   }
 
-  const config = (await import(fullConfigPath)) as NormalizedFederationConfig;
+  const config = (await import(fullConfigPath))
+    ?.default as NormalizedFederationConfig;
 
   if (config.features.ignoreUnusedDeps && !fedOptions.entryPoint) {
     throw new Error(

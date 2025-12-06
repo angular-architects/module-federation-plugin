@@ -10,10 +10,10 @@ function escapeRegex(str: string) {
 }
 
 // Convert package.json exports pattern to glob pattern
-// * in exports means "one segment", but for glob we need ** for deep matching
+// * in exports means "one segment", but for glob we need **/* for deep matching
 // Src: https://hirok.io/posts/package-json-exports#exposing-all-package-files
 function convertExportsToGlob(pattern: string) {
-  return pattern.replace(/(?<!\*)\*(?!\*)/g, '**');
+  return pattern.replace(/(?<!\*)\*(?!\*)/g, '**/*');
 }
 
 function compilePattern(pattern: string) {
