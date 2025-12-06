@@ -27,7 +27,7 @@ export async function bundleShared(
   platform: 'browser' | 'node' = 'browser',
   cacheOptions: { pathToCache: string; bundleName: string },
 ): Promise<Array<SharedInfo>> {
-  const checksum = getChecksum(sharedBundles);
+  const checksum = getChecksum(sharedBundles, fedOptions.dev ? '1' : '0');
   const folder = fedOptions.packageJson
     ? path.dirname(fedOptions.packageJson)
     : fedOptions.workspaceRoot;

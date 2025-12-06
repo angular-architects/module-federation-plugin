@@ -14,6 +14,7 @@ export const getFilename = (title: string) => {
 
 export const getChecksum = (
   shared: Record<string, NormalizedSharedConfig>,
+  dev: '1' | '0',
 ): string => {
   const denseExternals = Object.keys(shared)
     .sort()
@@ -26,7 +27,10 @@ export const getChecksum = (
       );
     }, 'deps');
 
-  return crypto.createHash('sha256').update(denseExternals).digest('hex');
+  return crypto
+    .createHash('sha256')
+    .update(denseExternals + `:dev=${dev}`)
+    .digest('hex');
 };
 
 export const cacheEntry = (pathToCache: string, fileName: string) => ({
