@@ -22,6 +22,34 @@ export type PackageJsonInfo = {
   directory: string;
 };
 
+export type ExportCondition =
+  | 'import'
+  | 'require'
+  | 'node'
+  | 'cjs'
+  | 'esm'
+  | 'default'
+  | 'types'
+  | 'browser'
+  | (string & {});
+
+export const isESMExport = (e: string): boolean | undefined => {
+  if (e === 'node' || e === 'import' || e.startsWith('es')) return true;
+  if (e === 'require' || e === 'cjs') return false;
+  return undefined;
+};
+
+export type ExportEntry =
+  | string
+  | undefined
+  | { [key in ExportCondition]?: ExportEntry }
+  | ExportEntry[];
+
+export type PackageJsonExports =
+  | string
+  | ExportEntry
+  | { [path: `.${string}`]: ExportEntry };
+
 const packageCache: Record<string, PackageJsonInfo[]> = {};
 
 export function findPackageJsonFiles(
@@ -151,6 +179,55 @@ export function findDepPackageJson(
   return mainPkgJsonPath;
 }
 
+function replaceGlob(target: ExportEntry, replacement: string): ExportEntry {
+  if (!target) return undefined;
+  if (typeof target === 'string') return target.replace('*', replacement);
+  return Object.entries(target).reduce(
+    (a, [k, v]) => ({
+      ...a,
+      [k]: replaceGlob(v!, replacement),
+    }),
+    {} as Omit<ExportEntry, string>,
+  );
+}
+
+function findOptimalExport(
+  target: ExportEntry,
+  info: PackageInfo,
+  isESM: boolean | undefined = undefined,
+): PackageInfo | undefined {
+  if (typeof target === 'string') {
+    return {
+      ...info,
+      entryPoint: path.join(info.entryPoint, target),
+      esm: isESM ?? info.esm,
+    };
+  }
+  if (!target) return undefined;
+  if (Array.isArray(target)) return findOptimalExport(target[0], info, isESM);
+
+  const exportTypes = Object.keys(target);
+
+  if (typeof isESM === 'undefined') {
+    const esmExport = exportTypes.find((e) => isESMExport(e));
+    if (esmExport) {
+      return findOptimalExport(target[esmExport], info, true);
+    }
+  }
+
+  const secondBestEntry =
+    'default' in target && target['default']
+      ? 'default'
+      : exportTypes.filter((e) => e !== 'types')[0];
+  const secondBestExport: ExportEntry = target[secondBestEntry];
+
+  return findOptimalExport(
+    secondBestExport,
+    info,
+    isESM ?? isESMExport(secondBestEntry),
+  );
+}
+
 export function _getPackageInfo(
   packageName: string,
   directory: string,
@@ -181,121 +258,46 @@ export function _getPackageInfo(
     ? '.'
     : './' + pathToSecondary.replace(/\\/g, '/');
 
-  let secondaryEntryPoint = mainPkgJson?.exports?.[relSecondaryPath];
+  let secondaryEntryPoint: ExportEntry = undefined;
 
-  // wildcard
-  if (!secondaryEntryPoint) {
-    const wildcardEntry = Object.keys(mainPkgJson?.exports ?? []).find((e) =>
-      e.startsWith('./*'),
-    );
-    if (wildcardEntry) {
-      secondaryEntryPoint = mainPkgJson?.exports?.[wildcardEntry];
-      if (typeof secondaryEntryPoint === 'string')
-        secondaryEntryPoint = secondaryEntryPoint.replace('*', pathToSecondary);
-      if (typeof secondaryEntryPoint === 'object')
-        Object.keys(secondaryEntryPoint).forEach(function (key) {
-          secondaryEntryPoint[key] = secondaryEntryPoint[key].replace(
-            '*',
-            pathToSecondary,
-          );
-        });
+  // Node.js looks at the exports object and uses the first key that matches the current environment.
+  const packageJsonExportsEntry = Object.keys(mainPkgJson?.exports ?? []).find(
+    (e) => {
+      if (e === relSecondaryPath) return true;
+      if (e === './*') return true;
+      if (!e.endsWith('*')) return false;
+      const globPath = e.substring(0, e.length - 1);
+      return relSecondaryPath.startsWith(globPath);
+    },
+  );
+
+  if (packageJsonExportsEntry) {
+    secondaryEntryPoint = packageJsonExportsEntry;
+
+    if (secondaryEntryPoint.endsWith('*')) {
+      const replacement = relSecondaryPath.substring(
+        packageJsonExportsEntry.length - 1,
+      );
+      secondaryEntryPoint = replaceGlob(
+        mainPkgJson?.exports?.[packageJsonExportsEntry],
+        replacement,
+      );
     }
   }
 
-  if (typeof secondaryEntryPoint === 'string') {
-    return {
-      entryPoint: path.join(mainPkgPath, secondaryEntryPoint),
+  if (!!secondaryEntryPoint) {
+    const info = findOptimalExport(secondaryEntryPoint, {
+      entryPoint: mainPkgPath,
       packageName,
       version,
       esm,
-    };
+    });
+    if (!!info) return info;
   }
 
-  let cand = secondaryEntryPoint?.import;
-
-  if (typeof cand === 'object') {
-    if (cand.module) {
-      cand = cand.module;
-    } else if (cand.import) {
-      cand = cand.import;
-    } else if (cand.default) {
-      cand = cand.default;
-    } else {
-      cand = null;
-    }
-  }
-
-  if (cand) {
-    if (typeof cand === 'object') {
-      if (cand.module) {
-        cand = cand.module;
-      } else if (cand.import) {
-        cand = cand.import;
-      } else if (cand.default) {
-        cand = cand.default;
-      } else {
-        cand = null;
-      }
-    }
-
+  if (mainPkgJson['module'] && relSecondaryPath === '.') {
     return {
-      entryPoint: path.join(mainPkgPath, cand),
-      packageName,
-      version,
-      esm,
-    };
-  }
-
-  cand = secondaryEntryPoint?.module;
-
-  if (typeof cand === 'object') {
-    if (cand.module) {
-      cand = cand.module;
-    } else if (cand.import) {
-      cand = cand.import;
-    } else if (cand.default) {
-      cand = cand.default;
-    } else {
-      cand = null;
-    }
-  }
-
-  if (cand) {
-    return {
-      entryPoint: path.join(mainPkgPath, cand),
-      packageName,
-      version,
-      esm,
-    };
-  }
-
-  cand = secondaryEntryPoint?.default;
-  if (cand) {
-    if (typeof cand === 'object') {
-      if (cand.module) {
-        cand = cand.module;
-      } else if (cand.import) {
-        cand = cand.import;
-      } else if (cand.default) {
-        cand = cand.default;
-      } else {
-        cand = null;
-      }
-    }
-
-    return {
-      entryPoint: path.join(mainPkgPath, cand),
-      packageName,
-      version,
-      esm,
-    };
-  }
-
-  cand = mainPkgJson['module'];
-
-  if (cand && relSecondaryPath === '.') {
-    return {
-      entryPoint: path.join(mainPkgPath, cand),
+      entryPoint: path.join(mainPkgPath, mainPkgJson['module']),
       packageName,
       version,
       esm: true,
@@ -318,7 +320,7 @@ export function _getPackageInfo(
     };
   }
 
-  cand = path.join(secondaryPgkPath, 'index.mjs');
+  let cand = path.join(secondaryPgkPath, 'index.mjs');
   if (fs.existsSync(cand)) {
     return {
       entryPoint: cand,
@@ -367,17 +369,6 @@ export function _getPackageInfo(
     };
   }
 
-  // cand = secondaryPgkPath;
-  // if (fs.existsSync(cand) && cand.match(/\.(m|c)?js$/)) {
-  //   return {
-  //     entryPoint: cand,
-  //     packageName,
-  //     version,
-  //     esm,
-  //   };
-  // }
-
-  // TODO: Add logger
   logger.warn('No entry point found for ' + packageName);
   logger.warn(
     "If you don't need this package, skip it in your federation.config.js or consider moving it into depDependencies in your package.json",
@@ -401,9 +392,3 @@ function getPkgFolder(packageName: string) {
 
   return folder;
 }
-
-// const pkg = process.argv[2]
-// console.log('pkg', pkg);
-
-// const r = getPackageInfo('D:/Dokumente/projekte/mf-plugin/angular-architects/', pkg);
-// console.log('entry', r);
