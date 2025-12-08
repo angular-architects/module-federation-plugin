@@ -355,7 +355,7 @@ export async function* runBuilder(
   options.deleteOutputPath = false;
 
   await new Promise((resolve) => {
-    setTimeout(resolve, 5000);
+    setTimeout(resolve, nfOptions.initialDelay ?? 0);
   });
 
   const builderRun = runServer

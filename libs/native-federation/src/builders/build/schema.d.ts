@@ -8,6 +8,7 @@ export interface NfBuilderSchema extends JsonObject {
   port: number;
   open: boolean;
   rebuildDelay: number;
+  initialDelay?: number;
   buildNotifications?: BuildNotificationOptions;
   shell: string;
   watch: boolean;
