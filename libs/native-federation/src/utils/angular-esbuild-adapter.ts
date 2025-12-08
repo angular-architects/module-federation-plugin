@@ -353,8 +353,8 @@ async function runEsbuild(
   try {
     const abortHandler = async () => {
       await ctx.cancel();
-      await compilerPluginDispose;
       await ctx.dispose();
+      await compilerPluginDispose;
     };
 
     if (signal) {
@@ -379,9 +379,8 @@ async function runEsbuild(
       );
     } else {
       if (signal) signal.removeEventListener('abort', abortHandler);
-
-      await compilerPluginDispose;
       await ctx.dispose();
+      await compilerPluginDispose;
     }
     return writtenFiles;
   } catch (error) {
