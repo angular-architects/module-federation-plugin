@@ -354,6 +354,10 @@ export async function* runBuilder(
 
   options.deleteOutputPath = false;
 
+  await new Promise((resolve) => {
+    setTimeout(resolve, 5000);
+  });
+
   const builderRun = runServer
     ? executeDevServerBuilder(serverOptions, context, {
         buildPlugins: plugins as any,
