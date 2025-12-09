@@ -8,7 +8,7 @@ import {
 import * as esbuild from 'esbuild';
 
 import {
-  createCompilerPlugin as createCompilerPlugin,
+  createCompilerPlugin,
   transformSupportedBrowsersToTargets,
   getSupportedBrowsers,
   generateSearchDirectories,
@@ -525,15 +525,23 @@ export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
   ) as Promise<T>;
 }
 
+type OptimizationInput =
+  | boolean
+  | {
+      scripts?: boolean;
+      styles?: boolean | { minify?: boolean; inlineCritical?: boolean };
+      fonts?: boolean | { inline?: boolean };
+    };
+
+interface NormalizedOptimization {
+  scripts: boolean;
+  styles: { minify: boolean; inlineCritical: boolean };
+  fonts: { inline: boolean };
+}
+
 function normalizeOptimization(
-  optimization:
-    | boolean
-    | {
-        scripts?: boolean;
-        styles?: boolean | { minify?: boolean; inlineCritical?: boolean };
-        fonts?: boolean | { inline?: boolean };
-      } = false,
-) {
+  optimization: OptimizationInput = false,
+): NormalizedOptimization {
   if (typeof optimization === 'boolean') {
     return {
       scripts: optimization,
@@ -542,19 +550,34 @@ function normalizeOptimization(
     };
   }
 
+  const normalizeStyles = (
+    styles:
+      | boolean
+      | { minify?: boolean; inlineCritical?: boolean }
+      | undefined,
+  ) => {
+    if (typeof styles === 'boolean') {
+      return { minify: styles, inlineCritical: styles };
+    }
+    return {
+      minify: styles?.minify ?? false,
+      inlineCritical: styles?.inlineCritical ?? false,
+    };
+  };
+
+  const normalizeFonts = (
+    fonts: boolean | { inline?: boolean } | undefined,
+  ) => {
+    if (typeof fonts === 'boolean') {
+      return { inline: fonts };
+    }
+    return { inline: fonts?.inline ?? false };
+  };
+
   return {
     scripts: optimization.scripts ?? false,
-    styles:
-      typeof optimization.styles === 'boolean'
-        ? { minify: optimization.styles, inlineCritical: optimization.styles }
-        : {
-            minify: optimization.styles?.minify ?? false,
-            inlineCritical: optimization.styles?.inlineCritical ?? false,
-          },
-    fonts:
-      typeof optimization.fonts === 'boolean'
-        ? { inline: optimization.fonts }
-        : { inline: optimization.fonts?.inline ?? false },
+    styles: normalizeStyles(optimization.styles),
+    fonts: normalizeFonts(optimization.fonts),
   };
 }
 

@@ -130,22 +130,10 @@ export async function* runBuilder(
 
   if (options['buildTarget']) {
     serverOptions = {
-      buildTarget: options['buildTarget'] as string,
+      ...options,
+      buildTarget: options['buildTarget'],
       port: nfOptions.port || options['port'],
-      host: options['host'] as string,
       watch: watch,
-      verbose: options.verbose,
-      ...(options['ssl'] && { ssl: options['ssl'] as boolean }),
-      ...(options['sslCert'] && { sslCert: options['sslCert'] as string }),
-      ...(options['sslKey'] && { sslKey: options['sslKey'] as string }),
-      ...(options['proxyConfig'] && {
-        proxyConfig: options['proxyConfig'] as string,
-      }),
-      ...(options['open'] && { open: options['open'] as boolean }),
-      ...(options['liveReload'] !== undefined && {
-        liveReload: options['liveReload'] as boolean,
-      }),
-      ...(options['hmr'] !== undefined && { hmr: options['hmr'] as boolean }),
     } as DevServerBuilderOptions;
 
     target = targetFromTargetString(options['buildTarget'] as string);
