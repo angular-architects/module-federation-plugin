@@ -15,16 +15,13 @@ export function createAwaitableCompilerPlugin(
   const wrappedPlugin: esbuild.Plugin = {
     ...originalPlugin,
     setup(build: esbuild.PluginBuild) {
-      let onDisposeCallback: (() => void | Promise<void>) | undefined;
-
       // Wrap the build object to intercept onDispose
       const wrappedBuild = new Proxy(build, {
         get(target, prop) {
           if (prop === 'onDispose') {
             return (callback: () => void | Promise<void>) => {
-              onDisposeCallback = callback;
-              return target.onDispose(async () => {
-                await callback();
+              return target.onDispose(() => {
+                callback();
                 resolveDispose();
               });
             };
@@ -33,7 +30,6 @@ export function createAwaitableCompilerPlugin(
         },
       });
 
-      // Call original setup with wrapped build
       return originalPlugin.setup(wrappedBuild);
     },
   };
