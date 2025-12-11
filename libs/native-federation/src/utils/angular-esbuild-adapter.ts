@@ -42,6 +42,7 @@ import { RebuildEvents, RebuildHubs } from './rebuild-events';
 
 import JSON5 from 'json5';
 import { isDeepStrictEqual } from 'node:util';
+import { createAwaitableCompilerPlugin } from './create-awaitable-compiler-plugin';
 
 export type MemResultHandler = (
   outfiles: esbuild.OutputFile[],
@@ -270,6 +271,11 @@ async function runEsbuild(
 
   pluginOptions.styleOptions.externalDependencies = [];
 
+  const [compilerPlugin, pluginDisposed] = createAwaitableCompilerPlugin(
+    pluginOptions.pluginOptions,
+    pluginOptions.styleOptions,
+  );
+
   const config: esbuild.BuildOptions = {
     entryPoints: entryPoints.map((ep) => ({
       in: ep.fileName,
@@ -294,10 +300,7 @@ async function runEsbuild(
     target: target,
     logLimit: kind === 'shared-package' ? 1 : 0,
     plugins: (plugins as any) || [
-      createCompilerPlugin(
-        pluginOptions.pluginOptions,
-        pluginOptions.styleOptions,
-      ),
+      compilerPlugin,
       ...(mappedPaths && mappedPaths.length > 0
         ? [createSharedMappingsPlugin(mappedPaths)]
         : []),
@@ -317,6 +320,7 @@ async function runEsbuild(
     const abortHandler = async () => {
       await ctx.cancel();
       await ctx.dispose();
+      await pluginDisposed;
     };
 
     if (signal) {
@@ -342,6 +346,7 @@ async function runEsbuild(
     } else {
       if (signal) signal.removeEventListener('abort', abortHandler);
       await ctx.dispose();
+      await pluginDisposed;
     }
     return writtenFiles;
   } catch (error) {
