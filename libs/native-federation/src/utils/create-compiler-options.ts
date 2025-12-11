@@ -55,6 +55,7 @@ export function createCompilerPluginOptions(
         sourcemapOptions.styles && !sourcemapOptions.hidden ? 'linked' : false,
       outputNames,
       includePaths: stylePreprocessorOptions?.includePaths,
+      sass: stylePreprocessorOptions?.sass,
       externalDependencies,
       target,
       inlineStyleLanguage,
