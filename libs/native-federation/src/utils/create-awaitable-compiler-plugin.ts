@@ -1,9 +1,11 @@
 import * as esbuild from 'esbuild';
 import { createCompilerPlugin } from '@angular/build/private';
 
+type CreateCompilerPluginParams = Parameters<typeof createCompilerPlugin>;
+
 export function createAwaitableCompilerPlugin(
-  pluginOptions: any,
-  styleOptions: any,
+  pluginOptions: CreateCompilerPluginParams[0],
+  styleOptions: CreateCompilerPluginParams[1],
 ): [esbuild.Plugin, Promise<void>] {
   const originalPlugin = createCompilerPlugin(pluginOptions, styleOptions);
 
