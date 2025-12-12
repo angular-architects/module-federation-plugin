@@ -270,16 +270,13 @@ export function _getPackageInfo(
   );
 
   if (packageJsonExportsEntry) {
-    secondaryEntryPoint = packageJsonExportsEntry;
+    secondaryEntryPoint = mainPkgJson?.exports?.[packageJsonExportsEntry];
 
-    if (secondaryEntryPoint.endsWith('*')) {
+    if (packageJsonExportsEntry.endsWith('*')) {
       const replacement = relSecondaryPath.substring(
         packageJsonExportsEntry.length - 1,
       );
-      secondaryEntryPoint = replaceGlob(
-        mainPkgJson?.exports?.[packageJsonExportsEntry],
-        replacement,
-      );
+      secondaryEntryPoint = replaceGlob(secondaryEntryPoint, replacement);
     }
   }
 
