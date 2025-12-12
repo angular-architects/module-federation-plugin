@@ -360,6 +360,20 @@ shared: share({
 })
 ```
 
+Finally, it's also possible to break out of the "removeUnusedDep" for a specific external if desired, for example when sharing a whole suite of external modules. This can be handy when you want to avoid the chance of cross-version secondary entrypoints being used by the different micro frontends. E.g. mfe1 uses @angular/core v20.1.0 and mfe2 uses @angular/core/rxjs-interop v20.0.8, then you might want to use consistent use of v20.1.0 so rxjs-interop should be exported by mfe1. The "shareAll" prop allows you to enforce this:
+
+```typescript
+shared: share({
+      "@angular/core": {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: "auto",
+        includeSecondaries: {shareAll: true}
+      },
+    [...]
+})
+```
+
 #### shareAll
 
 The `shareAll` helper shares all your dependencies defined in your `package.json`. The `package.json` is look up as described above:
