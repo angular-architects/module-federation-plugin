@@ -330,6 +330,36 @@ shared: share({
 })
 ```
 
+### glob exports
+
+Since v21 it's also possible to resolve Glob exports by enabling the `globResolve` property:
+
+```typescript
+shared: share({
+      "@primeng/themes/aura": {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: "auto",
+        includeSecondaries: {resolveGlob: true}
+      },
+    [...]
+})
+```
+
+This is disabled by default since it will create a bundle of every valid exported file it finds, **Only use this feature in combination with `ignoreUnusedDeps` flag**. If you want to specifically skip certain parts of the glob export, you can also use the wildcard in the skip section:
+
+```typescript
+shared: share({
+      "@primeng/themes/aura": {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: "auto",
+        includeSecondaries: {skip: "@primeuix/themes/aura/*", resolveGlob: true}
+      },
+    [...]
+})
+```
+
 #### shareAll
 
 The `shareAll` helper shares all your dependencies defined in your `package.json`. The `package.json` is look up as described above:
