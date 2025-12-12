@@ -579,6 +579,7 @@ export function share(
     if (shareObject.includeSecondaries) {
       includeSecondaries = shareObject.includeSecondaries;
       delete shareObject.includeSecondaries;
+      if (!!includeSecondaries?.shareAll) shareObject.includeSecondaries = true;
     }
 
     result[key] = shareObject;
