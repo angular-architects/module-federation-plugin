@@ -38,15 +38,12 @@ function filterShared(
   config: NormalizedFederationConfig,
   usedPackageNamesWithTransient: Set<string>,
 ) {
-  const filteredSharedNames = Object.keys(config.shared).filter((shared) =>
-    usedPackageNamesWithTransient.has(shared),
-  );
-
-  const filteredShared = filteredSharedNames.reduce(
-    (acc, curr) => ({ ...acc, [curr]: config.shared[curr] }),
-    {},
-  );
-  return filteredShared;
+  return Object.entries(config.shared)
+    .filter(
+      ([shared, meta]) =>
+        !!meta.includeSecondaries || usedPackageNamesWithTransient.has(shared),
+    )
+    .reduce((acc, [shared, meta]) => ({ ...acc, [shared]: meta }), {});
 }
 
 function findUsedDeps(

@@ -173,10 +173,7 @@ A dynamic host reads the configuration data at runtime from a `.json` file.
 The host configuration (`projects/shell/federation.config.js`) looks like what you know from our Module Federation plugin:
 
 ```javascript
-const {
-  withNativeFederation,
-  shareAll,
-} = require('@angular-architects/native-federation/config');
+const { withNativeFederation, shareAll } = require('@angular-architects/native-federation/config');
 
 module.exports = withNativeFederation({
   name: 'my-host',
@@ -205,10 +202,7 @@ module.exports = withNativeFederation({
 Also, the remote configuration (`projects/mfe1/federation.config.js`) looks familiar:
 
 ```javascript
-const {
-  withNativeFederation,
-  shareAll,
-} = require('@angular-architects/native-federation/config');
+const { withNativeFederation, shareAll } = require('@angular-architects/native-federation/config');
 
 module.exports = withNativeFederation({
   name: 'mfe1',
@@ -307,8 +301,7 @@ export const APP_ROUTES: Routes = [
   // Add this route:
   {
     path: 'flights',
-    loadComponent: () =>
-      loadRemoteModule('mfe1', './Component').then((m) => m.AppComponent),
+    loadComponent: () => loadRemoteModule('mfe1', './Component').then((m) => m.AppComponent),
   },
 
   {
