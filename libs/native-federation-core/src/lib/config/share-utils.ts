@@ -30,7 +30,7 @@ export const DEFAULT_SECONDARIES_SKIP_LIST = [
 ];
 
 type IncludeSecondariesOptions =
-  | { skip: string | string[]; resolveGlob?: boolean }
+  | { skip: string | string[]; resolveGlob?: boolean; shareAll?: boolean }
   | boolean;
 type CustomSharedConfig = SharedConfig & {
   includeSecondaries?: IncludeSecondariesOptions;
