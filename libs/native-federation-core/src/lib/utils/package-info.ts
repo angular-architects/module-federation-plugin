@@ -34,11 +34,17 @@ export type ExportCondition =
   | (string & {});
 
 export const isESMExport = (e: string): boolean | undefined => {
-  if (e === 'node' || e === 'import' || e.startsWith('es')) return true;
-  if (e === 'require' || e === 'cjs') return false;
+  if (e === 'import' || e === 'module-sync') return true;
+  // Common ESM conventions
+  if (e === 'module' || e === 'esm' || /^es20\d{2}$/.test(e)) return true;
+
+  if (e === 'require') return false;
+  // Common CJS conventions
+  if (e === 'cjs' || e === 'commonjs') return false;
+
+  // Ambiguous
   return undefined;
 };
-
 export type ExportEntry =
   | string
   | undefined
