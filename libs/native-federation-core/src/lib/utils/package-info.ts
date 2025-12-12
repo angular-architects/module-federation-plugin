@@ -280,14 +280,14 @@ export function _getPackageInfo(
     }
   }
 
-  if (!!secondaryEntryPoint) {
+  if (secondaryEntryPoint) {
     const info = findOptimalExport(secondaryEntryPoint, {
       entryPoint: mainPkgPath,
       packageName,
       version,
       esm,
     });
-    if (!!info) return info;
+    if (info) return info;
   }
 
   if (mainPkgJson['module'] && relSecondaryPath === '.') {
