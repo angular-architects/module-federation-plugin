@@ -22,7 +22,7 @@ import { watchFederationBuildCompletion } from './watch-federation-build';
  */
 export async function initFederation(
   remotesOrManifestUrl: Record<string, string> | string = {},
-  options?: InitFederationOptions,
+  options?: InitFederationOptions
 ): Promise<ImportMap> {
   const cacheOption = options?.cacheTag ? `?t=${options.cacheTag}` : '';
   const remotes =
@@ -50,7 +50,7 @@ async function loadManifest(remotes: string): Promise<Record<string, string>> {
 
 export async function processRemoteInfos(
   remotes: Record<string, string>,
-  options: ProcessRemoteInfoOptions = { throwIfRemoteNotFound: false },
+  options: ProcessRemoteInfoOptions = { throwIfRemoteNotFound: false }
 ): Promise<ImportMap> {
   const processRemoteInfoPromises = Object.keys(remotes).map(
     async (remoteName) => {
@@ -72,7 +72,7 @@ export async function processRemoteInfos(
         console.error(error);
         return null;
       }
-    },
+    }
   );
 
   const remoteImportMaps = await Promise.all(processRemoteInfoPromises);
@@ -80,7 +80,7 @@ export async function processRemoteInfos(
   const importMap = remoteImportMaps.reduce<ImportMap>(
     (acc, remoteImportMap) =>
       remoteImportMap ? mergeImportMaps(acc, remoteImportMap) : acc,
-    { imports: {}, scopes: {} },
+    { imports: {}, scopes: {} }
   );
 
   return importMap;
@@ -88,7 +88,7 @@ export async function processRemoteInfos(
 
 export async function processRemoteInfo(
   federationInfoUrl: string,
-  remoteName?: string,
+  remoteName?: string
 ): Promise<ImportMap> {
   const baseUrl = getDirectory(federationInfoUrl);
   const remoteInfo = await loadFederationInfo(federationInfoUrl);
@@ -99,7 +99,7 @@ export async function processRemoteInfo(
 
   if (remoteInfo.buildNotificationsEndpoint) {
     watchFederationBuildCompletion(
-      baseUrl + remoteInfo.buildNotificationsEndpoint,
+      baseUrl + remoteInfo.buildNotificationsEndpoint
     );
   }
 
@@ -112,7 +112,7 @@ export async function processRemoteInfo(
 function createRemoteImportMap(
   remoteInfo: FederationInfo,
   remoteName: string,
-  baseUrl: string,
+  baseUrl: string
 ): ImportMap {
   const imports = processExposed(remoteInfo, remoteName, baseUrl);
   const scopes = processRemoteImports(remoteInfo, baseUrl);
@@ -126,7 +126,7 @@ async function loadFederationInfo(url: string): Promise<FederationInfo> {
 
 function processRemoteImports(
   remoteInfo: FederationInfo,
-  baseUrl: string,
+  baseUrl: string
 ): Scopes {
   const scopes: Scopes = {};
   const scopedImports: Imports = {};
@@ -145,7 +145,7 @@ function processRemoteImports(
 function processExposed(
   remoteInfo: FederationInfo,
   remoteName: string,
-  baseUrl: string,
+  baseUrl: string
 ): Imports {
   const imports: Imports = {};
 
@@ -160,14 +160,14 @@ function processExposed(
 
 export async function processHostInfo(
   hostInfo: FederationInfo,
-  relBundlesPath = './',
+  relBundlesPath = './'
 ): Promise<ImportMap> {
   const imports = hostInfo.shared.reduce(
     (acc, cur) => ({
       ...acc,
       [cur.packageName]: relBundlesPath + cur.outFileName,
     }),
-    {},
+    {}
   ) as Imports;
 
   for (const shared of hostInfo.shared) {
