@@ -126,9 +126,13 @@ function _findSecondaries(
       const secondaryLibName = s
         .replace(/\\/g, '/')
         .replace(/^.*node_modules[/]/, '');
-      if (excludes.includes(secondaryLibName)) {
-        continue;
-      }
+
+      const inCustomSkipList = excludes.some(
+        (e) =>
+          e === secondaryLibName ||
+          (e.endsWith('*') && secondaryLibName.startsWith(e.slice(0, -1))),
+      );
+      if (inCustomSkipList) continue;
 
       if (isInSkipList(secondaryLibName, preparedSkipList)) {
         continue;
@@ -243,9 +247,12 @@ function readConfiguredSecondaries(
   for (const key of keys) {
     const secondaryName = path.join(parent, key).replace(/\\/g, '/');
 
-    if (exclude.includes(secondaryName)) {
-      continue;
-    }
+    const inCustomSkipList = exclude.some(
+      (e) =>
+        e === secondaryName ||
+        (e.endsWith('*') && secondaryName.startsWith(e.slice(0, -1))),
+    );
+    if (inCustomSkipList) continue;
 
     if (isInSkipList(secondaryName, preparedSkipList)) {
       continue;
@@ -266,7 +273,7 @@ function readConfiguredSecondaries(
       continue;
     }
 
-    const items = resolveSecondaries(
+    const items = resolveGlobSecondaries(
       key,
       libPath,
       parent,
@@ -300,7 +307,7 @@ function readConfiguredSecondaries(
   return result;
 }
 
-function resolveSecondaries(
+function resolveGlobSecondaries(
   key: string,
   libPath: string,
   parent: string,
@@ -372,12 +379,14 @@ function getDefaultEntry(
 
 export function shareAll(
   config: CustomSharedConfig = {},
-  skip: SkipList = DEFAULT_SKIP_LIST,
-  projectPath = '',
+  opts: {
+    skipList?: SkipList;
+    projectPath?: string;
+    overrides?: Config;
+  } = {},
 ): Config | null {
   // let workspacePath: string | undefined = undefined;
-
-  projectPath = inferProjectPath(projectPath);
+  const projectPath = inferProjectPath(opts.projectPath);
 
   // workspacePath = getConfigContext().workspaceRoot ?? '';
 
@@ -386,12 +395,18 @@ export function shareAll(
   // }
 
   const versionMaps = getVersionMaps(projectPath, projectPath);
-  const share: Record<string, unknown> = {};
-  const preparedSkipList = prepareSkipList(skip);
+  const sharedExternals: Config = {};
+  const preparedSkipList = prepareSkipList(opts.skipList ?? DEFAULT_SKIP_LIST);
 
   for (const versions of versionMaps) {
     for (const key in versions) {
       if (isInSkipList(key, preparedSkipList)) {
+        continue;
+      }
+      if (
+        !!opts.overrides &&
+        Object.keys(opts.overrides).some((o) => key.startsWith(o))
+      ) {
         continue;
       }
 
@@ -401,16 +416,29 @@ export function shareAll(
         ? versions[key]
         : config.requiredVersion;
 
-      if (!share[key]) {
-        share[key] = { ...config, requiredVersion };
+      if (!sharedExternals[key]) {
+        sharedExternals[key] = { ...config, requiredVersion };
       }
     }
   }
 
-  return module.exports.share(share, projectPath, skip);
+  return {
+    ...share(
+      sharedExternals,
+      opts.projectPath,
+      opts.skipList ?? DEFAULT_SKIP_LIST,
+    ),
+    ...(!opts.overrides
+      ? {}
+      : share(
+          opts.overrides,
+          opts.projectPath,
+          opts.skipList ?? DEFAULT_SKIP_LIST,
+        )),
+  };
 }
 
-function inferProjectPath(projectPath: string) {
+function inferProjectPath(projectPath: string | undefined) {
   if (!projectPath && getConfigContext().packageJson) {
     projectPath = path.dirname(getConfigContext().packageJson || '');
   }

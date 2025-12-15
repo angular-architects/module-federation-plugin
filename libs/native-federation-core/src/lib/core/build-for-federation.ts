@@ -87,6 +87,7 @@ export async function buildForFederation(
       splitShared(config.shared);
 
     if (Object.keys(sharedBrowser).length > 0) {
+      notifyBundling('browser-shared');
       const start = process.hrtime();
       const sharedPackageInfoBrowser = await bundleShared(
         sharedBrowser,
@@ -111,6 +112,7 @@ export async function buildForFederation(
     }
 
     if (Object.keys(sharedServer).length > 0) {
+      notifyBundling('browser-shared');
       const start = process.hrtime();
       const sharedPackageInfoServer = await bundleShared(
         sharedServer,
@@ -131,8 +133,9 @@ export async function buildForFederation(
     }
 
     if (Object.keys(separateBrowser).length > 0) {
+      notifyBundling('browser-shared');
       const start = process.hrtime();
-      const separatePackageInfoBrowser = await bundleSeparate(
+      const separatePackageInfoBrowser = await bundleSeparatePackages(
         separateBrowser,
         externals,
         config,
@@ -153,8 +156,9 @@ export async function buildForFederation(
     }
 
     if (Object.keys(separateServer).length > 0) {
+      notifyBundling('browser-shared');
       const start = process.hrtime();
-      const separatePackageInfoServer = await bundleSeparate(
+      const separatePackageInfoServer = await bundleSeparatePackages(
         separateServer,
         externals,
         config,
@@ -210,7 +214,7 @@ function inferPackageFromSecondary(secondary: string): string {
   return parts[0];
 }
 
-async function bundleSeparate(
+async function bundleSeparatePackages(
   separateBrowser: Record<string, NormalizedSharedConfig>,
   externals: string[],
   config: NormalizedFederationConfig,
@@ -218,21 +222,30 @@ async function bundleSeparate(
   platform: 'node' | 'browser',
   pathToCache: string,
 ) {
-  const bundlePromises = Object.entries(separateBrowser).map(
-    async ([key, shared]) => {
-      const packageName = inferPackageFromSecondary(key);
-      const filteredExternals = externals.filter(
-        (e) => !e.startsWith(packageName),
-      );
+  const groupedByPackage: Record<
+    string,
+    Record<string, NormalizedSharedConfig>
+  > = {};
+
+  for (const [key, shared] of Object.entries(separateBrowser)) {
+    const packageName = inferPackageFromSecondary(key);
+    if (!groupedByPackage[packageName]) {
+      groupedByPackage[packageName] = {};
+    }
+    groupedByPackage[packageName][key] = shared;
+  }
+
+  const bundlePromises = Object.entries(groupedByPackage).map(
+    async ([packageName, sharedGroup]) => {
       return bundleShared(
-        { [key]: shared },
+        sharedGroup,
         config,
         fedOptions,
-        filteredExternals,
+        externals.filter((e) => !e.startsWith(packageName)),
         platform,
         {
           pathToCache,
-          bundleName: `${platform}-${normalizePackageName(key)}`,
+          bundleName: `${platform}-${normalizePackageName(packageName)}`,
         },
       );
     },
@@ -240,6 +253,14 @@ async function bundleSeparate(
 
   const buildResults = await Promise.all(bundlePromises);
   return buildResults.flat();
+}
+
+function notifyBundling(platform: string) {
+  logger.info('Preparing shared npm packages for the platform ' + platform);
+  logger.notice('This only needs to be done once, as results are cached');
+  logger.notice(
+    "Skip packages you don't want to share in your federation config",
+  );
 }
 
 function splitShared(

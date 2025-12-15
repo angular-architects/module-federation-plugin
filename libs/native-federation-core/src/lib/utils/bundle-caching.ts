@@ -96,12 +96,9 @@ export const cacheEntry = (pathToCache: string, fileName: string) => ({
       logger.debug(`Creating cache folder '${pathToCache}' for '${fileName}'.`);
       return;
     }
-    if (!fs.existsSync(metadataFile)) {
-      logger.debug(
-        `Could not purge cached bundle, metadata file '${metadataFile}' does not exist.`,
-      );
-      return;
-    }
+    if (!fs.existsSync(metadataFile)) return;
+
+    logger.debug(`Purging cached bundle '${metadataFile}'.`);
 
     const cachedResult: {
       checksum: string;

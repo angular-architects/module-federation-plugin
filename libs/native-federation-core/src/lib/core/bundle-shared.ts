@@ -93,14 +93,6 @@ export async function bundleShared(
     (ep) => !fs.existsSync(path.join(cacheOptions.pathToCache, ep.outName)),
   );
 
-  if (entryPoints.length > 0) {
-    logger.info('Preparing shared npm packages for the platform ' + platform);
-    logger.notice('This only needs to be done once, as results are cached');
-    logger.notice(
-      "Skip packages you don't want to share in your federation config",
-    );
-  }
-
   // If we build for the browser and don't remote unused deps from the shared config,
   // we need to exclude typical node libs to avoid compilation issues
   const useDefaultExternalList =
@@ -244,7 +236,7 @@ function addChunksToResult(
   for (const item of chunks) {
     const fileName = path.basename(item.fileName);
     result.push({
-      singleton: false,
+      singleton: true,
       strictVersion: false,
       // Here, the version does not matter because
       // a) a chunk split off by the bundler does
@@ -255,7 +247,6 @@ function addChunksToResult(
       // For the same reason, we don't need to
       // take care of singleton and strictVersion.
       requiredVersion: '0.0.0',
-      version: '0.0.0',
       packageName: deriveInternalName(fileName),
       outFileName: fileName,
       // dev: dev
