@@ -202,11 +202,18 @@ async function runEsbuild(
     throw new AbortedError('[angular-esbuild-adapter] Before building');
   }
 
-  const projectRoot = path.dirname(tsConfigPath);
+  const workspaceRoot = context.workspaceRoot;
+
+  const projectMetadata = await context.getProjectMetadata(
+    context.target.project,
+  );
+  const projectRoot = path.join(
+    workspaceRoot,
+    (projectMetadata['root'] as string | undefined) ?? '',
+  );
+
   const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
   const target = transformSupportedBrowsersToTargets(browsers);
-
-  const workspaceRoot = context.workspaceRoot;
 
   const optimizationOptions = normalizeOptimization(
     builderOptions.optimization,
@@ -221,7 +228,7 @@ async function runEsbuild(
     await loadPostcssConfiguration(searchDirectories);
   const tailwindConfiguration = postcssConfiguration
     ? undefined
-    : await getTailwindConfig(workspaceRoot, searchDirectories);
+    : await getTailwindConfig(searchDirectories);
 
   const outputNames = {
     bundles: '[name]',
@@ -360,7 +367,6 @@ async function runEsbuild(
 }
 
 async function getTailwindConfig(
-  workspaceRoot: string,
   searchDirectories: { root: string; files: Set<string> }[],
 ): Promise<{ file: string; package: string } | undefined> {
   const tailwindConfigurationPath =
@@ -372,9 +378,7 @@ async function getTailwindConfig(
 
   return {
     file: tailwindConfigurationPath,
-    package: createRequire(
-      path.join(workspaceRoot, tailwindConfigurationPath),
-    ).resolve('tailwindcss'),
+    package: createRequire(tailwindConfigurationPath).resolve('tailwindcss'),
   };
 }
 
