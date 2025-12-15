@@ -228,7 +228,8 @@ async function bundleSeparatePackages(
   > = {};
 
   for (const [key, shared] of Object.entries(separateBrowser)) {
-    const packageName = inferPackageFromSecondary(key);
+    const packageName =
+      shared.build === 'separate' ? key : inferPackageFromSecondary(key);
     if (!groupedByPackage[packageName]) {
       groupedByPackage[packageName] = {};
     }
@@ -273,14 +274,19 @@ function splitShared(
 
   for (const key in shared) {
     const obj = shared[key];
-    if (obj.platform === 'node' && obj.build === 'default') {
-      sharedServer[key] = obj;
-    } else if (obj.platform === 'node' && obj.build === 'separate') {
-      separateServer[key] = obj;
-    } else if (obj.platform === 'browser' && obj.build === 'default') {
-      sharedBrowser[key] = obj;
-    } else {
-      separateBrowser[key] = obj;
+
+    if (obj.platform === 'node') {
+      if (obj.build === 'default') {
+        sharedServer[key] = obj;
+      } else {
+        separateServer[key] = obj;
+      }
+    } else if (obj.platform === 'browser') {
+      if (obj.build === 'default') {
+        sharedBrowser[key] = obj;
+      } else {
+        separateBrowser[key] = obj;
+      }
     }
   }
 
