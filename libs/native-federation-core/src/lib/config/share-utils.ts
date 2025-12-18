@@ -30,7 +30,7 @@ export const DEFAULT_SECONDARIES_SKIP_LIST = [
 ];
 
 type IncludeSecondariesOptions =
-  | { skip: string | string[]; resolveGlob?: boolean; shareAll?: boolean }
+  | { skip: string | string[]; resolveGlob?: boolean; keepAll?: boolean }
   | boolean;
 type CustomSharedConfig = SharedConfig & {
   includeSecondaries?: IncludeSecondariesOptions;
@@ -607,7 +607,7 @@ export function share(
     if (shareObject.includeSecondaries) {
       includeSecondaries = shareObject.includeSecondaries;
       delete shareObject.includeSecondaries;
-      if (includeSecondaries?.shareAll) shareObject.includeSecondaries = true;
+      if (includeSecondaries?.keepAll) shareObject.includeSecondaries = true;
     }
 
     result[key] = shareObject;
