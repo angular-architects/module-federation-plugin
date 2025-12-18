@@ -921,6 +921,7 @@ nx affected:e2e</pre>
   `,
   styles: [],
   encapsulation: ViewEncapsulation.None,
+  standalone: false,
 })
 export class NxWelcomeComponent implements OnInit {
   constructor() {}

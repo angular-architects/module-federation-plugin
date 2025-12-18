@@ -17,7 +17,11 @@ import {
   isSourceFile,
   rewriteChunkImports,
 } from '../utils/rewrite-chunk-imports';
-import { cacheEntry, getChecksum, getFilename } from './bundle-caching';
+import {
+  cacheEntry,
+  getChecksum,
+  getFilename,
+} from './../utils/bundle-caching';
 
 export async function bundleShared(
   sharedBundles: Record<string, NormalizedSharedConfig>,
@@ -27,7 +31,7 @@ export async function bundleShared(
   platform: 'browser' | 'node' = 'browser',
   cacheOptions: { pathToCache: string; bundleName: string },
 ): Promise<Array<SharedInfo>> {
-  const checksum = getChecksum(sharedBundles);
+  const checksum = getChecksum(sharedBundles, fedOptions.dev ? '1' : '0');
   const folder = fedOptions.packageJson
     ? path.dirname(fedOptions.packageJson)
     : fedOptions.workspaceRoot;
@@ -88,14 +92,6 @@ export async function bundleShared(
   const entryPoints = allEntryPoints.filter(
     (ep) => !fs.existsSync(path.join(cacheOptions.pathToCache, ep.outName)),
   );
-
-  if (entryPoints.length > 0) {
-    logger.info('Preparing shared npm packages for the platform ' + platform);
-    logger.notice('This only needs to be done once, as results are cached');
-    logger.notice(
-      "Skip packages you don't want to share in your federation config",
-    );
-  }
 
   // If we build for the browser and don't remote unused deps from the shared config,
   // we need to exclude typical node libs to avoid compilation issues
@@ -172,7 +168,9 @@ export async function bundleShared(
   bundleCache.persist({
     checksum,
     externals: result,
-    files: bundleResult.map((r) => r.fileName.split('/').pop() ?? r.fileName),
+    files: bundleResult.map(
+      (r) => r.fileName.split(path.sep).pop() ?? r.fileName,
+    ),
   });
 
   bundleCache.copyFiles(
@@ -238,7 +236,7 @@ function addChunksToResult(
   for (const item of chunks) {
     const fileName = path.basename(item.fileName);
     result.push({
-      singleton: false,
+      singleton: true,
       strictVersion: false,
       // Here, the version does not matter because
       // a) a chunk split off by the bundler does
@@ -249,7 +247,6 @@ function addChunksToResult(
       // For the same reason, we don't need to
       // take care of singleton and strictVersion.
       requiredVersion: '0.0.0',
-      version: '0.0.0',
       packageName: deriveInternalName(fileName),
       outFileName: fileName,
       // dev: dev

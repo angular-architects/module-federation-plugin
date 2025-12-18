@@ -14,6 +14,7 @@ export const getFilename = (title: string) => {
 
 export const getChecksum = (
   shared: Record<string, NormalizedSharedConfig>,
+  dev: '1' | '0',
 ): string => {
   const denseExternals = Object.keys(shared)
     .sort()
@@ -26,7 +27,10 @@ export const getChecksum = (
       );
     }, 'deps');
 
-  return crypto.createHash('sha256').update(denseExternals).digest('hex');
+  return crypto
+    .createHash('sha256')
+    .update(denseExternals + `:dev=${dev}`)
+    .digest('hex');
 };
 
 export const cacheEntry = (pathToCache: string, fileName: string) => ({
@@ -92,12 +96,9 @@ export const cacheEntry = (pathToCache: string, fileName: string) => ({
       logger.debug(`Creating cache folder '${pathToCache}' for '${fileName}'.`);
       return;
     }
-    if (!fs.existsSync(metadataFile)) {
-      logger.debug(
-        `Could not purge cached bundle, metadata file '${metadataFile}' does not exist.`,
-      );
-      return;
-    }
+    if (!fs.existsSync(metadataFile)) return;
+
+    logger.debug(`Purging cached bundle '${metadataFile}'.`);
 
     const cachedResult: {
       checksum: string;

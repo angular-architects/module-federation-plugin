@@ -37,7 +37,7 @@ export interface NormalizedSharedConfig {
   version?: string;
   includeSecondaries?: boolean;
   platform: 'browser' | 'node';
-  build: 'default' | 'separate';
+  build: 'default' | 'separate' | 'package';
   packageInfo?: {
     entryPoint: string;
     version: string;

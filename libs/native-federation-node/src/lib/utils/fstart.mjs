@@ -198,9 +198,7 @@ function resolveAndComposeImportMap(parsed) {
   );
   if (invalidKeys.length > 0) {
     console.warn(
-      `Invalid top-level key${
-        invalidKeys.length > 0 ? 's' : ''
-      } in import map - ${invalidKeys.join(', ')}`,
+      `Invalid top-level key${invalidKeys.length > 0 ? 's' : ''} in import map - ${invalidKeys.join(', ')}`,
     );
   }
   return {
