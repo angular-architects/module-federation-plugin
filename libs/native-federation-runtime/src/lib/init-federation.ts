@@ -150,12 +150,10 @@ export async function fetchAndRegisterRemotes(
   remotes: Record<string, string>,
   options: ProcessRemoteInfoOptions = { throwIfRemoteNotFound: false },
 ): Promise<ImportMap> {
-
   // Each promise will independently fetch and process its remoteEntry.json
   const fetchAndRegisterRemotePromises = Object.entries(remotes).map(
     async ([remoteName, remoteUrl]): Promise<ImportMap | null> => {
       try {
-
         const urlWithCache = applyCacheTag(remoteUrl, options.cacheTag);
 
         return await fetchAndRegisterRemote(urlWithCache, remoteName);
@@ -399,7 +397,6 @@ export async function processHostInfo(
   hostInfo: FederationInfo,
   relBundlesPath = './',
 ): Promise<ImportMap> {
-  
   // Transform shared array into imports object
   const imports = hostInfo.shared.reduce(
     (acc, cur) => ({

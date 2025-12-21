@@ -102,8 +102,6 @@ export async function loadRemoteModule<T = any>(
   optionsOrRemoteName: LoadRemoteModuleOptions<T> | string,
   exposedModule?: string,
 ): Promise<T> {
-
-
   const options = normalizeOptions(optionsOrRemoteName, exposedModule);
 
   await ensureRemoteInitialized(options);
@@ -121,7 +119,9 @@ export async function loadRemoteModule<T = any>(
     return Promise.resolve(fallback);
   }
 
-  const exposedModuleInfo = remote.exposes.find((e) => e.key === options.exposedModule);
+  const exposedModuleInfo = remote.exposes.find(
+    (e) => e.key === options.exposedModule,
+  );
 
   // Handles errors when the exposed module is missing
   const exposedError = !exposedModuleInfo
