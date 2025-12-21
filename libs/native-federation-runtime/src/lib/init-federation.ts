@@ -16,7 +16,7 @@ import { getDirectory, joinPaths } from './utils/path-utils';
 import { watchFederationBuildCompletion } from './watch-federation-build';
 
 /**
- * Initializes the Module Federation runtime for the host application.
+ * Initializes the Native Federation runtime for the host application.
  *
  * This is the main entry point for setting up federation. It performs the following:
  * 1. Loads the host's remoteEntry.json to discover shared dependencies
@@ -46,42 +46,33 @@ export async function initFederation(
   remotesOrManifestUrl: Record<string, string> | string = {},
   options?: InitFederationOptions,
 ): Promise<ImportMap> {
-  // Prepare cache busting query parameter if cacheTag is provided
-  const cacheOption = options?.cacheTag ? `?t=${options.cacheTag}` : '';
+  const cacheTag = options?.cacheTag ? `?t=${options.cacheTag}` : '';
 
-  // Handle both manifest URL and direct remotes object
-  const remotes =
+  const normalizedRemotes =
     typeof remotesOrManifestUrl === 'string'
-      ? await loadManifest(remotesOrManifestUrl + cacheOption)
+      ? await loadManifest(remotesOrManifestUrl + cacheTag)
       : remotesOrManifestUrl;
 
-  // Load the host application's (shell) federation info with the host's remoteEntry.json that contains its shared dependencies
-  const url = './remoteEntry.json' + cacheOption;
-  const hostInfo = await loadFederationInfo(url);
+  const hostInfo = await loadFederationInfo(`./remoteEntry.json${cacheTag}`);
 
-  // Once the host's remoteEntry.json is loaded,
-  // process host's shared dependencies into root-level imports that are available to all modules without scoping
   const hostImportMap = await processHostInfo(hostInfo);
 
   // Host application is fully loaded, now we can process the remotes
 
-  // Process all remote applications in parallel
   // Each remote contributes:
   // - Exposed modules to root imports
   // - Shared dependencies to scoped imports
-  const remotesImportMap = await fetchAndRegisterRemotes(remotes, {
+  const remotesImportMap = await fetchAndRegisterRemotes(normalizedRemotes, {
     throwIfRemoteNotFound: false,
     ...options,
   });
 
-  // Merge host and remotes import maps to get the final import map
-  const importMap = mergeImportMaps(hostImportMap, remotesImportMap);
+  const mergedImportMap = mergeImportMaps(hostImportMap, remotesImportMap);
 
-  // Inject the final import map into the DOM
-  // Creates: <script type="importmap-shim">{ imports: {...}, scopes: {...} }</script>
-  appendImportMap(importMap);
+  // Inject the final import map into the DOM with importmap-shim
+  appendImportMap(mergedImportMap);
 
-  return importMap;
+  return mergedImportMap;
 }
 
 /**
@@ -159,15 +150,14 @@ export async function fetchAndRegisterRemotes(
   remotes: Record<string, string>,
   options: ProcessRemoteInfoOptions = { throwIfRemoteNotFound: false },
 ): Promise<ImportMap> {
-  // Create an array of promises, one for each remote
+
   // Each promise will independently fetch and process its remoteEntry.json
   const fetchAndRegisterRemotePromises = Object.entries(remotes).map(
     async ([remoteName, remoteUrl]): Promise<ImportMap | null> => {
       try {
-        // Apply cache busting if cacheTag is provided
+
         const urlWithCache = applyCacheTag(remoteUrl, options.cacheTag);
 
-        // Fetch and register this specific remote
         return await fetchAndRegisterRemote(urlWithCache, remoteName);
       } catch (e) {
         return handleRemoteLoadError(
@@ -180,7 +170,6 @@ export async function fetchAndRegisterRemotes(
     },
   );
 
-  // Wait for all remotes to load in parallel
   const remoteImportMaps = await Promise.all(fetchAndRegisterRemotePromises);
 
   // Filter out failed remotes (null values) and merge successful ones
@@ -240,10 +229,9 @@ export async function fetchAndRegisterRemote(
     );
   }
 
-  // Create the import map entries for this remote
   const importMap = createRemoteImportMap(remoteInfo, remoteName, baseUrl);
 
-  // Register this remote in the global registry for later lookup
+  // Register this remote in the global registry
   addRemote(remoteName, { ...remoteInfo, baseUrl });
 
   return importMap;
@@ -330,7 +318,6 @@ function processRemoteImports(
   const scopes: Scopes = {};
   const scopedImports: Imports = {};
 
-  // Process each shared dependency
   for (const shared of remoteInfo.shared) {
     // Check if this dependency already has an external URL registered
     // If not, construct the URL from the base path and output filename
@@ -345,7 +332,6 @@ function processRemoteImports(
     scopedImports[shared.packageName] = outFileName;
   }
 
-  // Create the scope entry: baseUrl + '/' -> imports
   scopes[baseUrl + '/'] = scopedImports;
 
   return scopes;
@@ -379,7 +365,6 @@ function processExposed(
 ): Imports {
   const imports: Imports = {};
 
-  // Process each exposed module
   for (const exposed of remoteInfo.exposes) {
     // Create the import key by joining remote name with the exposed key
     // Example: 'mfe1' + './Component' -> 'mfe1/Component'
@@ -414,8 +399,8 @@ export async function processHostInfo(
   hostInfo: FederationInfo,
   relBundlesPath = './',
 ): Promise<ImportMap> {
+  
   // Transform shared array into imports object
-  // Each shared dep becomes: packageName -> relative path to output file
   const imports = hostInfo.shared.reduce(
     (acc, cur) => ({
       ...acc,

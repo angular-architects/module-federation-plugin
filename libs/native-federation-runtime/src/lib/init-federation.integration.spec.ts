@@ -441,7 +441,7 @@ describe('initFederation - Browser Integration Test', () => {
         notFoundHandler(TEST_URLS.MFE1_REMOTE_ENTRY),
       );
 
-      // Note: throwIfRemoteNotFound is not exposed in InitFederationOptions,
+      // TODO Note: throwIfRemoteNotFound is not exposed in InitFederationOptions,
       // but it's used internally. We test the default behavior (false) above.
       // To properly test this, we would need to expose it in the public API
       // or test processRemoteInfos directly.

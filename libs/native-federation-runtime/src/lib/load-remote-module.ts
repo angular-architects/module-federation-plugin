@@ -102,16 +102,14 @@ export async function loadRemoteModule<T = any>(
   optionsOrRemoteName: LoadRemoteModuleOptions<T> | string,
   exposedModule?: string,
 ): Promise<T> {
-  // Step 1: Normalize the input arguments into a standard options object
+
+
   const options = normalizeOptions(optionsOrRemoteName, exposedModule);
 
-  // Step 2: Ensure the remote is initialized (fetch and register if needed)
   await ensureRemoteInitialized(options);
 
-  // Step 3: Resolve the remote name from the provided options
   const remoteName = getRemoteNameByOptions(options);
 
-  // Step 4: Retrieve the remote from the global registry
   const remote = getRemote(remoteName);
   const fallback = options.fallback;
 
@@ -123,23 +121,20 @@ export async function loadRemoteModule<T = any>(
     return Promise.resolve(fallback);
   }
 
-  // Step 5: Find the requested exposed module in the remote's exposes array
-  const exposed = remote.exposes.find((e) => e.key === options.exposedModule);
+  const exposedModuleInfo = remote.exposes.find((e) => e.key === options.exposedModule);
 
   // Handles errors when the exposed module is missing
-  const exposedError = !exposed
+  const exposedError = !exposedModuleInfo
     ? `Unknown exposed module ${options.exposedModule} in remote ${remoteName}`
     : '';
-  if (!exposed && !fallback) throw new Error(exposedError);
-  if (!exposed) {
+  if (!exposedModuleInfo && !fallback) throw new Error(exposedError);
+  if (!exposedModuleInfo) {
     logClientError(exposedError);
     return Promise.resolve(fallback);
   }
 
-  // Step 6: Construct the full URL to the exposed module's output file
-  const moduleUrl = joinPaths(remote.baseUrl, exposed.outFileName);
+  const moduleUrl = joinPaths(remote.baseUrl, exposedModuleInfo.outFileName);
 
-  // Step 7: Dynamically import the module
   try {
     const module = _import<T>(moduleUrl);
     return module;
