@@ -8,8 +8,9 @@ import { logger } from '../utils/logger';
 export const getCachePath = (workspaceRoot: string, project: string) =>
   path.join(workspaceRoot, 'node_modules/.cache/native-federation', project);
 
-export const getFilename = (title: string) => {
-  return `${title}.meta.json`;
+export const getFilename = (title: string, dev?: boolean) => {
+  const devSuffix = dev ? '-dev' : '';
+  return `${title}${devSuffix}.meta.json`;
 };
 
 export const getChecksum = (

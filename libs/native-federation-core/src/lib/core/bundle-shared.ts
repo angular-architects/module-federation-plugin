@@ -38,7 +38,7 @@ export async function bundleShared(
 
   const bundleCache = cacheEntry(
     cacheOptions.pathToCache,
-    getFilename(cacheOptions.bundleName),
+    getFilename(cacheOptions.bundleName, fedOptions.dev),
   );
 
   if (fedOptions?.cacheExternalArtifacts) {
