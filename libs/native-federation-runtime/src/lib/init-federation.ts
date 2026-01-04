@@ -1,4 +1,8 @@
-import { getExternalUrl, setExternalUrl } from './model/externals';
+import {
+  getExternalUrl,
+  setExternalUrl,
+  setUseShareConfig,
+} from './model/externals';
 import {
   FederationInfo,
   InitFederationOptions,
@@ -46,6 +50,11 @@ export async function initFederation(
   remotesOrManifestUrl: Record<string, string> | string = {},
   options?: InitFederationOptions,
 ): Promise<ImportMap> {
+  // TODO: Enable share config enforcement if requested
+  // TODO: Call setUseShareConfig(options?.useShareConfig ?? false)
+  // TODO: This determines whether runtime uses exact version matching (legacy)
+  // TODO: or semver matching with singleton/strictVersion enforcement
+
   const cacheTag = options?.cacheTag ? `?t=${options.cacheTag}` : '';
 
   const normalizedRemotes =
