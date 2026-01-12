@@ -94,6 +94,7 @@
     "@types/browser-sync": "^2.29.0",
     "@types/jest": "^29.5.0",
     "@types/node": "^24.9.0",
+    "@types/trusted-types": "^2.0.7",
     "@typescript-eslint/eslint-plugin": "^8.46.0",
     "@typescript-eslint/parser": "^8.46.0",
     "@typescript-eslint/utils": "^8.46.0",
