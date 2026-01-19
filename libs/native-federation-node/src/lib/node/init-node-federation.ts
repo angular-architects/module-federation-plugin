@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 
 import {
   FederationInfo,
-  fetchAndRegisterRemotes,
+  processRemoteInfos,
   ImportMap,
   mergeImportMaps,
   processHostInfo,
@@ -53,7 +53,7 @@ async function createNodeImportMap(
 
   const hostInfo = await loadFsFederationInfo(relBundlePath);
   const hostImportMap = await processHostInfo(hostInfo, './' + relBundlePath);
-  const remotesImportMap = await fetchAndRegisterRemotes(remotes, {
+  const remotesImportMap = await processRemoteInfos(remotes, {
     throwIfRemoteNotFound: options.throwIfRemoteNotFound,
     cacheTag: options.cacheTag,
   });
