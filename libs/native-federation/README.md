@@ -374,6 +374,7 @@ module.exports = withNativeFederation({
   shared: {
     ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
     ...shareAngularLocales(['en', 'de', 'fr']),
+    //...shareAngularLocales(['en', 'de', 'fr'], {legacy: true}), // ng19 or older
   }
 });
 ```
