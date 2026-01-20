@@ -1,8 +1,8 @@
 import { share, SharedConfig } from '@softarc/native-federation/build';
 
 export function shareAngularLocales(
-  keys,
-  opts: { config?: SharedConfig; legacy?: boolean },
+  keys: string[],
+  opts: { config?: SharedConfig; legacy?: boolean } = {},
 ) {
   if (!opts.config) {
     opts.config = {
@@ -11,7 +11,7 @@ export function shareAngularLocales(
       requiredVersion: 'auto',
     };
   }
-  const ext = !!opts.legacy ? '.mjs' : '.js';
+  const ext = opts.legacy ? '.mjs' : '.js';
   return keys.reduce((acc, key) => {
     acc[`@angular/common/locales/${key}`] = {
       ...opts.config!,
