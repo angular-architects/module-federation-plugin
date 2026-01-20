@@ -447,10 +447,10 @@ describe('initFederation - Browser Integration Test', () => {
       // or test processRemoteInfos directly.
 
       // For now, this test documents the expected behavior if the option were exposed
-      const { fetchAndRegisterRemotes } = await import('./init-federation');
+      const { processRemoteInfos } = await import('./init-federation');
 
       await expect(
-        fetchAndRegisterRemotes(
+        processRemoteInfos(
           createRemoteConfig({
             name: 'mfe1',
             url: TEST_URLS.MFE1_REMOTE_ENTRY,

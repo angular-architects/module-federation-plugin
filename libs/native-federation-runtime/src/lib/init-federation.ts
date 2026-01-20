@@ -62,7 +62,7 @@ export async function initFederation(
   // Each remote contributes:
   // - Exposed modules to root imports
   // - Shared dependencies to scoped imports
-  const remotesImportMap = await fetchAndRegisterRemotes(normalizedRemotes, {
+  const remotesImportMap = await processRemoteInfos(normalizedRemotes, {
     throwIfRemoteNotFound: false,
     ...options,
   });
@@ -146,7 +146,7 @@ function handleRemoteLoadError(
  *
  */
 
-export async function fetchAndRegisterRemotes(
+export async function processRemoteInfos(
   remotes: Record<string, string>,
   options: ProcessRemoteInfoOptions = { throwIfRemoteNotFound: false },
 ): Promise<ImportMap> {
