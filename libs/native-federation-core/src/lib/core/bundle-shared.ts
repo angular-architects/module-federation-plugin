@@ -236,7 +236,7 @@ function addChunksToResult(
   for (const item of chunks) {
     const fileName = path.basename(item.fileName);
     result.push({
-      singleton: true,
+      singleton: false,
       strictVersion: false,
       // Here, the version does not matter because
       // a) a chunk split off by the bundler does
@@ -246,6 +246,7 @@ function addChunksToResult(
       //
       // For the same reason, we don't need to
       // take care of singleton and strictVersion.
+      version: '0.0.0',
       requiredVersion: '0.0.0',
       packageName: deriveInternalName(fileName),
       outFileName: fileName,
