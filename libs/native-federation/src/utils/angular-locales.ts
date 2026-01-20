@@ -15,7 +15,7 @@ export function shareAngularLocales(
         ...config.packageInfo,
         entryPoint:
           config.packageInfo?.entryPoint ||
-          `node_modules/@angular/common/locales/${key}.mjs`,
+          `node_modules/@angular/common/locales/${key}.js`,
       },
     };
     return share(acc);
