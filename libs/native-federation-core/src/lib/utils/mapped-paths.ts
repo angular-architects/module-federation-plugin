@@ -22,7 +22,7 @@ export function getMappedPaths({
 
   if (!path.isAbsolute(rootTsConfigPath)) {
     throw new Error(
-      'SharedMappings.register: tsConfigPath needs to be an absolute path!'
+      'SharedMappings.register: tsConfigPath needs to be an absolute path!',
     );
   }
 
@@ -36,7 +36,7 @@ export function getMappedPaths({
   }
 
   const tsConfig = JSON5.parse(
-    fs.readFileSync(rootTsConfigPath, { encoding: 'utf-8' })
+    fs.readFileSync(rootTsConfigPath, { encoding: 'utf-8' }),
   );
 
   const mappings = tsConfig?.compilerOptions?.paths;

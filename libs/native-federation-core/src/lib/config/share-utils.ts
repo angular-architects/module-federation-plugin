@@ -5,7 +5,6 @@ import { SharedConfig } from './federation-config';
 import {
   DEFAULT_SKIP_LIST,
   isInSkipList,
-  PREPARED_DEFAULT_SKIP_LIST,
   PreparedSkipList,
   prepareSkipList,
   SkipList,
@@ -17,7 +16,6 @@ import {
 } from '../utils/package-info';
 import { getConfigContext } from './configuration-context';
 import { logger } from '../utils/logger';
-import { resolveGlobSync } from '../utils/resolve-glob';
 
 import {
   KeyValuePair,
@@ -26,12 +24,14 @@ import {
 
 let inferVersion = false;
 
-export const DEFAULT_SECONARIES_SKIP_LIST = [
+export const DEFAULT_SECONDARIES_SKIP_LIST = [
   '@angular/router/upgrade',
   '@angular/common/upgrade',
 ];
 
-type IncludeSecondariesOptions = { skip: string | string[] } | boolean;
+type IncludeSecondariesOptions =
+  | { skip: string | string[]; resolveGlob?: boolean; keepAll?: boolean }
+  | boolean;
 type CustomSharedConfig = SharedConfig & {
   includeSecondaries?: IncludeSecondariesOptions;
 };
@@ -68,7 +68,7 @@ function findPackageJson(folder: string): string {
 
   throw new Error(
     'no package.json found. Searched the following folder and all parents: ' +
-      folder
+      folder,
   );
 }
 
@@ -84,7 +84,7 @@ function lookupVersion(key: string, workspaceRoot: string): string {
   }
 
   throw new Error(
-    `Shared Dependency ${key} has requiredVersion:'auto'. However, this dependency is not found in your package.json`
+    `Shared Dependency ${key} has requiredVersion:'auto'. However, this dependency is not found in your package.json`,
   );
 }
 
@@ -110,14 +110,15 @@ function _findSecondaries(
   libPath: string,
   excludes: string[],
   shareObject: SharedConfig,
-  acc: Record<string, SharedConfig>
+  acc: Record<string, SharedConfig>,
+  preparedSkipList: PreparedSkipList,
 ): void {
   const files = fs.readdirSync(libPath);
 
   const secondaries = files
     .map((f) => path.join(libPath, f))
     .filter(
-      (f) => fs.lstatSync(f).isDirectory() && !f.endsWith('node_modules')
+      (f) => fs.lstatSync(f).isDirectory() && !f.endsWith('node_modules'),
     );
 
   for (const s of secondaries) {
@@ -125,28 +126,33 @@ function _findSecondaries(
       const secondaryLibName = s
         .replace(/\\/g, '/')
         .replace(/^.*node_modules[/]/, '');
-      if (excludes.includes(secondaryLibName)) {
-        continue;
-      }
 
-      if (isInSkipList(secondaryLibName, PREPARED_DEFAULT_SKIP_LIST)) {
+      const inCustomSkipList = excludes.some(
+        (e) =>
+          e === secondaryLibName ||
+          (e.endsWith('*') && secondaryLibName.startsWith(e.slice(0, -1))),
+      );
+      if (inCustomSkipList) continue;
+
+      if (isInSkipList(secondaryLibName, preparedSkipList)) {
         continue;
       }
 
       acc[secondaryLibName] = { ...shareObject };
     }
 
-    _findSecondaries(s, excludes, shareObject, acc);
+    _findSecondaries(s, excludes, shareObject, acc, preparedSkipList);
   }
 }
 
 function findSecondaries(
   libPath: string,
   excludes: string[],
-  shareObject: SharedConfig
+  shareObject: SharedConfig,
+  preparedSkipList: PreparedSkipList,
 ): Record<string, SharedConfig> {
   const acc = {} as Record<string, SharedConfig>;
-  _findSecondaries(libPath, excludes, shareObject, acc);
+  _findSecondaries(libPath, excludes, shareObject, acc, preparedSkipList);
   return acc;
 }
 
@@ -154,16 +160,19 @@ function getSecondaries(
   includeSecondaries: IncludeSecondariesOptions,
   libPath: string,
   key: string,
-  shareObject: SharedConfig
+  shareObject: SharedConfig,
+  preparedSkipList: PreparedSkipList,
 ): Record<string, SharedConfig> | null {
-  let exclude = [...DEFAULT_SECONARIES_SKIP_LIST];
+  let exclude = [...DEFAULT_SECONDARIES_SKIP_LIST];
 
+  let resolveGlob = false;
   if (typeof includeSecondaries === 'object') {
     if (Array.isArray(includeSecondaries.skip)) {
       exclude = includeSecondaries.skip;
     } else if (typeof includeSecondaries.skip === 'string') {
       exclude = [includeSecondaries.skip];
     }
+    resolveGlob = !!includeSecondaries.resolveGlob;
   }
 
   // const libPath = path.join(path.dirname(packagePath), 'node_modules', key);
@@ -176,14 +185,21 @@ function getSecondaries(
     key,
     libPath,
     exclude,
-    shareObject
+    shareObject,
+    preparedSkipList,
+    resolveGlob,
   );
   if (configured) {
     return configured;
   }
 
   // Fallback: Search folders
-  const secondaries = findSecondaries(libPath, exclude, shareObject);
+  const secondaries = findSecondaries(
+    libPath,
+    exclude,
+    shareObject,
+    preparedSkipList,
+  );
   return secondaries;
 }
 
@@ -191,7 +207,9 @@ function readConfiguredSecondaries(
   parent: string,
   libPath: string,
   exclude: string[],
-  shareObject: SharedConfig
+  shareObject: SharedConfig,
+  preparedSkipList: PreparedSkipList,
+  resolveGlob: boolean,
 ): Record<string, SharedConfig> | null {
   const libPackageJson = path.join(libPath, 'package.json');
 
@@ -220,19 +238,23 @@ function readConfiguredSecondaries(
       key.startsWith('./') &&
       (exports[key]['default'] ||
         exports[key]['import'] ||
-        typeof exports[key] === 'string')
+        typeof exports[key] === 'string'),
   );
 
   const result = {} as Record<string, SharedConfig>;
+  const discoveredFiles = new Set<string>();
 
   for (const key of keys) {
     const secondaryName = path.join(parent, key).replace(/\\/g, '/');
 
-    if (exclude.includes(secondaryName)) {
-      continue;
-    }
+    const inCustomSkipList = exclude.some(
+      (e) =>
+        e === secondaryName ||
+        (e.endsWith('*') && secondaryName.startsWith(e.slice(0, -1))),
+    );
+    if (inCustomSkipList) continue;
 
-    if (isInSkipList(secondaryName, PREPARED_DEFAULT_SKIP_LIST)) {
+    if (isInSkipList(secondaryName, preparedSkipList)) {
       continue;
     }
 
@@ -251,12 +273,17 @@ function readConfiguredSecondaries(
       continue;
     }
 
-    const items = resolveSecondaries(
+    const items = resolveGlobSecondaries(
       key,
       libPath,
       parent,
       secondaryName,
-      entry
+      entry,
+      { discovered: discoveredFiles, skip: exclude },
+      resolveGlob,
+    );
+    items.forEach((e) =>
+      discoveredFiles.add(typeof e === 'string' ? e : e.value),
     );
 
     for (const item of items) {
@@ -280,20 +307,37 @@ function readConfiguredSecondaries(
   return result;
 }
 
-function resolveSecondaries(
+function resolveGlobSecondaries(
   key: string,
   libPath: string,
   parent: string,
   secondaryName: string,
-  entry: string
+  entry: string,
+  excludes: { discovered: Set<string>; skip: string[] },
+  resolveGlob: boolean,
 ): Array<string | KeyValuePair> {
   let items: Array<string | KeyValuePair> = [];
   if (key.includes('*')) {
+    if (!resolveGlob) return items;
     const expanded = resolveWildcardKeys(key, entry, libPath);
-    items = expanded.map((e) => ({
-      key: path.join(parent, e.key),
-      value: path.join(libPath, e.value),
-    }));
+    items = expanded
+      .map((e) => ({
+        key: path.join(parent, e.key),
+        value: path.join(libPath, e.value),
+      }))
+      .filter((i) => {
+        if (
+          excludes.skip.some((e) =>
+            e.endsWith('*') ? i.key.startsWith(e.slice(0, -1)) : e === i.key,
+          )
+        ) {
+          return false;
+        }
+        if (excludes.discovered.has(i.value)) {
+          return false;
+        }
+        return true;
+      });
   } else {
     items = [secondaryName];
   }
@@ -302,7 +346,7 @@ function resolveSecondaries(
 
 function getDefaultEntry(
   exports: Record<string, Record<string, string>>,
-  key: string
+  key: string,
 ) {
   let entry = '';
   if (typeof exports[key] === 'string') {
@@ -335,12 +379,14 @@ function getDefaultEntry(
 
 export function shareAll(
   config: CustomSharedConfig = {},
-  skip: SkipList = DEFAULT_SKIP_LIST,
-  projectPath = ''
+  opts: {
+    skipList?: SkipList;
+    projectPath?: string;
+    overrides?: Config;
+  } = {},
 ): Config | null {
   // let workspacePath: string | undefined = undefined;
-
-  projectPath = inferProjectPath(projectPath);
+  const projectPath = inferProjectPath(opts.projectPath);
 
   // workspacePath = getConfigContext().workspaceRoot ?? '';
 
@@ -349,13 +395,18 @@ export function shareAll(
   // }
 
   const versionMaps = getVersionMaps(projectPath, projectPath);
-  const share: Record<string, unknown> = {};
+  const sharedExternals: Config = {};
+  const preparedSkipList = prepareSkipList(opts.skipList ?? DEFAULT_SKIP_LIST);
 
   for (const versions of versionMaps) {
-    const preparedSkipList = prepareSkipList(skip);
-
     for (const key in versions) {
       if (isInSkipList(key, preparedSkipList)) {
+        continue;
+      }
+      if (
+        !!opts.overrides &&
+        Object.keys(opts.overrides).some((o) => key.startsWith(o))
+      ) {
         continue;
       }
 
@@ -365,16 +416,29 @@ export function shareAll(
         ? versions[key]
         : config.requiredVersion;
 
-      if (!share[key]) {
-        share[key] = { ...config, requiredVersion };
+      if (!sharedExternals[key]) {
+        sharedExternals[key] = { ...config, requiredVersion };
       }
     }
   }
 
-  return module.exports.share(share, projectPath, skip);
+  return {
+    ...share(
+      sharedExternals,
+      opts.projectPath,
+      opts.skipList ?? DEFAULT_SKIP_LIST,
+    ),
+    ...(!opts.overrides
+      ? {}
+      : share(
+          opts.overrides,
+          opts.projectPath,
+          opts.skipList ?? DEFAULT_SKIP_LIST,
+        )),
+  };
 }
 
-function inferProjectPath(projectPath: string) {
+function inferProjectPath(projectPath: string | undefined) {
   if (!projectPath && getConfigContext().packageJson) {
     projectPath = path.dirname(getConfigContext().packageJson || '');
   }
@@ -402,7 +466,7 @@ type TransientDependency = {
 function findTransientDeps(
   configuredShareObjects: Config,
   projectRoot: string,
-  preparedSkipList: PreparedSkipList
+  preparedSkipList: PreparedSkipList,
 ): TransientDependency[] {
   const discovered = new Set<string>();
   const result: TransientDependency[] = [];
@@ -416,10 +480,10 @@ function findTransientDeps(
 
     if (typeof shareConfig === 'object' && shareConfig.transient) {
       logger.warn(
-        'PLEASE NOTE: The transient flag in your federation.config.js'
+        'PLEASE NOTE: The transient flag in your federation.config.js',
       );
       logger.warn(
-        'is deprecated. Please remove it. Meanwhile, Native Federation'
+        'is deprecated. Please remove it. Meanwhile, Native Federation',
       );
       logger.warn('uses the underlying bundler for splitting transient');
       logger.warn('dependencies into separate chunks, _when_ necessary.');
@@ -427,14 +491,14 @@ function findTransientDeps(
         projectRoot,
         'node_modules',
         packageName,
-        'package.json'
+        'package.json',
       );
       _findTransientDeps(
         packagePath,
         projectRoot,
         preparedSkipList,
         discovered,
-        result
+        result,
       );
     }
   }
@@ -447,7 +511,7 @@ function _findTransientDeps(
   projectRoot: string,
   preparedSkipList: PreparedSkipList,
   discovered: Set<string>,
-  result: TransientDependency[]
+  result: TransientDependency[],
 ) {
   if (!fs.existsSync(packagePath)) {
     return;
@@ -461,7 +525,7 @@ function _findTransientDeps(
       projectRoot,
       'node_modules',
       dep,
-      'package.json'
+      'package.json',
     );
     const depPath = path.dirname(depPackageJson);
 
@@ -482,7 +546,7 @@ function _findTransientDeps(
         projectRoot,
         preparedSkipList,
         discovered,
-        result
+        result,
       );
     }
   }
@@ -491,7 +555,7 @@ function _findTransientDeps(
 export function share(
   configuredShareObjects: Config,
   projectPath = '',
-  skipList = DEFAULT_SKIP_LIST
+  skipList = DEFAULT_SKIP_LIST,
 ): Config {
   projectPath = inferProjectPath(projectPath);
   const packagePath = findPackageJson(projectPath);
@@ -503,7 +567,7 @@ export function share(
   const transientDeps = findTransientDeps(
     configuredShareObjects,
     packageDirectory,
-    preparedSkipList
+    preparedSkipList,
   );
 
   const transientShareObject = transientDeps.reduce(
@@ -511,7 +575,7 @@ export function share(
       ...acc,
       [curr.packageName]: { path: curr.packagePath },
     }),
-    {}
+    {},
   );
 
   const shareObjects = {
@@ -543,6 +607,7 @@ export function share(
     if (shareObject.includeSecondaries) {
       includeSecondaries = shareObject.includeSecondaries;
       delete shareObject.includeSecondaries;
+      if (includeSecondaries?.keepAll) shareObject.includeSecondaries = true;
     }
 
     result[key] = shareObject;
@@ -561,7 +626,8 @@ export function share(
         includeSecondaries,
         libPath,
         key,
-        shareObject
+        shareObject,
+        preparedSkipList,
       );
       if (secondaries) {
         addSecondaries(secondaries, result);
@@ -574,7 +640,7 @@ export function share(
 
 function addSecondaries(
   secondaries: Record<string, SharedConfig>,
-  result: Record<string, SharedConfig>
+  result: Record<string, SharedConfig>,
 ) {
   for (const key in secondaries) {
     result[key] = secondaries[key];

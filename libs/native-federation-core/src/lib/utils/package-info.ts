@@ -22,11 +22,45 @@ export type PackageJsonInfo = {
   directory: string;
 };
 
+export type ExportCondition =
+  | 'import'
+  | 'require'
+  | 'node'
+  | 'cjs'
+  | 'esm'
+  | 'default'
+  | 'types'
+  | 'browser'
+  | (string & {});
+
+export const isESMExport = (e: string): boolean | undefined => {
+  if (e === 'import' || e === 'module-sync') return true;
+  // Common ESM conventions
+  if (e === 'module' || e === 'esm' || /^es20\d{2}$/.test(e)) return true;
+
+  if (e === 'require') return false;
+  // Common CJS conventions
+  if (e === 'cjs' || e === 'commonjs') return false;
+
+  // Ambiguous
+  return undefined;
+};
+export type ExportEntry =
+  | string
+  | undefined
+  | { [key in ExportCondition]?: ExportEntry }
+  | ExportEntry[];
+
+export type PackageJsonExports =
+  | string
+  | ExportEntry
+  | { [path: `.${string}`]: ExportEntry };
+
 const packageCache: Record<string, PackageJsonInfo[]> = {};
 
 export function findPackageJsonFiles(
   project: string,
-  workspace: string
+  workspace: string,
 ): string[] {
   return expandFolders(project, workspace)
     .map((f) => path.join(f, 'package.json'))
@@ -40,7 +74,7 @@ export function expandFolders(child: string, parent: string): string[] {
 
   if (!child.startsWith(parent)) {
     throw new Error(
-      `Workspace folder ${path} needs to be a parent of the project folder ${child}`
+      `Workspace folder ${path} needs to be a parent of the project folder ${child}`,
     );
   }
 
@@ -61,7 +95,7 @@ export function expandFolders(child: string, parent: string): string[] {
 
 export function getPackageInfo(
   packageName: string,
-  workspaceRoot: string
+  workspaceRoot: string,
 ): PackageInfo | null {
   workspaceRoot = normalize(workspaceRoot, true);
 
@@ -84,7 +118,7 @@ function getVersionMapCacheKey(project: string, workspace: string): string {
 
 export function getVersionMaps(
   project: string,
-  workspace: string
+  workspace: string,
 ): VersionMap[] {
   return getPackageJsonFiles(project, workspace).map((json) => ({
     ...json.content['dependencies'],
@@ -93,7 +127,7 @@ export function getVersionMaps(
 
 export function getPackageJsonFiles(
   project: string,
-  workspace: string
+  workspace: string,
 ): PackageJsonInfo[] {
   const cacheKey = getVersionMapCacheKey(project, workspace);
 
@@ -119,7 +153,7 @@ export function getPackageJsonFiles(
 
 export function findDepPackageJson(
   packageName: string,
-  projectRoot: string
+  projectRoot: string,
 ): string | null {
   const mainPkgName = getPkgFolder(packageName);
 
@@ -143,7 +177,7 @@ export function findDepPackageJson(
     // TODO: Add logger
     // context.logger.warn('No package.json found for ' + packageName);
     logger.verbose(
-      'No package.json found for ' + packageName + ' in ' + mainPkgPath
+      'No package.json found for ' + packageName + ' in ' + mainPkgPath,
     );
 
     return null;
@@ -151,9 +185,60 @@ export function findDepPackageJson(
   return mainPkgJsonPath;
 }
 
+function replaceGlob(target: ExportEntry, replacement: string): ExportEntry {
+  if (!target) return undefined;
+  if (typeof target === 'string') return target.replace('*', replacement);
+  return Object.entries(target).reduce(
+    (a, [k, v]) => ({
+      ...a,
+      [k]: replaceGlob(v!, replacement),
+    }),
+    {} as Omit<ExportEntry, string>,
+  );
+}
+
+function findOptimalExport(
+  target: ExportEntry,
+  info: PackageInfo,
+  isESM: boolean | undefined = undefined,
+): PackageInfo | undefined {
+  if (typeof target === 'string') {
+    return {
+      ...info,
+      entryPoint: path.join(info.entryPoint, target),
+      esm: isESM ?? info.esm,
+    };
+  }
+  if (!target) return undefined;
+  if (Array.isArray(target)) return findOptimalExport(target[0], info, isESM);
+
+  const exportTypes = Object.keys(target);
+
+  // We prefer ESM exports for native support.
+  if (typeof isESM === 'undefined') {
+    const esmExport = exportTypes.find((e) => isESMExport(e));
+    if (esmExport) {
+      return findOptimalExport(target[esmExport], info, true);
+    }
+  }
+
+  // Node.js looks at the exports object and uses the first key that matches the current environment.
+  const secondBestEntry =
+    'default' in target && target['default']
+      ? 'default'
+      : exportTypes.filter((e) => e !== 'types')[0];
+  const secondBestExport: ExportEntry = target[secondBestEntry];
+
+  return findOptimalExport(
+    secondBestExport,
+    info,
+    isESM ?? isESMExport(secondBestEntry),
+  );
+}
+
 export function _getPackageInfo(
   packageName: string,
-  directory: string
+  directory: string,
 ): PackageInfo | null {
   const mainPkgName = getPkgFolder(packageName);
   const mainPkgJsonPath = findDepPackageJson(packageName, directory);
@@ -169,116 +254,51 @@ export function _getPackageInfo(
   const esm = mainPkgJson['type'] === 'module';
 
   if (!version) {
-    // TODO: Add logger
-    // context.logger.warn('No version found for ' + packageName);
     logger.warn('No version found for ' + packageName);
-
     return null;
   }
 
-  let relSecondaryPath = path.relative(mainPkgName, packageName);
-  if (!relSecondaryPath) {
-    relSecondaryPath = '.';
-  } else {
-    relSecondaryPath = './' + relSecondaryPath.replace(/\\/g, '/');
-  }
+  const pathToSecondary = path.relative(mainPkgName, packageName);
+  const relSecondaryPath = !pathToSecondary
+    ? '.'
+    : './' + pathToSecondary.replace(/\\/g, '/');
 
-  let cand = mainPkgJson?.exports?.[relSecondaryPath];
+  let secondaryEntryPoint: ExportEntry = undefined;
 
-  if (typeof cand === 'string') {
-    return {
-      entryPoint: path.join(mainPkgPath, cand),
-      packageName,
-      version,
-      esm,
-    };
-  }
+  const packageJsonExportsEntry = Object.keys(mainPkgJson?.exports ?? []).find(
+    (e) => {
+      if (e === relSecondaryPath) return true;
+      if (e === './*') return true;
+      if (!e.endsWith('*')) return false;
+      const globPath = e.substring(0, e.length - 1);
+      return relSecondaryPath.startsWith(globPath);
+    },
+  );
 
-  cand = mainPkgJson?.exports?.[relSecondaryPath]?.import;
+  if (packageJsonExportsEntry) {
+    secondaryEntryPoint = mainPkgJson?.exports?.[packageJsonExportsEntry];
 
-  if (typeof cand === 'object') {
-    if (cand.module) {
-      cand = cand.module;
-    } else if (cand.import) {
-      cand = cand.import;
-    } else if (cand.default) {
-      cand = cand.default;
-    } else {
-      cand = null;
+    if (packageJsonExportsEntry.endsWith('*')) {
+      const replacement = relSecondaryPath.substring(
+        packageJsonExportsEntry.length - 1,
+      );
+      secondaryEntryPoint = replaceGlob(secondaryEntryPoint, replacement);
     }
   }
 
-  if (cand) {
-    if (typeof cand === 'object') {
-      if (cand.module) {
-        cand = cand.module;
-      } else if (cand.import) {
-        cand = cand.import;
-      } else if (cand.default) {
-        cand = cand.default;
-      } else {
-        cand = null;
-      }
-    }
-
-    return {
-      entryPoint: path.join(mainPkgPath, cand),
+  if (secondaryEntryPoint) {
+    const info = findOptimalExport(secondaryEntryPoint, {
+      entryPoint: mainPkgPath,
       packageName,
       version,
       esm,
-    };
+    });
+    if (info) return info;
   }
 
-  cand = mainPkgJson?.exports?.[relSecondaryPath]?.module;
-
-  if (typeof cand === 'object') {
-    if (cand.module) {
-      cand = cand.module;
-    } else if (cand.import) {
-      cand = cand.import;
-    } else if (cand.default) {
-      cand = cand.default;
-    } else {
-      cand = null;
-    }
-  }
-
-  if (cand) {
+  if (mainPkgJson['module'] && relSecondaryPath === '.') {
     return {
-      entryPoint: path.join(mainPkgPath, cand),
-      packageName,
-      version,
-      esm,
-    };
-  }
-
-  cand = mainPkgJson?.exports?.[relSecondaryPath]?.default;
-  if (cand) {
-    if (typeof cand === 'object') {
-      if (cand.module) {
-        cand = cand.module;
-      } else if (cand.import) {
-        cand = cand.import;
-      } else if (cand.default) {
-        cand = cand.default;
-      } else {
-        cand = null;
-      }
-    }
-
-    return {
-      entryPoint: path.join(mainPkgPath, cand),
-      packageName,
-      version,
-      esm,
-    };
-  }
-
-  cand = mainPkgJson['module'];
-
-  if (cand && relSecondaryPath === '.') {
-    return {
-      entryPoint: path.join(mainPkgPath, cand),
+      entryPoint: path.join(mainPkgPath, mainPkgJson['module']),
       packageName,
       version,
       esm: true,
@@ -301,7 +321,7 @@ export function _getPackageInfo(
     };
   }
 
-  cand = path.join(secondaryPgkPath, 'index.mjs');
+  let cand = path.join(secondaryPgkPath, 'index.mjs');
   if (fs.existsSync(cand)) {
     return {
       entryPoint: cand,
@@ -350,20 +370,9 @@ export function _getPackageInfo(
     };
   }
 
-  // cand = secondaryPgkPath;
-  // if (fs.existsSync(cand) && cand.match(/\.(m|c)?js$/)) {
-  //   return {
-  //     entryPoint: cand,
-  //     packageName,
-  //     version,
-  //     esm,
-  //   };
-  // }
-
-  // TODO: Add logger
   logger.warn('No entry point found for ' + packageName);
   logger.warn(
-    "If you don't need this package, skip it in your federation.config.js or consider moving it into depDependencies in your package.json"
+    "If you don't need this package, skip it in your federation.config.js or consider moving it into depDependencies in your package.json",
   );
 
   return null;
@@ -384,9 +393,3 @@ function getPkgFolder(packageName: string) {
 
   return folder;
 }
-
-// const pkg = process.argv[2]
-// console.log('pkg', pkg);
-
-// const r = getPackageInfo('D:/Dokumente/projekte/mf-plugin/angular-architects/', pkg);
-// console.log('entry', r);

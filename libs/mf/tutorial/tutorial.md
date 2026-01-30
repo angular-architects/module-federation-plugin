@@ -24,7 +24,6 @@ In this part you will clone the starter kit and inspect its projects.
    ```
 
 3. Start the shell (`ng serve shell -o`) and inspect it a bit:
-
    1. Click on the `flights` link. It leads to a dummy route. This route will later be used for loading the separately compiled Micro Frontend.
 
    2. Have a look to the shell's source code.
@@ -54,10 +53,7 @@ Now, let's activate and configure module federation:
 2. Switch into the project `mfe1` and open the generated configuration file `projects\mfe1\webpack.config.js`. It contains the module federation configuration for `mfe1`. Adjust it as follows:
 
    ```javascript
-   const {
-     shareAll,
-     withModuleFederationPlugin,
-   } = require('@angular-architects/module-federation/webpack');
+   const { shareAll, withModuleFederationPlugin } = require('@angular-architects/module-federation/webpack');
 
    module.exports = withModuleFederationPlugin({
      name: 'mfe1',
@@ -82,10 +78,7 @@ Now, let's activate and configure module federation:
 3. Switch into the `shell` project and open the file `projects\shell\webpack.config.js`. Make sure, the mapping in the remotes section uses port `4201` (and hence, points to the Micro Frontend):
 
    ```javascript
-   const {
-     shareAll,
-     withModuleFederationPlugin,
-   } = require('@angular-architects/module-federation/webpack');
+   const { shareAll, withModuleFederationPlugin } = require('@angular-architects/module-federation/webpack');
 
    module.exports = withModuleFederationPlugin({
      remotes: {
@@ -241,11 +234,10 @@ So far, we just hardcoded the URLs pointing to our Micro Frontends. However, in 
 import { loadManifest } from '@angular-architects/module-federation';
 
 loadManifest('assets/mf.manifest.json')
-.catch((err) => console.error('Error loading remote entries', err))
-.then(() => import('./bootstrap'))
-.catch((err) => console.error(err));
-
-````
+  .catch((err) => console.error('Error loading remote entries', err))
+  .then(() => import('./bootstrap'))
+  .catch((err) => console.error(err));
+```
 
 The imported `loadManifest` function also loads the remote entry points.
 
@@ -262,7 +254,7 @@ The imported `loadManifest` function also loads the remote entry points.
        })
        .then(m => m.FlightsModule)
 },
-````
+```
 
 4. Restart both, the `shell` and the micro frontend (`mfe1`).
 
@@ -387,10 +379,7 @@ For explicitly sharing our dependencies, you could switch to the following confi
 
 ```javascript
 // Import share instead of shareAll:
-const {
-  share,
-  withModuleFederationPlugin,
-} = require('@angular-architects/module-federation/webpack');
+const { share, withModuleFederationPlugin } = require('@angular-architects/module-federation/webpack');
 
 module.exports = withModuleFederationPlugin({
   remotes: {
@@ -431,10 +420,7 @@ module.exports = withModuleFederationPlugin({
 
 ```javascript
 // Import share instead of shareAll:
-const {
-  share,
-  withModuleFederationPlugin,
-} = require('@angular-architects/module-federation/webpack');
+const { share, withModuleFederationPlugin } = require('@angular-architects/module-federation/webpack');
 
 module.exports = withModuleFederationPlugin({
   name: 'mfe1',

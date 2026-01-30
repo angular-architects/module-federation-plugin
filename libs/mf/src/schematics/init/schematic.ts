@@ -34,15 +34,15 @@ function initNativeFederation(context, delegationOptions: DelegationOptions) {
     new RunSchematicTask(
       '@angular-architects/native-federation',
       'init',
-      delegationOptions
+      delegationOptions,
     ),
     [
       context.addTask(
         new NodePackageInstallTask({
           packageName: '@angular-architects/native-federation@^19.0.0',
-        })
+        }),
       ),
-    ]
+    ],
   );
 }
 

@@ -24,12 +24,12 @@ export function patchAngularBuildPackageJson(packageJson: unknown): void {
 export function patchAngularBuild(workspaceRoot: string): void {
   const packagePath = path.join(
     workspaceRoot,
-    'node_modules/@angular/build/package.json'
+    'node_modules/@angular/build/package.json',
   );
 
   const privatePath = path.join(
     workspaceRoot,
-    'node_modules/@angular/build/private.js'
+    'node_modules/@angular/build/private.js',
   );
 
   if (!fs.existsSync(packagePath)) {

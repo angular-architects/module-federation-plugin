@@ -35,7 +35,7 @@ let isDefaultScopeInitialized = false;
 
 async function lookupExposedModule<T>(
   key: string,
-  exposedModule: string
+  exposedModule: string,
 ): Promise<T> {
   const container = containerMap[key];
   const factory = await container.get(exposedModule);
@@ -80,10 +80,10 @@ export type LoadRemoteEntryEsmOptions = {
 
 export async function loadRemoteEntry(
   remoteEntry: string,
-  remoteName: string
+  remoteName: string,
 ): Promise<void>;
 export async function loadRemoteEntry(
-  options: LoadRemoteEntryOptions
+  options: LoadRemoteEntryOptions,
 ): Promise<void>;
 export async function loadRemoteEntry(
   remoteEntryOrOptions: string | LoadRemoteEntryOptions,
@@ -114,7 +114,7 @@ async function loadRemoteModuleEntry(remoteEntry: string): Promise<void> {
     (container) => {
       initRemote(container, remoteEntry);
       containerMap[remoteEntry] = container;
-    }
+    },
   );
 }
 
@@ -177,14 +177,14 @@ export type LoadRemoteModuleManifestOptions = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function loadRemoteModule<T = any>(
   remoteName: string,
-  exposedModule: string
+  exposedModule: string,
 ): Promise<T>;
 export async function loadRemoteModule<T = any>(
-  options: LoadRemoteModuleOptions
+  options: LoadRemoteModuleOptions,
 ): Promise<T>;
 export async function loadRemoteModule<T = any>(
   optionsOrRemoteName: LoadRemoteModuleOptions | string,
-  exposedModule?: string
+  exposedModule?: string,
 ): Promise<T> {
   let loadRemoteEntryOptions: LoadRemoteEntryOptions;
   let key: string;
@@ -249,7 +249,7 @@ export async function loadRemoteModule<T = any>(
 
 export async function setManifest(
   manifest: ManifestFile,
-  skipRemoteEntries = false
+  skipRemoteEntries = false,
 ) {
   config = parseConfig(manifest);
 
@@ -264,7 +264,7 @@ export function getManifest<T extends Manifest>(): T {
 
 export async function initFederation(
   manifest: string | ManifestFile,
-  skipRemoteEntries = false
+  skipRemoteEntries = false,
 ): Promise<void> {
   if (typeof manifest === 'string') {
     return loadManifest(manifest, skipRemoteEntries);
@@ -275,7 +275,7 @@ export async function initFederation(
 
 export async function loadManifest(
   configFile: string,
-  skipRemoteEntries = false
+  skipRemoteEntries = false,
 ): Promise<void> {
   const result = await fetch(configFile);
 
@@ -321,7 +321,7 @@ async function loadRemoteEntries() {
 
     if (entry.type === 'module') {
       promises.push(
-        loadRemoteEntry({ type: 'module', remoteEntry: entry.remoteEntry })
+        loadRemoteEntry({ type: 'module', remoteEntry: entry.remoteEntry }),
       );
     } else {
       promises.push(
@@ -329,7 +329,7 @@ async function loadRemoteEntries() {
           type: 'script',
           remoteEntry: entry.remoteEntry,
           remoteName: key,
-        })
+        }),
       );
     }
   }

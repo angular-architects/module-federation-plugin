@@ -6,7 +6,7 @@ import {
 import * as esbuild from 'esbuild';
 import { rollup } from 'rollup';
 import resolve from '@rollup/plugin-node-resolve';
-import { externals } from 'rollup-plugin-node-externals';
+import { nodeExternals } from 'rollup-plugin-node-externals';
 import * as fs from 'fs';
 import path from 'path';
 
@@ -44,7 +44,7 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
 
     for (const entryPoint of entryPoints) {
       const isPkg = entryPoint.fileName.includes('node_modules');
-      const pkgName = isPkg ? inferePkgName(entryPoint.fileName) : '';
+      const pkgName = isPkg ? inferPkgName(entryPoint.fileName) : '';
       const tmpFolder = `node_modules/.tmp/${pkgName}`;
 
       if (isPkg) {
@@ -53,7 +53,7 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
           external,
           tmpFolder,
           config,
-          !!options.dev
+          !!options.dev,
         );
 
         entryPoint.fileName = tmpFolder;
@@ -96,7 +96,7 @@ export function createEsBuildAdapter(config: EsBuildAdapterConfig) {
 
 function writeResult(
   result: esbuild.BuildResult<esbuild.BuildOptions>,
-  outdir: string
+  outdir: string,
 ) {
   const outputFiles = result.outputFiles || [];
   const writtenFiles: string[] = [];
@@ -135,12 +135,12 @@ async function prepareNodePackage(
   external: string[],
   tmpFolder: string,
   config: EsBuildAdapterConfig,
-  dev: boolean
+  dev: boolean,
 ) {
   if (config.fileReplacements) {
     entryPoint = replaceEntryPoint(
       entryPoint,
-      normalize(config.fileReplacements)
+      normalize(config.fileReplacements),
     );
   }
 
@@ -151,7 +151,7 @@ async function prepareNodePackage(
 
     plugins: [
       commonjs(),
-      externals({ include: external }),
+      nodeExternals({ include: external }),
       resolve(),
       replace({
         preventAssignment: true,
@@ -170,14 +170,14 @@ async function prepareNodePackage(
   });
 }
 
-function inferePkgName(entryPoint: string) {
+function inferPkgName(entryPoint: string) {
   return entryPoint
     .replace(/.*?node_modules/g, '')
     .replace(/[^A-Za-z0-9.]/g, '_');
 }
 
 function normalize(
-  config: Record<string, string | ReplacementConfig>
+  config: Record<string, string | ReplacementConfig>,
 ): Record<string, ReplacementConfig> {
   const result: Record<string, ReplacementConfig> = {};
   for (const key in config) {
@@ -194,14 +194,14 @@ function normalize(
 
 function replaceEntryPoint(
   entryPoint: string,
-  fileReplacements: Record<string, ReplacementConfig>
+  fileReplacements: Record<string, ReplacementConfig>,
 ): string {
   entryPoint = entryPoint.replace(/\\/g, '/');
 
   for (const key in fileReplacements) {
     entryPoint = entryPoint.replace(
       new RegExp(`${key}$`),
-      fileReplacements[key].file
+      fileReplacements[key].file,
     );
   }
 

@@ -9,4 +9,5 @@ export const BUILD_NOTIFICATIONS_ENDPOINT =
 export enum BuildNotificationType {
   COMPLETED = 'federation-rebuild-complete',
   ERROR = 'federation-rebuild-error',
+  CANCELLED = 'federation-rebuild-cancelled',
 }

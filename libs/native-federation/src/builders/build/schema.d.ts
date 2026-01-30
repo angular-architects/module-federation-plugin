@@ -17,4 +17,5 @@ export interface NfBuilderSchema extends JsonObject {
   outputPath?: string;
   ssr: boolean;
   devServer?: boolean;
+  cacheExternalArtifacts?: boolean;
 } // eslint-disable-line

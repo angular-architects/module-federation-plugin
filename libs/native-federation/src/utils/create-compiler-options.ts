@@ -4,7 +4,7 @@
 export function createCompilerPluginOptions(
   options: any,
   target: string[],
-  sourceFileCache?: any
+  sourceFileCache?: any,
 ): {
   pluginOptions: any[0];
   styleOptions: any[1];
@@ -55,6 +55,7 @@ export function createCompilerPluginOptions(
         sourcemapOptions.styles && !sourcemapOptions.hidden ? 'linked' : false,
       outputNames,
       includePaths: stylePreprocessorOptions?.includePaths,
+      sass: stylePreprocessorOptions?.sass,
       externalDependencies,
       target,
       inlineStyleLanguage,

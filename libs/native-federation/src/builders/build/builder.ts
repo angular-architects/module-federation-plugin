@@ -25,6 +25,8 @@ import {
   logger,
   setBuildAdapter,
   setLogLevel,
+  RebuildQueue,
+  AbortedError,
 } from '@softarc/native-federation/build';
 import {
   createAngularBuildAdapter,
@@ -47,13 +49,14 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { updateScriptTags } from '../../utils/updateIndexHtml';
 import { federationBuildNotifier } from './federation-build-notifier';
 import { NfBuilderSchema } from './schema';
+import { Schema as DevServerSchema } from '@angular-devkit/build-angular/src/builders/dev-server/schema';
 
 const originalWrite = process.stderr.write.bind(process.stderr);
 
 process.stderr.write = function (
   chunk: string | Uint8Array,
   encodingOrCallback?: BufferEncoding | ((err?: Error) => void),
-  callback?: (err?: Error) => void
+  callback?: (err?: Error) => void,
 ): boolean {
   const str = typeof chunk === 'string' ? chunk : chunk.toString();
 
@@ -85,12 +88,12 @@ function _buildApplication(options, context, pluginsOrExtensions) {
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
-  context: BuilderContext
+  context: BuilderContext,
 ): AsyncIterable<BuilderOutput> {
   let target = targetFromTargetString(nfOptions.target);
 
-  let _options = (await context.getTargetOptions(
-    target
+  let targetOptions = (await context.getTargetOptions(
+    target,
   )) as unknown as JsonObject & ApplicationBuilderOptions;
 
   let builder = await context.getBuilderNameForTarget(target);
@@ -116,29 +119,46 @@ export async function* runBuilder(
     return;
   }
 
+  /**
+   * Explicitly defined as devServer or if the target contains "serve"
+   */
+  const runServer =
+    typeof nfOptions.devServer !== 'undefined'
+      ? !!nfOptions.devServer
+      : target.target.includes('serve');
+
   let options = (await context.validateOptions(
-    _options,
-    builder
+    runServer
+      ? {
+          ...targetOptions,
+          port: nfOptions.port || targetOptions['port'],
+        }
+      : targetOptions,
+    builder,
   )) as JsonObject & ApplicationBuilderOptions;
 
-  const outerOptions = options as any;
-  const normOuterOptions = nfOptions.dev
-    ? await normalizeOptions(context, context.target.project, outerOptions)
-    : null;
+  let serverOptions = null;
 
-  const runServer = nfOptions.dev && nfOptions.devServer !== false;
   const write = true;
   const watch = nfOptions.watch;
 
-  if (runServer) {
-    target = targetFromTargetString(outerOptions.buildTarget);
-    _options = (await context.getTargetOptions(
-      target
+  if (options['buildTarget']) {
+    serverOptions = await normalizeOptions(
+      context,
+      context.target.project,
+      options as unknown as DevServerSchema,
+    );
+
+    target = targetFromTargetString(options['buildTarget'] as string);
+    targetOptions = (await context.getTargetOptions(
+      target,
     )) as unknown as JsonObject & ApplicationBuilderOptions;
 
     builder = await context.getBuilderNameForTarget(target);
-    options = (await context.validateOptions(_options, builder)) as JsonObject &
-      ApplicationBuilderOptions;
+    options = (await context.validateOptions(
+      targetOptions,
+      builder,
+    )) as JsonObject & ApplicationBuilderOptions;
   }
 
   options.watch = watch;
@@ -185,7 +205,7 @@ export async function* runBuilder(
   const browserOutputPath = path.join(
     outputOptions.base,
     outputOptions.browser,
-    options.localize ? sourceLocaleSegment : ''
+    options.localize ? sourceLocaleSegment : '',
   );
 
   const differentDevServerOutputPath =
@@ -199,18 +219,22 @@ export async function* runBuilder(
   const fedOptions: FederationOptions = {
     workspaceRoot: context.workspaceRoot,
     outputPath: browserOutputPath,
-    federationConfig: infereConfigPath(options.tsConfig),
+    federationConfig: inferConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose,
     watch: false, // options.watch,
     dev: !!nfOptions.dev,
     entryPoint,
     buildNotifications: nfOptions.buildNotifications,
+    cacheExternalArtifacts: nfOptions.cacheExternalArtifacts,
   };
 
   const activateSsr = nfOptions.ssr && !nfOptions.dev;
 
+  const start = process.hrtime();
   const config = await loadFederationConfig(fedOptions);
+  logger.measure(start, 'To load the federation config.');
+
   const externals = getExternals(config);
   const plugins = [
     createSharedMappingsPlugin(config.sharedMappings),
@@ -219,7 +243,7 @@ export async function* runBuilder(
       setup(build: PluginBuild) {
         if (!activateSsr && build.initialOptions.platform !== 'node') {
           build.initialOptions.external = externals.filter(
-            (e) => e !== 'tslib'
+            (e) => e !== 'tslib',
           );
         }
       },
@@ -242,7 +266,7 @@ export async function* runBuilder(
     ...(isLocalDevelopment
       ? [
           federationBuildNotifier.createEventMiddleware((req) =>
-            removeBaseHref(req, options.baseHref)
+            removeBaseHref(req, options.baseHref),
           ),
         ]
       : []),
@@ -253,7 +277,7 @@ export async function* runBuilder(
       const fileName = path.join(
         fedOptions.workspaceRoot,
         devServerOutputPath,
-        url
+        url,
       );
 
       const exists = fs.existsSync(fileName);
@@ -304,8 +328,11 @@ export async function* runBuilder(
 
   let federationResult: FederationInfo;
   try {
+    const start = process.hrtime();
     federationResult = await buildForFederation(config, fedOptions, externals);
+    logger.measure(start, 'To build the artifacts.');
   } catch (e) {
+    logger.error(e?.message ?? 'Building the artifacts failed');
     process.exit(1);
   }
 
@@ -315,12 +342,15 @@ export async function* runBuilder(
 
   const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
   if (hasLocales && localeFilter) {
+    const start = process.hrtime();
+
     translateFederationArtefacts(
       i18n,
       localeFilter,
       outputOptions.base,
-      federationResult
+      federationResult,
     );
+    logger.measure(start, 'To translate the artifacts.');
   }
 
   options.deleteOutputPath = false;
@@ -329,7 +359,7 @@ export async function* runBuilder(
 
   const builderRun = runServer
     ? serveWithVite(
-        normOuterOptions,
+        serverOptions,
         appBuilderName,
         _buildApplication,
         context,
@@ -339,27 +369,28 @@ export async function* runBuilder(
         {
           buildPlugins: plugins as any,
           middleware,
-        }
+        },
       )
     : buildApplication(options, context, {
         codePlugins: plugins as any,
         indexHtmlTransformer: transformIndexHtml(nfOptions),
       });
 
+  const rebuildQueue = new RebuildQueue();
+
   try {
-    // builderRun.output.subscribe(async (output) => {
     for await (const output of builderRun) {
       lastResult = output;
 
       if (!write && output['outputFiles']) {
         memResults.add(
-          output['outputFiles'].map((file) => new EsBuildResult(file))
+          output['outputFiles'].map((file) => new EsBuildResult(file)),
         );
       }
 
       if (!write && output['assetFiles']) {
         memResults.add(
-          output['assetFiles'].map((file) => new NgCliAssetResult(file))
+          output['assetFiles'].map((file) => new NgCliAssetResult(file)),
         );
       }
 
@@ -372,8 +403,32 @@ export async function* runBuilder(
       // }
 
       if (!first && (nfOptions.dev || watch)) {
-        setTimeout(async () => {
-          try {
+        rebuildQueue
+          .enqueue(async (signal: AbortSignal) => {
+            if (signal?.aborted) {
+              throw new AbortedError('Build canceled before starting');
+            }
+
+            await new Promise((resolve, reject) => {
+              const timeout = setTimeout(
+                resolve,
+                Math.max(10, nfOptions.rebuildDelay),
+              );
+
+              if (signal) {
+                const abortHandler = () => {
+                  clearTimeout(timeout);
+                  reject(new AbortedError('[builder] During delay.'));
+                };
+                signal.addEventListener('abort', abortHandler, { once: true });
+              }
+            });
+
+            if (signal?.aborted) {
+              throw new AbortedError('[builder] Before federation build.');
+            }
+
+            const start = process.hrtime();
             federationResult = await buildForFederation(
               config,
               fedOptions,
@@ -381,38 +436,57 @@ export async function* runBuilder(
               {
                 skipMappingsAndExposed: false,
                 skipShared: true,
-              }
+                signal,
+              },
             );
+
+            if (signal?.aborted) {
+              throw new AbortedError('[builder] After federation build.');
+            }
 
             if (hasLocales && localeFilter) {
               translateFederationArtefacts(
                 i18n,
                 localeFilter,
                 outputOptions.base,
-                federationResult
+                federationResult,
+              );
+            }
+
+            if (signal?.aborted) {
+              throw new AbortedError(
+                '[builder] After federation translations.',
               );
             }
 
             logger.info('Done!');
 
-            // Notifies about build completion
             if (isLocalDevelopment) {
               federationBuildNotifier.broadcastBuildCompletion();
             }
-          } catch (error) {
-            logger.error('Federation rebuild failed!');
-
-            // Notifies about build failure
-            if (isLocalDevelopment) {
-              federationBuildNotifier.broadcastBuildError(error);
+            logger.measure(start, 'To rebuild the federation artifacts.');
+          })
+          .catch((error) => {
+            if (error instanceof AbortedError) {
+              logger.verbose(
+                'Rebuild was canceled. Cancellation point: ' + error?.message,
+              );
+              federationBuildNotifier.broadcastBuildCancellation();
+            } else {
+              logger.error('Federation rebuild failed!');
+              if (options.verbose) console.error(error);
+              if (isLocalDevelopment) {
+                federationBuildNotifier.broadcastBuildError(error);
+              }
             }
-          }
-        }, nfOptions.rebuildDelay);
+          });
       }
 
       first = false;
     }
   } finally {
+    rebuildQueue.dispose();
+
     if (isLocalDevelopment) {
       federationBuildNotifier.stopEventServer();
     }
@@ -440,7 +514,7 @@ function writeFstartScript(fedOptions: FederationOptions) {
 
 function getLocaleFilter(
   options: ApplicationBuilderOptions,
-  runServer: boolean
+  runServer: boolean,
 ) {
   let localize = options.localize || false;
 
@@ -454,7 +528,7 @@ function getLocaleFilter(
   return localize;
 }
 
-function infereConfigPath(tsConfig: string): string {
+function inferConfigPath(tsConfig: string): string {
   const relProjectPath = path.dirname(tsConfig);
   const relConfigPath = path.join(relProjectPath, 'federation.config.js');
 
@@ -462,11 +536,11 @@ function infereConfigPath(tsConfig: string): string {
 }
 
 function transformIndexHtml(
-  nfOptions: NfBuilderSchema
+  nfOptions: NfBuilderSchema,
 ): (content: string) => Promise<string> {
   return (content: string): Promise<string> =>
     Promise.resolve(
-      updateScriptTags(content, 'main.js', 'polyfills.js', nfOptions)
+      updateScriptTags(content, 'main.js', 'polyfills.js', nfOptions),
     );
 }
 

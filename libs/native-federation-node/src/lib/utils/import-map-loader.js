@@ -24,7 +24,7 @@ export function resolveSpecifier(importMap, specifier, parentURL) {
     ) {
       const scopeImportsMatch = resolveImportsMatch(
         normalizedSpecifier,
-        importMap.scopes[scopePrefix]
+        importMap.scopes[scopePrefix],
       );
       if (scopeImportsMatch) {
         return scopeImportsMatch;
@@ -32,7 +32,7 @@ export function resolveSpecifier(importMap, specifier, parentURL) {
     } else {
       const topLevelImportsMatch = resolveImportsMatch(
         normalizedSpecifier,
-        importMap.imports
+        importMap.imports,
       );
       if (topLevelImportsMatch) {
         return topLevelImportsMatch;
@@ -51,7 +51,7 @@ function resolveImportsMatch(normalizedSpecifier, specifierMap) {
     if (specifierKey === normalizedSpecifier) {
       if (resolutionResult === null) {
         throw TypeError(
-          `The import map resolution of ${specifierKey} failed due to a null entry`
+          `The import map resolution of ${specifierKey} failed due to a null entry`,
         );
       }
       return resolutionResult;
@@ -61,7 +61,7 @@ function resolveImportsMatch(normalizedSpecifier, specifierMap) {
     ) {
       if (resolutionResult === null) {
         throw TypeError(
-          `The import map resolution of ${specifierKey} failed due to a null entry`
+          `The import map resolution of ${specifierKey} failed due to a null entry`,
         );
       }
       const afterPrefix = normalizedSpecifier.slice(specifierKey.length);
@@ -69,7 +69,7 @@ function resolveImportsMatch(normalizedSpecifier, specifierMap) {
         return new URL(afterPrefix, resolutionResult).href;
       } catch {
         throw TypeError(
-          `The import map resolution of ${specifierKey} failed due to URL parse failure`
+          `The import map resolution of ${specifierKey} failed due to URL parse failure`,
         );
       }
     }
@@ -89,7 +89,7 @@ export function resolveAndComposeImportMap(parsed) {
   let sortedAndNormalizedImports = {};
 
   // Step 4
-  if (parsed.hasOwnProperty('imports')) {
+  if (Object.prototype.hasOwnProperty.call(parsed, 'imports')) {
     // Step 4.1
     if (!isPlainObject(parsed.imports)) {
       throw Error(`Invalid import map - "imports" property must be an object`);
@@ -98,7 +98,7 @@ export function resolveAndComposeImportMap(parsed) {
     // Step 4.2
     sortedAndNormalizedImports = sortAndNormalizeSpecifierMap(
       parsed.imports,
-      baseURL
+      baseURL,
     );
   }
 
@@ -106,7 +106,7 @@ export function resolveAndComposeImportMap(parsed) {
   let sortedAndNormalizedScopes = {};
 
   // Step 6
-  if (parsed.hasOwnProperty('scopes')) {
+  if (Object.prototype.hasOwnProperty.call(parsed, 'scopes')) {
     // Step 6.1
     if (!isPlainObject(parsed.scopes)) {
       throw Error(`Invalid import map - "scopes" property must be an object`);
@@ -118,13 +118,13 @@ export function resolveAndComposeImportMap(parsed) {
 
   // Step 7
   const invalidKeys = Object.keys(parsed).filter(
-    (key) => key !== 'imports' && key !== 'scopes'
+    (key) => key !== 'imports' && key !== 'scopes',
   );
   if (invalidKeys.length > 0) {
     console.warn(
       `Invalid top-level key${
         invalidKeys.length > 0 ? 's' : ''
-      } in import map - ${invalidKeys.join(', ')}`
+      } in import map - ${invalidKeys.join(', ')}`,
     );
   }
 
@@ -150,7 +150,7 @@ function sortAndNormalizeSpecifierMap(map, baseURL) {
     let addressURL = parseURLLikeSpecifier(value, baseURL);
     if (addressURL === null) {
       console.warn(
-        `Invalid URL address for import map specifier '${specifierKey}'`
+        `Invalid URL address for import map specifier '${specifierKey}'`,
       );
       normalized[normalizedSpecifierKey] = null;
       continue;
@@ -158,7 +158,7 @@ function sortAndNormalizeSpecifierMap(map, baseURL) {
 
     if (specifierKey.endsWith('/') && !addressURL.endsWith('/')) {
       console.warn(
-        `Invalid URL address for import map specifier '${specifierKey}' - since the specifier ends in slash, so must the address`
+        `Invalid URL address for import map specifier '${specifierKey}' - since the specifier ends in slash, so must the address`,
       );
       normalized[normalizedSpecifierKey] = null;
       continue;
@@ -202,7 +202,7 @@ function sortAndNormalizeScopes(map, baseURL) {
     const potentialSpecifierMap = map[scopePrefix];
     if (!isPlainObject(potentialSpecifierMap)) {
       throw TypeError(
-        `The value of scope ${scopePrefix} must be a JSON object`
+        `The value of scope ${scopePrefix} must be a JSON object`,
       );
     }
 
@@ -211,14 +211,14 @@ function sortAndNormalizeScopes(map, baseURL) {
       scopePrefixURL = new URL(scopePrefix, baseURL).href;
     } catch {
       console.warn(
-        `Scope prefix URL '${scopePrefix}' was not parseable in import map`
+        `Scope prefix URL '${scopePrefix}' was not parseable in import map`,
       );
       continue;
     }
 
     normalized[scopePrefixURL] = sortAndNormalizeSpecifierMap(
       potentialSpecifierMap,
-      baseURL
+      baseURL,
     );
   }
 
@@ -250,7 +250,7 @@ export async function load(url, context, defaultLoad) {
     const source = await res.text();
     return {
       shortCircuit: true,
-      format: 'module', 
+      format: 'module',
       source,
     };
   }
@@ -258,7 +258,7 @@ export async function load(url, context, defaultLoad) {
   if (!url.startsWith('node:')) {
     context.format = 'module';
   }
-  
+
   return defaultLoad(url, context, defaultLoad);
 }
 
@@ -278,7 +278,7 @@ async function getImportMapPromise() {
     json = await JSON.parse(str);
   } catch (err) {
     throw Error(
-      `Import map at ${importMapPath} contains invalid json: ${err.message}`
+      `Import map at ${importMapPath} contains invalid json: ${err.message}`,
     );
   }
 

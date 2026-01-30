@@ -42,7 +42,7 @@ export function getShared(options = defaultShareOptions) {
       (k) =>
         !k.startsWith('/@id/') &&
         !k.startsWith('@angular-architects/module-federation') &&
-        !k.endsWith('@')
+        !k.endsWith('@'),
     )
     .sort();
 
@@ -55,6 +55,7 @@ export function getShared(options = defaultShareOptions) {
     const shareObj: ShareObject = {
       version,
       get: async () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const lib = await (window as any).importShim(path);
         return () => lib;
       },

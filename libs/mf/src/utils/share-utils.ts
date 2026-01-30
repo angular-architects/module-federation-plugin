@@ -15,7 +15,7 @@ export const DEFAULT_SKIP_LIST = [
   'zone.js',
 ];
 
-export const DEFAULT_SECONARIES_SKIP_LIST = [
+export const DEFAULT_SECONDARIES_SKIP_LIST = [
   '@angular/router/upgrade',
   '@angular/common/upgrade',
 ];
@@ -58,7 +58,7 @@ function findPackageJson(folder: string): string {
 
   throw new Error(
     'no package.json found. Searched the following folder and all parents: ' +
-      folder
+      folder,
   );
 }
 
@@ -85,7 +85,7 @@ function lookupVersion(key: string, versions: VersionMap): string {
 
   if (!versions[key]) {
     throw new Error(
-      `Shared Dependency ${key} has requiredVersion:'auto'. However, this dependency is not found in your package.json`
+      `Shared Dependency ${key} has requiredVersion:'auto'. However, this dependency is not found in your package.json`,
     );
   }
   return versions[key];
@@ -95,18 +95,18 @@ function _findSecondaries(
   libPath: string,
   excludes: string[],
   shareObject: SharedConfig,
-  acc: Record<string, SharedConfig>
+  acc: Record<string, SharedConfig>,
 ): void {
   const files = fs.readdirSync(libPath);
 
   const dirs = files
     .map((f) => path.join(libPath, f))
     .filter(
-      (f) => fs.lstatSync(f).isDirectory() && !f.endsWith('node_modules')
+      (f) => fs.lstatSync(f).isDirectory() && !f.endsWith('node_modules'),
     );
 
   const secondaries = dirs.filter((d) =>
-    fs.existsSync(path.join(d, 'package.json'))
+    fs.existsSync(path.join(d, 'package.json')),
   );
   for (const s of secondaries) {
     const secondaryLibName = s
@@ -123,7 +123,7 @@ function _findSecondaries(
 function findSecondaries(
   libPath: string,
   excludes: string[],
-  shareObject: SharedConfig
+  shareObject: SharedConfig,
 ): Record<string, SharedConfig> {
   const acc = {} as Record<string, SharedConfig>;
   _findSecondaries(libPath, excludes, shareObject, acc);
@@ -135,7 +135,7 @@ function getSecondaries(
   packagePath: string,
   key: string,
   shareObject: SharedConfig,
-  exclude = [...DEFAULT_SECONARIES_SKIP_LIST]
+  exclude = [...DEFAULT_SECONDARIES_SKIP_LIST],
 ): Record<string, SharedConfig> {
   if (typeof includeSecondaries === 'object') {
     if (Array.isArray(includeSecondaries.skip)) {
@@ -155,7 +155,7 @@ function getSecondaries(
     key,
     libPath,
     exclude,
-    shareObject
+    shareObject,
   );
   if (configured) {
     return configured;
@@ -170,7 +170,7 @@ function readConfiguredSecondaries(
   parent: string,
   libPath: string,
   exclude: string[],
-  shareObject: SharedConfig
+  shareObject: SharedConfig,
 ): Record<string, SharedConfig> {
   const libPackageJson = path.join(libPath, 'package.json');
 
@@ -193,7 +193,7 @@ function readConfiguredSecondaries(
       key != '.' &&
       key != './package.json' &&
       !key.endsWith('*') &&
-      (exports[key]['default'] || typeof exports[key] === 'string')
+      (exports[key]['default'] || typeof exports[key] === 'string'),
   );
 
   const result = {} as Record<string, SharedConfig>;
@@ -217,8 +217,8 @@ function readConfiguredSecondaries(
 
 export function shareAll(
   config: CustomSharedConfig = {},
-  skip: string[] = [...DEFAULT_SKIP_LIST, ...DEFAULT_SECONARIES_SKIP_LIST],
-  packageJsonPath = ''
+  skip: string[] = [...DEFAULT_SKIP_LIST, ...DEFAULT_SECONDARIES_SKIP_LIST],
+  packageJsonPath = '',
 ): Config {
   if (!packageJsonPath) {
     packageJsonPath = cwd();
@@ -247,7 +247,7 @@ export function setInferVersion(infer: boolean): void {
 export function share(
   shareObjects: Config,
   packageJsonPath = '',
-  skip: string[] = DEFAULT_SECONARIES_SKIP_LIST
+  skip: string[] = DEFAULT_SECONDARIES_SKIP_LIST,
 ): Config {
   if (!packageJsonPath) {
     packageJsonPath = cwd();
@@ -289,7 +289,7 @@ export function share(
         packagePath,
         key,
         shareObject,
-        skip
+        skip,
       );
       addSecondaries(secondaries, result);
     }
@@ -300,7 +300,7 @@ export function share(
 
 function addSecondaries(
   secondaries: Record<string, SharedConfig>,
-  result: object
+  result: object,
 ) {
   for (const key in secondaries) {
     result[key] = secondaries[key];

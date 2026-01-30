@@ -12,7 +12,7 @@ export function rewriteChunkImports(filePath: string) {
     sourceCode,
     ts.ScriptTarget.ESNext,
     true,
-    ts.ScriptKind.JS
+    ts.ScriptKind.JS,
   );
 
   const printer = ts.createPrinter();
@@ -25,7 +25,7 @@ export function rewriteChunkImports(filePath: string) {
         const text = moduleSpecifier.text;
         if (text.startsWith('./')) {
           const newModuleSpecifier = ts.factory.createStringLiteral(
-            deriveInternalName(text)
+            deriveInternalName(text),
           );
 
           if (ts.isImportDeclaration(node)) {
@@ -34,7 +34,7 @@ export function rewriteChunkImports(filePath: string) {
               node.modifiers,
               node.importClause,
               newModuleSpecifier,
-              node.assertClause
+              node.assertClause,
             );
           } else {
             return ts.factory.updateExportDeclaration(
@@ -43,7 +43,7 @@ export function rewriteChunkImports(filePath: string) {
               node.isTypeOnly,
               node.exportClause,
               newModuleSpecifier,
-              node.assertClause
+              node.assertClause,
             );
           }
         }
@@ -60,13 +60,13 @@ export function rewriteChunkImports(filePath: string) {
         const text = arg.text;
         if (text.startsWith('./')) {
           const newArg = ts.factory.createStringLiteral(
-            deriveInternalName(text)
+            deriveInternalName(text),
           );
           return ts.factory.updateCallExpression(
             node,
             node.expression,
             node.typeArguments,
-            [newArg]
+            [newArg],
           );
         }
       }

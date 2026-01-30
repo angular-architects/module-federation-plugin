@@ -1,7 +1,7 @@
 import { ModuleFederationConfig, RsbuildConfig } from '@rsbuild/core';
 import { pluginScriptModule } from './plugin-script-module';
 import { applySkipList, normalizeSkipList, SkipList } from '../utils/skip-list';
-import { SharedObject } from '@module-federation/enhanced/dist/src/declarations/plugins/sharing/SharePlugin';
+import { Shared } from '@rspack/core/dist/sharing/SharePlugin';
 import { findRootTsConfigJson, SharedMappings } from '../webpack';
 
 export type FederationConfig = {
@@ -29,14 +29,14 @@ export function withFederation(config: FederationConfig) {
 
 export function applyFederation(
   rsbuildConfig: RsbuildConfig,
-  federationConfig: FederationConfig
+  federationConfig: FederationConfig,
 ): RsbuildConfig {
   const { skip, ...mfConfig } = federationConfig;
   const normalizedSkip = normalizeSkipList(skip);
   const mappings = new SharedMappings();
   mappings.register(findRootTsConfigJson());
 
-  const shared = (mfConfig.options.shared ?? {}) as SharedObject;
+  const shared = (mfConfig.options.shared ?? {}) as Shared;
   const sharedWithLibs = {
     ...mappings.getDescriptors(),
     ...shared,
@@ -44,7 +44,7 @@ export function applyFederation(
 
   const filteredSkipList = applySkipList(normalizedSkip, sharedWithLibs);
 
-  mfConfig.options.shared = filteredSkipList;
+  mfConfig.options.shared = filteredSkipList as Shared;
 
   const config: RsbuildConfig = {
     ...rsbuildConfig,

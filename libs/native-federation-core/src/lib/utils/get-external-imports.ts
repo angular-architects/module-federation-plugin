@@ -51,7 +51,7 @@ export function getExternalImports(entryFilePath: string) {
       resolved,
       source,
       ts.ScriptTarget.Latest,
-      true
+      true,
     );
 
     function walk(node: ts.Node) {
@@ -63,7 +63,7 @@ export function getExternalImports(entryFilePath: string) {
             externals.add(normalizeExternal(spec));
           } else {
             const resolvedPath = resolveAsFileOrDirectory(
-              path.resolve(path.dirname(resolved ?? ''), spec)
+              path.resolve(path.dirname(resolved ?? ''), spec),
             );
             if (resolvedPath) visit(resolvedPath);
           }
@@ -83,7 +83,7 @@ export function getExternalImports(entryFilePath: string) {
           externals.add(normalizeExternal(spec));
         } else {
           const resolvedPath = resolveAsFileOrDirectory(
-            path.resolve(path.dirname(resolved ?? ''), spec)
+            path.resolve(path.dirname(resolved ?? ''), spec),
           );
           if (resolvedPath) visit(resolvedPath);
         }

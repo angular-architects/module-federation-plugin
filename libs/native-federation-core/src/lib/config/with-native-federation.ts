@@ -14,11 +14,11 @@ import { logger } from '../utils/logger';
 import { DEFAULT_SERVER_DEPS_LIST } from '../core/default-server-deps-list';
 
 export function withNativeFederation(
-  config: FederationConfig
+  config: FederationConfig,
 ): NormalizedFederationConfig {
   const skip = prepareSkipList(config.skip ?? []);
 
-  const normalized = {
+  const normalized: NormalizedFederationConfig = {
     name: config.name ?? '',
     exposes: config.exposes ?? {},
     shared: normalizeShared(config, skip),
@@ -40,10 +40,10 @@ export function withNativeFederation(
 }
 
 function filterShared(
-  shared: Record<string, NormalizedSharedConfig>
+  shared: Record<string, NormalizedSharedConfig>,
 ): Record<string, NormalizedSharedConfig> {
   const keys = Object.keys(shared).filter(
-    (k) => !k.startsWith('@angular/common/locales')
+    (k) => !k.startsWith('@angular/common/locales'),
   );
 
   const filtered = keys.reduce(
@@ -51,7 +51,7 @@ function filterShared(
       ...acc,
       [curr]: shared[curr],
     }),
-    {}
+    {},
   );
 
   return filtered;
@@ -59,7 +59,7 @@ function filterShared(
 
 function normalizeShared(
   config: FederationConfig,
-  skip: PreparedSkipList
+  skip: PreparedSkipList,
 ): Record<string, NormalizedSharedConfig> {
   let result: Record<string, NormalizedSharedConfig> = {};
 
@@ -87,7 +87,7 @@ function normalizeShared(
           build: shared[cur].build ?? 'default',
         },
       }),
-      {}
+      {},
     );
 
     //result = share(result) as Record<string, NormalizedSharedConfig>;
@@ -100,7 +100,7 @@ function normalizeShared(
         ...acc,
         [cur]: result[cur],
       }),
-      {}
+      {},
     );
 
   return result;
@@ -108,7 +108,7 @@ function normalizeShared(
 
 function normalizeSharedMappings(
   config: FederationConfig,
-  skip: PreparedSkipList
+  skip: PreparedSkipList,
 ): Array<MappedPath> {
   const rootTsConfigPath = findRootTsConfigJson();
 
@@ -118,7 +118,7 @@ function normalizeSharedMappings(
   });
 
   const result = paths.filter(
-    (p) => !isInSkipList(p.key, skip) && !p.key.includes('*')
+    (p) => !isInSkipList(p.key, skip) && !p.key.includes('*'),
   );
 
   if (paths.find((p) => p.key.includes('*'))) {

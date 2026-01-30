@@ -1,15 +1,14 @@
-import { register } from 'node:module';
-import { pathToFileURL } from 'node:url';
 import * as fs from 'node:fs/promises';
+import { register } from 'node:module';
 import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import {
   FederationInfo,
+  processRemoteInfos,
   ImportMap,
-  InitFederationOptions,
   mergeImportMaps,
   processHostInfo,
-  processRemoteInfos,
 } from '@softarc/native-federation-runtime';
 import { IMPORT_MAP_FILE_NAME } from '../utils/import-map-loader';
 import { resolver } from '../utils/loader-as-data-url';
@@ -28,7 +27,7 @@ const defaultOptions: InitNodeFederationOptions = {
 };
 
 export async function initNodeFederation(
-  options: Partial<InitNodeFederationOptions>
+  options: Partial<InitNodeFederationOptions>,
 ): Promise<void> {
   const mergedOptions = { ...defaultOptions, ...options };
   const importMap = await createNodeImportMap(mergedOptions);
@@ -43,7 +42,7 @@ export async function initNodeFederation(
 }
 
 async function createNodeImportMap(
-  options: InitNodeFederationOptions
+  options: InitNodeFederationOptions,
 ): Promise<ImportMap> {
   const { remotesOrManifestUrl, relBundlePath } = options;
 
@@ -65,7 +64,7 @@ async function createNodeImportMap(
 }
 
 async function loadFsManifest(
-  manifestUrl: string
+  manifestUrl: string,
 ): Promise<Record<string, string>> {
   const content = await fs.readFile(manifestUrl, 'utf-8');
   const manifest = JSON.parse(content) as Record<string, string>;
@@ -73,7 +72,7 @@ async function loadFsManifest(
 }
 
 async function loadFsFederationInfo(
-  relBundlePath: string
+  relBundlePath: string,
 ): Promise<FederationInfo> {
   const manifestPath = path.join(relBundlePath, 'remoteEntry.json');
   const content = await fs.readFile(manifestPath, 'utf-8');
@@ -85,7 +84,7 @@ async function writeImportMap(map: ImportMap): Promise<void> {
   await fs.writeFile(
     IMPORT_MAP_FILE_NAME,
     JSON.stringify(map, null, 2),
-    'utf-8'
+    'utf-8',
   );
 }
 

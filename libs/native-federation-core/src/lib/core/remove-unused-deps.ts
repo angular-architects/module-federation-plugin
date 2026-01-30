@@ -6,11 +6,12 @@ import { NormalizedFederationConfig } from '../config/federation-config';
 import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { getExternalImports as extractExternalImports } from '../utils/get-external-imports';
 import { MappedPath } from '../utils/mapped-paths';
+import { normalizePackageName } from '../utils/normalize';
 
 export function removeUnusedDeps(
   config: NormalizedFederationConfig,
   main: string,
-  workspaceRoot: string
+  workspaceRoot: string,
 ): NormalizedFederationConfig {
   const fileInfos = getProjectData(main, cwd(), {
     includeExternalLibraries: true,
@@ -22,7 +23,7 @@ export function removeUnusedDeps(
 
   const usedPackageNamesWithTransient = addTransientDeps(
     usedPackageNames,
-    workspaceRoot
+    workspaceRoot,
   );
   const filteredShared = filterShared(config, usedPackageNamesWithTransient);
 
@@ -35,23 +36,20 @@ export function removeUnusedDeps(
 
 function filterShared(
   config: NormalizedFederationConfig,
-  usedPackageNamesWithTransient: Set<string>
+  usedPackageNamesWithTransient: Set<string>,
 ) {
-  const filteredSharedNames = Object.keys(config.shared).filter((shared) =>
-    usedPackageNamesWithTransient.has(shared)
-  );
-
-  const filteredShared = filteredSharedNames.reduce(
-    (acc, curr) => ({ ...acc, [curr]: config.shared[curr] }),
-    {}
-  );
-  return filteredShared;
+  return Object.entries(config.shared)
+    .filter(
+      ([shared, meta]) =>
+        !!meta.includeSecondaries || usedPackageNamesWithTransient.has(shared),
+    )
+    .reduce((acc, [shared, meta]) => ({ ...acc, [shared]: meta }), {});
 }
 
 function findUsedDeps(
   fileInfos: ProjectData,
   workspaceRoot: string,
-  config: NormalizedFederationConfig
+  config: NormalizedFederationConfig,
 ) {
   const usedPackageNames = new Set<string>();
   const usedMappings = new Set<MappedPath>();
@@ -73,8 +71,8 @@ function findUsedDeps(
     }
 
     const fullFileName = path.join(workspaceRoot, fileName);
-    const mappings = config.sharedMappings.filter(
-      (sm) => sm.path === fullFileName
+    const mappings = config.sharedMappings.filter((sm) =>
+      fullFileName.startsWith(sm.path),
     );
 
     for (const mapping of mappings) {
@@ -116,11 +114,11 @@ function addTransientDeps(packages: Set<string>, workspaceRoot: string) {
 }
 
 function getExternalImports(pInfo: PackageInfo, workspaceRoot: string) {
-  const encodedPackageName = pInfo.packageName.replace(/[^A-Za-z0-9]/g, '_');
+  const encodedPackageName = normalizePackageName(pInfo.packageName);
   const cacheFileName = `${encodedPackageName}-${pInfo.version}.deps.json`;
   const cachePath = path.join(
     workspaceRoot,
-    'node_modules/.cache/native-federation'
+    'node_modules/.cache/native-federation/_externals-metadata',
   );
   const cacheFilePath = path.join(cachePath, cacheFileName);
 
@@ -135,7 +133,7 @@ function getExternalImports(pInfo: PackageInfo, workspaceRoot: string) {
     fs.writeFileSync(
       cacheFilePath,
       JSON.stringify(peerDeps, undefined, 2),
-      'utf-8'
+      'utf-8',
     );
   }
   return peerDeps;

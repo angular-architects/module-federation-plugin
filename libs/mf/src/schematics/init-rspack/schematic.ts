@@ -45,7 +45,7 @@ type PackageJson = {
 };
 
 const RSPACK_DEPS = {
-  '@module-federation/enhanced': '0.14.3',
+  '@module-federation/enhanced': '0.21.4',
 };
 
 const RSPACK_DEV_DEPS = {
@@ -74,15 +74,15 @@ export function init(options: MfSchematicSchema): Rule {
     const appComponent = tree.exists(cand1)
       ? cand1
       : tree.exists(cand2)
-      ? cand2
-      : 'update-this.ts';
+        ? cand2
+        : 'update-this.ts';
 
     const generateRule = await generateRsBuildConfig(
       remoteMap,
       projectRoot,
       projectSourceRoot,
       appComponent,
-      options
+      options,
     );
 
     if (options.type === 'dynamic-host') {
@@ -102,7 +102,7 @@ export function init(options: MfSchematicSchema): Rule {
       projectName,
       projectRoot,
       RSPACK_DEPS,
-      RSPACK_DEV_DEPS
+      RSPACK_DEV_DEPS,
     );
 
     context.addTask(new RunSchematicTask('patch', {}), [
@@ -132,7 +132,7 @@ function normalizeOptions(tree, options: MfSchematicSchema): NormalizedOptions {
 
   if (!options.project) {
     throw new Error(
-      `No default project found. Please specifiy a project name!`
+      `No default project found. Please specifiy a project name!`,
     );
   }
 
@@ -140,13 +140,13 @@ function normalizeOptions(tree, options: MfSchematicSchema): NormalizedOptions {
   const projectConfig = workspace.projects[projectName];
 
   if (!projectConfig) {
-    throw new Error(`Project ${projectName} not found!`);
+    throw new Error(`Project ${projectName} not found in angular.json.`);
   }
 
   const projectRoot: string = projectConfig.root?.replace(/\\/g, '/');
   const projectSourceRoot: string = projectConfig.sourceRoot?.replace(
     /\\/g,
-    '/'
+    '/',
   );
 
   const manifestPath = path
@@ -220,7 +220,7 @@ function getWorkspaceFileName(tree: Tree): string {
     return 'workspace.json';
   }
   throw new Error(
-    "angular.json or workspace.json expected! Did you call this in your project's root?"
+    "angular.json or workspace.json expected! Did you call this in your project's root?",
   );
 }
 
@@ -229,10 +229,10 @@ function updatePackageJson(
   projectName: string,
   projectRoot: string,
   deps: Record<string, string>,
-  devDeps: Record<string, string>
+  devDeps: Record<string, string>,
 ): void {
   const packageJson: PackageJson = JSON.parse(
-    tree.read('package.json').toString('utf-8')
+    tree.read('package.json').toString('utf-8'),
   );
 
   if (!packageJson.scripts) {
@@ -291,19 +291,19 @@ function updatePackageJson(
 function printScriptInfo(
   projectRoot: string,
   startScriptName: string,
-  buildScriptName: string
+  buildScriptName: string,
 ) {
   console.info();
   console.info(
-    `[INFO] Please remember that the rspack integration is in early stages`
+    `[INFO] Please remember that the rspack integration is in early stages`,
   );
   console.info(
-    `[INFO] Use the following script to start and build your project:`
+    `[INFO] Use the following script to start and build your project:`,
   );
 
   if (projectRoot) {
     console.info(
-      `[INFO] npm run ${startScriptName}, npm run ${buildScriptName}`
+      `[INFO] npm run ${startScriptName}, npm run ${buildScriptName}`,
     );
   } else {
     console.info(`[INFO] npm start, npm run build`);
@@ -316,7 +316,7 @@ async function generateRsBuildConfig(
   projectRoot: string,
   projectSourceRoot: string,
   appComponent: string,
-  options: MfSchematicSchema
+  options: MfSchematicSchema,
 ) {
   const tmpl = url('./files');
 
@@ -338,7 +338,7 @@ async function generateRsBuildConfig(
 function writeProjectConfig(
   tree,
   workspaceFileName: string,
-  workspace: unknown
+  workspace: unknown,
 ) {
   tree.overwrite(workspaceFileName, JSON.stringify(workspace, null, '\t'));
 }
@@ -371,7 +371,7 @@ function updateProjectConfig(projectConfig: ProjectConfig, port: number) {
 function generteManifest(
   tree,
   manifestPath: string,
-  remoteMap: Record<string, never>
+  remoteMap: Record<string, never>,
 ) {
   tree.create(manifestPath, JSON.stringify(remoteMap, null, '\t'));
 }

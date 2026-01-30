@@ -9,14 +9,14 @@ export type LoadRemoteModuleOptions<T = any> = {
 
 export async function loadRemoteModule<T = any>(
   remoteName: string,
-  exposedModule: string
+  exposedModule: string,
 ): Promise<T>;
 export async function loadRemoteModule<T = any>(
-  options: LoadRemoteModuleOptions
+  options: LoadRemoteModuleOptions,
 ): Promise<T>;
 export async function loadRemoteModule<T = any>(
   optionsOrRemoteName: LoadRemoteModuleOptions<T> | string,
-  exposedModule?: string
+  exposedModule?: string,
 ): Promise<T> {
   const options = normalize(optionsOrRemoteName, exposedModule);
 
@@ -51,7 +51,7 @@ export async function loadRemoteModule<T = any>(
 
 function normalize<T>(
   optionsOrRemoteName: LoadRemoteModuleOptions<T> | string,
-  exposedModule?: string
+  exposedModule?: string,
 ): LoadRemoteModuleOptions<T> {
   if (typeof optionsOrRemoteName === 'string') {
     return {

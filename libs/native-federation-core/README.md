@@ -144,13 +144,12 @@ The method `federationBuilder.build` bundles the shared and exposed parts of you
 
 The `withNativeFederation` function sets up a configuration for your applications. This is an example configuration for a host:
 
+The `shareAll` helper shares all your dependencies defined in your `package.json`. The `package.json` is look up as described above:
+
 ```typescript
 // shell/federation.config.js
 
-const {
-  withNativeFederation,
-  shareAll,
-} = require('@softarc/native-federation/build');
+const { withNativeFederation, shareAll } = require('@softarc/native-federation/build');
 
 module.exports = withNativeFederation({
   name: 'host',
@@ -164,6 +163,152 @@ module.exports = withNativeFederation({
     }),
   },
 });
+```
+
+The options passed to shareAll are applied to all dependencies found in your `package.json`.
+
+This might come in handy in an mono repo scenario and when doing some experiments/ trouble shooting.
+
+> Since v21.1 it's also possible to add overrides to the shareAll for specific packages.
+
+```typescript
+// shell/federation.config.js
+
+const { withNativeFederation, shareAll } = require('@softarc/native-federation/build');
+
+module.exports = withNativeFederation({
+  name: 'host',
+
+  shared: {
+    ...shareAll(
+      {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+      },
+      {
+        overrides: {
+          'package-a/themes/xyz': {
+            singleton: true,
+            strictVersion: true,
+            requiredVersion: 'auto',
+            includeSecondaries: { skip: '@package-a/themes/xyz/*' },
+            build: 'package',
+          },
+          'package-b': {
+            singleton: false,
+            strictVersion: true,
+            requiredVersion: 'auto',
+            includeSecondaries: { skip: 'package-b/icons/*' },
+            build: 'package',
+          },
+        },
+      },
+    ),
+  },
+});
+```
+
+### Share Helper
+
+The helper function share adds some additional options for the shared dependencies:
+
+```typescript
+shared: share({
+    "package-a": {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+        includeSecondaries: true
+    },
+    [...]
+})
+```
+
+The added options are `requireVersion: 'auto'` and `includeSecondaries`.
+
+#### requireVersion: 'auto'
+
+If you set `requireVersion` to `'auto'`, the helper takes the version defined in your `package.json`.
+
+This helps to solve issues with not (fully) met peer dependencies and secondary entry points (see Pitfalls section below).
+
+By default, it takes the `package.json` that is closest to the caller (normally the `webpack.config.js`). However, you can pass the path to an other `package.json` using the second optional parameter. Also, you need to define the shared libray within the node dependencies in your `package.json`.
+
+Instead of setting requireVersion to auto time and again, you can also skip this option and call `setInferVersion(true)` before:
+
+```typescript
+setInferVersion(true);
+```
+
+#### includeSecondaries
+
+If set to `true`, all secondary entry points are added too. In the case of `@angular/common` this is also `@angular/common/http`, `@angular/common/http/testing`, `@angular/common/testing`, `@angular/common/http/upgrade`, and `@angular/common/locales`. This exhaustive list shows that using this option for `@angular/common` is not the best idea because normally, you don't need most of them.
+
+> `includeSecondaries` is true by default.
+
+However, this option can come in handy for quick experiments or if you want to quickly share a package like `@angular/material` that comes with a myriad of secondary entry points.
+
+Even if you share too much, Native Federation will only load the needed ones at runtime. However, please keep in mind that shared packages can not be tree-shaken.
+
+To skip some secondary entry points, you can assign a configuration option instead of `true`:
+
+```typescript
+shared: share({
+    "@angular/common": {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: 'auto',
+        includeSecondaries: {
+            skip: ['@angular/common/http/testing']
+        }
+    },
+    [...]
+})
+```
+
+### includeSecondaries
+
+Since v21 it's also possible to resolve Glob exports by enabling the `globResolve` property:
+
+```typescript
+shared: share({
+      "package-a": {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: "auto",
+        includeSecondaries: {resolveGlob: true}
+      },
+    [...]
+})
+```
+
+This is disabled by default since it will create a bundle of every valid exported file it finds, **Only use this feature in combination with `ignoreUnusedDeps` flag**. If you want to specifically skip certain parts of the glob export, you can also use the wildcard in the skip section:
+
+```typescript
+shared: share({
+      "package-a/themes/xyz": {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: "auto",
+        includeSecondaries: {skip: "package-a/themes/xyz/*", resolveGlob: true}
+      },
+    [...]
+})
+```
+
+Finally, it's also possible to break out of the "removeUnusedDep" for a specific external if desired, for example when sharing a whole suite of external modules. This can be handy when you want to avoid the chance of cross-version secondary entrypoints being used by the different micro frontends. E.g. mfe1 uses @angular/core v20.1.0 and mfe2 uses @angular/core/rxjs-interop v20.0.8, then you might want to use consistent use of v20.1.0 so rxjs-interop should be exported by mfe1. The "keepAll" prop allows you to enforce this:
+
+```typescript
+shared: share({
+      "@angular/core": {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: "auto",
+        includeSecondaries: {keepAll: true}
+      },
+    [...]
+})
 ```
 
 The API for configuring and using Native Federation is very similar to the one provided by our Module Federation plugin [@angular-architects/module-federation](https://www.npmjs.com/package/@angular-architects/native-federation). Hence, most the articles on it are also valid for Native Federation.
@@ -209,10 +354,7 @@ If you don't want to share (all of) them, put their names into the skip array (s
 When configuring a remote, you can expose files that can be loaded into the shell at runtime:
 
 ```javascript
-const {
-  withNativeFederation,
-  shareAll,
-} = require('@softarc/native-federation/build');
+const { withNativeFederation, shareAll } = require('@softarc/native-federation/build');
 
 module.exports = withNativeFederation({
   name: 'mfe1',

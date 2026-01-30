@@ -34,6 +34,25 @@
       "options": {
         "command": "node tools/scripts/publish.mjs native-federation-runtime verdaccio {args.ver}"
       }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/libs/native-federation-runtime",
+        "configFile": "libs/native-federation-runtime/vitest.config.mts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/native-federation-runtime/**/*.ts",
+          "libs/native-federation-runtime/package.json"
+        ]
+      }
     }
   },
   "tags": ["org:softarc", "scope:nf"]
