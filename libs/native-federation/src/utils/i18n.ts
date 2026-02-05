@@ -78,14 +78,9 @@ export async function translateFederationArtefacts(
 
   const translationOutPath = path.join(outputPath, 'browser', '{{LOCALE}}');
 
-  const federationFiles = [
-    ...federationResult.shared.map((s) => s.outFileName),
-    ...federationResult.exposes.map((e) => e.outFileName),
-  ];
-
-  // Here, we use a glob with an exhaustive list i/o `"*.js"`
-  // to improve performance
-  const sourcePattern = '{' + federationFiles.join(',') + '}';
+  // Use *.js to translate ALL JS files, including lazy-loaded chunks
+  // that may contain $localize markers from exposed modules
+  const sourcePattern = '*.js';
 
   const sourceLocalePath = path.join(outputPath, 'browser', sourceLocale);
 
@@ -93,7 +88,8 @@ export async function translateFederationArtefacts(
     'node_modules/.bin/localize-translate',
   );
 
-  const cmd = `${localizeTranslate} -r ${sourceLocalePath} -s "${sourcePattern}" -t ${translationFiles} -o ${translationOutPath} --target-locales ${targetLocales} -l ${sourceLocale}`;
+  // Quote paths to handle spaces (Windows compatibility)
+  const cmd = `"${localizeTranslate}" -r "${sourceLocalePath}" -s "${sourcePattern}" -t ${translationFiles} -o "${translationOutPath}" --target-locales ${targetLocales} -l ${sourceLocale}`;
 
   ensureDistFolders(locales, outputPath);
   copyRemoteEntry(locales, outputPath, sourceLocalePath);
