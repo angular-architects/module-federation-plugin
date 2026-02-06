@@ -17,6 +17,7 @@ import { logger } from '../utils/logger';
 import { getCachePath } from './../utils/bundle-caching';
 import { normalizePackageName } from '../utils/normalize';
 import { AbortedError } from '../utils/errors';
+import { resolveProjectName } from '../utils/config-utils';
 
 export interface BuildParams {
   skipMappingsAndExposed: boolean;
@@ -64,15 +65,7 @@ export async function buildForFederation(
     ? describeExposed(config, fedOptions)
     : artefactInfo.exposes;
 
-  const normalizedCacheFolder = normalizePackageName(config.name);
-  if (normalizedCacheFolder.length < 1) {
-    logger.warn(
-      "Project name in 'federation.config.js' is empty, defaulting to 'shell' cache folder (could collide with other projects in the workspace).",
-    );
-  }
-  const cacheProjectFolder =
-    normalizedCacheFolder.length < 1 ? 'shell' : normalizedCacheFolder;
-
+  const cacheProjectFolder = resolveProjectName(config);
   const pathToCache = getCachePath(
     fedOptions.workspaceRoot,
     cacheProjectFolder,
