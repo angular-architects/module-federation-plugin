@@ -24,6 +24,7 @@ export function removeUnusedDeps(
   const usedPackageNamesWithTransient = addTransientDeps(
     usedPackageNames,
     workspaceRoot,
+    config.name
   );
   const filteredShared = filterShared(config, usedPackageNamesWithTransient);
 
@@ -82,7 +83,7 @@ function findUsedDeps(
   return { usedPackageNames, usedMappings };
 }
 
-function addTransientDeps(packages: Set<string>, workspaceRoot: string) {
+function addTransientDeps(packages: Set<string>, workspaceRoot: string, configName: string) {
   const packagesAndPeers = new Set<string>([...packages]);
   const discovered = new Set<string>(packagesAndPeers);
   const stack = [...packagesAndPeers];
@@ -100,7 +101,7 @@ function addTransientDeps(packages: Set<string>, workspaceRoot: string) {
       continue;
     }
 
-    const peerDeps = getExternalImports(pInfo, workspaceRoot);
+    const peerDeps = getExternalImports(pInfo, workspaceRoot, configName);
 
     for (const peerDep of peerDeps) {
       if (!discovered.has(peerDep)) {
@@ -113,12 +114,13 @@ function addTransientDeps(packages: Set<string>, workspaceRoot: string) {
   return packagesAndPeers;
 }
 
-function getExternalImports(pInfo: PackageInfo, workspaceRoot: string) {
+function getExternalImports(pInfo: PackageInfo, workspaceRoot: string, configName: string) {
   const encodedPackageName = normalizePackageName(pInfo.packageName);
   const cacheFileName = `${encodedPackageName}-${pInfo.version}.deps.json`;
   const cachePath = path.join(
     workspaceRoot,
     'node_modules/.cache/native-federation/_externals-metadata',
+    configName
   );
   const cacheFilePath = path.join(cachePath, cacheFileName);
 
