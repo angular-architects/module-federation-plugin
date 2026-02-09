@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/native-federation",
-  "version": "21.1.0",
+  "version": "20.3.1",
   "main": "src/index.js",
   "generators": "./collection.json",
   "builders": "./builders.json",
@@ -23,6 +23,8 @@
     "@softarc/native-federation": "^3.5.1",
     "@softarc/native-federation-runtime": "^3.5.1",
     "@chialab/esbuild-plugin-commonjs": "^0.19.0",
+    "@angular/build": "^20.3.0",
+    "@angular-devkit/build-angular": "^20.3.0",
     "esbuild": "^0.25.1",
     "mrmime": "^1.0.1",
     "signale": "^1.4.0",
