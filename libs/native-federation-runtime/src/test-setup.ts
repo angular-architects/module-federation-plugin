@@ -1,2 +1,2 @@
-import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
-setupZoneTestEnv();
+// Vitest setup file
+// Add any global test setup here if needed
