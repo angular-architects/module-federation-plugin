@@ -26,7 +26,7 @@ export function removeUnusedDeps(
   const usedPackageNamesWithTransient = addTransientDeps(
     usedPackageNames,
     workspaceRoot,
-    projectName
+    projectName,
   );
   const filteredShared = filterShared(config, usedPackageNamesWithTransient);
 
@@ -85,7 +85,11 @@ function findUsedDeps(
   return { usedPackageNames, usedMappings };
 }
 
-function addTransientDeps(packages: Set<string>, workspaceRoot: string, projectName: string) {
+function addTransientDeps(
+  packages: Set<string>,
+  workspaceRoot: string,
+  projectName: string,
+) {
   const packagesAndPeers = new Set<string>([...packages]);
   const discovered = new Set<string>(packagesAndPeers);
   const stack = [...packagesAndPeers];
@@ -116,13 +120,17 @@ function addTransientDeps(packages: Set<string>, workspaceRoot: string, projectN
   return packagesAndPeers;
 }
 
-function getExternalImports(pInfo: PackageInfo, workspaceRoot: string, projectName: string) {
+function getExternalImports(
+  pInfo: PackageInfo,
+  workspaceRoot: string,
+  projectName: string,
+) {
   const encodedPackageName = normalizePackageName(pInfo.packageName);
   const cacheFileName = `${encodedPackageName}-${pInfo.version}.deps.json`;
   const cachePath = path.join(
     workspaceRoot,
     'node_modules/.cache/native-federation/_externals-metadata',
-    projectName
+    projectName,
   );
   const cacheFilePath = path.join(cachePath, cacheFileName);
 
