@@ -71,6 +71,7 @@ export async function translateFederationArtifacts(
   const federationFiles = [
     ...federationResult.shared.map(s => s.outFileName),
     ...federationResult.exposes.map(e => e.outFileName),
+    ...Object.values(federationResult.chunks ?? {}).flat(),
   ];
 
   // Here, we use a glob with an exhaustive list i/o `"*.js"`
@@ -81,7 +82,7 @@ export async function translateFederationArtifacts(
 
   const localizeTranslate = path.resolve('node_modules/.bin/localize-translate');
 
-  const cmd = `${localizeTranslate} -r ${sourceLocalePath} -s "${sourcePattern}" -t ${translationFiles} -o ${translationOutPath} --target-locales ${targetLocales} -l ${sourceLocale}`;
+  const cmd = `"${localizeTranslate}" -r "${sourceLocalePath}" -s "${sourcePattern}" -t ${translationFiles} -o "${translationOutPath}" --target-locales ${targetLocales} -l ${sourceLocale}`;
 
   ensureDistFolders(locales, outputPath);
   copyRemoteEntry(locales, outputPath, sourceLocalePath);
