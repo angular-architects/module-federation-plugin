@@ -19,12 +19,12 @@ describe('watch-federation-build', () => {
       onmessage: null,
       onerror: null,
     };
-    
+
     // Create a proper constructor function for EventSource
-    const EventSourceMock = vi.fn(function(this: any) {
+    const EventSourceMock = vi.fn(function (this: any) {
       return eventSourceInstance;
     });
-    
+
     vi.stubGlobal('EventSource', EventSourceMock);
   });
 
