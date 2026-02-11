@@ -38,6 +38,10 @@ import { watchFederationBuildCompletion } from './watch-federation-build';
  * @param options - Configuration options:
  *   - cacheTag: A version string to append as query param for cache busting
  *     Example: { cacheTag: 'v1.0.0' } results in '?t=v1.0.0' on all requests
+ *   - deployUrl: Base URL where the host's remoteEntry.json and bundles are located
+ *     This is used to construct the URL for the host's remoteEntry.json and shared dependencies.
+ *     Default is './' relative to the current page. If your host's remoteEntry.json is at a different location, specify it here.
+ *     Example: { deployUrl: 'https://example.com' } results in 'https://example.com/remoteEntry.json'
  *
  * @returns The final merged ImportMap that was injected into the DOM
  *
@@ -53,9 +57,13 @@ export async function initFederation(
       ? await loadManifest(remotesOrManifestUrl + cacheTag)
       : remotesOrManifestUrl;
 
-  const hostInfo = await loadFederationInfo(`./remoteEntry.json${cacheTag}`);
+  const deployUrl = options?.deployUrl ? `${options.deployUrl}/` : './';
 
-  const hostImportMap = await processHostInfo(hostInfo);
+  const hostInfo = await loadFederationInfo(
+    `${deployUrl}remoteEntry.json${cacheTag}`,
+  );
+
+  const hostImportMap = await processHostInfo(hostInfo, deployUrl);
 
   // Host application is fully loaded, now we can process the remotes
 
