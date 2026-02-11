@@ -2,6 +2,19 @@
 
 The goal of this small guide is to show the major differences between Native federation v3 and v4. This guide is only for people who want to mess around with the **beta** release, and it expects a (monorepo) setup that contains 1 or multiple Angular micro frontends.
 
+The migration involves changing 4 files:
+
+```
+📁 /
+├── 📄 package.json                     // Enabling ESM
+├── 📄 angular.json                     // Switching to the v4 builder
+└── 📁 projects/
+    └── 📁 <your-project>/
+        ├── 📄 federation.config.json   // Switching from commonJS to ESM
+        └── 📁 src/
+            └── 📄 main.ts              // optionally: switching to the orchestrator
+```
+
 ## 0. Removing cache
 
 Just to be sure, delete these folders to avoid corrupted caches:
@@ -81,8 +94,10 @@ module.exports = withNativeFederation({
 **After:**
 
 ```javascript
+// Our well-known ESM importing types
 import { withNativeFederation, shareAll } from '@softarc/native-federation/config';
 
+// change this line to the default export.
 export default withNativeFederation({
   name: 'team/mfe1',
 
@@ -122,6 +137,47 @@ export default withNativeFederation({
   },
 });
 ```
+
+## 3. Updating the angular.json
+
+In the new version we're moving to an opt-in setup where the user (you) can customize and choose whatever features you prefer! All these options will be defined in the angular.json:
+
+```json
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "mfe1": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/mfe1",
+      "sourceRoot": "projects/mfe1/src",
+      "prefix": "app",
+      "architect": {
+        "serve": {
+          // Of course, make sure you're using the v4 builder if not already!  (for "serve" and "build")
+          "builder": "@angular-architects/native-federation-v4:build",
+          "options": {
+            "target": "mfe1:serve-original:development",
+            "cacheExternalArtifacts": true, // Cache and re-use external bundled artifacts that don't change (e.g. RxJs) across builds
+            "rebuildDelay": 500, // Allows for a grace period between builds when you develop; within this period it can cancel previous builds to save time (500/1000 is good)
+            "chunks": { "enable": true, "dense": true }, // Enabling code splitting. The default is true, but dense mode is opt-in (so false by default).
+            "dev": true,
+            "port": 0
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Dense mode is something new in v4 that is experimental! Read more about it here: https://github.com/native-federation/native-federation-core/issues/5
 
 And that's it! Your micro frontend is migrated to the new major! We do have some optional improvements that can be nice:
 
@@ -164,7 +220,7 @@ initFederation(manifest)
   .catch(err => console.error(err));
 ```
 
-Not a lot of changes, right? Sure, now you need to explicitly define the location of the manifest (or the object), but for the rest it's basically the same!
+Not a lot of changes right? Sure, now you need to explicitly define the location of the manifest (or the object), but for the rest it's basically the same!
 
 Now, the big difference is that the new orchestrator is a _lot_ more customizable:
 
@@ -264,47 +320,6 @@ export const appConfig = (loadRemoteModule: LoadRemoteModule): ApplicationConfig
 ```
 
 While this does create a bit more boilerplate and complexity, the nice benefit is a controlled flow in which the loadRemoteModule is only available after federation is initialized.
-
-## Updating the angular.json
-
-In the new version we're moving to an opt-in setup where the user (you) can customize and choose whatever features you prefer! All these options will be defined in the angular.json:
-
-```json
-{
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "newProjectRoot": "projects",
-  "projects": {
-    "mfe1": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "projects/mfe1",
-      "sourceRoot": "projects/mfe1/src",
-      "prefix": "app",
-      "architect": {
-        "serve": {
-          // Of course, make sure you're using the v4 builder if not already!  (for "serve" and "build")
-          "builder": "@angular-architects/native-federation-v4:build",
-          "options": {
-            "target": "mfe1:serve-original:development",
-            "cacheExternalArtifacts": true, // Cache and re-use external bundled artifacts that don't change (e.g. RxJs) across builds
-            "rebuildDelay": 500, // Allows for a grace period between builds when you develop; within this period it can cancel previous builds to save time (500/1000 is good)
-            "chunks": { "enable": true, "dense": true }, // Enabling code splitting. The default is true, but dense mode is opt-in (so false by default).
-            "dev": true,
-            "port": 0
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-Dense mode is something new in v4 that is experimental! Read more about it here: https://github.com/native-federation/native-federation-core/issues/5
 
 ## That's it
 
