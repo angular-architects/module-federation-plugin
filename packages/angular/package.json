@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/native-federation-v4",
-  "version": "21.1.2",
+  "version": "21.1.4",
   "generators": "./collection.json",
   "builders": "./builders.json",
   "schematics": "./collection.json",
@@ -10,8 +10,8 @@
     "url": "http://www.angulararchitects.io"
   },
   "dependencies": {
-    "@softarc/native-federation": "4.0.0-RC3",
-    "@softarc/native-federation-runtime": "4.0.0-RC3",
+    "@softarc/native-federation": "4.0.0-RC5",
+    "@softarc/native-federation-runtime": "4.0.0-RC5",
     "@angular-devkit/architect": "^0.2101.2",
     "@angular-devkit/build-angular": "^21.1.2",
     "@angular-devkit/core": "^21.1.2",

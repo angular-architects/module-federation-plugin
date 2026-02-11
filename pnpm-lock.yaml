@@ -37,8 +37,8 @@ importers:
         specifier: ^21.1.2
         version: 21.1.2(chokidar@5.0.0)
       '@softarc/native-federation':
-        specifier: 4.0.0-RC3
-        version: 4.0.0-RC3(typescript@5.9.3)
+        specifier: 4.0.0-RC4
+        version: 4.0.0-RC4(typescript@5.9.3)
       '@types/babel__core':
         specifier: ^7.20.5
         version: 7.20.5
@@ -173,11 +173,11 @@ importers:
         specifier: ^0.19.0
         version: 0.19.0
       '@softarc/native-federation':
-        specifier: 4.0.0-RC3
-        version: 4.0.0-RC3(typescript@5.9.3)
+        specifier: 4.0.0-RC5
+        version: 4.0.0-RC5(typescript@5.9.3)
       '@softarc/native-federation-runtime':
-        specifier: 4.0.0-RC3
-        version: 4.0.0-RC3(typescript@5.9.3)
+        specifier: 4.0.0-RC5
+        version: 4.0.0-RC5(typescript@5.9.3)
 
 packages:
 
@@ -2247,11 +2247,14 @@ packages:
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
 
-  '@softarc/native-federation-runtime@4.0.0-RC3':
-    resolution: {integrity: sha512-6wXB6oxfEd3EBkV+0ImUTzdfpor25s2GmXlk0iSRX/xKbI0BUI3idKFWR8pSym762MJ+pqkfqfUgMzzYuK6r6A==}
+  '@softarc/native-federation-runtime@4.0.0-RC5':
+    resolution: {integrity: sha512-p3kk7+zegECTExpw7ocFfWGYyIgtYSeZ2kiOR5PqUxVb1+G8zHNg8UxIsmiycXn4U7dxCDhesDp7/XJEQ107VA==}
 
-  '@softarc/native-federation@4.0.0-RC3':
-    resolution: {integrity: sha512-G7A/bZd4+Ic4dlhDjkaaainCVQWShbIvgSbGPM/U3R75eTU5y1IBQVRVMsaBi08yVEk0Iue6pbJA/QNRvCoY3w==}
+  '@softarc/native-federation@4.0.0-RC4':
+    resolution: {integrity: sha512-7opJ2Fzhi2mMKcbHbCQEbhC1ToWuSiY/8O3E1hGTMxMuHyJVSKAFraFCOJ81YEK2Z/PYFI5tGnAFFsnqX4ixAw==}
+
+  '@softarc/native-federation@4.0.0-RC5':
+    resolution: {integrity: sha512-pEIqrYuzoWKJaCp7YsZaWTAgDLLBlUf0+y3ThJvYYbJ4Q0iNWrj/nHIKM9s8rW7mOpHITdchpXHxnaXxj7rKuw==}
 
   '@softarc/sheriff-core@0.19.6':
     resolution: {integrity: sha512-KACxHG9sS7kNWgnnBODzdr14kMLMrJVlQKc+tViUP03p2fRwNhESOA49bz51Yn7dro1mbtMmmFjICLmZSJDZZA==}
@@ -8603,13 +8606,23 @@ snapshots:
 
   '@sindresorhus/is@4.6.0': {}
 
-  '@softarc/native-federation-runtime@4.0.0-RC3(typescript@5.9.3)':
+  '@softarc/native-federation-runtime@4.0.0-RC5(typescript@5.9.3)':
     dependencies:
-      '@softarc/native-federation': 4.0.0-RC3(typescript@5.9.3)
+      '@softarc/native-federation': 4.0.0-RC5(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
-  '@softarc/native-federation@4.0.0-RC3(typescript@5.9.3)':
+  '@softarc/native-federation@4.0.0-RC4(typescript@5.9.3)':
+    dependencies:
+      '@softarc/sheriff-core': 0.19.6(typescript@5.9.3)
+      chalk: 5.6.2
+      esbuild: 0.27.2
+      fast-glob: 3.3.3
+      json5: 2.2.3
+    transitivePeerDependencies:
+      - typescript
+
+  '@softarc/native-federation@4.0.0-RC5(typescript@5.9.3)':
     dependencies:
       '@softarc/sheriff-core': 0.19.6(typescript@5.9.3)
       chalk: 5.6.2
