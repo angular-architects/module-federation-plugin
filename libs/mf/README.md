@@ -467,7 +467,7 @@ However, some schematics (e. g. `ng add @angular/material` or `@angular/pwa`) as
 ```
 ng g @angular-architects/module-federation:boot-async false --project yourProject
 
-ng add your-libraries-of-chioce --project yourProject
+ng add your-libraries-of-choice --project yourProject
 
 ng g @angular-architects/module-federation:boot-async true --project yourProject
 ```
