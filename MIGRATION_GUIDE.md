@@ -1,10 +1,10 @@
 # Migration guide
 
-The goal of this small guide is to show the major differences between Native federation v3 and v4. This guide is only for people who want to mess around with the **beta** release and expects a (monorepo) setup that contains 1 or multiple Angular micro frontends.
+The goal of this small guide is to show the major differences between Native federation v3 and v4. This guide is only for people who want to mess around with the **beta** release, and it expects a (monorepo) setup that contains 1 or multiple Angular micro frontends.
 
 ## 0. Removing cache
 
-Just to be sure, make sure to delete these folders to avoid corrupted caches:
+Just to be sure, delete these folders to avoid corrupted caches:
 
 ```
 📁 /
@@ -41,7 +41,7 @@ The first step is to update the `package.json` to install the new packages:
 
 ## 2. Updating the federation.config.js
 
-The `federation.config.js` contains all native-federation related configuration. You don't really need to change it, except for the format. It used to be commonjs and has been changed to ESM as well for consistency:
+The `federation.config.js` contains all native-federation related configuration. You don't really need to change it, except for the format. It used to be CommonJS and has been changed to ESM as well for consistency:
 
 **Before:**
 
@@ -123,7 +123,7 @@ export default withNativeFederation({
 });
 ```
 
-And that's it! Your micro frontend is migrated to the new Major! We do have some optional improvements that can be nice:
+And that's it! Your micro frontend is migrated to the new major! We do have some optional improvements that can be nice:
 
 ## Optional: using the orchestrator instead
 
@@ -149,7 +149,7 @@ initFederation()
   .catch(err => console.error(err));
 ```
 
-Now, this is the legacy runtime that did the job. But it lacks some modern features like dependency sharing based on a range, shareScopes, in-browser caching etc etc. That's why from now on we recommend the orchestrator!
+The runtime you see here is the "legacy runtime" that did the job. But it lacks some modern features like dependency sharing based on a range, shareScopes, in-browser caching etc etc. That's why from now on we recommend the orchestrator!
 
 ```javascript
 import { initFederation, NativeFederationResult } from '@softarc/native-federation-orchestrator';
@@ -164,7 +164,7 @@ initFederation(manifest)
   .catch(err => console.error(err));
 ```
 
-Not a lot of changes right? Sure, now you need to explicitly define the location of the manifest (or the object) but for the rest it's basically the same!
+Not a lot of changes, right? Sure, now you need to explicitly define the location of the manifest (or the object), but for the rest it's basically the same!
 
 Now, the big difference is that the new orchestrator is a _lot_ more customizable:
 
@@ -192,13 +192,13 @@ initFederation(manifest, {
   .catch(err => console.error(err));
 ```
 
-You see that? now you can choose which logger you want, if you want to use the "shimImportMap" instead of the browser-native importmap (spoiler alert: 90% chance you do).
+You see that? Now you can choose which logger you want, and if you want to use the "shimImportMap" instead of the browser-native importmap (spoiler alert: 90% chance you do).
 
-There is a nice list of all the options you can choose from in the docs: https://github.com/native-federation/orchestrator/blob/main/docs/config.md
+There's a nice list of all the options you can choose from in the docs: https://github.com/native-federation/orchestrator/blob/main/docs/config.md
 
 ### We've reworked the loadRemoteModule function
 
-The biggest change is that now, the loadRemoteModule is provided by the initFederation. So it's not an global export anymore. That does mean that you now need to pass it around your micro frontends:
+The biggest change is that now, the loadRemoteModule is provided by initFederation. So it's not a global export anymore. That does mean that you now need to pass it around your micro frontends:
 
 **(host) main.ts**
 
@@ -216,7 +216,7 @@ initFederation(manifest)
   .catch(err => console.error(err));
 ```
 
-Now you can setup a bootstrap.ts that exposes a method "bootstrap" that accepts this function.
+Now you can set up a bootstrap.ts that exposes a method "bootstrap" that accepts this function.
 
 **(mfe1) bootstrap.ts**
 
@@ -263,7 +263,7 @@ export const appConfig = (loadRemoteModule: LoadRemoteModule): ApplicationConfig
 });
 ```
 
-While this does create a bit more boilercode and complexity, the nice benefit is a controlled flow in which the loadRemoteModule is only available after federation is initialized.
+While this does create a bit more boilerplate and complexity, the nice benefit is a controlled flow in which the loadRemoteModule is only available after federation is initialized.
 
 ## Updating the angular.json
 
@@ -291,9 +291,9 @@ In the new version we're moving to an opt-in setup where the user (you) can cust
           "builder": "@angular-architects/native-federation-v4:build",
           "options": {
             "target": "mfe1:serve-original:development",
-            "cacheExternalArtifacts": true, // Cache and re-use external bundled artifacts that dont change (e.g. RxJs) across builds
-            "rebuildDelay": 500, // Allows for a grace period between builds when you develop, within this period it can cancel previous builds to save time (500/1000 is good)
-            "chunks": { "enable": true, "dense": true }, // Enabling Code splitting. The default is true, but dense mode is opt-in (so false by default).
+            "cacheExternalArtifacts": true, // Cache and re-use external bundled artifacts that don't change (e.g. RxJs) across builds
+            "rebuildDelay": 500, // Allows for a grace period between builds when you develop; within this period it can cancel previous builds to save time (500/1000 is good)
+            "chunks": { "enable": true, "dense": true }, // Enabling code splitting. The default is true, but dense mode is opt-in (so false by default).
             "dev": true,
             "port": 0
           }
@@ -304,10 +304,10 @@ In the new version we're moving to an opt-in setup where the user (you) can cust
 }
 ```
 
-Dense mode is something new from v4 that is experimental! Read more about it here: https://github.com/native-federation/native-federation-core/issues/5
+Dense mode is something new in v4 that is experimental! Read more about it here: https://github.com/native-federation/native-federation-core/issues/5
 
 ## That's it
 
-We've been scratching the surface here! but these are the essentials to migrate your codebase to the new Major!
+We've been scratching the surface here, but these are the essentials to migrate your codebase to the new major!
 
-Feel free to open an issue if you come across any issues or if we've missed anything.
+Feel free to open an issue if you come across any problems or if we've missed anything.
