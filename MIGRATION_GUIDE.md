@@ -2,6 +2,18 @@
 
 The goal of this small guide is to show the major differences between Native federation v3 and v4. This guide is only for people who want to mess around with the **beta** release and expects a (monorepo) setup that contains 1 or multiple Angular micro frontends.
 
+## 0. Removing cache
+
+Just to be sure, make sure to delete these folders to avoid corrupted caches:
+
+```
+📁 /
+├── 📁 .angular/            // Angular cache
+├── 📁 dist/                // Previously bundled artifacts
+└── 📁 node_modules/
+    └── 📁 .cache/          // Native federation cache
+```
+
 ## 1. Updating the package.json
 
 The first step is to update the `package.json` to install the new packages:
@@ -156,11 +168,8 @@ Not a lot of changes right? Sure, now you need to explicitly define the location
 
 Now, the big difference is that the new orchestrator is a _lot_ more customizable:
 
-```
-import {
-  initFederation,
-  NativeFederationResult,
-} from '@softarc/native-federation-orchestrator';
+```javascript
+import { initFederation, NativeFederationResult } from '@softarc/native-federation-orchestrator';
 import {
   useShimImportMap,
   consoleLogger,
@@ -177,14 +186,128 @@ initFederation(manifest, {
   storage: globalThisStorageEntry,
   hostRemoteEntry: './remoteEntry.json',
   logLevel: 'debug',
-  profile: {
-    latestSharedExternal: false,
-    overrideCachedRemotesIfURLMatches: true,
-  },
 })
-  .catch((err) => console.error(err))
-  .then((_) => import('./bootstrap'))
-  .catch((err) => console.error(err));
+  .catch(err => console.error(err))
+  .then(_ => import('./bootstrap'))
+  .catch(err => console.error(err));
 ```
 
-You see that? now you can choose which logger you want, if you want to use the "shimImportMap" instead of the browser-native importmap (spoiler alert: 90% chance you do). There is a nice list of all the options you can choose from right here: https://github.com/native-federation/orchestrator/blob/main/docs/config.md
+You see that? now you can choose which logger you want, if you want to use the "shimImportMap" instead of the browser-native importmap (spoiler alert: 90% chance you do).
+
+There is a nice list of all the options you can choose from in the docs: https://github.com/native-federation/orchestrator/blob/main/docs/config.md
+
+### We've reworked the loadRemoteModule function
+
+The biggest change is that now, the loadRemoteModule is provided by the initFederation. So it's not an global export anymore. That does mean that you now need to pass it around your micro frontends:
+
+**(host) main.ts**
+
+```javascript
+import { initFederation, NativeFederationResult } from '@softarc/native-federation-orchestrator';
+
+const manifest = {
+  mfe1: 'http://localhost:4201/remoteEntry.json',
+};
+
+initFederation(manifest)
+  .then(({ loadRemoteModule }: NativeFederationResult) => {
+    return import('./bootstrap').then((m: any) => m.bootstrap(loadRemoteModule));
+  })
+  .catch(err => console.error(err));
+```
+
+Now you can setup a bootstrap.ts that exposes a method "bootstrap" that accepts this function.
+
+**(mfe1) bootstrap.ts**
+
+```javascript
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { AppComponent } from './app/app.component';
+import { LoadRemoteModule } from '@softarc/native-federation-orchestrator';
+
+export const bootstrap = (loadRemoteModule: LoadRemoteModule) =>
+  bootstrapApplication(AppComponent, appConfig(loadRemoteModule)).catch(err => console.error(err));
+```
+
+And ofcourse the **app.config.ts:**
+
+```javascript
+import {
+  ApplicationConfig,
+  InjectionToken,
+  provideZonelessChangeDetection,
+} from '@angular/core';
+import { provideRouter, Routes } from '@angular/router';
+import { LoadRemoteModule, NativeFederationResult } from '@softarc/native-federation-orchestrator';
+
+export const MODULE_LOADER = new InjectionToken<LoadRemoteModule>(
+  'loader',
+);
+
+const routes = (loadRemoteModule: LoadRemoteModule): Routes => [
+  {
+    path: 'mfe3',
+    loadComponent: () =>
+      loadRemoteModule('mfe3', './Component')
+        .then((m:any) => m.AppComponent),
+  }
+];
+
+export const appConfig = (loadRemoteModule: LoadRemoteModule): ApplicationConfig => ({
+  providers: [
+    { provide: MODULE_LOADER, useValue: loadRemoteModule },
+    provideZonelessChangeDetection(),
+    provideRouter(routes(loadRemoteModule)),
+  ],
+});
+```
+
+While this does create a bit more boilercode and complexity, the nice benefit is a controlled flow in which the loadRemoteModule is only available after federation is initialized.
+
+## Updating the angular.json
+
+In the new version we're moving to an opt-in setup where the user (you) can customize and choose whatever features you prefer! All these options will be defined in the angular.json:
+
+```json
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "mfe1": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/mfe1",
+      "sourceRoot": "projects/mfe1/src",
+      "prefix": "app",
+      "architect": {
+        "serve": {
+          // Of course, make sure you're using the v4 builder if not already!  (for "serve" and "build")
+          "builder": "@angular-architects/native-federation-v4:build",
+          "options": {
+            "target": "mfe1:serve-original:development",
+            "cacheExternalArtifacts": true, // Cache and re-use external bundled artifacts that dont change (e.g. RxJs) across builds
+            "rebuildDelay": 500, // Allows for a grace period between builds when you develop, within this period it can cancel previous builds to save time (500/1000 is good)
+            "chunks": { "enable": true, "dense": true }, // Enabling Code splitting. The default is true, but dense mode is opt-in (so false by default).
+            "dev": true,
+            "port": 0
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Dense mode is something new from v4 that is experimental! Read more about it here: https://github.com/native-federation/native-federation-core/issues/5
+
+## That's it
+
+We've been scratching the surface here! but these are the essentials to migrate your codebase to the new Major!
+
+Feel free to open an issue if you come across any issues or if we've missed anything.
