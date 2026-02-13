@@ -157,14 +157,6 @@ export default function config(options: MfSchematicSchema): Rule {
     });
 
     addPackageJsonDependency(tree, {
-      name: '@angular-devkit/build-angular',
-      type: NodeDependencyType.Dev,
-      version:
-        getPackageJsonDependency(tree, '@angular/build')?.version || 'latest',
-      overwrite: false,
-    });
-
-    addPackageJsonDependency(tree, {
       name: 'es-module-shims',
       type: NodeDependencyType.Default,
       version: '^1.5.12',
