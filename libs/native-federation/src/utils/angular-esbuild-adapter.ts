@@ -18,10 +18,8 @@ import {
 import { createCompilerPluginOptions } from './create-compiler-options';
 import { BuilderContext } from '@angular-devkit/architect';
 
-import {
-  normalizeOptimization,
-  normalizeSourceMaps,
-} from '@angular/build/src/utils';
+import { normalizeOptimization } from '@angular/build/src/utils/normalize-optimization';
+import { normalizeSourceMaps } from '@angular/build/src/utils/normalize-source-maps';
 import { createRequire } from 'node:module';
 
 import { ApplicationBuilderOptions } from '@angular/build';

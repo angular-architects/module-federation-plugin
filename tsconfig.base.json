@@ -58,7 +58,8 @@
       "@angular/build/src/builders/dev-server/schema": [
         "node_modules/@angular/build/src/builders/dev-server/schema"
       ],
-      "@angular/build/src/utils": ["node_modules/@angular/build/src/utils"]
+      "@angular/build/src/utils/normalize-optimization": ["node_modules/@angular/build/src/utils/normalize-optimization"],
+      "@angular/build/src/utils/normalize-source-maps": ["node_modules/@angular/build/src/utils/normalize-source-maps"]
     }
   },
   "exclude": ["node_modules", "tmp"]
