@@ -8,7 +8,6 @@ import {
 import * as esbuild from 'esbuild';
 
 import {
-  createCompilerPlugin,
   transformSupportedBrowsersToTargets,
   getSupportedBrowsers,
   generateSearchDirectories,
@@ -22,7 +21,7 @@ import { BuilderContext } from '@angular-devkit/architect';
 import {
   normalizeOptimization,
   normalizeSourceMaps,
-} from '@angular-devkit/build-angular/src/utils';
+} from '@angular/build/src/utils';
 import { createRequire } from 'node:module';
 
 import { ApplicationBuilderOptions } from '@angular/build';

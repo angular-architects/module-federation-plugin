@@ -51,7 +51,14 @@
       "@softarc/native-federation/build": [
         "libs/native-federation-core/build.ts"
       ],
-      "mf-rsbuild": ["mf-rsbuild/src/index.ts"]
+      "mf-rsbuild": ["mf-rsbuild/src/index.ts"],
+      "@angular/build/src/builders/dev-server/options": [
+        "node_modules/@angular/build/src/builders/dev-server/options"
+      ],
+      "@angular/build/src/builders/dev-server/schema": [
+        "node_modules/@angular/build/src/builders/dev-server/schema"
+      ],
+      "@angular/build/src/utils": ["node_modules/@angular/build/src/utils"]
     }
   },
   "exclude": ["node_modules", "tmp"]
