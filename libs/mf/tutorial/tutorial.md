@@ -151,7 +151,7 @@ Now, let's try it out!
 
 ## Part 4: Switch to Dynamic Federation
 
-Now, let's remove the need for registering the Micro Frontends upfront with with shell.
+Now, let's remove the need for registering the Micro Frontends upfront with shell.
 
 ### Part 4a: Basic Usage of Dynamic Federation
 
