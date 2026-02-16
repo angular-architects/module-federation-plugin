@@ -278,8 +278,9 @@ export function share(
 
     if (shareObject.includeSecondaries) {
       includeSecondaries = shareObject.includeSecondaries;
-      delete shareObject.includeSecondaries;
     }
+    
+    delete shareObject.includeSecondaries;
 
     result[key] = shareObject;
 
