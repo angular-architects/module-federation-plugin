@@ -28,10 +28,7 @@ import {
   RebuildQueue,
   AbortedError,
 } from '@softarc/native-federation/build';
-import {
-  createAngularBuildAdapter,
-  setMemResultHandler,
-} from '../../utils/angular-esbuild-adapter';
+import { createAngularBuildAdapter } from '../../utils/angular-esbuild-adapter';
 
 import { JsonObject } from '@angular-devkit/core';
 import { existsSync, mkdirSync, rmSync } from 'fs';
@@ -139,7 +136,6 @@ export async function* runBuilder(
 
   let serverOptions = null;
 
-  const write = true;
   const watch = nfOptions.watch;
 
   if (options['buildTarget']) {
@@ -317,15 +313,6 @@ export async function* runBuilder(
     mkdirSync(fedOptions.outputPath, { recursive: true });
   }
 
-  if (!write) {
-    setMemResultHandler((outFiles, outDir) => {
-      const fullOutDir = outDir
-        ? path.join(fedOptions.workspaceRoot, outDir)
-        : null;
-      memResults.add(outFiles.map((f) => new EsBuildResult(f, fullOutDir)));
-    });
-  }
-
   let federationResult: FederationInfo;
   try {
     const start = process.hrtime();
@@ -381,26 +368,6 @@ export async function* runBuilder(
   try {
     for await (const output of builderRun) {
       lastResult = output;
-
-      if (!write && output['outputFiles']) {
-        memResults.add(
-          output['outputFiles'].map((file) => new EsBuildResult(file)),
-        );
-      }
-
-      if (!write && output['assetFiles']) {
-        memResults.add(
-          output['assetFiles'].map((file) => new NgCliAssetResult(file)),
-        );
-      }
-
-      // if (write && !runServer && !nfOptions.skipHtmlTransform) {
-      //   updateIndexHtml(fedOptions, nfOptions);
-      // }
-
-      // if (!runServer) {
-      //   yield output;
-      // }
 
       if (!first && (nfOptions.dev || watch)) {
         rebuildQueue

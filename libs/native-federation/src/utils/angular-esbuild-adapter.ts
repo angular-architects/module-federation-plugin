@@ -8,7 +8,6 @@ import {
 import * as esbuild from 'esbuild';
 
 import {
-  createCompilerPlugin,
   transformSupportedBrowsersToTargets,
   getSupportedBrowsers,
   generateSearchDirectories,
@@ -44,17 +43,6 @@ import { RebuildEvents, RebuildHubs } from './rebuild-events';
 import JSON5 from 'json5';
 import { isDeepStrictEqual } from 'node:util';
 import { createAwaitableCompilerPlugin } from './create-awaitable-compiler-plugin';
-
-export type MemResultHandler = (
-  outfiles: esbuild.OutputFile[],
-  outdir?: string,
-) => void;
-
-let _memResultHandler: MemResultHandler;
-
-export function setMemResultHandler(handler: MemResultHandler): void {
-  _memResultHandler = handler;
-}
 
 export function createAngularBuildAdapter(
   builderOptions: ApplicationBuilderOptions,
@@ -272,7 +260,7 @@ async function runEsbuild(
       'async-await': false,
       'object-rest-spread': false,
     },
-    splitting: true, //kind === 'mapping-or-exposed',
+    splitting: true,
     platform: platform ?? 'browser',
     format: 'esm',
     target: target,
@@ -307,9 +295,7 @@ async function runEsbuild(
 
     const result = await ctx.rebuild();
 
-    const memOnly = dev && kind === 'mapping-or-exposed' && !!_memResultHandler;
-
-    const writtenFiles = writeResult(result, outdir, memOnly);
+    const writtenFiles = writeResult(result, outdir);
 
     if (watch) {
       registerForRebuilds(
@@ -319,7 +305,6 @@ async function runEsbuild(
         entryPoints,
         outdir,
         hash,
-        memOnly,
       );
     } else {
       if (signal) signal.removeEventListener('abort', abortHandler);
@@ -419,25 +404,13 @@ function doesFileExistAndJsonEqual(path: string, content: string) {
 function writeResult(
   result: esbuild.BuildResult<esbuild.BuildOptions>,
   outdir: string,
-  memOnly: boolean,
 ) {
   const writtenFiles: string[] = [];
-
-  if (memOnly) {
-    _memResultHandler(result.outputFiles, outdir);
-  }
 
   for (const outFile of result.outputFiles) {
     const fileName = path.basename(outFile.path);
     const filePath = path.join(outdir, fileName);
-    if (!memOnly) {
-      fs.writeFileSync(filePath, outFile.text);
-    }
     writtenFiles.push(filePath);
-  }
-
-  if (!memOnly) {
-    // for (const asset of result.outputFiles)
   }
 
   return writtenFiles;
@@ -450,12 +423,11 @@ function registerForRebuilds(
   entryPoints: EntryPoint[],
   outdir: string,
   hash: boolean,
-  memOnly: boolean,
 ) {
   if (kind !== 'shared-package') {
     rebuildRequested.rebuild.register(async () => {
       const result = await ctx.rebuild();
-      writeResult(result, outdir, memOnly);
+      writeResult(result, outdir);
     });
   }
 }
