@@ -1,10 +1,12 @@
 // Taken from https://github.com/angular/angular-cli/blob/main/packages/angular/build/src/tools/esbuild/compiler-plugin-options.ts
 // Currently, this type cannot be accessed from the outside
 
+import { SourceFileCache } from '@angular/build/private';
+
 export function createCompilerPluginOptions(
   options: any,
   target: string[],
-  sourceFileCache?: any,
+  sourceFileCache?: SourceFileCache,
 ): {
   pluginOptions: any[0];
   styleOptions: any[1];

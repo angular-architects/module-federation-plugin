@@ -14,6 +14,7 @@ import {
   generateSearchDirectories,
   findTailwindConfiguration,
   loadPostcssConfiguration,
+  SourceFileCache,
 } from '@angular/build/private';
 
 import { createCompilerPluginOptions } from './create-compiler-options';
@@ -72,6 +73,7 @@ export function createAngularBuildAdapter(
       dev,
       hash,
       platform,
+      cachePath,
       optimizedMappings,
       signal,
     } = options;
@@ -96,6 +98,7 @@ export function createAngularBuildAdapter(
       undefined,
       platform,
       optimizedMappings,
+      cachePath,
       signal,
     );
 
@@ -109,37 +112,6 @@ export function createAngularBuildAdapter(
     }
 
     return files.map((fileName) => ({ fileName }) as BuildResult);
-
-    // TODO: Do we still need rollup as esbuilt evolved?
-    // if (kind === 'shared-package') {
-    //   await runRollup(entryPoint, external, outfile);
-    // } else {
-
-    //   if (
-    //     dev &&
-    //     kind === 'shared-package' &&
-    //     entryPoint.match(fesmFolderRegExp)
-    //   ) {
-    //     fs.copyFileSync(entryPoint, outfile);
-    //   } else {
-    //     await runEsbuild(
-    //       builderOptions,
-    //       context,
-    //       entryPoint,
-    //       external,
-    //       outfile,
-    //       tsConfigPath,
-    //       mappedPaths,
-    //       watch,
-    //       rebuildRequested,
-    //       dev,
-    //       kind
-    //     );
-    //   }
-    //   if (kind === 'shared-package' && fs.existsSync(outfile)) {
-    //     await link(outfile, dev);
-    //   }
-    // }
   };
 
   async function link(outfile: string, dev: boolean) {
@@ -154,8 +126,6 @@ export function createAngularBuildAdapter(
 
       const result = await transformAsync(code, {
         filename: outfile,
-        // inputSourceMap: (useInputSourcemap ? undefined : false) as undefined,
-        // sourceMaps: pluginOptions.sourcemap ? 'inline' : false,
         compact: !dev,
         configFile: false,
         babelrc: false,
@@ -196,6 +166,7 @@ async function runEsbuild(
   logLevel: esbuild.LogLevel = 'warning',
   platform?: 'browser' | 'node',
   optimizedMappings?: boolean,
+  cachePath?: string,
   signal?: AbortSignal,
 ) {
   if (signal?.aborted) {
@@ -270,7 +241,7 @@ async function runEsbuild(
       postcssConfiguration,
     } as any,
     target,
-    undefined,
+    cachePath ? new SourceFileCache(cachePath) : undefined,
   );
 
   const commonjsPluginModule = await import('@chialab/esbuild-plugin-commonjs');

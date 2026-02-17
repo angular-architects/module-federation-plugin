@@ -42,12 +42,19 @@ export async function buildForFederation(
 
   let artefactInfo: ArtefactInfo | undefined;
 
+  const cacheProjectFolder = resolveProjectName(config);
+  const pathToCache = getCachePath(
+    fedOptions.workspaceRoot,
+    cacheProjectFolder,
+  );
+
   if (!buildParams.skipMappingsAndExposed) {
     const start = process.hrtime();
     artefactInfo = await bundleExposedAndMappings(
       config,
       fedOptions,
       externals,
+      pathToCache,
       signal,
     );
     logger.measure(
@@ -64,12 +71,6 @@ export async function buildForFederation(
   const exposedInfo = !artefactInfo
     ? describeExposed(config, fedOptions)
     : artefactInfo.exposes;
-
-  const cacheProjectFolder = resolveProjectName(config);
-  const pathToCache = getCachePath(
-    fedOptions.workspaceRoot,
-    cacheProjectFolder,
-  );
 
   if (!buildParams.skipShared && sharedPackageInfoCache.length > 0) {
     logger.info('Checksum matched, re-using cached externals.');

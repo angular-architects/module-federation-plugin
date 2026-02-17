@@ -22,6 +22,7 @@ export async function bundleExposedAndMappings(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
+  cachePath: string,
   signal?: AbortSignal,
 ): Promise<ArtefactInfo> {
   if (signal?.aborted) {
@@ -61,6 +62,7 @@ export async function bundleExposedAndMappings(
       kind: 'mapping-or-exposed',
       hash,
       optimizedMappings: config.features.ignoreUnusedDeps,
+      cachePath,
       signal,
     });
     if (signal?.aborted) {
