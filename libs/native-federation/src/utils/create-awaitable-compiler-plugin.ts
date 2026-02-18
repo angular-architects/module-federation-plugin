@@ -10,7 +10,7 @@ export function createAwaitableCompilerPlugin(
   pluginOptions: CreateCompilerPluginParams[0],
   styleOptions: CreateCompilerPluginParams[1],
 ): [esbuild.Plugin, Promise<void>] {
-  if (!!plugin) {
+  if (!plugin) {
     const originalPlugin = createCompilerPlugin(pluginOptions, styleOptions);
 
     let resolveDispose: () => void;
@@ -25,9 +25,9 @@ export function createAwaitableCompilerPlugin(
         const wrappedBuild = new Proxy(build, {
           get(target, prop) {
             if (prop === 'onDispose') {
-              return (callback: () => void | Promise<void>) => {
+              return (originalCallback: () => void | Promise<void>) => {
                 return target.onDispose(() => {
-                  callback();
+                  originalCallback();
                   resolveDispose();
                 });
               };

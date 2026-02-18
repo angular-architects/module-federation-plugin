@@ -1,53 +1,54 @@
 import { logger } from '../utils/logger';
 import { MappedPath } from '../utils/mapped-paths';
 
-let _buildAdapter: BuildAdapter = async () => {
-  // TODO: add logger
-  logger.error('Please set a BuildAdapter!');
-  return [];
-};
+let _buildAdapter: BuildAdapter | null = null;
 
-export type BuildKind =
-  | 'shared-package'
-  | 'shared-mapping'
-  | 'exposed'
-  | 'mapping-or-exposed';
+// export type BuildKind =
+//   | 'shared-package'
+//   | 'shared-mapping'
+//   | 'exposed'
+//   | 'mapping-or-exposed';
 
 export interface EntryPoint {
   fileName: string;
   outName: string;
 }
 
-export interface BuildAdapterOptions {
+export interface SetupOptions {
   entryPoints: EntryPoint[];
   tsConfigPath?: string;
-  external: Array<string>;
+  external: string[];
   outdir: string;
   mappedPaths: MappedPath[];
-  packageName?: string;
-  esm?: boolean;
+  bundleName: string;
+  isNodeModules: boolean;
   dev?: boolean;
-  watch?: boolean;
-  kind: BuildKind;
-  hash: boolean;
+  hash?: boolean;
   platform?: 'browser' | 'node';
   optimizedMappings?: boolean;
   cachePath?: string;
-  signal?: AbortSignal;
 }
 
 export interface BuildResult {
   fileName: string;
 }
 
-export type BuildAdapter = (
-  options: BuildAdapterOptions,
-) => Promise<BuildResult[]>;
+export interface BuildAdapter {
+  setup(options: SetupOptions): Promise<void>;
+
+  build(name: string, signal?: AbortSignal): Promise<BuildResult[]>;
+
+  dispose(name?: string): Promise<void>;
+}
 
 export function setBuildAdapter(buildAdapter: BuildAdapter): void {
   _buildAdapter = buildAdapter;
 }
 
 export function getBuildAdapter(): BuildAdapter {
+  if (!_buildAdapter) {
+    logger.error('Please set a BuildAdapter!');
+    throw new Error('BuildAdapter not set');
+  }
   return _buildAdapter;
 }

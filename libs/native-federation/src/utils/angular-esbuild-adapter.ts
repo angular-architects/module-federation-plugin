@@ -1,6 +1,7 @@
 import {
   AbortedError,
   BuildAdapter,
+  SetupOptions,
   logger,
   MappedPath,
 } from '@softarc/native-federation/build';
@@ -32,43 +33,81 @@ import * as path from 'path';
 import { createSharedMappingsPlugin } from './shared-mappings-plugin';
 
 import { PluginItem, transformAsync } from '@babel/core';
-import {
-  BuildKind,
-  BuildResult,
-  EntryPoint,
-} from '@softarc/native-federation/build';
-
-import { RebuildEvents, RebuildHubs } from './rebuild-events';
+import { BuildResult, EntryPoint } from '@softarc/native-federation/build';
 
 import JSON5 from 'json5';
 import { isDeepStrictEqual } from 'node:util';
 import { createAwaitableCompilerPlugin } from './create-awaitable-compiler-plugin';
 
+interface CachedContext {
+  ctx: esbuild.BuildContext;
+  pluginDisposed: Promise<void>;
+  outdir: string;
+  dev: boolean;
+  name: string;
+  isNodeModules: boolean;
+  sourceFileCache?: SourceFileCache;
+  entryPoints: EntryPoint[];
+  workspaceRoot: string;
+}
+
 export function createAngularBuildAdapter(
   builderOptions: ApplicationBuilderOptions,
   context: BuilderContext,
-  rebuildRequested: RebuildEvents = new RebuildHubs(),
 ): BuildAdapter {
-  return async (options) => {
+  const contextCache = new Map<string, CachedContext>();
+
+  const dispose = async (name?: string): Promise<void> => {
+    if (name) {
+      if (!contextCache.has(name))
+        throw new Error(`Could not dispose of non-existing build '${name}'`);
+      const entry = contextCache.get(name);
+
+      await entry.ctx.dispose();
+      await entry.pluginDisposed;
+      contextCache.delete(name);
+      return;
+    }
+
+    // Dispose all if no specific build provided
+
+    const disposals: Promise<void>[] = [];
+
+    for (const [, entry] of contextCache) {
+      disposals.push(
+        (async () => {
+          await entry.ctx.dispose();
+          await entry.pluginDisposed;
+        })(),
+      );
+    }
+    contextCache.clear();
+    await Promise.all(disposals);
+  };
+
+  const setup = async (options: SetupOptions): Promise<void> => {
     const {
       entryPoints,
       tsConfigPath,
       external,
       outdir,
       mappedPaths,
-      kind,
-      watch,
+      bundleName,
+      isNodeModules,
       dev,
       hash,
       platform,
-      cachePath,
       optimizedMappings,
-      signal,
+      cachePath,
     } = options;
 
     setNgServerMode();
 
-    const files = await runEsbuild(
+    if (contextCache.has(bundleName)) {
+      return;
+    }
+
+    const { ctx, pluginDisposed, sourceFileCache } = await createEsbuildContext(
       builderOptions,
       context,
       entryPoints,
@@ -76,67 +115,111 @@ export function createAngularBuildAdapter(
       outdir,
       tsConfigPath,
       mappedPaths,
-      watch,
-      rebuildRequested,
       dev,
-      kind,
+      isNodeModules,
       hash,
-      undefined,
-      undefined,
-      undefined,
       platform,
       optimizedMappings,
       cachePath,
-      signal,
     );
 
-    if (kind === 'shared-package') {
-      const scriptFiles = files.filter(
-        (f) => f.endsWith('.js') || f.endsWith('.mjs'),
-      );
-      for (const file of scriptFiles) {
-        link(file, dev);
-      }
-    }
-
-    return files.map((fileName) => ({ fileName }) as BuildResult);
+    contextCache.set(bundleName, {
+      ctx,
+      pluginDisposed,
+      outdir,
+      isNodeModules,
+      dev: !!dev,
+      name: bundleName,
+      sourceFileCache,
+      entryPoints,
+      workspaceRoot: context.workspaceRoot,
+    });
   };
 
-  async function link(outfile: string, dev: boolean) {
-    const code = fs.readFileSync(outfile, 'utf-8');
+  const build = async (
+    name: string,
+    signal?: AbortSignal,
+  ): Promise<BuildResult[]> => {
+    const cached = contextCache.get(name);
+    if (!cached) {
+      throw new Error(
+        `No context found for build "${name}". Call setup() first.`,
+      );
+    }
+
+    if (signal?.aborted) {
+      throw new AbortedError('[build] Aborted before rebuild');
+    }
+
+    // todo: tap into "modified files" to see what to invalidate
+    if (cached.sourceFileCache) {
+      for (const ep of cached.entryPoints) {
+        // const absolutePath = path.isAbsolute(ep.fileName)
+        //   ? ep.fileName
+        //   : path.join(cached.workspaceRoot, ep.fileName);
+        // cached.sourceFileCache.modifiedFiles.add(path.normalize(absolutePath));
+      }
+    }
 
     try {
-      const linkerEsm = await loadEsmModule<{ default: PluginItem }>(
-        '@angular/compiler-cli/linker/babel',
-      );
+      const result = await cached.ctx.rebuild();
+      const writtenFiles = writeResult(result, cached.outdir);
 
-      const linker = linkerEsm.default;
-
-      const result = await transformAsync(code, {
-        filename: outfile,
-        compact: !dev,
-        configFile: false,
-        babelrc: false,
-        minified: !dev,
-        browserslistConfigFile: false,
-        plugins: [linker],
-      });
-
-      fs.writeFileSync(outfile, result.code, 'utf-8');
-    } catch (e) {
-      logger.error('error linking');
-
-      if (fs.existsSync(`${outfile}.error`)) {
-        fs.unlinkSync(`${outfile}.error`);
+      if (cached.isNodeModules) {
+        const scriptFiles = writtenFiles.filter(
+          (f) => f.endsWith('.js') || f.endsWith('.mjs'),
+        );
+        for (const file of scriptFiles) {
+          await link(file, cached.dev);
+        }
       }
-      fs.renameSync(outfile, `${outfile}.error`);
 
-      throw e;
+      return writtenFiles.map((fileName) => ({ fileName }) as BuildResult);
+    } catch (error) {
+      if (signal?.aborted && error?.message?.includes('canceled')) {
+        throw new AbortedError('[build] ESBuild rebuild was canceled.');
+      }
+      throw error;
     }
+  };
+
+  return { setup, build, dispose };
+}
+
+async function link(outfile: string, dev: boolean) {
+  const code = fs.readFileSync(outfile, 'utf-8');
+
+  try {
+    const linkerEsm = await loadEsmModule<{ default: PluginItem }>(
+      '@angular/compiler-cli/linker/babel',
+    );
+
+    const linker = linkerEsm.default;
+
+    const result = await transformAsync(code, {
+      filename: outfile,
+      compact: !dev,
+      configFile: false,
+      babelrc: false,
+      minified: !dev,
+      browserslistConfigFile: false,
+      plugins: [linker],
+    });
+
+    fs.writeFileSync(outfile, result.code, 'utf-8');
+  } catch (e) {
+    logger.error('error linking');
+
+    if (fs.existsSync(`${outfile}.error`)) {
+      fs.unlinkSync(`${outfile}.error`);
+    }
+    fs.renameSync(outfile, `${outfile}.error`);
+
+    throw e;
   }
 }
 
-async function runEsbuild(
+async function createEsbuildContext(
   builderOptions: ApplicationBuilderOptions,
   context: BuilderContext,
   entryPoints: EntryPoint[],
@@ -144,23 +227,17 @@ async function runEsbuild(
   outdir: string,
   tsConfigPath: string,
   mappedPaths: MappedPath[],
-  watch?: boolean,
-  rebuildRequested: RebuildEvents = new RebuildHubs(),
   dev?: boolean,
-  kind?: BuildKind,
+  isNodeModules?: boolean,
   hash = false,
-  plugins: esbuild.Plugin[] | null = null,
-  absWorkingDir: string | undefined = undefined,
-  logLevel: esbuild.LogLevel = 'warning',
   platform?: 'browser' | 'node',
   optimizedMappings?: boolean,
   cachePath?: string,
-  signal?: AbortSignal,
-) {
-  if (signal?.aborted) {
-    throw new AbortedError('[angular-esbuild-adapter] Before building');
-  }
-
+): Promise<{
+  ctx: esbuild.BuildContext;
+  pluginDisposed: Promise<void>;
+  sourceFileCache?: SourceFileCache;
+}> {
   const workspaceRoot = context.workspaceRoot;
 
   const projectMetadata = await context.getProjectMetadata(
@@ -211,6 +288,10 @@ async function runEsbuild(
     );
   }
 
+  const sourceFileCache = cachePath
+    ? new SourceFileCache(cachePath)
+    : undefined;
+
   const pluginOptions = createCompilerPluginOptions(
     {
       workspaceRoot,
@@ -227,9 +308,10 @@ async function runEsbuild(
       jit: false,
       tailwindConfiguration,
       postcssConfiguration,
+      incremental: !isNodeModules, // Enable incremental mode for rebuild support
     } as any,
     target,
-    cachePath ? new SourceFileCache(cachePath) : undefined,
+    sourceFileCache,
   );
 
   const commonjsPluginModule = await import('@chialab/esbuild-plugin-commonjs');
@@ -250,9 +332,8 @@ async function runEsbuild(
     outdir,
     entryNames: hash ? '[name]-[hash]' : '[name]',
     write: false,
-    absWorkingDir,
     external,
-    logLevel,
+    logLevel: 'warning',
     bundle: true,
     sourcemap: sourcemapOptions.scripts,
     minify: !dev,
@@ -264,8 +345,8 @@ async function runEsbuild(
     platform: platform ?? 'browser',
     format: 'esm',
     target: target,
-    logLimit: kind === 'shared-package' ? 1 : 0,
-    plugins: (plugins as any) || [
+    logLimit: isNodeModules ? 1 : 0,
+    plugins: [
       compilerPlugin,
       ...(mappedPaths && mappedPaths.length > 0
         ? [createSharedMappingsPlugin(mappedPaths)]
@@ -282,44 +363,7 @@ async function runEsbuild(
 
   const ctx = await esbuild.context(config);
 
-  try {
-    const abortHandler = async () => {
-      await ctx.cancel();
-      await ctx.dispose();
-      await pluginDisposed;
-    };
-
-    if (signal) {
-      signal.addEventListener('abort', abortHandler, { once: true });
-    }
-
-    const result = await ctx.rebuild();
-
-    const writtenFiles = writeResult(result, outdir);
-
-    if (watch) {
-      registerForRebuilds(
-        kind,
-        rebuildRequested,
-        ctx,
-        entryPoints,
-        outdir,
-        hash,
-      );
-    } else {
-      if (signal) signal.removeEventListener('abort', abortHandler);
-      await ctx.dispose();
-      await pluginDisposed;
-    }
-    return writtenFiles;
-  } catch (error) {
-    // ESBuild throws an error if the request is cancelled.
-    // if it is, it's changed to an 'AbortedError'
-    if (signal?.aborted && error?.message?.includes('canceled')) {
-      throw new AbortedError('[runEsbuild] ESBuild was canceled.');
-    }
-    throw error;
-  }
+  return { ctx, pluginDisposed, sourceFileCache };
 }
 
 async function getTailwindConfig(
@@ -410,26 +454,11 @@ function writeResult(
   for (const outFile of result.outputFiles) {
     const fileName = path.basename(outFile.path);
     const filePath = path.join(outdir, fileName);
+    fs.writeFileSync(filePath, outFile.text);
     writtenFiles.push(filePath);
   }
 
   return writtenFiles;
-}
-
-function registerForRebuilds(
-  kind: BuildKind,
-  rebuildRequested: RebuildEvents,
-  ctx: esbuild.BuildContext<esbuild.BuildOptions>,
-  entryPoints: EntryPoint[],
-  outdir: string,
-  hash: boolean,
-) {
-  if (kind !== 'shared-package') {
-    rebuildRequested.rebuild.register(async () => {
-      const result = await ctx.rebuild();
-      writeResult(result, outdir);
-    });
-  }
 }
 
 export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {

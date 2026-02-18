@@ -4,14 +4,13 @@ import {
   NormalizedFederationConfig,
   NormalizedSharedConfig,
 } from '../config/federation-config';
-import { bundle } from '../utils/build-utils';
 import { getPackageInfo, PackageInfo } from '../utils/package-info';
 import { SharedInfo } from '@softarc/native-federation-runtime';
 import { FederationOptions } from './federation-options';
 import { logger } from '../utils/logger';
 import crypto from 'crypto';
 import { DEFAULT_EXTERNAL_LIST } from './default-external-list';
-import { BuildResult } from './build-adapter';
+import { BuildResult, getBuildAdapter } from './build-adapter';
 import {
   deriveInternalName,
   isSourceFile,
@@ -105,18 +104,22 @@ export async function bundleShared(
   let bundleResult: BuildResult[] | null = null;
 
   try {
-    bundleResult = await bundle({
+    await getBuildAdapter().setup({
       entryPoints,
       tsConfigPath: fedOptions.tsConfig,
       external: [...additionalExternals, ...externals],
       outdir: cacheOptions.pathToCache,
       mappedPaths: config.sharedMappings,
       dev: fedOptions.dev,
-      kind: 'shared-package',
+      bundleName: cacheOptions.bundleName,
+      isNodeModules: true,
       hash: false,
       platform,
       optimizedMappings: config.features.ignoreUnusedDeps,
     });
+    bundleResult = await getBuildAdapter().build(cacheOptions.bundleName);
+
+    await getBuildAdapter().dispose(cacheOptions.bundleName);
 
     const cachedFiles = bundleResult.map((br) => path.basename(br.fileName));
     rewriteImports(cachedFiles, cacheOptions.pathToCache);

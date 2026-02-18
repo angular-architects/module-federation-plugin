@@ -19,27 +19,14 @@ import { normalizePackageName } from '../utils/normalize';
 import { AbortedError } from '../utils/errors';
 import { resolveProjectName } from '../utils/config-utils';
 
-export interface BuildParams {
-  skipMappingsAndExposed: boolean;
-  skipShared: boolean;
-  signal?: AbortSignal;
-}
-
-export const defaultBuildParams: BuildParams = {
-  skipMappingsAndExposed: false,
-  skipShared: false,
-};
-
 const sharedPackageInfoCache: SharedInfo[] = [];
 
 export async function buildForFederation(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
-  buildParams = defaultBuildParams,
+  signal?: AbortSignal,
 ): Promise<FederationInfo> {
-  const signal = buildParams.signal;
-
   let artefactInfo: ArtefactInfo | undefined;
 
   const cacheProjectFolder = resolveProjectName(config);
@@ -48,35 +35,34 @@ export async function buildForFederation(
     cacheProjectFolder,
   );
 
-  if (!buildParams.skipMappingsAndExposed) {
-    const start = process.hrtime();
-    artefactInfo = await bundleExposedAndMappings(
-      config,
-      fedOptions,
-      externals,
-      pathToCache,
-      signal,
-    );
-    logger.measure(
-      start,
-      '[build artifacts] - To bundle all mappings and exposed.',
-    );
+  const start = process.hrtime();
+  artefactInfo = await bundleExposedAndMappings(
+    config,
+    fedOptions,
+    externals,
+    pathToCache,
+    true,
+    signal,
+  );
+  logger.measure(
+    start,
+    '[build artifacts] - To bundle all mappings and exposed.',
+  );
 
-    if (signal?.aborted)
-      throw new AbortedError(
-        '[buildForFederation] After exposed-and-mappings bundle',
-      );
-  }
+  if (signal?.aborted)
+    throw new AbortedError(
+      '[buildForFederation] After exposed-and-mappings bundle',
+    );
 
   const exposedInfo = !artefactInfo
     ? describeExposed(config, fedOptions)
     : artefactInfo.exposes;
 
-  if (!buildParams.skipShared && sharedPackageInfoCache.length > 0) {
+  if (sharedPackageInfoCache.length > 0) {
     logger.info('Checksum matched, re-using cached externals.');
   }
 
-  if (!buildParams.skipShared && sharedPackageInfoCache.length === 0) {
+  if (sharedPackageInfoCache.length === 0) {
     const { sharedBrowser, sharedServer, separateBrowser, separateServer } =
       splitShared(config.shared);
 
@@ -170,6 +156,63 @@ export async function buildForFederation(
     if (signal?.aborted)
       throw new AbortedError('[buildForFederation] After separate-node bundle');
   }
+
+  const sharedMappingInfo = !artefactInfo
+    ? describeSharedMappings(config, fedOptions)
+    : artefactInfo.mappings;
+
+  const sharedInfo = [...sharedPackageInfoCache, ...sharedMappingInfo];
+  const buildNotificationsEndpoint =
+    fedOptions.buildNotifications?.enable && fedOptions.dev
+      ? fedOptions.buildNotifications?.endpoint
+      : undefined;
+  const federationInfo: FederationInfo = {
+    name: config.name,
+    shared: sharedInfo,
+    exposes: exposedInfo,
+    buildNotificationsEndpoint,
+  };
+
+  writeFederationInfo(federationInfo, fedOptions);
+  writeImportMap(sharedInfo, fedOptions);
+
+  return federationInfo;
+}
+
+export async function rebuildForFederation(
+  config: NormalizedFederationConfig,
+  fedOptions: FederationOptions,
+  externals: string[],
+  signal?: AbortSignal,
+): Promise<FederationInfo> {
+  const cacheProjectFolder = resolveProjectName(config);
+  const pathToCache = getCachePath(
+    fedOptions.workspaceRoot,
+    cacheProjectFolder,
+  );
+
+  const start = process.hrtime();
+  let artefactInfo = await bundleExposedAndMappings(
+    config,
+    fedOptions,
+    externals,
+    pathToCache,
+    false,
+    signal,
+  );
+  logger.measure(
+    start,
+    '[build artifacts] - To re-bundle all mappings and exposed.',
+  );
+
+  if (signal?.aborted)
+    throw new AbortedError(
+      '[buildForFederation] After rebuild-exposed-and-mappings bundle',
+    );
+
+  const exposedInfo = !artefactInfo
+    ? describeExposed(config, fedOptions)
+    : artefactInfo.exposes;
 
   const sharedMappingInfo = !artefactInfo
     ? describeSharedMappings(config, fedOptions)

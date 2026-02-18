@@ -19,6 +19,7 @@ import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev
 
 import {
   buildForFederation,
+  rebuildForFederation,
   FederationOptions,
   getExternals,
   loadFederationConfig,
@@ -33,15 +34,9 @@ import { createAngularBuildAdapter } from '../../utils/angular-esbuild-adapter';
 import { JsonObject } from '@angular-devkit/core';
 import { existsSync, mkdirSync, rmSync } from 'fs';
 import { fstart } from '../../tools/fstart-as-data-url';
-import {
-  EsBuildResult,
-  MemResults,
-  NgCliAssetResult,
-} from '../../utils/mem-resuts';
 import { FederationInfo } from '@softarc/native-federation-runtime';
 import { PluginBuild } from 'esbuild';
 import { getI18nConfig, translateFederationArtefacts } from '../../utils/i18n';
-import { RebuildHubs } from '../../utils/rebuild-events';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { updateScriptTags } from '../../utils/updateIndexHtml';
 import { federationBuildNotifier } from './federation-build-notifier';
@@ -167,9 +162,7 @@ export async function* runBuilder(
     options.outputPath = nfOptions.outputPath;
   }
 
-  const rebuildEvents = new RebuildHubs();
-
-  const adapter = createAngularBuildAdapter(options, context, rebuildEvents);
+  const adapter = createAngularBuildAdapter(options, context);
   setBuildAdapter(adapter);
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
@@ -218,7 +211,7 @@ export async function* runBuilder(
     federationConfig: inferConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose,
-    watch: false, // options.watch,
+    watch: nfOptions.dev || watch,
     dev: !!nfOptions.dev,
     entryPoint,
     buildNotifications: nfOptions.buildNotifications,
@@ -299,8 +292,6 @@ export async function* runBuilder(
       }
     },
   ];
-
-  const memResults = new MemResults();
 
   let first = true;
   let lastResult: { success: boolean } | undefined;
@@ -396,15 +387,12 @@ export async function* runBuilder(
             }
 
             const start = process.hrtime();
-            federationResult = await buildForFederation(
+
+            federationResult = await rebuildForFederation(
               config,
               fedOptions,
               externals,
-              {
-                skipMappingsAndExposed: false,
-                skipShared: true,
-                signal,
-              },
+              signal,
             );
 
             if (signal?.aborted) {
@@ -453,6 +441,7 @@ export async function* runBuilder(
     }
   } finally {
     rebuildQueue.dispose();
+    await adapter.dispose();
 
     if (isLocalDevelopment) {
       federationBuildNotifier.stopEventServer();
@@ -509,28 +498,6 @@ function transformIndexHtml(
     Promise.resolve(
       updateScriptTags(content, 'main.js', 'polyfills.js', nfOptions),
     );
-}
-
-function addDebugInformation(fileName: string, rawBody: string): string {
-  if (fileName !== '/remoteEntry.json') {
-    return rawBody;
-  }
-
-  const remoteEntry = JSON.parse(rawBody) as FederationInfo;
-  const shared = remoteEntry.shared;
-
-  if (!shared) {
-    return rawBody;
-  }
-
-  const sharedForVite = shared.map((s) => ({
-    ...s,
-    packageName: `/@id/${s.packageName}`,
-  }));
-
-  remoteEntry.shared = [...shared, ...sharedForVite];
-
-  return JSON.stringify(remoteEntry, null, 2);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
