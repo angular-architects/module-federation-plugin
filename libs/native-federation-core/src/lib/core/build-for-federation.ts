@@ -41,7 +41,7 @@ export async function buildForFederation(
     fedOptions,
     externals,
     pathToCache,
-    true,
+    undefined,
     signal,
   );
   logger.measure(
@@ -183,6 +183,7 @@ export async function rebuildForFederation(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
+  modifiedFiles: string[],
   signal?: AbortSignal,
 ): Promise<FederationInfo> {
   const cacheProjectFolder = resolveProjectName(config);
@@ -197,7 +198,7 @@ export async function rebuildForFederation(
     fedOptions,
     externals,
     pathToCache,
-    false,
+    modifiedFiles,
     signal,
   );
   logger.measure(

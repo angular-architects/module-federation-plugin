@@ -36,7 +36,13 @@ export interface BuildResult {
 export interface BuildAdapter {
   setup(options: SetupOptions): Promise<void>;
 
-  build(name: string, signal?: AbortSignal): Promise<BuildResult[]>;
+  build(
+    name: string,
+    opts?: {
+      files?: string[];
+      signal?: AbortSignal;
+    },
+  ): Promise<BuildResult[]>;
 
   dispose(name?: string): Promise<void>;
 }

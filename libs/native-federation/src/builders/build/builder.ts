@@ -5,6 +5,7 @@ import * as path from 'path';
 import { ApplicationBuilderOptions, buildApplication } from '@angular/build';
 import {
   buildApplicationInternal,
+  ResultKind,
   serveWithVite,
 } from '@angular/build/private';
 
@@ -392,6 +393,7 @@ export async function* runBuilder(
               config,
               fedOptions,
               externals,
+              [], // an string array of the files from _buildApplication
               signal,
             );
 

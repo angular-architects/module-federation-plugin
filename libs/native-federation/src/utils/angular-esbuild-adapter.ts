@@ -138,7 +138,10 @@ export function createAngularBuildAdapter(
 
   const build = async (
     name: string,
-    signal?: AbortSignal,
+    opts: {
+      files?: string[];
+      signal?: AbortSignal;
+    } = {},
   ): Promise<BuildResult[]> => {
     const cached = contextCache.get(name);
     if (!cached) {
@@ -147,18 +150,15 @@ export function createAngularBuildAdapter(
       );
     }
 
-    if (signal?.aborted) {
+    if (opts?.signal?.aborted) {
       throw new AbortedError('[build] Aborted before rebuild');
     }
 
     // todo: tap into "modified files" to see what to invalidate
-    if (cached.sourceFileCache) {
-      for (const ep of cached.entryPoints) {
-        // const absolutePath = path.isAbsolute(ep.fileName)
-        //   ? ep.fileName
-        //   : path.join(cached.workspaceRoot, ep.fileName);
-        // cached.sourceFileCache.modifiedFiles.add(path.normalize(absolutePath));
-      }
+    if (cached.sourceFileCache && opts.files) {
+      opts.files.forEach((f) => {
+        cached.sourceFileCache.modifiedFiles.add(f);
+      });
     }
 
     try {
@@ -176,7 +176,7 @@ export function createAngularBuildAdapter(
 
       return writtenFiles.map((fileName) => ({ fileName }) as BuildResult);
     } catch (error) {
-      if (signal?.aborted && error?.message?.includes('canceled')) {
+      if (opts?.signal?.aborted && error?.message?.includes('canceled')) {
         throw new AbortedError('[build] ESBuild rebuild was canceled.');
       }
       throw error;

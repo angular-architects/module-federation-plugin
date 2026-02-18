@@ -23,7 +23,7 @@ export async function bundleExposedAndMappings(
   fedOptions: FederationOptions,
   externals: string[],
   cachePath: string,
-  setup: boolean,
+  modifiedFiles?: string[],
   signal?: AbortSignal,
 ): Promise<ArtefactInfo> {
   if (signal?.aborted) {
@@ -52,7 +52,7 @@ export async function bundleExposedAndMappings(
 
   let result;
   try {
-    if (setup) {
+    if (!modifiedFiles) {
       await getBuildAdapter().setup({
         entryPoints,
         outdir: fedOptions.outputPath,
@@ -68,7 +68,10 @@ export async function bundleExposedAndMappings(
       });
     }
 
-    result = await getBuildAdapter().build('mapping-or-exposed', signal);
+    result = await getBuildAdapter().build('mapping-or-exposed', {
+      signal,
+      files: modifiedFiles,
+    });
 
     if (signal?.aborted) {
       throw new AbortedError(
