@@ -4,7 +4,7 @@
 export function createCompilerPluginOptions(
   options: any,
   target: string[],
-  sourceFileCache?: any,
+  sourceFileCache?: any
 ): {
   pluginOptions: any[0];
   styleOptions: any[1];
@@ -31,9 +31,7 @@ export function createCompilerPluginOptions(
   return {
     // JS/TS options
     pluginOptions: {
-      sourcemap:
-        !!sourcemapOptions.scripts &&
-        (sourcemapOptions.hidden ? 'external' : true),
+      sourcemap: !!sourcemapOptions.scripts && (sourcemapOptions.hidden ? 'external' : true),
       thirdPartySourcemaps: sourcemapOptions.vendor,
       tsconfig,
       jit,

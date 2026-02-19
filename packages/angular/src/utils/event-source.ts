@@ -12,7 +12,7 @@ export class EventHub implements EventSource {
   }
 
   async emit(): Promise<void> {
-    const promises = this.handlers.map((h) => h());
+    const promises = this.handlers.map(h => h());
     await Promise.all(promises);
   }
 }
