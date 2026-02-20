@@ -14,7 +14,6 @@ import {
   generateSearchDirectories,
   findTailwindConfiguration,
   loadPostcssConfiguration,
-  SourceFileCache,
 } from '@angular/build/private';
 
 import { createCompilerPluginOptions } from './create-compiler-options.js';
@@ -38,6 +37,7 @@ import { type PluginItem, transformAsync } from '@babel/core';
 import JSON5 from 'json5';
 import { isDeepStrictEqual } from 'node:util';
 import { createAwaitableCompilerPlugin } from './create-awaitable-compiler-plugin.js';
+import { getCodeBundleCache, setCodeBundleCache } from './code-bundle-cache.js';
 
 interface CachedContext {
   ctx: esbuild.BuildContext;
@@ -46,7 +46,6 @@ interface CachedContext {
   dev: boolean;
   name: string;
   isNodeModules: boolean;
-  sourceFileCache?: SourceFileCache;
   entryPoints: EntryPoint[];
   workspaceRoot: string;
 }
@@ -104,11 +103,13 @@ export function createAngularBuildAdapter(
 
     setNgServerMode();
 
+    if (cachePath) setCodeBundleCache(cachePath);
+
     if (contextCache.has(bundleName)) {
       return;
     }
 
-    const { ctx, pluginDisposed, sourceFileCache } = await createEsbuildContext(
+    const { ctx, pluginDisposed } = await createEsbuildContext(
       builderOptions,
       context,
       entryPoints,
@@ -121,8 +122,7 @@ export function createAngularBuildAdapter(
       hash,
       chunks,
       platform,
-      optimizedMappings,
-      cachePath
+      optimizedMappings
     );
 
     contextCache.set(bundleName, {
@@ -132,7 +132,6 @@ export function createAngularBuildAdapter(
       isNodeModules,
       dev: !!dev,
       name: bundleName,
-      sourceFileCache,
       entryPoints,
       workspaceRoot: context.workspaceRoot,
     });
@@ -152,13 +151,6 @@ export function createAngularBuildAdapter(
 
     if (opts?.signal?.aborted) {
       throw new AbortedError('[build] Aborted before rebuild');
-    }
-
-    // todo: tap into "modified files" to see what to invalidate
-    if (!!cached.sourceFileCache && opts.files) {
-      opts.files.forEach(f => {
-        cached.sourceFileCache!.modifiedFiles.add(f);
-      });
     }
 
     try {
@@ -236,12 +228,10 @@ async function createEsbuildContext(
   hash: boolean = false,
   chunks?: boolean,
   platform?: 'browser' | 'node',
-  optimizedMappings?: boolean,
-  cachePath?: string
+  optimizedMappings?: boolean
 ): Promise<{
   ctx: esbuild.BuildContext;
   pluginDisposed: Promise<void>;
-  sourceFileCache?: SourceFileCache;
 }> {
   const workspaceRoot = context.workspaceRoot;
 
@@ -283,8 +273,6 @@ async function createEsbuildContext(
     tsConfigPath = createTsConfigForFederation(workspaceRoot, tsConfigPath, entryPoints);
   }
 
-  const sourceFileCache = cachePath ? new SourceFileCache(cachePath) : undefined;
-
   const pluginOptions = createCompilerPluginOptions(
     {
       workspaceRoot,
@@ -301,10 +289,10 @@ async function createEsbuildContext(
       jit: false,
       tailwindConfiguration,
       postcssConfiguration,
-      incremental: !isNodeModules, // Enable incremental mode for rebuild support
+      incremental: !isNodeModules,
     } as any,
     target,
-    sourceFileCache
+    getCodeBundleCache()
   );
 
   const commonjsPluginModule = await import('@chialab/esbuild-plugin-commonjs');
@@ -354,7 +342,7 @@ async function createEsbuildContext(
 
   const ctx = await esbuild.context(config);
 
-  return { ctx, pluginDisposed, sourceFileCache };
+  return { ctx, pluginDisposed };
 }
 
 async function getTailwindConfig(
