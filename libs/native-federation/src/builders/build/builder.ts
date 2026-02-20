@@ -43,6 +43,7 @@ import { updateScriptTags } from '../../utils/updateIndexHtml';
 import { federationBuildNotifier } from './federation-build-notifier';
 import { NfBuilderSchema } from './schema';
 import { Schema as DevServerSchema } from '@angular-devkit/build-angular/src/builders/dev-server/schema';
+import { getCodeBundleCache } from '../../utils/code-bundle-cache';
 
 const originalWrite = process.stderr.write.bind(process.stderr);
 
@@ -76,6 +77,7 @@ function _buildApplication(options, context, pluginsOrExtensions) {
   } else {
     extensions = pluginsOrExtensions;
   }
+  options.codeBundleCache = getCodeBundleCache();
   return buildApplicationInternal(options, context, extensions);
 }
 
