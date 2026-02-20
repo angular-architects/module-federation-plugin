@@ -17,6 +17,7 @@ import type { Schema as DevServerSchema } from '@angular-devkit/build-angular/sr
 
 import {
   buildForFederation,
+  rebuildForFederation,
   type FederationInfo,
   type FederationOptions,
   getExternals,
@@ -29,18 +30,13 @@ import {
   RebuildQueue,
   AbortedError,
 } from '@softarc/native-federation/internal';
-import {
-  createAngularBuildAdapter,
-  setMemResultHandler,
-} from '../../utils/angular-esbuild-adapter.js';
+import { createAngularBuildAdapter } from '../../utils/angular-esbuild-adapter.js';
 
 import { type JsonObject } from '@angular-devkit/core';
 import { existsSync, mkdirSync, rmSync } from 'fs';
 import { fstart } from '../../tools/fstart-as-data-url.js';
-import { EsBuildResult, MemResults, NgCliAssetResult } from '../../utils/mem-resuts.js';
 import { type Plugin, type PluginBuild } from 'esbuild';
 import { getI18nConfig, translateFederationArtifacts } from '../../utils/i18n.js';
-import { RebuildHubs } from '../../utils/rebuild-events.js';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin.js';
 import { updateScriptTags } from '../../utils/updateIndexHtml.js';
 import { federationBuildNotifier } from './federation-build-notifier.js';
@@ -134,7 +130,6 @@ export async function* runBuilder(
 
   let serverOptions = null;
 
-  const write = true;
   const watch = nfOptions.watch;
 
   if (options['buildTarget']) {
@@ -163,9 +158,8 @@ export async function* runBuilder(
     options.outputPath = nfOptions.outputPath;
   }
 
-  const rebuildEvents = new RebuildHubs();
+  const adapter = createAngularBuildAdapter(options, context);
 
-  const adapter = createAngularBuildAdapter(options, context, rebuildEvents);
   setBuildAdapter(adapter);
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
@@ -211,7 +205,7 @@ export async function* runBuilder(
     federationConfig: inferConfigPath(options.tsConfig),
     tsConfig: options.tsConfig,
     verbose: options.verbose,
-    watch: false, // options.watch,
+    watch: options.watch,
     dev: !!nfOptions.dev,
     chunks: !nfOptions.chunks ? false : nfOptions.chunks,
     entryPoint,
@@ -295,8 +289,6 @@ export async function* runBuilder(
     },
   ];
 
-  const memResults = new MemResults();
-
   let first = true;
   let lastResult: { success: boolean } | undefined;
 
@@ -306,14 +298,6 @@ export async function* runBuilder(
 
   if (!existsSync(fedOptions.outputPath)) {
     mkdirSync(fedOptions.outputPath, { recursive: true });
-  }
-
-  if (!write) {
-    // todo: Hardcoded disabled?
-    setMemResultHandler((outFiles, outDir) => {
-      const fullOutDir = outDir ? path.join(fedOptions.workspaceRoot, outDir) : undefined;
-      memResults.add(outFiles.map(f => new EsBuildResult(f, fullOutDir)));
-    });
   }
 
   let federationResult: FederationInfo;
@@ -365,30 +349,6 @@ export async function* runBuilder(
     for await (const output of builderRun) {
       lastResult = output;
 
-      if (!write && output['outputFiles']) {
-        memResults.add(
-          output['outputFiles'].map(
-            (file: ConstructorParameters<typeof EsBuildResult>[0]) => new EsBuildResult(file)
-          )
-        );
-      }
-
-      if (!write && output['assetFiles']) {
-        memResults.add(
-          output['assetFiles'].map(
-            (file: ConstructorParameters<typeof NgCliAssetResult>[0]) => new NgCliAssetResult(file)
-          )
-        );
-      }
-
-      // if (write && !runServer && !nfOptions.skipHtmlTransform) {
-      //   updateIndexHtml(fedOptions, nfOptions);
-      // }
-
-      // if (!runServer) {
-      //   yield output;
-      // }
-
       if (!first && (nfOptions.dev || watch)) {
         rebuildQueue
           .enqueue(async (signal: AbortSignal) => {
@@ -413,11 +373,13 @@ export async function* runBuilder(
             }
 
             const start = process.hrtime();
-            federationResult = await buildForFederation(config, fedOptions, externals, {
-              skipMappingsAndExposed: false,
-              skipShared: true,
-              signal,
-            });
+            federationResult = await rebuildForFederation(
+              config,
+              fedOptions,
+              externals,
+              [],
+              signal
+            );
 
             if (signal?.aborted) {
               throw new AbortedError('[builder] After federation build.');
@@ -461,6 +423,7 @@ export async function* runBuilder(
     }
   } finally {
     rebuildQueue.dispose();
+    await adapter.dispose();
 
     if (isLocalDevelopment) {
       federationBuildNotifier.stopEventServer();
