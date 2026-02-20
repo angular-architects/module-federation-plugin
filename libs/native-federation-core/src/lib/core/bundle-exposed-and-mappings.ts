@@ -7,11 +7,11 @@ import {
   createBuildResultMap,
   lookupInResultMap,
 } from '../utils/build-result-map';
-import { bundle } from '../utils/build-utils';
 import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
 import { FederationOptions } from './federation-options';
 import { AbortedError } from '../utils/errors';
+import { getBuildAdapter } from './build-adapter';
 
 export interface ArtefactInfo {
   mappings: SharedInfo[];
@@ -22,6 +22,8 @@ export async function bundleExposedAndMappings(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
   externals: string[],
+  cachePath: string,
+  modifiedFiles?: string[],
   signal?: AbortSignal,
 ): Promise<ArtefactInfo> {
   if (signal?.aborted) {
@@ -50,19 +52,27 @@ export async function bundleExposedAndMappings(
 
   let result;
   try {
-    result = await bundle({
-      entryPoints,
-      outdir: fedOptions.outputPath,
-      tsConfigPath: fedOptions.tsConfig,
-      external: externals,
-      dev: !!fedOptions.dev,
-      watch: fedOptions.watch,
-      mappedPaths: config.sharedMappings,
-      kind: 'mapping-or-exposed',
-      hash,
-      optimizedMappings: config.features.ignoreUnusedDeps,
+    if (!modifiedFiles) {
+      await getBuildAdapter().setup({
+        entryPoints,
+        outdir: fedOptions.outputPath,
+        tsConfigPath: fedOptions.tsConfig,
+        external: externals,
+        dev: !!fedOptions.dev,
+        mappedPaths: config.sharedMappings,
+        bundleName: 'mapping-or-exposed',
+        isNodeModules: false,
+        hash,
+        optimizedMappings: config.features.ignoreUnusedDeps,
+        cachePath,
+      });
+    }
+
+    result = await getBuildAdapter().build('mapping-or-exposed', {
       signal,
+      files: modifiedFiles,
     });
+
     if (signal?.aborted) {
       throw new AbortedError(
         '[bundle-exposed-and-mappings] Aborted after bundle',

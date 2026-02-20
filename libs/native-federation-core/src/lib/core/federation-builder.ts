@@ -6,7 +6,7 @@ import {
 } from '../config/configuration-context';
 import { NormalizedFederationConfig } from '../config/federation-config';
 import { BuildAdapter, setBuildAdapter } from './build-adapter';
-import { buildForFederation, defaultBuildParams } from './build-for-federation';
+import { buildForFederation } from './build-for-federation';
 import { FederationOptions } from './federation-options';
 import { getExternals } from './get-externals';
 import { loadFederationConfig } from './load-federation-config';
@@ -32,13 +32,8 @@ async function init(params: BuildHelperParams): Promise<void> {
   externals = getExternals(config);
 }
 
-async function build(buildParams = defaultBuildParams): Promise<void> {
-  fedInfo = await buildForFederation(
-    config,
-    fedOptions,
-    externals,
-    buildParams,
-  );
+async function build(signal?: AbortSignal): Promise<void> {
+  fedInfo = await buildForFederation(config, fedOptions, externals, signal);
 }
 
 export const federationBuilder = {

@@ -7,13 +7,15 @@ export {
 export { withNativeFederation } from './lib/config/with-native-federation';
 export {
   BuildAdapter,
-  BuildAdapterOptions,
-  BuildKind,
   BuildResult,
   EntryPoint,
+  SetupOptions,
   setBuildAdapter,
 } from './lib/core/build-adapter';
-export { buildForFederation } from './lib/core/build-for-federation';
+export {
+  buildForFederation,
+  rebuildForFederation,
+} from './lib/core/build-for-federation';
 export { bundleExposedAndMappings } from './lib/core/bundle-exposed-and-mappings';
 export { FederationOptions } from './lib/core/federation-options';
 export { getExternals } from './lib/core/get-externals';
