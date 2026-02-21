@@ -1,4 +1,5 @@
-# @angular-architects/module-federation
+# @angular-architects/
+@angular-cyberspace@internet-start.net/module-federation-runtime MIT
 
 Seamlessly using Webpack Module Federation with the Angular CLI.
 
