@@ -1,3 +1,5 @@
+import './env-setup.js';
+
 import * as fs from 'fs';
 import * as mrmime from 'mrmime';
 import * as path from 'path';
@@ -41,7 +43,7 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin.j
 import { updateScriptTags } from '../../utils/updateIndexHtml.js';
 import { federationBuildNotifier } from './federation-build-notifier.js';
 import { type NfBuilderSchema } from './schema.js';
-import { getCodeBundleCache } from '../../utils/code-bundle-cache';
+import { invalidateCodeBundleCache } from '../../utils/code-bundle-cache.js';
 
 const originalWrite = process.stderr.write.bind(process.stderr);
 
@@ -76,7 +78,7 @@ function _buildApplication(
   } else {
     extensions = pluginsOrExtensions as Parameters<typeof buildApplicationInternal>[2];
   }
-  options.codeBundleCache = getCodeBundleCache();
+  // options.codeBundleCache = getCodeBundleCache();
   return buildApplicationInternal(options, context, extensions);
 }
 
@@ -375,6 +377,9 @@ export async function* runBuilder(
             }
 
             const start = process.hrtime();
+
+            invalidateCodeBundleCache();
+
             federationResult = await rebuildForFederation(
               config,
               fedOptions,
