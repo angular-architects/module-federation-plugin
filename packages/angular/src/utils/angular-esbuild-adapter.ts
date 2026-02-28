@@ -14,6 +14,7 @@ import {
   generateSearchDirectories,
   findTailwindConfiguration,
   loadPostcssConfiguration,
+  type SourceFileCache,
 } from '@angular/build/private';
 
 import { createCompilerPluginOptions } from './create-compiler-options.js';
@@ -37,7 +38,6 @@ import { type PluginItem, transformAsync } from '@babel/core';
 import JSON5 from 'json5';
 import { isDeepStrictEqual } from 'node:util';
 import { createAwaitableCompilerPlugin } from './create-awaitable-compiler-plugin.js';
-import { getCodeBundleCache, setCodeBundleCache } from './code-bundle-cache.js';
 
 interface CachedContext {
   ctx: esbuild.BuildContext;
@@ -84,7 +84,7 @@ export function createAngularBuildAdapter(
     await Promise.all(disposals);
   };
 
-  const setup = async (options: NFBuildAdapterOptions): Promise<void> => {
+  const setup = async (options: NFBuildAdapterOptions<SourceFileCache>): Promise<void> => {
     const {
       entryPoints,
       tsConfigPath,
@@ -98,12 +98,10 @@ export function createAngularBuildAdapter(
       hash,
       platform,
       optimizedMappings,
-      cachePath,
+      cache,
     } = options;
 
     setNgServerMode();
-
-    if (cachePath) setCodeBundleCache(cachePath);
 
     if (contextCache.has(bundleName)) {
       return;
@@ -117,6 +115,7 @@ export function createAngularBuildAdapter(
       outdir,
       tsConfigPath!,
       mappedPaths,
+      cache.bundlerCache,
       dev,
       isNodeModules,
       hash,
@@ -223,6 +222,7 @@ async function createEsbuildContext(
   outdir: string,
   tsConfigPath: string,
   mappedPaths: MappedPath[],
+  sourceFileCache: SourceFileCache,
   dev?: boolean,
   isNodeModules?: boolean,
   hash: boolean = false,
@@ -292,7 +292,7 @@ async function createEsbuildContext(
       incremental: !isNodeModules,
     } as any,
     target,
-    getCodeBundleCache()
+    sourceFileCache
   );
 
   const commonjsPluginModule = await import('@chialab/esbuild-plugin-commonjs');

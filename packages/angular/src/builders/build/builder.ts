@@ -5,7 +5,7 @@ import * as mrmime from 'mrmime';
 import * as path from 'path';
 
 import { type ApplicationBuilderOptions, buildApplication } from '@angular/build';
-import { buildApplicationInternal, serveWithVite } from '@angular/build/private';
+import { buildApplicationInternal, serveWithVite, SourceFileCache } from '@angular/build/private';
 
 import {
   type BuilderContext,
@@ -21,19 +21,21 @@ import {
   buildForFederation,
   rebuildForFederation,
   type FederationInfo,
-  type FederationOptions,
+  type NormalizedFederationOptions,
   getExternals,
   loadFederationConfig,
+  normalizeFederationOptions,
   setBuildAdapter,
+  createFederationCache,
 } from '@softarc/native-federation';
 import {
   logger,
   setLogLevel,
   RebuildQueue,
   AbortedError,
+  getDefaultCachePath,
 } from '@softarc/native-federation/internal';
 import { createAngularBuildAdapter } from '../../utils/angular-esbuild-adapter.js';
-
 import { type JsonObject } from '@angular-devkit/core';
 import { existsSync, mkdirSync, rmSync } from 'fs';
 import { fstart } from '../../tools/fstart-as-data-url.js';
@@ -43,7 +45,6 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin.j
 import { updateScriptTags } from '../../utils/updateIndexHtml.js';
 import { federationBuildNotifier } from './federation-build-notifier.js';
 import { type NfBuilderSchema } from './schema.js';
-import { invalidateCodeBundleCache } from '../../utils/code-bundle-cache.js';
 
 const originalWrite = process.stderr.write.bind(process.stderr);
 
@@ -203,19 +204,23 @@ export async function* runBuilder(
 
   const entryPoint = path.join(path.dirname(options.tsConfig), 'src/main.ts');
 
-  const fedOptions: FederationOptions = {
-    workspaceRoot: context.workspaceRoot,
-    outputPath: browserOutputPath,
-    federationConfig: inferConfigPath(options.tsConfig),
-    tsConfig: options.tsConfig,
-    verbose: options.verbose,
-    watch: options.watch,
-    dev: !!nfOptions.dev,
-    chunks: !nfOptions.chunks ? false : nfOptions.chunks,
-    entryPoint,
-    buildNotifications: nfOptions.buildNotifications,
-    cacheExternalArtifacts: nfOptions.cacheExternalArtifacts,
-  };
+  const cachePath = getDefaultCachePath(context.workspaceRoot);
+  const fedOptions = normalizeFederationOptions(
+    {
+      workspaceRoot: context.workspaceRoot,
+      outputPath: browserOutputPath,
+      federationConfig: inferConfigPath(options.tsConfig),
+      tsConfig: options.tsConfig,
+      verbose: options.verbose,
+      watch: options.watch,
+      dev: !!nfOptions.dev,
+      chunks: !nfOptions.chunks ? false : nfOptions.chunks,
+      entryPoint,
+      buildNotifications: nfOptions.buildNotifications,
+      cacheExternalArtifacts: nfOptions.cacheExternalArtifacts,
+    },
+    createFederationCache(cachePath, new SourceFileCache(cachePath))
+  );
 
   const activateSsr = nfOptions.ssr && !nfOptions.dev;
 
@@ -378,7 +383,13 @@ export async function* runBuilder(
 
             const start = process.hrtime();
 
-            invalidateCodeBundleCache();
+            // Invalidate all source files, Angular doesn't provide a way to give the invalidated files yet.
+            const keys = new Set(
+              [...fedOptions.federationCache.bundlerCache.keys()].filter(
+                k => !k.includes('node_modules')
+              )
+            );
+            fedOptions.federationCache.bundlerCache.invalidate(keys);
 
             federationResult = await rebuildForFederation(
               config,
@@ -449,7 +460,7 @@ function removeBaseHref(req: { url?: string }, baseHref?: string) {
   return url;
 }
 
-function writeFstartScript(fedOptions: FederationOptions) {
+function writeFstartScript(fedOptions: NormalizedFederationOptions) {
   const serverOutpath = path.join(fedOptions.outputPath, '../server');
   const fstartPath = path.join(serverOutpath, 'fstart.mjs');
   const buffer = Buffer.from(fstart, 'base64');
