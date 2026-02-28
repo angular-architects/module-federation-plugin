@@ -13,9 +13,8 @@ export function getCodeBundleCache() {
 
 export function invalidateCodeBundleCache() {
   if (!_codeBundleCache) return;
-  for (const k of _codeBundleCache.keys()) {
-    if (!k.includes('node_modules')) {
-      _codeBundleCache.invalidate(k);
-    }
-  }
+
+  // Invalidate all source files, Angular doesn't provide a way to give the invalidated files yet.
+  const keys = new Set([..._codeBundleCache.keys()].filter(k => !k.includes('node_modules')));
+  _codeBundleCache.invalidate(keys);
 }
