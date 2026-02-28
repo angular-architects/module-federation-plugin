@@ -1,9 +1,11 @@
+import './setup-builder-env-variables.js';
+
 import * as fs from 'fs';
 import * as mrmime from 'mrmime';
 import * as path from 'path';
 
 import { type ApplicationBuilderOptions, buildApplication } from '@angular/build';
-import { buildApplicationInternal, serveWithVite } from '@angular/build/private';
+import { buildApplicationInternal, serveWithVite, SourceFileCache } from '@angular/build/private';
 
 import {
   type BuilderContext,
@@ -17,30 +19,29 @@ import type { Schema as DevServerSchema } from '@angular-devkit/build-angular/sr
 
 import {
   buildForFederation,
+  rebuildForFederation,
   type FederationInfo,
-  type FederationOptions,
+  type NormalizedFederationOptions,
   getExternals,
   loadFederationConfig,
+  normalizeFederationOptions,
   setBuildAdapter,
+  createFederationCache,
+  // type FederationCache,
 } from '@softarc/native-federation';
 import {
   logger,
   setLogLevel,
   RebuildQueue,
   AbortedError,
+  getDefaultCachePath,
 } from '@softarc/native-federation/internal';
-import {
-  createAngularBuildAdapter,
-  setMemResultHandler,
-} from '../../utils/angular-esbuild-adapter.js';
-
+import { createAngularBuildAdapter } from '../../utils/angular-esbuild-adapter.js';
 import { type JsonObject } from '@angular-devkit/core';
 import { existsSync, mkdirSync, rmSync } from 'fs';
 import { fstart } from '../../tools/fstart-as-data-url.js';
-import { EsBuildResult, MemResults, NgCliAssetResult } from '../../utils/mem-resuts.js';
 import { type Plugin, type PluginBuild } from 'esbuild';
 import { getI18nConfig, translateFederationArtifacts } from '../../utils/i18n.js';
-import { RebuildHubs } from '../../utils/rebuild-events.js';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin.js';
 import { updateScriptTags } from '../../utils/updateIndexHtml.js';
 import { federationBuildNotifier } from './federation-build-notifier.js';
@@ -66,27 +67,30 @@ process.stderr.write = function (
   return originalWrite(chunk, encodingOrCallback as BufferEncoding, callback);
 };
 
-function _buildApplication(
-  options: Parameters<typeof buildApplicationInternal>[0],
-  context: BuilderContext,
-  pluginsOrExtensions?: Plugin[] | Parameters<typeof buildApplicationInternal>[2]
-) {
-  let extensions: Parameters<typeof buildApplicationInternal>[2];
-  if (pluginsOrExtensions && Array.isArray(pluginsOrExtensions)) {
-    extensions = {
-      codePlugins: pluginsOrExtensions,
-    };
-  } else {
-    extensions = pluginsOrExtensions as Parameters<typeof buildApplicationInternal>[2];
-  }
-  return buildApplicationInternal(options, context, extensions);
-}
+const createInternalAngularBuilder =
+  (_: NormalizedFederationOptions<SourceFileCache>) =>
+  (
+    options: Parameters<typeof buildApplicationInternal>[0],
+    context: BuilderContext,
+    pluginsOrExtensions?: Plugin[] | Parameters<typeof buildApplicationInternal>[2]
+  ) => {
+    let extensions: Parameters<typeof buildApplicationInternal>[2];
+    if (pluginsOrExtensions && Array.isArray(pluginsOrExtensions)) {
+      extensions = {
+        codePlugins: pluginsOrExtensions,
+      };
+    } else {
+      extensions = pluginsOrExtensions as Parameters<typeof buildApplicationInternal>[2];
+    }
+    // options.codeBundleCache = nfOptions.federationCache.bundlerCache;
+    return buildApplicationInternal(options, context, extensions);
+  };
 
 export async function* runBuilder(
-  nfOptions: NfBuilderSchema,
+  nfBuilderOptions: NfBuilderSchema,
   context: BuilderContext
 ): AsyncIterable<BuilderOutput> {
-  let target = targetFromTargetString(nfOptions.target);
+  let target = targetFromTargetString(nfBuilderOptions.target);
 
   let targetOptions = (await context.getTargetOptions(target)) as unknown as JsonObject &
     ApplicationBuilderOptions;
@@ -118,15 +122,15 @@ export async function* runBuilder(
    * Explicitly defined as devServer or if the target contains "serve"
    */
   const runServer =
-    typeof nfOptions.devServer !== 'undefined'
-      ? !!nfOptions.devServer
+    typeof nfBuilderOptions.devServer !== 'undefined'
+      ? !!nfBuilderOptions.devServer
       : target.target.includes('serve');
 
   let options = (await context.validateOptions(
     runServer
       ? ({
           ...targetOptions,
-          port: nfOptions.port || targetOptions['port'],
+          port: nfBuilderOptions.port || targetOptions['port'],
         } as JsonObject)
       : targetOptions,
     builder
@@ -134,8 +138,7 @@ export async function* runBuilder(
 
   let serverOptions = null;
 
-  const write = true;
-  const watch = nfOptions.watch;
+  const watch = nfBuilderOptions.watch;
 
   if (options['buildTarget']) {
     serverOptions = await normalizeOptions(
@@ -155,17 +158,16 @@ export async function* runBuilder(
 
   options.watch = watch;
 
-  if (nfOptions.baseHref) {
-    options.baseHref = nfOptions.baseHref;
+  if (nfBuilderOptions.baseHref) {
+    options.baseHref = nfBuilderOptions.baseHref;
   }
 
-  if (nfOptions.outputPath) {
-    options.outputPath = nfOptions.outputPath;
+  if (nfBuilderOptions.outputPath) {
+    options.outputPath = nfBuilderOptions.outputPath;
   }
 
-  const rebuildEvents = new RebuildHubs();
+  const adapter = createAngularBuildAdapter(options, context);
 
-  const adapter = createAngularBuildAdapter(options, context, rebuildEvents);
   setBuildAdapter(adapter);
 
   setLogLevel(options.verbose ? 'verbose' : 'info');
@@ -205,24 +207,28 @@ export async function* runBuilder(
 
   const entryPoint = path.join(path.dirname(options.tsConfig), 'src/main.ts');
 
-  const fedOptions: FederationOptions = {
-    workspaceRoot: context.workspaceRoot,
-    outputPath: browserOutputPath,
-    federationConfig: inferConfigPath(options.tsConfig),
-    tsConfig: options.tsConfig,
-    verbose: options.verbose,
-    watch: false, // options.watch,
-    dev: !!nfOptions.dev,
-    chunks: !nfOptions.chunks ? false : nfOptions.chunks,
-    entryPoint,
-    buildNotifications: nfOptions.buildNotifications,
-    cacheExternalArtifacts: nfOptions.cacheExternalArtifacts,
-  };
+  const cachePath = getDefaultCachePath(context.workspaceRoot);
+  const nfOptions = normalizeFederationOptions(
+    {
+      workspaceRoot: context.workspaceRoot,
+      outputPath: browserOutputPath,
+      federationConfig: inferConfigPath(options.tsConfig),
+      tsConfig: options.tsConfig,
+      verbose: options.verbose,
+      watch: options.watch,
+      dev: !!nfBuilderOptions.dev,
+      chunks: !nfBuilderOptions.chunks ? false : nfBuilderOptions.chunks,
+      entryPoint,
+      buildNotifications: nfBuilderOptions.buildNotifications,
+      cacheExternalArtifacts: nfBuilderOptions.cacheExternalArtifacts,
+    },
+    createFederationCache(cachePath, new SourceFileCache(cachePath))
+  );
 
-  const activateSsr = nfOptions.ssr && !nfOptions.dev;
+  const activateSsr = nfBuilderOptions.ssr && !nfBuilderOptions.dev;
 
   const start = process.hrtime();
-  const config = await loadFederationConfig(fedOptions);
+  const config = await loadFederationConfig(nfOptions);
   logger.measure(start, 'To load the federation config.');
 
   const externals = getExternals(config);
@@ -243,11 +249,11 @@ export async function* runBuilder(
     options.externalDependencies = externals;
   }
 
-  const isLocalDevelopment = runServer && nfOptions.dev;
+  const isLocalDevelopment = runServer && nfBuilderOptions.dev;
 
   // Initialize SSE reloader only for local development
-  if (isLocalDevelopment && nfOptions.buildNotifications?.enable) {
-    federationBuildNotifier.initialize(nfOptions.buildNotifications.endpoint);
+  if (isLocalDevelopment && nfBuilderOptions.buildNotifications?.enable) {
+    federationBuildNotifier.initialize(nfBuilderOptions.buildNotifications.endpoint);
   }
 
   const middleware = [
@@ -269,7 +275,7 @@ export async function* runBuilder(
     ) => {
       const url = removeBaseHref(req, options.baseHref);
 
-      const fileName = path.join(fedOptions.workspaceRoot, devServerOutputPath, url);
+      const fileName = path.join(nfOptions.workspaceRoot, devServerOutputPath, url);
 
       const exists = fs.existsSync(fileName);
 
@@ -295,31 +301,21 @@ export async function* runBuilder(
     },
   ];
 
-  const memResults = new MemResults();
-
   let first = true;
   let lastResult: { success: boolean } | undefined;
 
-  if (existsSync(fedOptions.outputPath)) {
-    rmSync(fedOptions.outputPath, { recursive: true });
+  if (existsSync(nfOptions.outputPath)) {
+    rmSync(nfOptions.outputPath, { recursive: true });
   }
 
-  if (!existsSync(fedOptions.outputPath)) {
-    mkdirSync(fedOptions.outputPath, { recursive: true });
-  }
-
-  if (!write) {
-    // todo: Hardcoded disabled?
-    setMemResultHandler((outFiles, outDir) => {
-      const fullOutDir = outDir ? path.join(fedOptions.workspaceRoot, outDir) : undefined;
-      memResults.add(outFiles.map(f => new EsBuildResult(f, fullOutDir)));
-    });
+  if (!existsSync(nfOptions.outputPath)) {
+    mkdirSync(nfOptions.outputPath, { recursive: true });
   }
 
   let federationResult: FederationInfo;
   try {
     const start = process.hrtime();
-    federationResult = await buildForFederation(config, fedOptions, externals);
+    federationResult = await buildForFederation(config, nfOptions, externals);
     logger.measure(start, 'To build the artifacts.');
   } catch (e) {
     logger.error((e as Error)?.message ?? 'Building the artifacts failed');
@@ -327,7 +323,7 @@ export async function* runBuilder(
   }
 
   if (activateSsr) {
-    writeFstartScript(fedOptions);
+    writeFstartScript(nfOptions);
   }
 
   const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
@@ -346,9 +342,11 @@ export async function* runBuilder(
     ? serveWithVite(
         serverOptions as unknown as Parameters<typeof serveWithVite>[0],
         appBuilderName,
-        _buildApplication,
+        createInternalAngularBuilder(nfOptions),
         context,
-        nfOptions.skipHtmlTransform ? {} : { indexHtml: transformIndexHtml(nfOptions) },
+        nfBuilderOptions.skipHtmlTransform
+          ? {}
+          : { indexHtml: transformIndexHtml(nfBuilderOptions) },
         {
           buildPlugins: plugins,
           middleware,
@@ -356,7 +354,7 @@ export async function* runBuilder(
       )
     : buildApplication(options, context, {
         codePlugins: plugins,
-        indexHtmlTransformer: transformIndexHtml(nfOptions),
+        indexHtmlTransformer: transformIndexHtml(nfBuilderOptions),
       });
 
   const rebuildQueue = new RebuildQueue();
@@ -365,31 +363,7 @@ export async function* runBuilder(
     for await (const output of builderRun) {
       lastResult = output;
 
-      if (!write && output['outputFiles']) {
-        memResults.add(
-          output['outputFiles'].map(
-            (file: ConstructorParameters<typeof EsBuildResult>[0]) => new EsBuildResult(file)
-          )
-        );
-      }
-
-      if (!write && output['assetFiles']) {
-        memResults.add(
-          output['assetFiles'].map(
-            (file: ConstructorParameters<typeof NgCliAssetResult>[0]) => new NgCliAssetResult(file)
-          )
-        );
-      }
-
-      // if (write && !runServer && !nfOptions.skipHtmlTransform) {
-      //   updateIndexHtml(fedOptions, nfOptions);
-      // }
-
-      // if (!runServer) {
-      //   yield output;
-      // }
-
-      if (!first && (nfOptions.dev || watch)) {
+      if (!first && (nfBuilderOptions.dev || watch)) {
         rebuildQueue
           .enqueue(async (signal: AbortSignal) => {
             if (signal?.aborted) {
@@ -397,7 +371,7 @@ export async function* runBuilder(
             }
 
             await new Promise((resolve, reject) => {
-              const timeout = setTimeout(resolve, Math.max(10, nfOptions.rebuildDelay));
+              const timeout = setTimeout(resolve, Math.max(10, nfBuilderOptions.rebuildDelay));
 
               if (signal) {
                 const abortHandler = () => {
@@ -413,11 +387,16 @@ export async function* runBuilder(
             }
 
             const start = process.hrtime();
-            federationResult = await buildForFederation(config, fedOptions, externals, {
-              skipMappingsAndExposed: false,
-              skipShared: true,
-              signal,
-            });
+
+            // Invalidate all source files, Angular doesn't provide a way to give the invalidated files yet.
+            const keys = new Set(
+              [...nfOptions.federationCache.bundlerCache.keys()].filter(
+                k => !k.includes('node_modules')
+              )
+            );
+            nfOptions.federationCache.bundlerCache.invalidate(keys);
+
+            federationResult = await rebuildForFederation(config, nfOptions, externals, [], signal);
 
             if (signal?.aborted) {
               throw new AbortedError('[builder] After federation build.');
@@ -461,6 +440,7 @@ export async function* runBuilder(
     }
   } finally {
     rebuildQueue.dispose();
+    await adapter.dispose();
 
     if (isLocalDevelopment) {
       federationBuildNotifier.stopEventServer();
@@ -479,8 +459,8 @@ function removeBaseHref(req: { url?: string }, baseHref?: string) {
   return url;
 }
 
-function writeFstartScript(fedOptions: FederationOptions) {
-  const serverOutpath = path.join(fedOptions.outputPath, '../server');
+function writeFstartScript(nfOptions: NormalizedFederationOptions) {
+  const serverOutpath = path.join(nfOptions.outputPath, '../server');
   const fstartPath = path.join(serverOutpath, 'fstart.mjs');
   const buffer = Buffer.from(fstart, 'base64');
   fs.mkdirSync(serverOutpath, { recursive: true });

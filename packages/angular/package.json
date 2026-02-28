@@ -10,13 +10,13 @@
     "url": "http://www.angulararchitects.io"
   },
   "dependencies": {
-    "@softarc/native-federation": "4.0.0-RC5",
-    "@softarc/native-federation-runtime": "4.0.0-RC5",
-    "@angular-devkit/architect": "^0.2101.2",
-    "@angular-devkit/build-angular": "^21.1.2",
-    "@angular-devkit/core": "^21.1.2",
-    "@angular-devkit/schematics": "^21.1.2",
-    "@angular/build": "^21.1.2",
+    "@softarc/native-federation": "4.0.0-RC6",
+    "@softarc/native-federation-runtime": "4.0.0-RC6",
+    "@angular-devkit/architect": "^0.2102.0",
+    "@angular-devkit/build-angular": "^21.2.0",
+    "@angular-devkit/core": "^21.2.0",
+    "@angular-devkit/schematics": "^21.2.0",
+    "@angular/build": "^21.2.0",
     "@chialab/esbuild-plugin-commonjs": "^0.19.0"
   },
   "repository": {
