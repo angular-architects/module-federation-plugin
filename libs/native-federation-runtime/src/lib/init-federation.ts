@@ -57,7 +57,14 @@ export async function initFederation(
       ? await loadManifest(remotesOrManifestUrl + cacheTag)
       : remotesOrManifestUrl;
 
-  const deployUrl = options?.deployUrl ? `${options.deployUrl}/` : './';
+  let deployUrl = './';
+  if (options?.deployUrl) {
+    if (options.deployUrl.endsWith('/')) {
+      deployUrl = options.deployUrl;
+    } else {
+      deployUrl = `${options.deployUrl}/`;
+    }
+  }
 
   const hostInfo = await loadFederationInfo(
     `${deployUrl}remoteEntry.json${cacheTag}`,
