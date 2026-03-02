@@ -15,7 +15,7 @@ import {
   targetFromTargetString,
 } from '@angular-devkit/architect';
 
-import { normalizeOptions } from '@angular-devkit/build-angular/src/builders/dev-server/options';
+import { normalizeOptions } from '@angular/build/src/builders/dev-server/options';
 
 import {
   buildForFederation,
@@ -49,7 +49,7 @@ import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { updateScriptTags } from '../../utils/updateIndexHtml';
 import { federationBuildNotifier } from './federation-build-notifier';
 import { NfBuilderSchema } from './schema';
-import { Schema as DevServerSchema } from '@angular-devkit/build-angular/src/builders/dev-server/schema';
+import { Schema as DevServerSchema } from '@angular/build/src/builders/dev-server/schema';
 
 const originalWrite = process.stderr.write.bind(process.stderr);
 
