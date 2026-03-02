@@ -372,7 +372,7 @@ export function _getPackageInfo(
 
   logger.warn('No entry point found for ' + packageName);
   logger.warn(
-    "If you don't need this package, skip it in your federation.config.js or consider moving it into depDependencies in your package.json",
+    "If you don't need this package, skip it in your federation.config.js or consider moving it into devDependencies in your package.json",
   );
 
   return null;
