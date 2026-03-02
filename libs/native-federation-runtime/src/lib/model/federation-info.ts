@@ -27,6 +27,7 @@ export interface FederationInfo {
 
 export interface InitFederationOptions {
   cacheTag?: string;
+  deployUrl?: string;
 }
 
 export interface ProcessRemoteInfoOptions extends InitFederationOptions {
