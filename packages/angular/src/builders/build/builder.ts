@@ -27,7 +27,6 @@ import {
   normalizeFederationOptions,
   setBuildAdapter,
   createFederationCache,
-  // type FederationCache,
 } from '@softarc/native-federation';
 import {
   logger,
@@ -359,13 +358,19 @@ export async function* runBuilder(
 
   const rebuildQueue = new RebuildQueue();
 
+  const builderIterator = builderRun[Symbol.asyncIterator]();
+
   try {
-    for await (const output of builderRun) {
-      lastResult = output;
+    let outputResult = await builderIterator.next();
+
+    while (!outputResult.done) {
+      lastResult = outputResult.value;
 
       if (!first && (nfBuilderOptions.dev || watch)) {
-        rebuildQueue
-          .enqueue(async (signal: AbortSignal) => {
+        const nextOutputPromise = builderIterator.next();
+
+        const trackResult = await rebuildQueue.track(async (signal: AbortSignal) => {
+          try {
             if (signal?.aborted) {
               throw new AbortedError('Build canceled before starting');
             }
@@ -424,19 +429,32 @@ export async function* runBuilder(
               federationBuildNotifier.broadcastBuildCompletion();
             }
             logger.measure(start, 'To rebuild the federation artifacts.');
-          })
-          .catch(error => {
+            return { success: true };
+          } catch (error) {
             if (error instanceof AbortedError) {
               logger.verbose('Rebuild was canceled. Cancellation point: ' + error?.message);
               federationBuildNotifier.broadcastBuildCancellation();
-            } else {
-              logger.error('Federation rebuild failed!');
-              if (options.verbose) console.error(error);
-              if (isLocalDevelopment) {
-                federationBuildNotifier.broadcastBuildError(error);
-              }
+              return { success: false, cancelled: true };
             }
-          });
+            logger.error('Federation rebuild failed!');
+            if (options.verbose) console.error(error);
+            if (isLocalDevelopment) {
+              federationBuildNotifier.broadcastBuildError(error);
+            }
+            return { success: false };
+          }
+        }, nextOutputPromise);
+
+        if (trackResult.type === 'completed') {
+          if (!trackResult.result.cancelled) {
+            yield { success: trackResult.result.success };
+          }
+          outputResult = await nextOutputPromise;
+        } else {
+          outputResult = trackResult.value;
+        }
+      } else {
+        outputResult = await builderIterator.next();
       }
 
       first = false;

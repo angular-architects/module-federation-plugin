@@ -7,14 +7,12 @@ import {
   type FederationCache,
   type EntryPoint,
 } from '@softarc/native-federation';
-import { AbortedError, logger, type MappedPath } from '@softarc/native-federation/internal';
+import { AbortedError, type MappedPath } from '@softarc/native-federation/internal';
 
 import type * as esbuild from 'esbuild';
 import type { SourceFileCache } from '@angular/build/private';
 import type { BuilderContext } from '@angular-devkit/architect';
 import type { ApplicationBuilderOptions } from '@angular/build';
-
-import { type PluginItem, transformAsync } from '@babel/core';
 
 import { createAngularEsbuildContext } from './angular-bundler.js';
 import { createNodeModulesEsbuildContext } from './node-modules-bundler.js';
@@ -24,10 +22,6 @@ export interface EsbuildContextResult {
   pluginDisposed: Promise<void>;
 }
 
-/**
- * Creates the appropriate esbuild context based on whether we're bundling
- * node_modules or source code.
- */
 async function createEsbuildContext(
   builderOptions: ApplicationBuilderOptions,
   context: BuilderContext,
@@ -52,6 +46,7 @@ async function createEsbuildContext(
       external,
       outdir,
       mappedPaths,
+      cache,
       dev,
       hash,
       chunks,
@@ -76,59 +71,6 @@ async function createEsbuildContext(
   );
 }
 
-/**
- * Dynamically import an ESM module.
- */
-export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
-  return new Function('modulePath', `return import(modulePath);`)(modulePath) as Promise<T>;
-}
-
-/**
- * Links Angular Ivy partial compilation using the Babel linker.
- * This is required for node_modules that contain Angular libraries with partial Ivy compilation.
- */
-async function link(outfile: string, dev: boolean): Promise<void> {
-  const code = fs.readFileSync(outfile, 'utf-8');
-
-  try {
-    const linkerEsm = await loadEsmModule<{ default: PluginItem }>(
-      '@angular/compiler-cli/linker/babel'
-    );
-
-    const linker = linkerEsm.default;
-
-    const result = await transformAsync(code, {
-      filename: outfile,
-      compact: !dev,
-      configFile: false,
-      babelrc: false,
-      minified: !dev,
-      browserslistConfigFile: false,
-      plugins: [linker],
-    });
-
-    if (!result) logger.warn(`File ${outfile} could not be linked.`);
-    if (!result?.code) {
-      logger.warn(`File ${outfile} seems to be empty.`);
-      return;
-    }
-
-    fs.writeFileSync(outfile, result.code, 'utf-8');
-  } catch (e) {
-    logger.error('error linking');
-
-    if (fs.existsSync(`${outfile}.error`)) {
-      fs.unlinkSync(`${outfile}.error`);
-    }
-    fs.renameSync(outfile, `${outfile}.error`);
-
-    throw e;
-  }
-}
-
-/**
- * Writes esbuild output files to disk.
- */
 function writeResult(result: esbuild.BuildResult<esbuild.BuildOptions>, outdir: string): string[] {
   const writtenFiles: string[] = [];
 
@@ -173,11 +115,6 @@ interface CachedBundleContext extends EsbuildContextResult {
   isNodeModules: boolean;
 }
 
-/**
- * Creates an Angular-aware build adapter for Native Federation.
- * This adapter uses esbuild with the Angular compiler plugin for source code
- * and a lightweight bundler for node_modules.
- */
 export function createAngularBuildAdapter(
   builderOptions: ApplicationBuilderOptions,
   context: BuilderContext
@@ -196,7 +133,6 @@ export function createAngularBuildAdapter(
       return;
     }
 
-    // Dispose all if no specific build provided
     const disposals: Promise<void>[] = [];
 
     for (const [, entry] of bundleContextCache) {
@@ -287,13 +223,6 @@ export function createAngularBuildAdapter(
         result as esbuild.BuildResult<esbuild.BuildOptions>,
         bundleContext.outdir
       );
-
-      if (bundleContext.isNodeModules) {
-        const scriptFiles = writtenFiles.filter(f => f.endsWith('.js') || f.endsWith('.mjs'));
-        for (const file of scriptFiles) {
-          await link(file, bundleContext.dev);
-        }
-      }
 
       return writtenFiles.map(fileName => ({ fileName }) as NFBuildAdapterResult);
     } catch (error) {

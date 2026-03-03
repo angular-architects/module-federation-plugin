@@ -35,10 +35,6 @@ export interface AngularBundleResult {
   pluginDisposed: Promise<void>;
 }
 
-/**
- * Full Angular esbuild context for bundling source code (exposed modules, shared mappings).
- * Uses the Angular compiler plugin for TypeScript and template compilation.
- */
 export async function createAngularEsbuildContext(
   builderOptions: ApplicationBuilderOptions,
   context: BuilderContext,
