@@ -389,14 +389,17 @@ export async function* runBuilder(
             const start = process.hrtime();
 
             // Invalidate all source files, Angular doesn't provide a way to give the invalidated files yet.
-            const keys = new Set(
-              [...nfOptions.federationCache.bundlerCache.keys()].filter(
-                k => !k.includes('node_modules')
-              )
+            const keys = [...nfOptions.federationCache.bundlerCache.keys()].filter(
+              k => !k.includes('node_modules')
             );
-            nfOptions.federationCache.bundlerCache.invalidate(keys);
 
-            federationResult = await rebuildForFederation(config, nfOptions, externals, [], signal);
+            federationResult = await rebuildForFederation(
+              config,
+              nfOptions,
+              externals,
+              keys,
+              signal
+            );
 
             if (signal?.aborted) {
               throw new AbortedError('[builder] After federation build.');
