@@ -88,7 +88,7 @@ export async function loadRemoteEntry(
 export async function loadRemoteEntry(
   remoteEntryOrOptions: string | LoadRemoteEntryOptions,
   remoteName?: string,
-  nonce?: string
+  nonce?: string,
 ): Promise<void> {
   if (typeof remoteEntryOrOptions === 'string') {
     const remoteEntry = remoteEntryOrOptions;
@@ -98,7 +98,7 @@ export async function loadRemoteEntry(
     return await loadRemoteScriptEntry(
       options.remoteEntry,
       options.remoteName,
-      options.nonce
+      options.nonce,
     );
   } else if (remoteEntryOrOptions.type === 'module') {
     const options = remoteEntryOrOptions;
@@ -121,7 +121,7 @@ async function loadRemoteModuleEntry(remoteEntry: string): Promise<void> {
 async function loadRemoteScriptEntry(
   remoteEntry: string,
   remoteName: string,
-  nonce?: string
+  nonce?: string,
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     // Is remoteEntry already loaded?
