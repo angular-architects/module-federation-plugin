@@ -301,7 +301,6 @@ export async function* runBuilder(
   ];
 
   let first = true;
-  let lastResult: { success: boolean } | undefined;
 
   if (existsSync(nfOptions.outputPath)) {
     rmSync(nfOptions.outputPath, { recursive: true });
@@ -360,11 +359,13 @@ export async function* runBuilder(
 
   const builderIterator = builderRun[Symbol.asyncIterator]();
 
-  try {
-    let outputResult = await builderIterator.next();
+  let ngBuildStatus: { success: boolean } = { success: false };
 
-    while (!outputResult.done) {
-      lastResult = outputResult.value;
+  try {
+    let buildResult = await builderIterator.next();
+
+    while (!buildResult.done) {
+      if (buildResult.value) ngBuildStatus = buildResult.value;
 
       if (!first && (nfBuilderOptions.dev || watch)) {
         const nextOutputPromise = builderIterator.next();
@@ -449,14 +450,13 @@ export async function* runBuilder(
           if (!trackResult.result.cancelled) {
             yield { success: trackResult.result.success };
           }
-          outputResult = await nextOutputPromise;
+          buildResult = await nextOutputPromise;
         } else {
-          outputResult = trackResult.value;
+          buildResult = trackResult.value;
         }
       } else {
-        outputResult = await builderIterator.next();
+        buildResult = await builderIterator.next();
       }
-
       first = false;
     }
   } finally {
@@ -468,7 +468,7 @@ export async function* runBuilder(
     }
   }
 
-  yield lastResult || { success: false };
+  yield ngBuildStatus;
 }
 
 function removeBaseHref(req: { url?: string }, baseHref?: string) {

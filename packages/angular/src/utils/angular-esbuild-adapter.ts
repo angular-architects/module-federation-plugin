@@ -9,7 +9,7 @@ import {
 } from '@softarc/native-federation';
 import { AbortedError, type MappedPath } from '@softarc/native-federation/internal';
 
-import type * as esbuild from 'esbuild';
+import * as esbuild from 'esbuild';
 import type { SourceFileCache } from '@angular/build/private';
 import type { BuilderContext } from '@angular-devkit/architect';
 import type { ApplicationBuilderOptions } from '@angular/build';
@@ -126,7 +126,6 @@ export function createAngularBuildAdapter(
       if (!bundleContextCache.has(name))
         throw new Error(`Could not dispose of non-existing build '${name}'`);
       const entry = bundleContextCache.get(name)!;
-
       await entry.ctx.dispose();
       await entry.pluginDisposed;
       bundleContextCache.delete(name);
@@ -145,6 +144,8 @@ export function createAngularBuildAdapter(
     }
     bundleContextCache.clear();
     await Promise.all(disposals);
+
+    await esbuild.stop();
   };
 
   const setup = async (options: NFBuildAdapterOptions<SourceFileCache>): Promise<void> => {
