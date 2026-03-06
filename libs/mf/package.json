@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/module-federation",
-  "version": "21.2.0",
+  "version": "21.2.1",
   "license": "MIT",
   "repository": {
     "type": "GitHub",
@@ -17,7 +17,7 @@
   "schematics": "./collection.json",
   "builders": "./builders.json",
   "dependencies": {
-    "@angular-architects/module-federation-runtime": "21.2.0",
+    "@angular-architects/module-federation-runtime": "~21.2.1",
     "word-wrap": "^1.2.5",
     "callsite": "^1.0.0",
     "node-fetch": "^3.3.2",
