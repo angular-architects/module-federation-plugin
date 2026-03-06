@@ -367,7 +367,10 @@ export async function* runBuilder(
     while (!buildResult.done) {
       if (buildResult.value) ngBuildStatus = buildResult.value;
 
-      if (!first && (nfBuilderOptions.dev || watch)) {
+      if (!ngBuildStatus.success) {
+        logger.warn('Skipping federation artifacts because Angular build failed.');
+        buildResult = await builderIterator.next();
+      } else if (!first && (nfBuilderOptions.dev || watch)) {
         const nextOutputPromise = builderIterator.next();
 
         const trackResult = await rebuildQueue.track(async (signal: AbortSignal) => {
