@@ -9,6 +9,14 @@
     "name": "Manfred Steyer",
     "url": "http://www.angulararchitects.io"
   },
+  "peerDependencies": {
+    "@softarc/native-federation": "^4.0.0-RC8",
+    "@softarc/native-federation-runtime": "^4.0.0-RC8",
+    "@angular-devkit/architect": ">=0.2102.0",
+    "@angular-devkit/build-angular": ">=21.2.0",
+    "@angular-devkit/core": ">=21.2.0",
+    "@angular/build": ">=21.2.0"
+  },
   "dependencies": {
     "@softarc/native-federation": "4.0.0-RC8",
     "@softarc/native-federation-runtime": "4.0.0-RC8",
