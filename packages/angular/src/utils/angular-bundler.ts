@@ -86,9 +86,12 @@ export async function createAngularEsbuildContext(
     }
   }
 
-  if (!optimizedMappings) {
-    tsConfigPath = createTsConfigForFederation(workspaceRoot, tsConfigPath, entryPoints);
-  }
+  tsConfigPath = createTsConfigForFederation(
+    workspaceRoot,
+    tsConfigPath,
+    entryPoints,
+    optimizedMappings
+  );
 
   const pluginOptions: CompilerPluginOptions = {
     sourcemap: !!sourcemapOptions.scripts && (sourcemapOptions.hidden ? 'external' : true),
@@ -199,25 +202,32 @@ async function getTailwindConfig(
 function createTsConfigForFederation(
   workspaceRoot: string,
   tsConfigPath: string,
-  entryPoints: EntryPoint[]
+  entryPoints: EntryPoint[],
+  optimizedMappings?: boolean
 ): string {
   const fullTsConfigPath = path.join(workspaceRoot, tsConfigPath);
   const tsconfigDir = path.dirname(fullTsConfigPath);
 
-  const filtered = entryPoints
-    .filter(ep => !ep.fileName.includes('/node_modules/') && !ep.fileName.startsWith('.'))
-    .map(ep => path.relative(tsconfigDir, ep.fileName).replace(/\\\\/g, '/'));
-
   const tsconfigAsString = fs.readFileSync(fullTsConfigPath, 'utf-8');
   const tsconfig = JSON5.parse(tsconfigAsString);
 
-  if (!tsconfig.include) {
-    tsconfig.include = [];
-  }
+  tsconfig.files = entryPoints
+    .filter(ep => ep.fileName.startsWith('.'))
+    .map(ep => path.relative(tsconfigDir, ep.fileName).replace(/\\\\/g, '/'));
 
-  for (const ep of filtered) {
-    if (!tsconfig.include.includes(ep)) {
-      tsconfig.include.push(ep);
+  if (optimizedMappings) {
+    const filtered = entryPoints
+      .filter(ep => !ep.fileName.startsWith('.'))
+      .map(ep => path.relative(tsconfigDir, ep.fileName).replace(/\\\\/g, '/'));
+
+    if (!tsconfig.include) {
+      tsconfig.include = [];
+    }
+
+    for (const ep of filtered) {
+      if (!tsconfig.include.includes(ep)) {
+        tsconfig.include.push(ep);
+      }
     }
   }
 
