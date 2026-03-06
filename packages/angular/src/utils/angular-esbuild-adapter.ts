@@ -1,78 +1,140 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   type NFBuildAdapter,
   type NFBuildAdapterResult,
-  type EntryPoint,
   type NFBuildAdapterOptions,
+  type FederationCache,
+  type EntryPoint,
 } from '@softarc/native-federation';
-import { logger, type MappedPath, AbortedError } from '@softarc/native-federation/internal';
+import { AbortedError, type MappedPath } from '@softarc/native-federation/internal';
 
 import * as esbuild from 'esbuild';
-
-import {
-  transformSupportedBrowsersToTargets,
-  getSupportedBrowsers,
-  generateSearchDirectories,
-  findTailwindConfiguration,
-  loadPostcssConfiguration,
-  type SourceFileCache,
-} from '@angular/build/private';
-
-import { createCompilerPluginOptions } from './create-compiler-options.js';
+import type { SourceFileCache } from '@angular/build/private';
 import type { BuilderContext } from '@angular-devkit/architect';
-
-import {
-  normalizeOptimization,
-  normalizeSourceMaps,
-} from '@angular-devkit/build-angular/src/utils/index.js';
-
-import { createRequire } from 'node:module';
-
 import type { ApplicationBuilderOptions } from '@angular/build';
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { createSharedMappingsPlugin } from './shared-mappings-plugin.js';
+import { createAngularEsbuildContext } from './angular-bundler.js';
+import { createNodeModulesEsbuildContext } from './node-modules-bundler.js';
 
-import { type PluginItem, transformAsync } from '@babel/core';
-
-import JSON5 from 'json5';
-import { isDeepStrictEqual } from 'node:util';
-import { createAwaitableCompilerPlugin } from './create-awaitable-compiler-plugin.js';
-
-interface CachedContext {
+export interface EsbuildContextResult {
   ctx: esbuild.BuildContext;
   pluginDisposed: Promise<void>;
+}
+
+async function createEsbuildContext(
+  builderOptions: ApplicationBuilderOptions,
+  context: BuilderContext,
+  entryPoints: EntryPoint[],
+  external: string[],
+  outdir: string,
+  tsConfigPath: string,
+  mappedPaths: MappedPath[],
+  cache: FederationCache<SourceFileCache>,
+  dev?: boolean,
+  isNodeModules?: boolean,
+  hash: boolean = false,
+  chunks?: boolean,
+  platform?: 'browser' | 'node',
+  optimizedMappings?: boolean
+): Promise<EsbuildContextResult> {
+  if (isNodeModules) {
+    return createNodeModulesEsbuildContext(
+      builderOptions,
+      context,
+      entryPoints,
+      external,
+      outdir,
+      mappedPaths,
+      cache,
+      dev,
+      hash,
+      chunks,
+      platform
+    );
+  }
+
+  return createAngularEsbuildContext(
+    builderOptions,
+    context,
+    entryPoints,
+    external,
+    outdir,
+    tsConfigPath,
+    mappedPaths,
+    cache,
+    dev,
+    hash,
+    chunks,
+    platform,
+    optimizedMappings
+  );
+}
+
+function writeResult(result: esbuild.BuildResult<esbuild.BuildOptions>, outdir: string): string[] {
+  const writtenFiles: string[] = [];
+
+  for (const outFile of result.outputFiles ?? []) {
+    const fileName = path.basename(outFile.path);
+    const filePath = path.join(outdir, fileName);
+    fs.writeFileSync(filePath, outFile.text);
+    writtenFiles.push(filePath);
+  }
+
+  return writtenFiles;
+}
+
+/**
+ * Patches @angular/core to infer ngServerMode at runtime.
+ * Usually, ngServerMode is set during bundling. However, we need to infer this
+ * value at runtime as we are using the same shared bundle for @angular/core
+ * on the server and in the browser.
+ */
+function setNgServerMode(): void {
+  const fileToPatch = 'node_modules/@angular/core/fesm2022/core.mjs';
+  const lineToAdd = `if (typeof globalThis.ngServerMode ==='undefined') globalThis.ngServerMode = (typeof window === 'undefined') ? true : false;`;
+
+  try {
+    if (fs.existsSync(fileToPatch)) {
+      let content = fs.readFileSync(fileToPatch, 'utf-8');
+      if (!content.includes(lineToAdd)) {
+        content = lineToAdd + '\n' + content;
+        fs.writeFileSync(fileToPatch, content);
+      }
+    }
+  } catch {
+    console.error('Error patching file ', fileToPatch, '\nIs it write-protected?');
+  }
+}
+
+interface CachedBundleContext extends EsbuildContextResult {
   outdir: string;
   dev: boolean;
   name: string;
+  cache: FederationCache<SourceFileCache>;
   isNodeModules: boolean;
-  entryPoints: EntryPoint[];
-  workspaceRoot: string;
 }
 
 export function createAngularBuildAdapter(
   builderOptions: ApplicationBuilderOptions,
   context: BuilderContext
 ): NFBuildAdapter {
-  const contextCache = new Map<string, CachedContext>();
+  const bundleContextCache = new Map<string, CachedBundleContext>();
 
   const dispose = async (name?: string): Promise<void> => {
     if (name) {
-      if (!contextCache.has(name))
+      if (!bundleContextCache.has(name))
         throw new Error(`Could not dispose of non-existing build '${name}'`);
-      const entry = contextCache.get(name)!;
-
+      const entry = bundleContextCache.get(name)!;
       await entry.ctx.dispose();
       await entry.pluginDisposed;
-      contextCache.delete(name);
+      bundleContextCache.delete(name);
       return;
     }
 
-    // Dispose all if no specific build provided
-
     const disposals: Promise<void>[] = [];
 
-    for (const [, entry] of contextCache) {
+    for (const [, entry] of bundleContextCache) {
       disposals.push(
         (async () => {
           await entry.ctx.dispose();
@@ -80,8 +142,10 @@ export function createAngularBuildAdapter(
         })()
       );
     }
-    contextCache.clear();
+    bundleContextCache.clear();
     await Promise.all(disposals);
+
+    await esbuild.stop();
   };
 
   const setup = async (options: NFBuildAdapterOptions<SourceFileCache>): Promise<void> => {
@@ -103,7 +167,7 @@ export function createAngularBuildAdapter(
 
     setNgServerMode();
 
-    if (contextCache.has(bundleName)) {
+    if (bundleContextCache.has(bundleName)) {
       return;
     }
 
@@ -115,7 +179,7 @@ export function createAngularBuildAdapter(
       outdir,
       tsConfigPath!,
       mappedPaths,
-      cache.bundlerCache,
+      cache,
       dev,
       isNodeModules,
       hash,
@@ -124,15 +188,14 @@ export function createAngularBuildAdapter(
       optimizedMappings
     );
 
-    contextCache.set(bundleName, {
+    bundleContextCache.set(bundleName, {
       ctx,
       pluginDisposed,
       outdir,
+      cache,
       isNodeModules,
       dev: !!dev,
       name: bundleName,
-      entryPoints,
-      workspaceRoot: context.workspaceRoot,
     });
   };
 
@@ -143,8 +206,8 @@ export function createAngularBuildAdapter(
       signal?: AbortSignal;
     } = {}
   ): Promise<NFBuildAdapterResult[]> => {
-    const cached = contextCache.get(name);
-    if (!cached) {
+    const bundleContext = bundleContextCache.get(name);
+    if (!bundleContext) {
       throw new Error(`No context found for build "${name}". Call setup() first.`);
     }
 
@@ -153,17 +216,16 @@ export function createAngularBuildAdapter(
     }
 
     try {
-      const result = await cached.ctx.rebuild();
-      const writtenFiles = writeResult(result, cached.outdir);
-
-      if (cached.isNodeModules) {
-        const scriptFiles = writtenFiles.filter(f => f.endsWith('.js') || f.endsWith('.mjs'));
-        for (const file of scriptFiles) {
-          await link(file, cached.dev);
-        }
+      if (opts.files) {
+        bundleContext.cache.bundlerCache.invalidate(new Set(opts.files));
       }
+      const result = await bundleContext.ctx.rebuild();
+      const writtenFiles = writeResult(
+        result as esbuild.BuildResult<esbuild.BuildOptions>,
+        bundleContext.outdir
+      );
 
-      return writtenFiles.map(fileName => ({ fileName } as NFBuildAdapterResult));
+      return writtenFiles.map(fileName => ({ fileName }) as NFBuildAdapterResult);
     } catch (error) {
       if (opts?.signal?.aborted && error instanceof Error && error.message.includes('canceled')) {
         throw new AbortedError('[build] ESBuild rebuild was canceled.');
@@ -173,288 +235,4 @@ export function createAngularBuildAdapter(
   };
 
   return { setup, build, dispose };
-}
-
-async function link(outfile: string, dev: boolean) {
-  const code = fs.readFileSync(outfile, 'utf-8');
-
-  try {
-    const linkerEsm = await loadEsmModule<{ default: PluginItem }>(
-      '@angular/compiler-cli/linker/babel'
-    );
-
-    const linker = linkerEsm.default;
-
-    const result = await transformAsync(code, {
-      filename: outfile,
-      compact: !dev,
-      configFile: false,
-      babelrc: false,
-      minified: !dev,
-      browserslistConfigFile: false,
-      plugins: [linker],
-    });
-
-    if (!result) logger.warn(`File ${outfile} could not be linked.`);
-    if (!result?.code) {
-      logger.warn(`File ${outfile} seems to be empty.`);
-      return;
-    }
-
-    fs.writeFileSync(outfile, result.code, 'utf-8');
-  } catch (e) {
-    logger.error('error linking');
-
-    if (fs.existsSync(`${outfile}.error`)) {
-      fs.unlinkSync(`${outfile}.error`);
-    }
-    fs.renameSync(outfile, `${outfile}.error`);
-
-    throw e;
-  }
-}
-
-async function createEsbuildContext(
-  builderOptions: ApplicationBuilderOptions,
-  context: BuilderContext,
-  entryPoints: EntryPoint[],
-  external: string[],
-  outdir: string,
-  tsConfigPath: string,
-  mappedPaths: MappedPath[],
-  sourceFileCache: SourceFileCache,
-  dev?: boolean,
-  isNodeModules?: boolean,
-  hash: boolean = false,
-  chunks?: boolean,
-  platform?: 'browser' | 'node',
-  optimizedMappings?: boolean
-): Promise<{
-  ctx: esbuild.BuildContext;
-  pluginDisposed: Promise<void>;
-}> {
-  const workspaceRoot = context.workspaceRoot;
-
-  const projectMetadata = await context.getProjectMetadata(context.target!.project);
-  const projectRoot = path.join(
-    workspaceRoot,
-    (projectMetadata['root'] as string | undefined) ?? ''
-  );
-
-  const browsers = getSupportedBrowsers(projectRoot, context.logger as any);
-  const target = transformSupportedBrowsersToTargets(browsers);
-
-  const optimizationOptions = normalizeOptimization(builderOptions.optimization);
-  const sourcemapOptions = normalizeSourceMaps(builderOptions.sourceMap!);
-
-  const searchDirectories = await generateSearchDirectories([projectRoot, workspaceRoot]);
-  const postcssConfiguration = await loadPostcssConfiguration(searchDirectories);
-  const tailwindConfiguration = postcssConfiguration
-    ? undefined
-    : await getTailwindConfig(searchDirectories);
-
-  const outputNames = {
-    bundles: '[name]',
-    media: 'media/[name]',
-  };
-
-  let fileReplacements: Record<string, string> | undefined;
-  if (builderOptions.fileReplacements) {
-    for (const replacement of builderOptions.fileReplacements) {
-      fileReplacements ??= {};
-      fileReplacements[path.join(workspaceRoot, replacement.replace)] = path.join(
-        workspaceRoot,
-        replacement.with
-      );
-    }
-  }
-
-  if (!optimizedMappings) {
-    tsConfigPath = createTsConfigForFederation(workspaceRoot, tsConfigPath, entryPoints);
-  }
-
-  const pluginOptions = createCompilerPluginOptions(
-    {
-      workspaceRoot,
-      optimizationOptions,
-      sourcemapOptions,
-      tsconfig: tsConfigPath,
-      outputNames,
-      fileReplacements,
-      externalDependencies: external,
-      preserveSymlinks: builderOptions.preserveSymlinks,
-      stylePreprocessorOptions: builderOptions.stylePreprocessorOptions,
-      advancedOptimizations: !dev,
-      inlineStyleLanguage: builderOptions.inlineStyleLanguage,
-      jit: false,
-      tailwindConfiguration,
-      postcssConfiguration,
-      incremental: !isNodeModules,
-    } as any,
-    target,
-    sourceFileCache
-  );
-
-  const commonjsPluginModule = await import('@chialab/esbuild-plugin-commonjs');
-  const commonjsPlugin = commonjsPluginModule.default;
-
-  pluginOptions.styleOptions.externalDependencies = [];
-
-  const [compilerPlugin, pluginDisposed] = createAwaitableCompilerPlugin(
-    pluginOptions.pluginOptions,
-    pluginOptions.styleOptions
-  );
-
-  const config: esbuild.BuildOptions = {
-    entryPoints: entryPoints.map(ep => ({
-      in: ep.fileName,
-      out: path.parse(ep.outName).name,
-    })),
-    outdir,
-    entryNames: hash ? '[name]-[hash]' : '[name]',
-    write: false,
-    external,
-    logLevel: 'warning',
-    bundle: true,
-    sourcemap: sourcemapOptions.scripts,
-    minify: !dev,
-    supported: {
-      'async-await': false,
-      'object-rest-spread': false,
-    },
-    splitting: chunks,
-    platform: platform ?? 'browser',
-    format: 'esm',
-    target: target,
-    logLimit: isNodeModules ? 1 : 0,
-    plugins: [
-      compilerPlugin,
-      ...(mappedPaths && mappedPaths.length > 0 ? [createSharedMappingsPlugin(mappedPaths)] : []),
-      commonjsPlugin(),
-    ],
-    define: {
-      ...(!dev ? { ngDevMode: 'false' } : {}),
-      ngJitMode: 'false',
-    },
-    ...(builderOptions.loader ? { loader: builderOptions.loader } : {}),
-    resolveExtensions: ['.ts', '.tsx', '.mjs', '.js', '.cjs'],
-  };
-
-  const ctx = await esbuild.context(config);
-
-  return { ctx, pluginDisposed };
-}
-
-async function getTailwindConfig(
-  searchDirectories: { root: string; files: Set<string> }[]
-): Promise<{ file: string; package: string } | undefined> {
-  const tailwindConfigurationPath = findTailwindConfiguration(searchDirectories);
-
-  if (!tailwindConfigurationPath) {
-    return undefined;
-  }
-
-  return {
-    file: tailwindConfigurationPath,
-    package: createRequire(tailwindConfigurationPath).resolve('tailwindcss'),
-  };
-}
-
-function createTsConfigForFederation(
-  workspaceRoot: string,
-  tsConfigPath: string,
-  entryPoints: EntryPoint[]
-) {
-  const fullTsConfigPath = path.join(workspaceRoot, tsConfigPath);
-  const tsconfigDir = path.dirname(fullTsConfigPath);
-
-  const filtered = entryPoints
-    .filter(ep => !ep.fileName.includes('/node_modules/') && !ep.fileName.startsWith('.'))
-    .map(ep => path.relative(tsconfigDir, ep.fileName).replace(/\\\\/g, '/'));
-
-  const tsconfigAsString = fs.readFileSync(fullTsConfigPath, 'utf-8');
-  const tsconfig = JSON5.parse(tsconfigAsString);
-
-  if (!tsconfig.include) {
-    tsconfig.include = [];
-  }
-
-  for (const ep of filtered) {
-    if (!tsconfig.include.includes(ep)) {
-      tsconfig.include.push(ep);
-    }
-  }
-
-  const content = JSON5.stringify(tsconfig, null, 2);
-
-  const tsconfigFedPath = path.join(tsconfigDir, 'tsconfig.federation.json');
-
-  if (!doesFileExistAndJsonEqual(tsconfigFedPath, content)) {
-    fs.writeFileSync(tsconfigFedPath, JSON.stringify(tsconfig, null, 2));
-  }
-  tsConfigPath = tsconfigFedPath;
-  return tsConfigPath;
-}
-
-/**
- * Checks if a file exists and if its content is equal to the provided content.
- * If the file does not exist, it returns false.
- * If the file or its content is invalid JSON, it returns false.
- * @param {string} path - The path to the file
- * @param {string} content - The content to compare with
- * @returns {boolean} - Returns true if the file exists and its content is equal to the provided content
- */
-function doesFileExistAndJsonEqual(path: string, content: string) {
-  if (!fs.existsSync(path)) {
-    return false;
-  }
-
-  try {
-    const currentContent = fs.readFileSync(path, 'utf-8');
-    const currentJson = JSON5.parse(currentContent);
-    const newJson = JSON5.parse(content);
-
-    return isDeepStrictEqual(currentJson, newJson);
-  } catch {
-    return false;
-  }
-}
-
-function writeResult(result: esbuild.BuildResult<esbuild.BuildOptions>, outdir: string) {
-  const writtenFiles: string[] = [];
-
-  for (const outFile of result.outputFiles ?? []) {
-    const fileName = path.basename(outFile.path);
-    const filePath = path.join(outdir, fileName);
-    fs.writeFileSync(filePath, outFile.text);
-    writtenFiles.push(filePath);
-  }
-
-  return writtenFiles;
-}
-
-export function loadEsmModule<T>(modulePath: string | URL): Promise<T> {
-  return new Function('modulePath', `return import(modulePath);`)(modulePath) as Promise<T>;
-}
-
-//
-//  Usually, ngServerMode is set during bundling. However, we need to infer this
-//  value at runtime as we are using the same shared bundle for @angular/core
-//  on the server and in the browser.
-//
-function setNgServerMode(): void {
-  const fileToPatch = 'node_modules/@angular/core/fesm2022/core.mjs';
-  const lineToAdd = `if (typeof globalThis.ngServerMode ==='undefined') globalThis.ngServerMode = (typeof window === 'undefined') ? true : false;`;
-
-  try {
-    if (fs.existsSync(fileToPatch)) {
-      let content = fs.readFileSync(fileToPatch, 'utf-8');
-      if (!content.includes(lineToAdd)) {
-        content = lineToAdd + '\n' + content;
-        fs.writeFileSync(fileToPatch, content);
-      }
-    }
-  } catch {
-    console.error('Error patching file ', fileToPatch, '\nIs it write-protected?');
-  }
 }

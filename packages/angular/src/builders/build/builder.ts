@@ -303,7 +303,6 @@ export async function* runBuilder(
   ];
 
   let first = true;
-  let lastResult: { success: boolean } | undefined;
 
   if (existsSync(nfOptions.outputPath)) {
     rmSync(nfOptions.outputPath, { recursive: true });
@@ -360,13 +359,24 @@ export async function* runBuilder(
 
   const rebuildQueue = new RebuildQueue();
 
-  try {
-    for await (const output of builderRun) {
-      lastResult = output;
+  const builderIterator = builderRun[Symbol.asyncIterator]();
 
-      if (!first && (nfBuilderOptions.dev || watch)) {
-        rebuildQueue
-          .enqueue(async (signal: AbortSignal) => {
+  let ngBuildStatus: { success: boolean } = { success: false };
+
+  try {
+    let buildResult = await builderIterator.next();
+
+    while (!buildResult.done) {
+      if (buildResult.value) ngBuildStatus = buildResult.value;
+
+      if (!ngBuildStatus.success) {
+        logger.warn('Skipping federation artifacts because Angular build failed.');
+        buildResult = await builderIterator.next();
+      } else if (!first && (nfBuilderOptions.dev || watch)) {
+        const nextOutputPromise = builderIterator.next();
+
+        const trackResult = await rebuildQueue.track(async (signal: AbortSignal) => {
+          try {
             if (signal?.aborted) {
               throw new AbortedError('Build canceled before starting');
             }
@@ -391,15 +401,18 @@ export async function* runBuilder(
 
             // Todo: Invalidate all source files, Angular doesn't provide a way to give the invalidated files yet.
             // ref: https://github.com/angular/angular-cli/pull/32527
-            const keys = new Set(
-              [...nfOptions.federationCache.bundlerCache.keys()].filter(
-                k => !k.includes('node_modules')
-              )
+            const keys = [...nfOptions.federationCache.bundlerCache.keys()].filter(
+              k => !k.includes('node_modules')
             );
 
-            nfOptions.federationCache.bundlerCache.invalidate(keys);
 
-            federationResult = await rebuildForFederation(config, nfOptions, externals, [], signal);
+            federationResult = await rebuildForFederation(
+              config,
+              nfOptions,
+              externals,
+              keys,
+              signal
+            );
 
             if (signal?.aborted) {
               throw new AbortedError('[builder] After federation build.');
@@ -424,21 +437,33 @@ export async function* runBuilder(
               federationBuildNotifier.broadcastBuildCompletion();
             }
             logger.measure(start, 'To rebuild the federation artifacts.');
-          })
-          .catch(error => {
+            return { success: true };
+          } catch (error) {
             if (error instanceof AbortedError) {
               logger.verbose('Rebuild was canceled. Cancellation point: ' + error?.message);
               federationBuildNotifier.broadcastBuildCancellation();
-            } else {
-              logger.error('Federation rebuild failed!');
-              if (options.verbose) console.error(error);
-              if (isLocalDevelopment) {
-                federationBuildNotifier.broadcastBuildError(error);
-              }
+              return { success: false, cancelled: true };
             }
-          });
-      }
+            logger.error('Federation rebuild failed!');
+            if (options.verbose) console.error(error);
+            if (isLocalDevelopment) {
+              federationBuildNotifier.broadcastBuildError(error);
+            }
+            return { success: false };
+          }
+        }, nextOutputPromise);
 
+        if (trackResult.type === 'completed') {
+          if (!trackResult.result.cancelled) {
+            yield { success: trackResult.result.success };
+          }
+          buildResult = await nextOutputPromise;
+        } else {
+          buildResult = trackResult.value;
+        }
+      } else {
+        buildResult = await builderIterator.next();
+      }
       first = false;
     }
   } finally {
@@ -450,7 +475,7 @@ export async function* runBuilder(
     }
   }
 
-  yield lastResult || { success: false };
+  yield ngBuildStatus;
 }
 
 function removeBaseHref(req: { url?: string }, baseHref?: string) {
