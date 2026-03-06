@@ -2,6 +2,9 @@
 
 Native Federation is a "browser-native" implementation of the successful mental model behind webpack Module Federation for building Micro Frontends (Plugins, etc.).
 
+> [!WARNING]
+> This is our v4 version which is currently in beta and contains breaking changes. For upgrading from v3 to v4, please refer to our [Migration Guide](./MIGRATION_GUIDE.md).
+
 ## Features 🔥
 
 - ✅ Mental Model of Module Federation
@@ -24,7 +27,7 @@ This package was successfully tested with Angular CLI projects and with Nx proje
 
 ## Versions
 
-We will at least provide a new version of this package per Angular major. If necessary, we will also provide packages to adapt to Angular minors. To make the relationship between Angular versions and versions of this package easy for all of us, **we follow Angular's version numbers**. E. g., `@angular-architects/native-federation` 16.1 is intended for Angular 16.1 and upwards.
+We will at least provide a new version of this package per Angular major. If necessary, we will also provide packages to adapt to Angular minors. To make the relationship between Angular versions and versions of this package easy for all of us, **we follow Angular's version numbers**. E. g., `@angular-architects/native-federation-v4` 16.1 is intended for Angular 16.1 and upwards.
 
 - Use version 16.1.x for Angular 16.1.x
 - Use version 16.2.x for Angular 16.2.x
@@ -40,9 +43,9 @@ We will at least provide a new version of this package per Angular major. If nec
 
 ## Demo Repo
 
-In this [demo repo](https://github.com/manfredsteyer/nf-test.git), we test Native Federation together with several known UI libraries for Angular. For this, we compile demo apps build with them with Native Federation.
+In this [demo repo](https://github.com/Aukevanoost/native-federation-examples-ng/tree/v4), we test the new Native Federation major. For this, we compile demo apps build with them with Native Federation.
 
-<a href="https://github.com/manfredsteyer/nf-test.git" target="_blank">
+<a href="https://github.com/Aukevanoost/native-federation-examples-ng/tree/v4" target="_blank">
 <img width="500" src="https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/demo-repo.png">
 </a>
 
