@@ -206,7 +206,8 @@ export async function* runBuilder(
     ? browserOutputPath
     : path.join(outputOptions.base, outputOptions.browser, localeFilter[0]!);
 
-  const entryPoint = path.join(path.dirname(options.tsConfig), 'src/main.ts');
+  const entryPoint =
+    nfBuilderOptions.entryPoint ?? path.join(path.dirname(options.tsConfig), 'src/main.ts');
 
   const cachePath = getDefaultCachePath(context.workspaceRoot);
   const nfOptions = normalizeFederationOptions(
@@ -404,7 +405,6 @@ export async function* runBuilder(
             const keys = [...nfOptions.federationCache.bundlerCache.keys()].filter(
               k => !k.includes('node_modules')
             );
-
 
             federationResult = await rebuildForFederation(
               config,

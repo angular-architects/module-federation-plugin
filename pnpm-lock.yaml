@@ -37,8 +37,8 @@ importers:
         specifier: ^21.2.0
         version: 21.2.0(chokidar@5.0.0)
       '@softarc/native-federation':
-        specifier: 4.0.0-RC4
-        version: 4.0.0-RC4(typescript@5.9.3)
+        specifier: 4.0.0-RC8
+        version: 4.0.0-RC8(typescript@5.9.3)
       '@types/babel__core':
         specifier: ^7.20.5
         version: 7.20.5
@@ -133,9 +133,6 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.8.1
-      sass:
-        specifier: ^1.97.3
-        version: 1.97.3
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -176,11 +173,11 @@ importers:
         specifier: ^0.19.0
         version: 0.19.1
       '@softarc/native-federation':
-        specifier: 4.0.0-RC6
-        version: 4.0.0-RC6(typescript@5.9.3)
+        specifier: 4.0.0-RC8
+        version: 4.0.0-RC8(typescript@5.9.3)
       '@softarc/native-federation-runtime':
-        specifier: 4.0.0-RC6
-        version: 4.0.0-RC6(typescript@5.9.3)
+        specifier: 4.0.0-RC8
+        version: 4.0.0-RC8(typescript@5.9.3)
 
 packages:
 
@@ -2306,14 +2303,11 @@ packages:
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
 
-  '@softarc/native-federation-runtime@4.0.0-RC6':
-    resolution: {integrity: sha512-NwV7x2QCxYiCqkHmqV1SBdppyYm1szUf62Lywy9SI0EernqWszbtDNiyoqh6XuWmx/LMUcuVMr3/vG0WKBjdKA==}
+  '@softarc/native-federation-runtime@4.0.0-RC8':
+    resolution: {integrity: sha512-mCBA8IfBZH2Q0Tl4qtKt9gII52Co8vApCCv+h0oLW+DSP1ZFDyO0409FL+byurDJp3t9L42LQg9J0PeMNJKknw==}
 
-  '@softarc/native-federation@4.0.0-RC4':
-    resolution: {integrity: sha512-7opJ2Fzhi2mMKcbHbCQEbhC1ToWuSiY/8O3E1hGTMxMuHyJVSKAFraFCOJ81YEK2Z/PYFI5tGnAFFsnqX4ixAw==}
-
-  '@softarc/native-federation@4.0.0-RC6':
-    resolution: {integrity: sha512-JVitS9pPkDVdI6t6XhhbtkEFNHw4UvjTiVokTNMvHxA/O+IbSBf/+/HwgX34x2lphC5q3O0jzzlu4+HFPKLxug==}
+  '@softarc/native-federation@4.0.0-RC8':
+    resolution: {integrity: sha512-AkBb9mOfW/m0bMIZ9T2cNbQdgfWTz3zkQWb0IdYYDI9hZiXrRISzZCMDP+dO1irTogDpDAdb1Z3pbuoW6JccbA==}
 
   '@softarc/sheriff-core@0.19.6':
     resolution: {integrity: sha512-KACxHG9sS7kNWgnnBODzdr14kMLMrJVlQKc+tViUP03p2fRwNhESOA49bz51Yn7dro1mbtMmmFjICLmZSJDZZA==}
@@ -8167,23 +8161,13 @@ snapshots:
 
   '@sindresorhus/is@4.6.0': {}
 
-  '@softarc/native-federation-runtime@4.0.0-RC6(typescript@5.9.3)':
+  '@softarc/native-federation-runtime@4.0.0-RC8(typescript@5.9.3)':
     dependencies:
-      '@softarc/native-federation': 4.0.0-RC6(typescript@5.9.3)
+      '@softarc/native-federation': 4.0.0-RC8(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
-  '@softarc/native-federation@4.0.0-RC4(typescript@5.9.3)':
-    dependencies:
-      '@softarc/sheriff-core': 0.19.6(typescript@5.9.3)
-      chalk: 5.6.2
-      esbuild: 0.27.3
-      fast-glob: 3.3.3
-      json5: 2.2.3
-    transitivePeerDependencies:
-      - typescript
-
-  '@softarc/native-federation@4.0.0-RC6(typescript@5.9.3)':
+  '@softarc/native-federation@4.0.0-RC8(typescript@5.9.3)':
     dependencies:
       '@softarc/sheriff-core': 0.19.6(typescript@5.9.3)
       chalk: 5.6.2
