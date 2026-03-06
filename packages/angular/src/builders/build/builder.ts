@@ -27,7 +27,6 @@ import {
   normalizeFederationOptions,
   setBuildAdapter,
   createFederationCache,
-  // type FederationCache,
 } from '@softarc/native-federation';
 import {
   logger,
@@ -82,6 +81,8 @@ const createInternalAngularBuilder =
     } else {
       extensions = pluginsOrExtensions as Parameters<typeof buildApplicationInternal>[2];
     }
+
+    // Todo: share cache with Angular builder: https://github.com/angular/angular-cli/pull/32527
     // options.codeBundleCache = nfOptions.federationCache.bundlerCache;
     return buildApplicationInternal(options, context, extensions);
   };
@@ -388,12 +389,14 @@ export async function* runBuilder(
 
             const start = process.hrtime();
 
-            // Invalidate all source files, Angular doesn't provide a way to give the invalidated files yet.
+            // Todo: Invalidate all source files, Angular doesn't provide a way to give the invalidated files yet.
+            // ref: https://github.com/angular/angular-cli/pull/32527
             const keys = new Set(
               [...nfOptions.federationCache.bundlerCache.keys()].filter(
                 k => !k.includes('node_modules')
               )
             );
+
             nfOptions.federationCache.bundlerCache.invalidate(keys);
 
             federationResult = await rebuildForFederation(config, nfOptions, externals, [], signal);
