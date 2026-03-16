@@ -23,24 +23,13 @@
       "type": "number",
       "default": 0
     },
-    "entryPoint": {
-      "type": "string"
-    },
-    "open": {
-      "type": "boolean",
-      "default": true,
-      "description": "Open browser?",
-      "alias": "o"
+    "entryPoints": {
+      "type": "array"
     },
     "rebuildDelay": {
       "type": "number",
       "default": 2000,
       "description": "The delay for rebuilding federation artifacts. This allows to have more resources for refreshing your micro frontend in the browser."
-    },
-    "shell": {
-      "type": "string",
-      "description": "Experimental",
-      "default": ""
     },
     "skipHtmlTransform": {
       "type": "boolean",
@@ -70,7 +59,9 @@
     },
     "cacheExternalArtifacts": {
       "type": "boolean",
-      "description": "Will cache the shared externals so they can be re-used between builds"
+      "default": true,
+      "description": "Will cache the shared externals so they can be re-used between builds",
+      "alias": "cache"
     },
     "chunks": {
       "type": "object",

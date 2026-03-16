@@ -25,10 +25,6 @@
       "enum": ["host", "dynamic-host", "remote"],
       "type": "string",
       "default": "remote"
-    },
-    "nxBuilders": {
-      "type": "boolean",
-      "description": "Use builders provided by Nx instead of ngx-build-plus? Defaults to true for Nx workspaces and false for CLI workspaces."
     }
   }
 }

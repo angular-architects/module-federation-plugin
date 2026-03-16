@@ -6,10 +6,8 @@ export interface NfBuilderSchema extends JsonObject {
   target: string;
   dev: boolean;
   port: number;
-  open: boolean;
   rebuildDelay: number;
   buildNotifications?: BuildNotificationOptions;
-  shell: string;
   watch: boolean;
   skipHtmlTransform: boolean;
   esmsInitOptions: ESMSInitOptions;
@@ -18,6 +16,10 @@ export interface NfBuilderSchema extends JsonObject {
   ssr: boolean;
   devServer?: boolean;
   chunks?: { enable: boolean; dense: true };
+  /**
+   * @deprecated: Use entryPoints instead
+   */
   entryPoint?: string;
+  entryPoints?: string[];
   cacheExternalArtifacts?: boolean;
 } // eslint-disable-line

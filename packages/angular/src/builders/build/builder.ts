@@ -23,7 +23,6 @@ import {
   type FederationInfo,
   type NormalizedFederationOptions,
   getExternals,
-  loadFederationConfig,
   normalizeFederationOptions,
   setBuildAdapter,
   createFederationCache,
@@ -206,11 +205,12 @@ export async function* runBuilder(
     ? browserOutputPath
     : path.join(outputOptions.base, outputOptions.browser, localeFilter[0]!);
 
-  const entryPoint =
-    nfBuilderOptions.entryPoint ?? path.join(path.dirname(options.tsConfig), 'src/main.ts');
+  const entryPoints: string[] = nfBuilderOptions.entryPoints ?? [
+    nfBuilderOptions.entryPoint ?? path.join(path.dirname(options.tsConfig), 'src/main.ts'),
+  ];
 
   const cachePath = getDefaultCachePath(context.workspaceRoot);
-  const nfOptions = normalizeFederationOptions(
+  const normalized = await normalizeFederationOptions(
     {
       workspaceRoot: context.workspaceRoot,
       outputPath: browserOutputPath,
@@ -220,9 +220,9 @@ export async function* runBuilder(
       watch: options.watch,
       dev: !!nfBuilderOptions.dev,
       chunks: !nfBuilderOptions.chunks ? false : nfBuilderOptions.chunks,
-      entryPoint,
+      entryPoints,
       buildNotifications: nfBuilderOptions.buildNotifications,
-      cacheExternalArtifacts: nfBuilderOptions.cacheExternalArtifacts,
+      cacheExternalArtifacts: nfBuilderOptions.cacheExternalArtifacts !== false,
     },
     createFederationCache(cachePath, new SourceFileCache(cachePath))
   );
@@ -230,12 +230,11 @@ export async function* runBuilder(
   const activateSsr = nfBuilderOptions.ssr && !nfBuilderOptions.dev;
 
   const start = process.hrtime();
-  const config = await loadFederationConfig(nfOptions);
   logger.measure(start, 'To load the federation config.');
 
-  const externals = getExternals(config);
+  const externals = getExternals(normalized.config);
   const plugins = [
-    createSharedMappingsPlugin(config.sharedMappings),
+    createSharedMappingsPlugin(normalized.config.sharedMappings),
     {
       name: 'externals',
       setup(build: PluginBuild) {
@@ -277,7 +276,7 @@ export async function* runBuilder(
     ) => {
       const url = removeBaseHref(req, options.baseHref);
 
-      const fileName = path.join(nfOptions.workspaceRoot, devServerOutputPath, url);
+      const fileName = path.join(normalized.options.workspaceRoot, devServerOutputPath, url);
 
       const exists = fs.existsSync(fileName);
 
@@ -305,18 +304,18 @@ export async function* runBuilder(
 
   let first = true;
 
-  if (existsSync(nfOptions.outputPath)) {
-    rmSync(nfOptions.outputPath, { recursive: true });
+  if (existsSync(normalized.options.outputPath)) {
+    rmSync(normalized.options.outputPath, { recursive: true });
   }
 
-  if (!existsSync(nfOptions.outputPath)) {
-    mkdirSync(nfOptions.outputPath, { recursive: true });
+  if (!existsSync(normalized.options.outputPath)) {
+    mkdirSync(normalized.options.outputPath, { recursive: true });
   }
 
   let federationResult: FederationInfo;
   try {
     const start = process.hrtime();
-    federationResult = await buildForFederation(config, nfOptions, externals);
+    federationResult = await buildForFederation(normalized.config, normalized.options, externals);
     logger.measure(start, 'To build the artifacts.');
   } catch (e) {
     logger.error((e as Error)?.message ?? 'Building the artifacts failed');
@@ -324,7 +323,7 @@ export async function* runBuilder(
   }
 
   if (activateSsr) {
-    writeFstartScript(nfOptions);
+    writeFstartScript(normalized.options);
   }
 
   const hasLocales = i18n?.locales && Object.keys(i18n.locales).length > 0;
@@ -343,7 +342,7 @@ export async function* runBuilder(
     ? serveWithVite(
         serverOptions as unknown as Parameters<typeof serveWithVite>[0],
         appBuilderName,
-        createInternalAngularBuilder(nfOptions),
+        createInternalAngularBuilder(normalized.options),
         context,
         nfBuilderOptions.skipHtmlTransform
           ? {}
@@ -402,13 +401,13 @@ export async function* runBuilder(
 
             // Todo: Invalidate all source files, Angular doesn't provide a way to give the invalidated files yet.
             // ref: https://github.com/angular/angular-cli/pull/32527
-            const keys = [...nfOptions.federationCache.bundlerCache.keys()].filter(
+            const keys = [...normalized.options.federationCache.bundlerCache.keys()].filter(
               k => !k.includes('node_modules')
             );
 
             federationResult = await rebuildForFederation(
-              config,
-              nfOptions,
+              normalized.config,
+              normalized.options,
               externals,
               keys,
               signal

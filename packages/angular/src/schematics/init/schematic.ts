@@ -281,7 +281,7 @@ function updateWorkspaceConfig(
       target: `${projectName}:serve-original:development`,
       rebuildDelay: 500,
       dev: true,
-      cacheExternalArtifacts: false,
+      devServer: true,
       port: 0,
     },
   };
