@@ -1,62 +1,138 @@
 import fg from 'fast-glob';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export type KeyValuePair = {
   key: string;
   value: string;
 };
 
-function escapeRegex(str: string) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+// TypeScript's module resolution for directories checks these in order
+// @see https://www.typescriptlang.org/docs/handbook/modules/theory.html#module-resolution
+const TS_INDEX_FILES = [
+  'index.ts',
+  'index.tsx',
+  'index.mts',
+  'index.cts',
+  'index.d.ts',
+  'index.js',
+  'index.jsx',
+  'index.mjs',
+  'index.cjs',
+];
 
-// Convert package.json exports pattern to glob pattern
-// * in exports means "one segment", but for glob we need **/* for deep matching
-// Src: https://hirok.io/posts/package-json-exports#exposing-all-package-files
-function convertExportsToGlob(pattern: string) {
-  return pattern.replace(/(?<!\*)\*(?!\*)/g, '**/*');
-}
-
-function compilePattern(pattern: string) {
-  const tokens = pattern.split(/(\*\*|\*)/);
-  const regexParts = [];
-
-  for (const token of tokens) {
-    if (token === '*') {
-      regexParts.push('(.*)');
-    } else {
-      regexParts.push(escapeRegex(token));
-    }
-  }
-
-  return new RegExp(`^${regexParts.join('')}$`);
-}
-
-function withoutWildcard(template: string, wildcardValues: string[]) {
-  const tokens = template.split(/(\*\*|\*)/);
-  let result = '';
-  let i = 0;
-  for (const token of tokens) {
-    if (token === '*') {
-      result += wildcardValues[i++];
-    } else {
-      result += token;
-    }
-  }
-  return result;
-}
-
-export function resolveWildcardKeys(
+/**
+ * Resolves tsconfig wildcard paths.
+ *
+ * In tsconfig.json, paths like `@features/*` → `libs/features/src/*` work as follows:
+ * - The `*` captures a single path segment (the module name)
+ * - When importing `@features/feature-a`, TypeScript captures `feature-a`
+ * - It then replaces `*` in the value pattern: `libs/features/src/feature-a`
+ *
+ * For discovery, we find all directories at the wildcard position that TypeScript
+ * would recognize as valid modules (directories with index files or package.json).
+ *
+ * @see https://www.typescriptlang.org/tsconfig/#paths
+ */
+export function resolveTsConfigWildcard(
   keyPattern: string,
   valuePattern: string,
   cwd: string,
 ): KeyValuePair[] {
   const normalizedPattern = valuePattern.replace(/^\.?\/+/, '');
 
-  const globPattern = convertExportsToGlob(normalizedPattern);
+  const asteriskIndex = normalizedPattern.indexOf('*');
+  if (asteriskIndex === -1) {
+    return [];
+  }
 
-  const regex = compilePattern(normalizedPattern);
+  const prefix = normalizedPattern.substring(0, asteriskIndex);
+  const suffix = normalizedPattern.substring(asteriskIndex + 1);
 
-  const files = fg.sync(globPattern, {
+  const searchPath = path.join(cwd, prefix);
+
+  let entries: string[];
+  try {
+    entries = fs.readdirSync(searchPath);
+  } catch {
+    return [];
+  }
+
+  const keys: KeyValuePair[] = [];
+
+  for (const entry of entries) {
+    const entryPath = path.join(searchPath, entry);
+
+    let stats: fs.Stats;
+    try {
+      stats = fs.statSync(entryPath);
+    } catch {
+      continue;
+    }
+
+    if (!stats.isDirectory()) {
+      continue;
+    }
+
+    let modulePath = path.join(prefix, entry, suffix).replace(/\\/g, '/');
+    const fullPath = path.join(cwd, modulePath);
+
+    let fullPathStats: fs.Stats;
+    try {
+      fullPathStats = fs.statSync(fullPath);
+    } catch {
+      continue;
+    }
+
+    if (fullPathStats.isDirectory()) {
+      const indexFile = TS_INDEX_FILES.find((indexFile) =>
+        fs.existsSync(path.join(fullPath, indexFile)),
+      );
+
+      if (!indexFile) continue;
+      modulePath = path.join(modulePath, indexFile);
+    } else if (!fullPathStats.isFile()) {
+      continue;
+    }
+
+    const key = keyPattern.replace('*', entry);
+
+    keys.push({
+      key,
+      value: modulePath,
+    });
+  }
+
+  return keys;
+}
+
+/**
+ * Resolves package.json exports wildcard patterns.
+ *
+ * In package.json exports, patterns like `./features/*.js` → `./src/features/*.js` work as follows:
+ * - The `*` is a literal string replacement that can include path separators
+ * - Importing `pkg/features/a/b.js` captures `a/b` and replaces `*` → `./src/features/a/b.js`
+ * - This matches actual files, not directories
+ *
+ * @see https://nodejs.org/api/packages.html#subpath-patterns
+ */
+export function resolvePackageJsonExportsWildcard(
+  keyPattern: string,
+  valuePattern: string,
+  cwd: string,
+): KeyValuePair[] {
+  const normalizedPattern = valuePattern.replace(/^\.?\/+/, '');
+
+  const asteriskIndex = normalizedPattern.indexOf('*');
+  if (asteriskIndex === -1) {
+    return [];
+  }
+
+  const prefix = normalizedPattern.substring(0, asteriskIndex);
+  const suffix = normalizedPattern.substring(asteriskIndex + 1);
+
+  // fast-glob requires **/* pattern for matching files at any depth
+  const files = fg.sync(prefix + '**/*' + suffix, {
     cwd,
     onlyFiles: true,
     deep: Infinity,
@@ -67,11 +143,14 @@ export function resolveWildcardKeys(
   for (const file of files) {
     const relPath = file.replace(/\\/g, '/').replace(/^\.\//, '');
 
-    const wildcards = relPath.match(regex);
-    if (!wildcards) continue;
+    const captured = suffix
+      ? relPath.slice(prefix.length, -suffix.length)
+      : relPath.slice(prefix.length);
+
+    const key = keyPattern.replace('*', captured);
 
     keys.push({
-      key: withoutWildcard(keyPattern, wildcards.slice(1)),
+      key,
       value: relPath,
     });
   }

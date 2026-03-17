@@ -19,7 +19,7 @@ import { logger } from '../utils/logger';
 
 import {
   KeyValuePair,
-  resolveWildcardKeys,
+  resolvePackageJsonExportsWildcard,
 } from '../utils/resolve-wildcard-keys';
 
 let inferVersion = false;
@@ -319,7 +319,7 @@ function resolveGlobSecondaries(
   let items: Array<string | KeyValuePair> = [];
   if (key.includes('*')) {
     if (!resolveGlob) return items;
-    const expanded = resolveWildcardKeys(key, entry, libPath);
+    const expanded = resolvePackageJsonExportsWildcard(key, entry, libPath);
     items = expanded
       .map((e) => ({
         key: path.join(parent, e.key),

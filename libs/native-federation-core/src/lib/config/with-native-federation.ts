@@ -108,7 +108,7 @@ function normalizeShared(
 
 function normalizeSharedMappings(
   config: FederationConfig,
-  skip: PreparedSkipList,
+  skipList: PreparedSkipList,
 ): Array<MappedPath> {
   const rootTsConfigPath = findRootTsConfigJson();
 
@@ -117,13 +117,7 @@ function normalizeSharedMappings(
     sharedMappings: config.sharedMappings,
   });
 
-  const result = paths.filter(
-    (p) => !isInSkipList(p.key, skip) && !p.key.includes('*'),
-  );
-
-  if (paths.find((p) => p.key.includes('*'))) {
-    logger.warn('Sharing mapped paths with wildcards (*) not supported');
-  }
+  const result = paths.filter((p) => !isInSkipList(p.key, skipList));
 
   return result;
 }
