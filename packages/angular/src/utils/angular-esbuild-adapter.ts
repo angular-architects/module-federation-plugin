@@ -4,71 +4,22 @@ import {
   type NFBuildAdapter,
   type NFBuildAdapterResult,
   type NFBuildAdapterOptions,
+  type NFBuildAdapterContext,
   type FederationCache,
-  type EntryPoint,
 } from '@softarc/native-federation';
-import { AbortedError, type MappedPath } from '@softarc/native-federation/internal';
+import { AbortedError } from '@softarc/native-federation/internal';
 
 import * as esbuild from 'esbuild';
 import type { SourceFileCache } from '@angular/build/private';
 import type { BuilderContext } from '@angular-devkit/architect';
 import type { ApplicationBuilderOptions } from '@angular/build';
-
 import { createAngularEsbuildContext } from './angular-bundler.js';
 import { createNodeModulesEsbuildContext } from './node-modules-bundler.js';
+import { normalizeContextOptions } from './normalize-context-options.js';
 
-export interface EsbuildContextResult {
-  ctx: esbuild.BuildContext;
+export interface EsbuildContextResult extends NFBuildAdapterContext<esbuild.BuildContext> {
   pluginDisposed: Promise<void>;
-}
-
-async function createEsbuildContext(
-  builderOptions: ApplicationBuilderOptions,
-  context: BuilderContext,
-  entryPoints: EntryPoint[],
-  external: string[],
-  outdir: string,
-  tsConfigPath: string,
-  mappedPaths: MappedPath[],
-  cache: FederationCache<SourceFileCache>,
-  dev?: boolean,
-  isNodeModules?: boolean,
-  hash: boolean = false,
-  chunks?: boolean,
-  platform?: 'browser' | 'node',
-  optimizedMappings?: boolean
-): Promise<EsbuildContextResult> {
-  if (isNodeModules) {
-    return createNodeModulesEsbuildContext(
-      builderOptions,
-      context,
-      entryPoints,
-      external,
-      outdir,
-      mappedPaths,
-      cache,
-      dev,
-      hash,
-      chunks,
-      platform
-    );
-  }
-
-  return createAngularEsbuildContext(
-    builderOptions,
-    context,
-    entryPoints,
-    external,
-    outdir,
-    tsConfigPath,
-    mappedPaths,
-    cache,
-    dev,
-    hash,
-    chunks,
-    platform,
-    optimizedMappings
-  );
+  cache: FederationCache<SourceFileCache>;
 }
 
 function writeResult(result: esbuild.BuildResult<esbuild.BuildOptions>, outdir: string): string[] {
@@ -107,24 +58,17 @@ function setNgServerMode(): void {
   }
 }
 
-interface CachedBundleContext extends EsbuildContextResult {
-  outdir: string;
-  dev: boolean;
-  name: string;
-  cache: FederationCache<SourceFileCache>;
-  isNodeModules: boolean;
-}
-
 export function createAngularBuildAdapter(
-  builderOptions: ApplicationBuilderOptions,
+  ngBuilderOptions: ApplicationBuilderOptions,
   context: BuilderContext
 ): NFBuildAdapter {
-  const bundleContextCache = new Map<string, CachedBundleContext>();
+  const bundleContextCache = new Map<string, EsbuildContextResult>();
 
   const dispose = async (name?: string): Promise<void> => {
     if (name) {
       if (!bundleContextCache.has(name))
         throw new Error(`Could not dispose of non-existing build '${name}'`);
+
       const entry = bundleContextCache.get(name)!;
       await entry.ctx.dispose();
       await entry.pluginDisposed;
@@ -148,54 +92,30 @@ export function createAngularBuildAdapter(
     await esbuild.stop();
   };
 
-  const setup = async (options: NFBuildAdapterOptions<SourceFileCache>): Promise<void> => {
-    const {
-      entryPoints,
-      tsConfigPath,
-      external,
-      outdir,
-      mappedPaths,
-      bundleName,
-      isNodeModules,
-      dev,
-      chunks,
-      hash,
-      platform,
-      optimizedMappings,
-      cache,
-    } = options;
-
+  const setup = async (
+    name: string,
+    adapterOptions: NFBuildAdapterOptions<SourceFileCache>
+  ): Promise<void> => {
     setNgServerMode();
 
-    if (bundleContextCache.has(bundleName)) {
+    if (bundleContextCache.has(name)) {
       return;
     }
 
-    const { ctx, pluginDisposed } = await createEsbuildContext(
-      builderOptions,
-      context,
-      entryPoints,
-      external,
-      outdir,
-      tsConfigPath!,
-      mappedPaths,
-      cache,
-      dev,
-      isNodeModules,
-      hash,
-      chunks,
-      platform,
-      optimizedMappings
-    );
+    const normalizedOptions = normalizeContextOptions(ngBuilderOptions, context, adapterOptions);
 
-    bundleContextCache.set(bundleName, {
+    const { ctx, pluginDisposed } = normalizedOptions.isMappingOrExposed
+      ? await createAngularEsbuildContext(normalizedOptions)
+      : await createNodeModulesEsbuildContext(normalizedOptions);
+
+    bundleContextCache.set(name, {
       ctx,
       pluginDisposed,
-      outdir,
-      cache,
-      isNodeModules,
-      dev: !!dev,
-      name: bundleName,
+      outdir: normalizedOptions.outdir,
+      cache: normalizedOptions.cache,
+      isMappingOrExposed: normalizedOptions.isMappingOrExposed,
+      dev: normalizedOptions.dev,
+      name,
     });
   };
 

@@ -126,7 +126,7 @@ export async function* runBuilder(
       ? !!nfBuilderOptions.devServer
       : target.target.includes('serve');
 
-  let options = (await context.validateOptions(
+  let ngBuilderOptions = (await context.validateOptions(
     runServer
       ? ({
           ...targetOptions,
@@ -140,43 +140,43 @@ export async function* runBuilder(
 
   const watch = nfBuilderOptions.watch;
 
-  if (options['buildTarget']) {
+  if (ngBuilderOptions['buildTarget']) {
     serverOptions = await normalizeOptions(
       context,
       context.target!.project,
-      options as unknown as DevServerSchema
+      ngBuilderOptions as unknown as DevServerSchema
     );
 
-    target = targetFromTargetString(options['buildTarget'] as string);
+    target = targetFromTargetString(ngBuilderOptions['buildTarget'] as string);
     targetOptions = (await context.getTargetOptions(target)) as unknown as JsonObject &
       ApplicationBuilderOptions;
 
     builder = await context.getBuilderNameForTarget(target);
-    options = (await context.validateOptions(targetOptions, builder)) as JsonObject &
+    ngBuilderOptions = (await context.validateOptions(targetOptions, builder)) as JsonObject &
       ApplicationBuilderOptions;
   }
 
-  options.watch = watch;
+  ngBuilderOptions.watch = watch;
 
   if (nfBuilderOptions.baseHref) {
-    options.baseHref = nfBuilderOptions.baseHref;
+    ngBuilderOptions.baseHref = nfBuilderOptions.baseHref;
   }
 
   if (nfBuilderOptions.outputPath) {
-    options.outputPath = nfBuilderOptions.outputPath;
+    ngBuilderOptions.outputPath = nfBuilderOptions.outputPath;
   }
 
-  const adapter = createAngularBuildAdapter(options, context);
+  const adapter = createAngularBuildAdapter(ngBuilderOptions, context);
 
   setBuildAdapter(adapter);
 
-  setLogLevel(options.verbose ? 'verbose' : 'info');
+  setLogLevel(ngBuilderOptions.verbose ? 'verbose' : 'info');
 
-  if (!options.outputPath) {
-    options.outputPath = `dist/${context.target!.project}`;
+  if (!ngBuilderOptions.outputPath) {
+    ngBuilderOptions.outputPath = `dist/${context.target!.project}`;
   }
 
-  const outputPath = options.outputPath;
+  const outputPath = ngBuilderOptions.outputPath;
   const outputOptions: Required<Exclude<ApplicationBuilderOptions['outputPath'], string>> = {
     browser: 'browser',
     server: 'server',
@@ -187,7 +187,7 @@ export async function* runBuilder(
 
   const i18n = await getI18nConfig(context);
 
-  const localeFilter = getLocaleFilter(options, runServer);
+  const localeFilter = getLocaleFilter(ngBuilderOptions, runServer);
 
   const sourceLocaleSegment =
     typeof i18n?.sourceLocale === 'string'
@@ -197,7 +197,7 @@ export async function* runBuilder(
   const browserOutputPath = path.join(
     outputOptions.base,
     outputOptions.browser,
-    options.localize ? sourceLocaleSegment : ''
+    ngBuilderOptions.localize ? sourceLocaleSegment : ''
   );
 
   const differentDevServerOutputPath = Array.isArray(localeFilter) && localeFilter.length === 1;
@@ -206,7 +206,8 @@ export async function* runBuilder(
     : path.join(outputOptions.base, outputOptions.browser, localeFilter[0]!);
 
   const entryPoints: string[] = nfBuilderOptions.entryPoints ?? [
-    nfBuilderOptions.entryPoint ?? path.join(path.dirname(options.tsConfig), 'src/main.ts'),
+    nfBuilderOptions.entryPoint ??
+      path.join(path.dirname(ngBuilderOptions.tsConfig), 'src/main.ts'),
   ];
 
   const cachePath = getDefaultCachePath(context.workspaceRoot);
@@ -214,10 +215,10 @@ export async function* runBuilder(
     {
       workspaceRoot: context.workspaceRoot,
       outputPath: browserOutputPath,
-      federationConfig: inferConfigPath(options.tsConfig),
-      tsConfig: options.tsConfig,
-      verbose: options.verbose,
-      watch: options.watch,
+      federationConfig: inferConfigPath(ngBuilderOptions.tsConfig),
+      tsConfig: ngBuilderOptions.tsConfig,
+      verbose: ngBuilderOptions.verbose,
+      watch: ngBuilderOptions.watch,
       dev: !!nfBuilderOptions.dev,
       chunks: !nfBuilderOptions.chunks ? false : nfBuilderOptions.chunks,
       entryPoints,
@@ -247,7 +248,7 @@ export async function* runBuilder(
 
   // SSR build fails when externals are provided via the plugin
   if (activateSsr) {
-    options.externalDependencies = externals;
+    ngBuilderOptions.externalDependencies = externals;
   }
 
   const isLocalDevelopment = runServer && nfBuilderOptions.dev;
@@ -261,7 +262,7 @@ export async function* runBuilder(
     ...(isLocalDevelopment
       ? [
           federationBuildNotifier.createEventMiddleware(req =>
-            removeBaseHref(req, options.baseHref)
+            removeBaseHref(req, ngBuilderOptions.baseHref)
           ),
         ]
       : []),
@@ -274,7 +275,7 @@ export async function* runBuilder(
       },
       next: () => void
     ) => {
-      const url = removeBaseHref(req, options.baseHref);
+      const url = removeBaseHref(req, ngBuilderOptions.baseHref);
 
       const fileName = path.join(normalized.options.workspaceRoot, devServerOutputPath, url);
 
@@ -334,7 +335,7 @@ export async function* runBuilder(
     logger.measure(start, 'To translate the artifacts.');
   }
 
-  options.deleteOutputPath = false;
+  ngBuilderOptions.deleteOutputPath = false;
 
   const appBuilderName = '@angular/build:application';
 
@@ -352,7 +353,7 @@ export async function* runBuilder(
           middleware,
         }
       )
-    : buildApplication(options, context, {
+    : buildApplication(ngBuilderOptions, context, {
         codePlugins: plugins,
         indexHtmlTransformer: transformIndexHtml(nfBuilderOptions),
       });
@@ -444,7 +445,7 @@ export async function* runBuilder(
               return { success: false, cancelled: true };
             }
             logger.error('Federation rebuild failed!');
-            if (options.verbose) console.error(error);
+            if (ngBuilderOptions.verbose) console.error(error);
             if (isLocalDevelopment) {
               federationBuildNotifier.broadcastBuildError(error);
             }

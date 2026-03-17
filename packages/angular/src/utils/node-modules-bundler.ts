@@ -7,18 +7,12 @@ import {
   getSupportedBrowsers,
   JavaScriptTransformer,
   Cache,
-  type SourceFileCache,
 } from '@angular/build/private';
-
-import type { BuilderContext } from '@angular-devkit/architect';
 
 import { normalizeSourceMaps } from '@angular-devkit/build-angular/src/utils/index.js';
 
-import type { ApplicationBuilderOptions } from '@angular/build';
-import type { EntryPoint, FederationCache } from '@softarc/native-federation';
-import type { MappedPath } from '@softarc/native-federation/internal';
-
 import { createSharedMappingsPlugin } from './shared-mappings-plugin.js';
+import type { NormalizedContextOptions } from './normalize-context-options.js';
 
 const LINKER_DECLARATION_PREFIX = 'ɵɵngDeclare';
 
@@ -72,11 +66,6 @@ function createAngularLinkerPlugin(
   };
 }
 
-export interface NodeModulesBundleResult {
-  ctx: esbuild.BuildContext;
-  pluginDisposed: Promise<void>;
-}
-
 const jsTransformerCacheStores = new Map<string, Map<string, Uint8Array>>();
 
 function getOrCreateJsTransformerCacheStore(cachePath: string): Map<string, Uint8Array> {
@@ -88,19 +77,24 @@ function getOrCreateJsTransformerCacheStore(cachePath: string): Map<string, Uint
   return store;
 }
 
-export async function createNodeModulesEsbuildContext(
-  builderOptions: ApplicationBuilderOptions,
-  context: BuilderContext,
-  entryPoints: EntryPoint[],
-  external: string[],
-  outdir: string,
-  mappedPaths: MappedPath[],
-  cache: FederationCache<SourceFileCache>,
-  dev?: boolean,
-  hash: boolean = false,
-  chunks?: boolean,
-  platform?: 'browser' | 'node'
-): Promise<NodeModulesBundleResult> {
+export async function createNodeModulesEsbuildContext(options: NormalizedContextOptions): Promise<{
+  ctx: esbuild.BuildContext;
+  pluginDisposed: Promise<void>;
+}> {
+  const {
+    builderOptions,
+    context,
+    entryPoints,
+    external,
+    outdir,
+    mappedPaths,
+    cache,
+    dev,
+    hash,
+    chunks,
+    platform,
+  } = options;
+
   const workspaceRoot = context.workspaceRoot;
 
   const projectMetadata = await context.getProjectMetadata(context.target!.project);
