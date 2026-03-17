@@ -307,6 +307,10 @@ function updateWorkspaceConfig(
     },
   };
 
+  if (tree.exists('nx.json')) {
+    projectConfig.architect.serve.continuous = true;
+  }
+
   const serveSsr = projectConfig.architect['serve-ssr'];
   if (serveSsr && !serveSsr.options) {
     serveSsr.options = {};
