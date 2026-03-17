@@ -14,6 +14,59 @@ skip: [
 
 This speeds up your build and the initial page load. Also, it gives you automatic page reloads within your application when changing the source code.
 
+## Sharing Selected Mapped Paths with `sharedMappings`
+
+In Nx/monorepo setups, Native Federation shares all libraries from your `tsconfig` path mappings by default.
+
+If you only want to share selected mapped paths, you can use `sharedMappings` in your `federation.config.js`:
+
+```js
+module.exports = withNativeFederation({
+  shared: {
+    ...shareAll({
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+    }),
+  },
+  sharedMappings: ['@my-org/auth-lib', '@my-org/ui/*'],
+});
+```
+
+Notes:
+
+- `sharedMappings` is optional. If you omit it, all mapped paths are shared.
+- You can use wildcard suffixes (for example, `@my-org/ui/*`) to include multiple mapped paths.
+- `skip` still applies and can be used to exclude mapped paths even if they were selected via `sharedMappings`.
+- Mapped paths are read from the workspace root tsconfig file: `tsconfig.base.json` if present, otherwise `tsconfig.json`.
+- The workspace root is detected by searching upward from the current working directory until a `package.json` is found.
+
+## Mapping Versions via `features.mappingVersion`
+
+If your mapped paths point to libraries that have a `package.json` with a `version`, you can include this version in federation metadata by enabling `features.mappingVersion`.
+
+```js
+module.exports = withNativeFederation({
+  shared: {
+    ...shareAll({
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+    }),
+  },
+  sharedMappings: ['@my-org/auth-lib', '@my-org/ui/*'],
+  features: {
+    mappingVersion: true,
+  },
+});
+```
+
+Notes:
+
+- Default is `false`.
+- If enabled, Native Federation tries to read the version from the mapped library's nearest `package.json`.
+- If no `package.json` version is found for a mapping, the version remains empty.
+
 ## Using Multiple Framework Versions
 
 After compiling an Angular application, the compilation is accessing Angular's private API. As private APIs do not align with semver, there is no guarantee that your compiled application works with a different version of Angular. Even having a different minor or patch version at runtime can lead to issues.

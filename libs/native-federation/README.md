@@ -233,6 +233,34 @@ module.exports = withNativeFederation({
 
 > Our `init` schematic shown above generates this file for you.
 
+### Sharing Mapped Paths and Mapping Versions
+
+In monorepo setups, mapped paths from your `tsconfig` are shared by default. You can restrict this behavior via `sharedMappings`.
+
+If you additionally want to provide version metadata for mapped paths, enable `features.mappingVersion`.
+
+```javascript
+const { withNativeFederation, shareAll } = require('@angular-architects/native-federation/config');
+
+module.exports = withNativeFederation({
+  shared: {
+    ...shareAll({
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+    }),
+  },
+  sharedMappings: ['@my-org/auth-lib', '@my-org/ui/*'],
+  features: {
+    mappingVersion: true,
+  },
+});
+```
+
+If `sharedMappings` is omitted, all discovered mapped paths are shared. For more details, see [FAQ for Sharing Libraries](./docs/share-faq.md).
+
+`sharedMappings` reads mapped paths from the workspace root tsconfig file: `tsconfig.base.json` if it exists, otherwise `tsconfig.json`.
+
 ### Initializing the Host
 
 When bootstrapping the host (shell), Native Federation (`projects\shell\src\main.ts`) is initialized:
