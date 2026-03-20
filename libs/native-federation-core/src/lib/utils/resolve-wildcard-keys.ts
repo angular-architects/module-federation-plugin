@@ -1,6 +1,7 @@
 import fg from 'fast-glob';
 import * as fs from 'fs';
 import * as path from 'path';
+import { logger } from './logger';
 
 export type KeyValuePair = {
   key: string;
@@ -32,7 +33,7 @@ const TS_INDEX_FILES = [
  * For discovery, we find all directories at the wildcard position that TypeScript
  * would recognize as valid modules (directories with index files or package.json).
  *
- * @see https://www.typescriptlang.org/tsconfig/#paths
+// @see https://www.typescriptlang.org/docs/handbook/modules/theory.html#module-resolution
  */
 export function resolveTsConfigWildcard(
   keyPattern: string,
@@ -71,6 +72,7 @@ export function resolveTsConfigWildcard(
     }
 
     if (!stats.isDirectory()) {
+      // Skipping individual files, we only process modules
       continue;
     }
 
@@ -84,18 +86,23 @@ export function resolveTsConfigWildcard(
       continue;
     }
 
+    const key = keyPattern.replace('*', entry);
+
     if (fullPathStats.isDirectory()) {
       const indexFile = TS_INDEX_FILES.find((indexFile) =>
         fs.existsSync(path.join(fullPath, indexFile)),
       );
 
-      if (!indexFile) continue;
+      if (!indexFile) {
+        logger.warn(
+          `[shared-mappings] Internal lib '${key}' does not contain an entryPoint (barrel file).`,
+        );
+        continue;
+      }
       modulePath = path.join(modulePath, indexFile);
     } else if (!fullPathStats.isFile()) {
       continue;
     }
-
-    const key = keyPattern.replace('*', entry);
 
     keys.push({
       key,

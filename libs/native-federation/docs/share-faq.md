@@ -40,6 +40,7 @@ Notes:
 - `skip` still applies and can be used to exclude mapped paths even if they were selected via `sharedMappings`.
 - Mapped paths are read from the workspace root tsconfig file: `tsconfig.base.json` if present, otherwise `tsconfig.json`.
 - The workspace root is detected by searching upward from the current working directory until a `package.json` is found.
+- Shared mappings with wildcards only work with 'index.ts' barrel files! No individual classes unless specified.
 
 ## Mapping Versions via `features.mappingVersion`
 
