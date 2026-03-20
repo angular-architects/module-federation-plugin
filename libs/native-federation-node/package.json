@@ -1,6 +1,6 @@
 {
   "name": "@softarc/native-federation-node",
-  "version": "3.5.4",
+  "version": "3.5.5",
   "license": "MIT",
   "dependencies": {
     "@softarc/native-federation-runtime": "~3.5.4",

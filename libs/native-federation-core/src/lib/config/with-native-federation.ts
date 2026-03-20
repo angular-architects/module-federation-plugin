@@ -119,6 +119,17 @@ function normalizeSharedMappings(
 
   const result = paths.filter((p) => !isInSkipList(p.key, skipList));
 
+  const importsWithDot = paths.filter((p) => p.key.includes('.'));
+  if (importsWithDot.length > 0) {
+    importsWithDot.forEach((e) => {
+      logger.warn(`Shared mapping import '${e}' contains a dot.`);
+    });
+    logger.warn('details: https://github.com/vitejs/vite/issues/21036');
+    throw new Error(
+      'Native-federation does not support dots (.) in imports paths. ',
+    );
+  }
+
   return result;
 }
 

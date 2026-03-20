@@ -75,7 +75,6 @@ export async function bundleExposedAndMappings(
     throw error;
   }
 
-  console.log(result);
   const resultMap = createBuildResultMap(result, hash);
 
   const sharedResult: Array<SharedInfo> = [];
