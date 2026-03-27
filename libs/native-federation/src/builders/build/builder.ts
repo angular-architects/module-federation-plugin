@@ -402,7 +402,12 @@ export async function* runBuilder(
       //   yield output;
       // }
 
-      if (!first && (nfOptions.dev || watch)) {
+      if (!output.success && isLocalDevelopment) {
+        federationBuildNotifier.broadcastBuildError(
+          new Error(output?.error ?? 'Angular build failed.'),
+        );
+      }
+      if (!first && output.success && (nfOptions.dev || watch)) {
         rebuildQueue
           .enqueue(async (signal: AbortSignal) => {
             if (signal?.aborted) {

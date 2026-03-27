@@ -25,7 +25,7 @@
     "@chialab/esbuild-plugin-commonjs": "^0.19.0",
     "@angular/build": "^21.2.0",
     "@angular-devkit/build-angular": "^21.2.0",
-    "esbuild": "^0.27.1",
+    "esbuild": ">=0.27.1 <0.27.4 || >0.27.4",
     "mrmime": "^2.0.1",
     "signale": "^1.4.0",
     "process": "0.11.10"
