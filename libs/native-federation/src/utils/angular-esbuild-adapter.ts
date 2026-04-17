@@ -312,6 +312,39 @@ async function runEsbuild(
         ? [createSharedMappingsPlugin(mappedPaths)]
         : []),
       commonjsPlugin(),
+      ...(kind === 'shared-package'
+        ? [
+            {
+              name: 'redirect-not-found-chunk-to-primitives-di',
+              setup(build: esbuild.PluginBuild) {
+                // When esbuild cannot resolve a module, it creates a synthetic
+                // `_not_found-chunk.mjs` stub that is re-exported by the real
+                // entry. If a later build step (e.g. the Angular linker) imports
+                // that stub while processing `@angular/core/primitives/di`, the
+                // stub tries to resolve as a bare specifier and causes a
+                // duplicate-singleton error at runtime because the real singleton
+                // from `primitives/di` is never used.
+                //
+                // Redirect every `_not_found-chunk` import to the canonical
+                // `@angular/core/primitives/di` package so only one instance of
+                // `_currentInjector` (and other primitives-di singletons) exists
+                // in the shared bundle.
+                build.onResolve({ filter: /_not_found-chunk/ }, (args) => {
+                  // Avoid infinite loop: if primitives/di itself imports the stub
+                  // (which should not happen, but guard just in case) return null
+                  // to let esbuild handle it normally.
+                  if (
+                    args.importer &&
+                    args.importer.includes('primitives-di')
+                  ) {
+                    return null;
+                  }
+                  return { path: '@angular/core/primitives/di', external: true };
+                });
+              },
+            },
+          ]
+        : []),
     ],
     define: {
       ngDevMode: dev ? 'true' : 'false',
