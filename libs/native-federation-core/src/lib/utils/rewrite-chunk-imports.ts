@@ -5,6 +5,15 @@ import * as path from 'path';
 export const INTERNAL_SCOPE = '@nf-internal';
 
 export function rewriteChunkImports(filePath: string) {
+  // `_angular_compiler` artifacts are loaded via native import() when the host
+  // sets `esmsInitOptions.skip` (e.g. `/_angular_compiler\\.`). Native import()
+  // bypasses es-module-shims and therefore cannot resolve `@nf-internal/*` bare
+  // specifiers. Keeping their original relative `./chunk-X.js` imports lets the
+  // browser resolve them natively relative to the served artifact URL.
+  if (path.basename(filePath).includes('_angular_compiler')) {
+    return;
+  }
+
   const sourceCode = fs.readFileSync(filePath, 'utf-8');
 
   const sourceFile = ts.createSourceFile(
