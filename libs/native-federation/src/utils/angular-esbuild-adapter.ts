@@ -339,7 +339,10 @@ async function runEsbuild(
                   ) {
                     return null;
                   }
-                  return { path: '@angular/core/primitives/di', external: true };
+                  return {
+                    path: '@angular/core/primitives/di',
+                    external: true,
+                  };
                 });
               },
             },
