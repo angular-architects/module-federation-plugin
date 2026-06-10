@@ -1,5 +1,10 @@
 # Native Federation for Angular
 
+> [!WARNING]
+> **Native federation has moved!**
+>
+> This is our older deprecated v3 version. Starting Angular 22, we're moving to a new repository. For upgrading from v3 to v4, please have a look at our [new repository](https://github.com/native-federation/angular-adapter).
+
 Native Federation is a "browser-native" implementation of the successful mental model behind webpack Module Federation for building Micro Frontends (Plugins, etc.).
 
 ## Features 🔥

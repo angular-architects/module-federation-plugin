@@ -3,6 +3,11 @@
 - [Readme for Module Federation](./libs/mf/README.md)
 - [Readme for Native Federation](./libs/native-federation/README.md)
 
+> [!WARNING]
+> **Native federation has moved!**
+>
+> This is our older deprecated v3 version. Starting Angular 22, we're moving to a new repository. For upgrading from v3 to v4, please have a look at our [new repository](https://github.com/native-federation/angular-adapter).
+
 ## Local Development
 
 <details>
