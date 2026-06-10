@@ -85,7 +85,7 @@
     "@nx/web": "~22.5.0",
     "@nx/webpack": "~22.5.0",
     "@nx/workspace": "~22.5.0",
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.60.0",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^16.0.1",

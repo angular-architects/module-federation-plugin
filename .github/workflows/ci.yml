@@ -32,6 +32,11 @@ jobs:
       # Install Playwright browsers
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
+        timeout-minutes: 10
+        env:
+          DEBIAN_FRONTEND: noninteractive
+          NEEDRESTART_MODE: a
+          NEEDRESTART_SUSPEND: '1'
 
       - uses: nrwl/nx-set-shas@v4
 
