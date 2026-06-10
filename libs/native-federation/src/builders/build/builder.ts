@@ -43,7 +43,11 @@ import {
 } from '../../utils/mem-resuts';
 import { FederationInfo } from '@softarc/native-federation-runtime';
 import { PluginBuild } from 'esbuild';
-import { getI18nConfig, translateFederationArtefacts } from '../../utils/i18n';
+import {
+  getI18nConfig,
+  registerAngularLocaleDataInFederationConfig,
+  translateFederationArtefacts,
+} from '../../utils/i18n';
 import { RebuildHubs } from '../../utils/rebuild-events';
 import { createSharedMappingsPlugin } from '../../utils/shared-mappings-plugin';
 import { updateScriptTags } from '../../utils/updateIndexHtml';
@@ -234,6 +238,20 @@ export async function* runBuilder(
   const start = process.hrtime();
   const config = await loadFederationConfig(fedOptions);
   logger.measure(start, 'To load the federation config.');
+
+  // When `i18n.sourceLocale` (or an inline locale) resolves to a non-English
+  // code, Angular's application builder emits bare specifiers of the form
+  // `@angular/common/locales/global/<code>` that normally rely on vite's
+  // dep-prebundling at dev time. Native Federation replaces that resolution
+  // layer, so we have to surface those locale data files through the
+  // federation's importmap explicitly.
+  const inlineLocaleFilter = Array.isArray(localeFilter) ? localeFilter : [];
+  registerAngularLocaleDataInFederationConfig(
+    config,
+    i18n,
+    context.workspaceRoot,
+    inlineLocaleFilter,
+  );
 
   const externals = getExternals(config);
   const plugins = [
