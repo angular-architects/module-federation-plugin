@@ -22,6 +22,7 @@ import {
   getChecksum,
   getFilename,
 } from './../utils/bundle-caching';
+import { contentHashedName } from '../utils/content-hashed-name';
 
 export async function bundleShared(
   sharedBundles: Record<string, NormalizedSharedConfig>,
@@ -86,12 +87,16 @@ export async function bundleShared(
     fedOptions.outputPath,
   );
 
-  const expectedResults = allEntryPoints.map((ep) =>
-    path.join(fullOutputPath, ep.outName),
-  );
-  const entryPoints = allEntryPoints.filter(
-    (ep) => !fs.existsSync(path.join(cacheOptions.pathToCache, ep.outName)),
-  );
+  // In production always rebuild the shared entries so they stay consistent with the
+  // freshly built (content-hashed) chunk graph. The filename-existence shortcut below
+  // is content-blind: because the entry name is derived from the package version (see
+  // createOutName), a previously cached entry could be reused even though the chunks it
+  // imports have been renamed, yielding a dist that references chunks it never emitted.
+  const entryPoints = fedOptions.dev
+    ? allEntryPoints.filter(
+        (ep) => !fs.existsSync(path.join(cacheOptions.pathToCache, ep.outName)),
+      )
+    : allEntryPoints;
 
   // If we build for the browser and don't remote unused deps from the shared config,
   // we need to exclude typical node libs to avoid compilation issues
@@ -120,6 +125,44 @@ export async function bundleShared(
 
     const cachedFiles = bundleResult.map((br) => path.basename(br.fileName));
     rewriteImports(cachedFiles, cacheOptions.pathToCache);
+
+    // Re-hash each shared entry from its FINAL content (after import rewriting) so the
+    // file name changes if and only if the content changes. createOutName() derives the
+    // name from the package version only, which is not a content key once the shared
+    // chunk graph shifts. Chunks are already content-hashed by the bundler, so we leave
+    // them untouched. Skipped in dev to keep watch/HMR file names stable.
+    if (!fedOptions.dev) {
+      for (const ep of allEntryPoints) {
+        const oldPath = path.join(cacheOptions.pathToCache, ep.outName);
+        if (!fs.existsSync(oldPath)) {
+          continue;
+        }
+        const newName = contentHashedName(ep.outName, fs.readFileSync(oldPath));
+        if (newName === ep.outName) {
+          continue;
+        }
+        fs.renameSync(oldPath, path.join(cacheOptions.pathToCache, newName));
+        const mapOld = `${oldPath}.map`;
+        if (fs.existsSync(mapOld)) {
+          fs.renameSync(
+            mapOld,
+            path.join(cacheOptions.pathToCache, `${newName}.map`),
+          );
+        }
+        // Keep bundleResult in sync so chunk detection and the persisted file list
+        // (used by copyFiles) reference the new name.
+        for (const br of bundleResult) {
+          const baseName = path.basename(br.fileName);
+          if (baseName === ep.outName || baseName === `${ep.outName}.map`) {
+            br.fileName = path.join(
+              path.dirname(br.fileName),
+              baseName.replace(ep.outName, newName),
+            );
+          }
+        }
+        ep.outName = newName;
+      }
+    }
   } catch (e) {
     logger.error('Error bundling shared npm package ');
     if (e instanceof Error) {
@@ -152,7 +195,9 @@ export async function bundleShared(
     throw e;
   }
 
-  const outFileNames = [...expectedResults];
+  const outFileNames = allEntryPoints.map((ep) =>
+    path.join(fullOutputPath, ep.outName),
+  );
 
   const result = buildResult(packageInfos, sharedBundles, outFileNames);
 
