@@ -32,6 +32,7 @@ import {
   createAngularBuildAdapter,
   setMemResultHandler,
 } from '../../utils/angular-esbuild-adapter';
+import { resolveInstrumentationFilter } from '../../utils/coverage-instrumentation';
 
 import { JsonObject } from '@angular-devkit/core';
 import { existsSync, mkdirSync, rmSync } from 'fs';
@@ -78,17 +79,24 @@ process.stderr.write = function (
   return originalWrite(chunk, encodingOrCallback as BufferEncoding, callback);
 };
 
-function _buildApplication(options, context, pluginsOrExtensions) {
-  let extensions;
-  if (pluginsOrExtensions && Array.isArray(pluginsOrExtensions)) {
-    extensions = {
-      codePlugins: pluginsOrExtensions,
-    };
-  } else {
-    extensions = pluginsOrExtensions;
-  }
-  return buildApplicationInternal(options, context, extensions);
-}
+const createInternalAngularBuilder =
+  (opts?: { instrumentForCoverage?: (request: string) => boolean }) =>
+  (options, context, pluginsOrExtensions) => {
+    let extensions;
+    if (pluginsOrExtensions && Array.isArray(pluginsOrExtensions)) {
+      extensions = {
+        codePlugins: pluginsOrExtensions,
+      };
+    } else {
+      extensions = pluginsOrExtensions;
+    }
+
+    if (opts?.instrumentForCoverage) {
+      options.instrumentForCoverage = opts.instrumentForCoverage;
+    }
+
+    return buildApplicationInternal(options, context, extensions);
+  };
 
 export async function* runBuilder(
   nfOptions: NfBuilderSchema,
@@ -373,13 +381,18 @@ export async function* runBuilder(
 
   options.deleteOutputPath = false;
 
+  const instrumentForCoverage = await resolveInstrumentationFilter(context, {
+    instrumentForCoverage: nfOptions.instrumentForCoverage,
+    codeCoverageExclude: nfOptions.codeCoverageExclude,
+  });
+
   const appBuilderName = '@angular/build:application';
 
   const builderRun = runServer
     ? serveWithVite(
         serverOptions,
         appBuilderName,
-        _buildApplication,
+        createInternalAngularBuilder({ instrumentForCoverage }),
         context,
         nfOptions.skipHtmlTransform
           ? {}
@@ -389,10 +402,16 @@ export async function* runBuilder(
           middleware,
         },
       )
-    : buildApplication(options, context, {
-        codePlugins: plugins as any,
-        indexHtmlTransformer: transformIndexHtml(nfOptions),
-      });
+    : buildApplication(
+        instrumentForCoverage
+          ? ({ ...options, instrumentForCoverage } as unknown as typeof options)
+          : options,
+        context,
+        {
+          codePlugins: plugins as any,
+          indexHtmlTransformer: transformIndexHtml(nfOptions),
+        },
+      );
 
   const rebuildQueue = new RebuildQueue();
 
