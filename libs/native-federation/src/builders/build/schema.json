@@ -61,6 +61,17 @@
       "description": "uses federation for ssr in ApplicationBuilder too",
       "default": false
     },
+    "instrumentForCoverage": {
+      "type": "boolean",
+      "description": "Enables Istanbul instrumentation of the served/built bundles to collect code coverage data for E2E tests (e.g. Cypress). Uses the same instrumentation filter as 'ng test --code-coverage'.",
+      "default": false
+    },
+    "codeCoverageExclude": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Globs (relative to the workspace root) of files to exclude from coverage instrumentation. Only applies when instrumentForCoverage is enabled.",
+      "default": []
+    },
     "devServer": {
       "type": "boolean",
       "description": "can be used to disable the dev server when dev=true"
