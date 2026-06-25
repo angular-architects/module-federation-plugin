@@ -7,7 +7,10 @@ export function updateIndexHtml(
   fedOptions: FederationOptions,
   nfOptions: NfBuilderSchema,
 ) {
-  const outputPath = path.join(fedOptions.workspaceRoot, fedOptions.outputPath);
+  const outputPath = path.resolve(
+    fedOptions.workspaceRoot,
+    fedOptions.outputPath,
+  );
   const indexPathCands = [
     path.join(outputPath, '../server/index.server.html'),
     path.join(outputPath, 'index.html'),
