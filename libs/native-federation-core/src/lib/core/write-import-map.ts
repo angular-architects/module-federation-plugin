@@ -15,7 +15,7 @@ export function writeImportMap(
   }, {});
 
   const importMap = { imports };
-  const importMapPath = path.join(
+  const importMapPath = path.resolve(
     fedOption.workspaceRoot,
     fedOption.outputPath,
     'importmap.json',

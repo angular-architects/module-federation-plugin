@@ -7,7 +7,7 @@ export function writeFederationInfo(
   federationInfo: FederationInfo,
   fedOptions: FederationOptions,
 ) {
-  const metaDataPath = path.join(
+  const metaDataPath = path.resolve(
     fedOptions.workspaceRoot,
     fedOptions.outputPath,
     'remoteEntry.json',

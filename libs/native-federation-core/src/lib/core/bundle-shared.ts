@@ -48,7 +48,7 @@ export async function bundleShared(
         `Checksum of ${cacheOptions.bundleName} matched, Skipped artifact bundling`,
       );
       bundleCache.copyFiles(
-        path.join(fedOptions.workspaceRoot, fedOptions.outputPath),
+        path.resolve(fedOptions.workspaceRoot, fedOptions.outputPath),
       );
       return cacheMetadata.externals;
     }
@@ -81,7 +81,7 @@ export async function bundleShared(
     return { fileName: pi.entryPoint, outName };
   });
 
-  const fullOutputPath = path.join(
+  const fullOutputPath = path.resolve(
     fedOptions.workspaceRoot,
     fedOptions.outputPath,
   );
@@ -174,7 +174,7 @@ export async function bundleShared(
   });
 
   bundleCache.copyFiles(
-    path.join(fedOptions.workspaceRoot, fedOptions.outputPath),
+    path.resolve(fedOptions.workspaceRoot, fedOptions.outputPath),
   );
 
   return result;

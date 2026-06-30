@@ -56,7 +56,7 @@ const configureDevServer = async (
   await federationBuilder.build();
 
   const op = params.options;
-  const dist = path.join(op.workspaceRoot, op.outputPath);
+  const dist = path.resolve(op.workspaceRoot, op.outputPath);
   server.middlewares.use(serveFromDist(dist, fedInfo));
 };
 
