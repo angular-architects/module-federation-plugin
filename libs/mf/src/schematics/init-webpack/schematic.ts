@@ -133,11 +133,9 @@ function updatePackageJson(tree: Tree): void {
   tree.overwrite('package.json', JSON.stringify(packageJson, null, 2));
 }
 
-function getWebpackConfigValue(nx: boolean, path: string) {
-  if (!nx) {
-    return path;
-  }
-
+function getWebpackConfigValue(path: string) {
+  // Both @angular-builders/custom-webpack and @nx/angular expect
+  // customWebpackConfig to be an object of the shape { path }.
   return { path };
 }
 
@@ -342,15 +340,15 @@ export default function config(options: MfSchematicSchema): Rule {
       console.log('Switching to webpack');
     }
 
-    const webpackProperty = options.nxBuilders
-      ? 'customWebpackConfig'
-      : 'extraWebpackConfig';
+    // @angular-builders/custom-webpack (non-Nx) and @nx/angular (Nx) share the
+    // same option contract, so the property name is the same for both paths.
+    const webpackProperty = 'customWebpackConfig';
     const buildBuilder = options.nxBuilders
       ? nxBuilderNames.prod
-      : 'ngx-build-plus:browser';
+      : '@angular-builders/custom-webpack:browser';
     const serveBuilder = options.nxBuilders
       ? nxBuilderNames.dev
-      : 'ngx-build-plus:dev-server';
+      : '@angular-builders/custom-webpack:dev-server';
 
     if (!projectConfig?.architect?.build || !projectConfig?.architect?.serve) {
       throw new Error(
@@ -376,22 +374,18 @@ export default function config(options: MfSchematicSchema): Rule {
 
     projectConfig.architect.build.builder = buildBuilder;
     projectConfig.architect.build.options[webpackProperty] =
-      getWebpackConfigValue(options.nxBuilders, configPath);
+      getWebpackConfigValue(configPath);
     projectConfig.architect.build.options.commonChunk = false;
     projectConfig.architect.build.configurations.production[webpackProperty] =
-      getWebpackConfigValue(options.nxBuilders, configProdPath);
+      getWebpackConfigValue(configProdPath);
 
     projectConfig.architect.serve.builder = serveBuilder;
     projectConfig.architect.serve.options.port = port;
     projectConfig.architect.serve.options.publicHost = `http://localhost:${port}`;
 
-    // Only needed for ngx-build-plus
-    if (!options.nxBuilders) {
-      projectConfig.architect.serve.options[webpackProperty] =
-        getWebpackConfigValue(options.nxBuilders, configPath);
-      projectConfig.architect.serve.configurations.production[webpackProperty] =
-        getWebpackConfigValue(options.nxBuilders, configProdPath);
-    }
+    // The dev-server (both @angular-builders/custom-webpack and @nx/angular)
+    // inherits the webpack config from its build target, so nothing extra is
+    // needed on the serve target.
 
     // We don't change the config for testing anymore to prevent
     // issues with eager bundles and webpack
@@ -402,11 +396,14 @@ export default function config(options: MfSchematicSchema): Rule {
     //   projectConfig.architect.test.options.extraWebpackConfig = configPath;
     // }
 
-    if (projectConfig?.architect?.['extract-i18n']?.options) {
+    if (
+      !options.nxBuilders &&
+      projectConfig?.architect?.['extract-i18n']?.options
+    ) {
       projectConfig.architect['extract-i18n'].builder =
-        'ngx-build-plus:extract-i18n';
-      projectConfig.architect['extract-i18n'].options.extraWebpackConfig =
-        configPath;
+        '@angular-builders/custom-webpack:extract-i18n';
+      projectConfig.architect['extract-i18n'].options.customWebpackConfig =
+        getWebpackConfigValue(configPath);
     }
 
     updateTsConfig(tree, tsConfigName);
@@ -422,14 +419,21 @@ export default function config(options: MfSchematicSchema): Rule {
 
     updatePackageJson(tree);
 
-    const dep = getPackageJsonDependency(tree, 'ngx-build-plus');
+    const dep = getPackageJsonDependency(
+      tree,
+      '@angular-builders/custom-webpack',
+    );
 
     let installDeps = false;
-    if (!dep || !semver.satisfies(dep.version, '>=20.0.0')) {
+    // Nx workspaces build with @nx/angular builders and don't need this.
+    if (
+      !options.nxBuilders &&
+      (!dep || !semver.satisfies(semver.minVersion(dep.version), '>=22.0.0'))
+    ) {
       addPackageJsonDependency(tree, {
-        name: 'ngx-build-plus',
+        name: '@angular-builders/custom-webpack',
         type: NodeDependencyType.Dev,
-        version: '^20.0.0',
+        version: '^22.0.0',
         overwrite: true,
       });
 

@@ -1,10 +1,10 @@
 {
   "name": "@angular-architects/module-federation-runtime",
   "license": "MIT",
-  "version": "21.2.2",
+  "version": "22.0.0",
   "peerDependencies": {
-    "@angular/common": "^21.2.0",
-    "@angular/core": "^21.2.0",
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
     "@module-federation/enhanced": "^2.2.2",
     "@module-federation/runtime-core": "^2.2.2"
   },

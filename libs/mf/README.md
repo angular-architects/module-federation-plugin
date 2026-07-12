@@ -77,7 +77,9 @@ This library supports `ng update`:
 ng update @angular-architects/module-federation
 ```
 
-If you update by hand (e. g. via `npm install`), make sure you also install a respective version of ngx-build-plus (version 15 for Angular 15, version 14 for Angular 14, version 13 for Angular 13, etc.)
+If you update by hand (e. g. via `npm install`), make sure you also install a respective version of `@angular-builders/custom-webpack` matching your Angular major (version 22 for Angular 22, version 21 for Angular 21, etc.).
+
+> Note: Up to and including Angular 21, this package used `ngx-build-plus` to inject the webpack config. As of Angular 22 it uses `@angular-builders/custom-webpack`. Running `ng update @angular-architects/module-federation` migrates existing workspaces automatically; if you update by hand, remove `ngx-build-plus` and switch your `angular.json` builders to `@angular-builders/custom-webpack:*`.
 
 ## Upgrade from Angular 12 or lower
 

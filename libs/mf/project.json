@@ -46,7 +46,7 @@
             "output": "."
           },
           {
-            "input": ".",
+            "input": "./libs/mf",
             "glob": "migrations.json",
             "output": "."
           },

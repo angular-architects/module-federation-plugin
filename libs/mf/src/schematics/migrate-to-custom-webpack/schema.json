@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema",
-  "$id": "mf",
+  "$id": "mf-migrate-to-custom-webpack",
   "title": "",
   "type": "object",
   "properties": {}
