@@ -25,9 +25,7 @@ const CUSTOM_WEBPACK_VERSION = '^22.0.0';
 export default function migrateToCustomWebpack(): Rule {
   return function (tree: Tree, context) {
     const workspaceFileName = getWorkspaceFileName(tree);
-    const workspace = JSON.parse(
-      tree.read(workspaceFileName).toString('utf8'),
-    );
+    const workspace = JSON.parse(tree.read(workspaceFileName).toString('utf8'));
 
     let touched = false;
 
@@ -58,10 +56,7 @@ export default function migrateToCustomWebpack(): Rule {
     }
 
     if (touched) {
-      tree.overwrite(
-        workspaceFileName,
-        JSON.stringify(workspace, null, 2),
-      );
+      tree.overwrite(workspaceFileName, JSON.stringify(workspace, null, 2));
     }
 
     const hadNgxBuildPlus = !!getPackageJsonDependency(tree, 'ngx-build-plus');
@@ -70,7 +65,10 @@ export default function migrateToCustomWebpack(): Rule {
     }
 
     // Only add custom-webpack if a project actually used the webpack path.
-    if (touched && !getPackageJsonDependency(tree, '@angular-builders/custom-webpack')) {
+    if (
+      touched &&
+      !getPackageJsonDependency(tree, '@angular-builders/custom-webpack')
+    ) {
       addPackageJsonDependency(tree, {
         name: '@angular-builders/custom-webpack',
         type: NodeDependencyType.Dev,

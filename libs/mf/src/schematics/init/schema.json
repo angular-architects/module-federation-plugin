@@ -49,7 +49,7 @@
           },
           {
             "value": "module-federation-rsbuild-experimental",
-            "label": "Module Federation with rsbuild (experimental nextgen); no Angular 20 support yet!"
+            "label": "Module Federation with rspack (experimental, nextgen)"
           },
           {
             "value": "native-federation-esbuild",

@@ -1,0 +1,15 @@
+import { createConfig } from '@nx/angular-rspack';
+import applyFederation from './module-federation.config';
+
+// `@nx/angular-rspack`'s `createConfig` resolves to a raw rspack `Configuration[]`
+// (browser config, plus a server config when SSR is enabled). We apply the
+// Module Federation config (from `./module-federation.config`) once that base
+// Angular config has been produced.
+export default createConfig({
+  options: {
+    browser: './src/main.ts',
+    devServer: {
+      port: <%=port%>,
+    },
+  },
+}).then(applyFederation);

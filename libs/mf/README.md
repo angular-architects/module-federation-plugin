@@ -22,7 +22,7 @@ Module Federation allows loading separately compiled and deployed code (like mic
 
 ## Supporting Several Technologies
 
-✅ Supports webpack, rsbuild (experimental, nextgen), esbuild
+✅ Supports webpack, rspack (experimental, nextgen), esbuild
 
 ✅ Supports Module Federation and Native Federation
 
@@ -61,11 +61,11 @@ We are going to provide at least one major per Angular major to keep track with 
 
 Beginning with Angular 13, we had to add some changes to adjust to the Angular CLI. Please see the next section for this.
 
-## webpack, rsbuild, and esbuild
+## webpack, rspack, and esbuild
 
-Since version 19, the plugin's ng-add schematic asks whether you want to use the traditional Webpack-based builder, the (currently experimental, fast, next-generation) rsbuild builder, or esbuild (fast, Angular CLI's new default).
+Since version 19, the plugin's ng-add schematic asks whether you want to use the traditional Webpack-based builder, the (currently experimental, fast, next-generation) rspack builder, or esbuild (fast, Angular CLI's new default).
 
-The first two are supported via Module Federation. For the rsbuild integration, we are using Colum Ferry's awesome community project, @ng-rsbuild/plugin-angular. So, all credit for making rsbuild work with Angular goes to Colum.
+The first two are supported via Module Federation. For the rspack integration, we build on `@nx/angular-rspack` — originally Colum Ferry's awesome community project (`@ng-rsbuild/plugin-angular` / `@ng-rspack/build`), now maintained by the Nx team. So, all credit for making rspack work with Angular goes to Colum and the Nx team.
 
 The esbuild integration is technically a wrapper around the Angular CLI's new default builder, the ApplicationBuilder. It is powered by Native Federation, our bundler-agnostic implementation based on web standards like ECMAScript modules and Import Maps.
 

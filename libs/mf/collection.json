@@ -42,11 +42,6 @@
       "factory": "./src/schematics/remove/schematic",
       "schema": "./src/schematics/remove/schema.json",
       "description": "Removes Module Federation"
-    },
-    "patch": {
-      "factory": "./src/schematics/patch/schematic",
-      "description": "Patching Angular for rsbuild integration while experimental. Will be removed when stable!",
-      "private": true
     }
   }
 }
