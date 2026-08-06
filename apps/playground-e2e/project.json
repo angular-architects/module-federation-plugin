@@ -3,6 +3,8 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/playground-e2e/src",
   "projectType": "application",
+  "tags": [],
+  "implicitDependencies": ["playground"],
   "targets": {
     "e2e": {
       "executor": "@nx/cypress:cypress",
@@ -19,12 +21,10 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["apps/playground-e2e/**/*.{js,ts}"]
-      },
-      "outputs": ["{options.outputFile}"]
+      }
     }
-  },
-  "tags": [],
-  "implicitDependencies": ["playground"]
+  }
 }

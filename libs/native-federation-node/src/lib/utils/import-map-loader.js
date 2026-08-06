@@ -17,7 +17,7 @@ export function resolveSpecifier(importMap, specifier, parentURL) {
   }
   const normalizedSpecifier =
     parseURLLikeSpecifier(specifier, currentBaseURL) || specifier;
-  for (let scopePrefix in importMap.scopes) {
+  for (const scopePrefix in importMap.scopes) {
     if (
       scopePrefix === currentBaseURL ||
       (scopePrefix.endsWith('/') && currentBaseURL.startsWith(scopePrefix))
@@ -45,7 +45,7 @@ export function resolveSpecifier(importMap, specifier, parentURL) {
 
 // https://wicg.github.io/import-maps/#resolve-an-imports-match
 function resolveImportsMatch(normalizedSpecifier, specifierMap) {
-  for (let specifierKey in specifierMap) {
+  for (const specifierKey in specifierMap) {
     const resolutionResult = specifierMap[specifierKey];
 
     if (specifierKey === normalizedSpecifier) {
@@ -139,7 +139,7 @@ export function resolveAndComposeImportMap(parsed) {
 function sortAndNormalizeSpecifierMap(map, baseURL) {
   const normalized = {};
 
-  for (let specifierKey in map) {
+  for (const specifierKey in map) {
     const value = map[specifierKey];
 
     const normalizedSpecifierKey = normalizeSpecifierKey(specifierKey, baseURL);
@@ -147,7 +147,7 @@ function sortAndNormalizeSpecifierMap(map, baseURL) {
       continue;
     }
 
-    let addressURL = parseURLLikeSpecifier(value, baseURL);
+    const addressURL = parseURLLikeSpecifier(value, baseURL);
     if (addressURL === null) {
       console.warn(
         `Invalid URL address for import map specifier '${specifierKey}'`,
@@ -196,9 +196,9 @@ function parseURLLikeSpecifier(specifier, baseURL) {
 
 // https://wicg.github.io/import-maps/#sort-and-normalize-scopes
 function sortAndNormalizeScopes(map, baseURL) {
-  let normalized = {};
+  const normalized = {};
 
-  for (let scopePrefix in map) {
+  for (const scopePrefix in map) {
     const potentialSpecifierMap = map[scopePrefix];
     if (!isPlainObject(potentialSpecifierMap)) {
       throw TypeError(

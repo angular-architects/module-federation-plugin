@@ -9,6 +9,7 @@
     "build": {
       "executor": "@angular-architects/native-federation:build",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/mfe1",
         "index": "apps/mfe1/src/index.html",
@@ -49,11 +50,12 @@
           "sourceMap": true,
           "namedChunks": true
         }
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "serve": {
       "executor": "@angular-devkit/build-angular:dev-server",
+      "defaultConfiguration": "development",
+      "continuous": true,
       "configurations": {
         "production": {
           "buildTarget": "mfe1:build:production"
@@ -61,9 +63,7 @@
         "development": {
           "buildTarget": "mfe1:build:development"
         }
-      },
-      "defaultConfiguration": "development",
-      "continuous": true
+      }
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
