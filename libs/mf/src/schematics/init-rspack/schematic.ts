@@ -46,7 +46,7 @@ const RSPACK_DEPS = {
 };
 
 const RSPACK_DEV_DEPS = {
-  '@nx/angular-rspack': '23.1.0-rc.2',
+  '@nx/angular-rspack': '~23.1.0',
   '@rspack/core': '~1.6.8',
   '@rspack/cli': '~1.6.8',
 };
@@ -302,6 +302,12 @@ function printScriptInfo(
   console.info();
   console.info(
     `[INFO] Please remember that the rspack integration is in early stages`,
+  );
+  console.info(
+    `[INFO] extractLicenses is off in rspack.config.ts (license-webpack-plugin`,
+  );
+  console.info(
+    `[INFO] cannot read federated modules), so no 3rdpartylicenses.txt is built`,
   );
   console.info(
     `[INFO] Use the following script to start and build your project:`,

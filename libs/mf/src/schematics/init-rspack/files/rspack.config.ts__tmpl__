@@ -8,6 +8,11 @@ import applyFederation from './module-federation.config';
 export default createConfig({
   options: {
     browser: './src/main.ts',
+    // Serves public/mf.manifest.json, which a dynamic host fetches at startup.
+    assets: [{ glob: '**/*', input: './public' }],
+    // license-webpack-plugin cannot read Module Federation's synthetic
+    // container modules: they have no resource path, so it scandirs ''.
+    extractLicenses: false,
     devServer: {
       port: <%=port%>,
     },

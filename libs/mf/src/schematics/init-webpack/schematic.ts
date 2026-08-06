@@ -366,8 +366,11 @@ export default function config(options: MfSchematicSchema): Rule {
 
     const indexPath = path.join(projectSourceRoot, 'index.html');
 
-    projectConfig.architect.build.options.outputPath =
-      projectConfig.architect.build.options.outputPath ?? `dist/${projectName}`;
+    // The webpack browser builder only accepts the string form.
+    projectConfig.architect.build.options.outputPath = getOutputPath(
+      projectConfig,
+      projectName,
+    );
 
     projectConfig.architect.build.options.index =
       projectConfig.architect.build.options.index ?? indexPath;
@@ -376,12 +379,24 @@ export default function config(options: MfSchematicSchema): Rule {
     projectConfig.architect.build.options[webpackProperty] =
       getWebpackConfigValue(configPath);
     projectConfig.architect.build.options.commonChunk = false;
+    // license-webpack-plugin cannot read Module Federation's synthetic
+    // container modules: they have no resource path, so it reads undefined.
+    // Only the development configuration switches this off by default.
+    projectConfig.architect.build.options.extractLicenses = false;
+    printLicenseNotice();
     projectConfig.architect.build.configurations.production[webpackProperty] =
       getWebpackConfigValue(configProdPath);
 
     projectConfig.architect.serve.builder = serveBuilder;
     projectConfig.architect.serve.options.port = port;
     projectConfig.architect.serve.options.publicHost = `http://localhost:${port}`;
+
+    // A host imports remoteEntry.js from another origin, so the dev-server has
+    // to opt into cross-origin reads. Any value already configured wins.
+    projectConfig.architect.serve.options.headers = {
+      'Access-Control-Allow-Origin': '*',
+      ...projectConfig.architect.serve.options.headers,
+    };
 
     // The dev-server (both @angular-builders/custom-webpack and @nx/angular)
     // inherits the webpack config from its build target, so nothing extra is
@@ -558,14 +573,45 @@ function generateRemoteMap(workspace: any, projectName: string) {
   return result;
 }
 
+function printLicenseNotice() {
+  console.info();
+  console.info(
+    `[INFO] extractLicenses has been turned off: license-webpack-plugin cannot`,
+  );
+  console.info(
+    `[INFO] read Module Federation's container modules and fails the build.`,
+  );
+  console.info(
+    `[INFO] Production builds will no longer emit 3rdpartylicenses.txt, so`,
+  );
+  console.info(
+    `[INFO] collect third-party attributions another way if you rely on it.`,
+  );
+  console.info();
+}
+
+// Angular 22 omits outputPath from angular.json, and the application builder
+// also accepts an object form ({ base, browser }).
+function getOutputPath(project: any, projectName: string): string {
+  const outputPath = project?.architect?.build?.options?.outputPath;
+
+  if (typeof outputPath === 'object' && outputPath !== null) {
+    return outputPath.base ?? `dist/${projectName}`;
+  }
+
+  return outputPath ?? `dist/${projectName}`;
+}
+
 export function generateSsrMappings(
   workspace: any,
   projectName: string,
 ): string {
   let remotes = '{\n';
 
-  const projectOutPath =
-    workspace.projects[projectName].architect.build.options.outputPath;
+  const projectOutPath = getOutputPath(
+    workspace.projects[projectName],
+    projectName,
+  );
 
   for (const p in workspace.projects) {
     const project = workspace.projects[p];
@@ -578,7 +624,7 @@ export function generateSsrMappings(
       project?.architect?.build
     ) {
       const pPort = project.architect.serve.options?.port ?? 4200;
-      const outPath = project.architect.build.options.outputPath;
+      const outPath = getOutputPath(project, p);
       const relOutPath =
         path.relative(projectOutPath, outPath).replace(/\\/g, '/') + '/';
 
