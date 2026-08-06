@@ -1,0 +1,107 @@
+{
+  "name": "shell",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/shell/src",
+  "prefix": "angular-architects",
+  "tags": ["scope:demo"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:webpack-browser",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "dependsOn": [
+        {
+          "projects": ["mf"],
+          "target": "build"
+        }
+      ],
+      "options": {
+        "customWebpackConfig": {
+          "path": "apps/shell/webpack.config.js"
+        },
+        "outputPath": "dist/apps/shell",
+        "index": "apps/shell/src/index.html",
+        "main": "apps/shell/src/main.ts",
+        "polyfills": "apps/shell/src/polyfills.ts",
+        "tsConfig": "apps/shell/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/shell/public",
+            "output": "."
+          }
+        ],
+        "styles": ["apps/shell/src/styles.css"],
+        "scripts": [],
+        "commonChunk": false,
+        "extractLicenses": false
+      },
+      "configurations": {
+        "production": {
+          "customWebpackConfig": {
+            "path": "apps/shell/webpack.prod.config.js"
+          },
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "1mb",
+              "maximumError": "2mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "4kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/angular:dev-server",
+      "defaultConfiguration": "development",
+      "continuous": true,
+      "dependsOn": [
+        {
+          "projects": ["mf"],
+          "target": "build"
+        },
+        {
+          "projects": ["mfe1", "mfe2"],
+          "target": "serve"
+        }
+      ],
+      "options": {
+        "port": 4200,
+        "publicHost": "http://localhost:4200"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "shell:build:production"
+        },
+        "development": {
+          "buildTarget": "shell:build:development"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/shell/**/*.ts", "apps/shell/**/*.html"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/shell"],
+      "options": {
+        "jestConfig": "apps/shell/jest.config.ts"
+      }
+    }
+  }
+}

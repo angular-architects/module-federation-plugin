@@ -13,6 +13,8 @@
 
 - [Readme for Module Federation](./libs/mf/README.md)
 - [Migration guides](./migration-guide.md)
+- [Webpack Module Federation demo](./apps/README.md) — a host and two remotes
+  running against the sources in `libs/`
 
 ## Local Development
 

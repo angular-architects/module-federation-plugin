@@ -1,0 +1,100 @@
+{
+  "name": "mfe1",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/mfe1/src",
+  "prefix": "angular-architects",
+  "tags": ["scope:demo"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:webpack-browser",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "dependsOn": [
+        {
+          "projects": ["mf"],
+          "target": "build"
+        }
+      ],
+      "options": {
+        "customWebpackConfig": {
+          "path": "apps/mfe1/webpack.config.js"
+        },
+        "outputPath": "dist/apps/mfe1",
+        "index": "apps/mfe1/src/index.html",
+        "main": "apps/mfe1/src/main.ts",
+        "polyfills": "apps/mfe1/src/polyfills.ts",
+        "tsConfig": "apps/mfe1/tsconfig.app.json",
+        "assets": [],
+        "styles": ["apps/mfe1/src/styles.css"],
+        "scripts": [],
+        "commonChunk": false,
+        "extractLicenses": false
+      },
+      "configurations": {
+        "production": {
+          "customWebpackConfig": {
+            "path": "apps/mfe1/webpack.prod.config.js"
+          },
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "1mb",
+              "maximumError": "2mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "4kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/angular:dev-server",
+      "defaultConfiguration": "development",
+      "continuous": true,
+      "options": {
+        "port": 4201,
+        "publicHost": "http://localhost:4201",
+        "headers": {
+          "Access-Control-Allow-Origin": "*"
+        }
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "mfe1:build:production"
+        },
+        "development": {
+          "buildTarget": "mfe1:build:development"
+        }
+      },
+      "dependsOn": [
+        {
+          "projects": ["mf"],
+          "target": "build"
+        }
+      ]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/mfe1/**/*.ts", "apps/mfe1/**/*.html"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/mfe1"],
+      "options": {
+        "jestConfig": "apps/mfe1/jest.config.ts"
+      }
+    }
+  }
+}
