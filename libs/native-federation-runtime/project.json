@@ -4,10 +4,12 @@
   "projectType": "library",
   "sourceRoot": "libs/native-federation-runtime/src",
   "prefix": "angular-architects",
+  "tags": ["org:softarc", "scope:nf"],
   "targets": {
     "build": {
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "defaultConfiguration": "production",
       "options": {
         "project": "libs/native-federation-runtime/ng-package.json"
       },
@@ -18,8 +20,7 @@
         "development": {
           "tsConfig": "libs/native-federation-runtime/tsconfig.lib.json"
         }
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "publish": {
       "dependsOn": ["build"],
@@ -54,6 +55,5 @@
         ]
       }
     }
-  },
-  "tags": ["org:softarc", "scope:nf"]
+  }
 }

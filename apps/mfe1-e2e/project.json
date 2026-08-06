@@ -3,6 +3,8 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/mfe1-e2e/src",
   "projectType": "application",
+  "tags": [],
+  "implicitDependencies": ["mfe1"],
   "targets": {
     "e2e": {
       "executor": "@nx/cypress:cypress",
@@ -24,7 +26,5 @@
         "lintFilePatterns": ["apps/mfe1-e2e/**/*.{js,ts}"]
       }
     }
-  },
-  "tags": [],
-  "implicitDependencies": ["mfe1"]
+  }
 }

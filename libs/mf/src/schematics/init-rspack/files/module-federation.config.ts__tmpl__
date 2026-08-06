@@ -2,15 +2,15 @@ import { withFederation, shareAll } from '@angular-architects/module-federation/
 
 export default withFederation({
   options: {
-<% if (type === 'remote') { %>
+    // rspack's Module Federation container requires a unique name.
     name: '<%=project%>',
-
+<% if (type === 'remote') { %>
     exposes: {
       './Component': './<%=appComponent%>',
     },
 <% } else if (type === 'host') { %>
     remotes: {<% for (key in remoteMap) { %>
-      "<%=key%>": "<%=remoteMap[key]%>",<% } %>    
+      "<%=key%>": "<%=remoteMap[key]%>",<% } %>
     },
 <% } %>
     shared: {
@@ -19,7 +19,7 @@ export default withFederation({
 
   },
   skip: [
-    // Add the names of packages, entrypoints 
+    // Add the names of packages, entrypoints
     // and libs you don't want to share here
     // Strings are compared with ===
 

@@ -9,10 +9,7 @@ import {
   move,
 } from '@angular-devkit/schematics';
 
-import {
-  NodePackageInstallTask,
-  RunSchematicTask,
-} from '@angular-devkit/schematics/tasks';
+import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 
 import { strings } from '@angular-devkit/core';
 import * as json5 from 'json5';
@@ -45,11 +42,13 @@ type PackageJson = {
 };
 
 const RSPACK_DEPS = {
-  '@module-federation/enhanced': '0.21.4',
+  '@module-federation/enhanced': '^2.7.0',
 };
 
 const RSPACK_DEV_DEPS = {
-  '@ng-rsbuild/plugin-angular': '^21.0.0',
+  '@nx/angular-rspack': '~23.1.0',
+  '@rspack/core': '~1.6.8',
+  '@rspack/cli': '~1.6.8',
 };
 
 export function init(options: MfSchematicSchema): Rule {
@@ -68,16 +67,22 @@ export function init(options: MfSchematicSchema): Rule {
 
     const remoteMap = await generateRemoteMap(workspace, projectName);
 
-    const cand1 = path.join(projectSourceRoot, 'app', 'app.component.ts');
-    const cand2 = path.join(projectSourceRoot, 'app', 'app.ts');
+    // The rspack config runs with the project root as its cwd, so exposed
+    // paths must be relative to the project root (e.g. `src/app/app.ts`),
+    // not to the workspace root.
+    const relSourceRoot = (
+      path.relative(projectRoot, projectSourceRoot) || '.'
+    ).replace(/\\/g, '/');
+    const candRel1 = path.posix.join(relSourceRoot, 'app', 'app.component.ts');
+    const candRel2 = path.posix.join(relSourceRoot, 'app', 'app.ts');
 
-    const appComponent = tree.exists(cand1)
-      ? cand1
-      : tree.exists(cand2)
-        ? cand2
+    const appComponent = tree.exists(path.posix.join(projectRoot, candRel1))
+      ? candRel1
+      : tree.exists(path.posix.join(projectRoot, candRel2))
+        ? candRel2
         : 'update-this.ts';
 
-    const generateRule = await generateRsBuildConfig(
+    const generateRule = await generateRspackConfig(
       remoteMap,
       projectRoot,
       projectSourceRoot,
@@ -105,9 +110,10 @@ export function init(options: MfSchematicSchema): Rule {
       RSPACK_DEV_DEPS,
     );
 
-    context.addTask(new RunSchematicTask('patch', {}), [
-      context.addTask(new NodePackageInstallTask()),
-    ]);
+    // `@nx/angular-rspack` integrates with Angular via `@angular/build`'s
+    // public/private entry points, so no node_modules patch step is required
+    // (unlike the previous `@ng-rsbuild/plugin-angular` integration).
+    context.addTask(new NodePackageInstallTask());
 
     return chain([
       ...(generateRule ? [generateRule] : []),
@@ -267,8 +273,8 @@ function updatePackageJson(
   const startScriptName = `start:${projectName}`;
   const buildScriptName = `build:${projectName}`;
 
-  packageJson.scripts[startScriptName] = `${prefix}rsbuild dev`;
-  packageJson.scripts[buildScriptName] = `${prefix}rsbuild build`;
+  packageJson.scripts[startScriptName] = `${prefix}rspack serve`;
+  packageJson.scripts[buildScriptName] = `${prefix}rspack build`;
 
   if (!projectRoot && packageJson.scripts['start']) {
     packageJson.scripts['original-start'] = packageJson.scripts['start'];
@@ -279,8 +285,8 @@ function updatePackageJson(
   }
 
   if (!projectRoot) {
-    packageJson.scripts['start'] = `rsbuild dev`;
-    packageJson.scripts['build'] = `rsbuild build`;
+    packageJson.scripts['start'] = `rspack serve`;
+    packageJson.scripts['build'] = `rspack build`;
   }
 
   printScriptInfo(projectRoot, startScriptName, buildScriptName);
@@ -298,6 +304,12 @@ function printScriptInfo(
     `[INFO] Please remember that the rspack integration is in early stages`,
   );
   console.info(
+    `[INFO] extractLicenses is off in rspack.config.ts (license-webpack-plugin`,
+  );
+  console.info(
+    `[INFO] cannot read federated modules), so no 3rdpartylicenses.txt is built`,
+  );
+  console.info(
     `[INFO] Use the following script to start and build your project:`,
   );
 
@@ -311,7 +323,7 @@ function printScriptInfo(
   console.info();
 }
 
-async function generateRsBuildConfig(
+async function generateRspackConfig(
   remoteMap: Record<string, string>,
   projectRoot: string,
   projectSourceRoot: string,

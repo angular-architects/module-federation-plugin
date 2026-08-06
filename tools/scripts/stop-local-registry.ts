@@ -3,8 +3,10 @@
  * It is meant to be called in jest's globalTeardown.
  */
 
-export default () => {
+export default async () => {
   if (global.stopLocalRegistry) {
-    global.stopLocalRegistry();
+    // Awaited so jest does not exit while verdaccio is still shutting down,
+    // which would leave it orphaned and holding the port.
+    await global.stopLocalRegistry();
   }
 };

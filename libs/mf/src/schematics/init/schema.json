@@ -49,7 +49,7 @@
           },
           {
             "value": "module-federation-rsbuild-experimental",
-            "label": "Module Federation with rsbuild (experimental nextgen); no Angular 20 support yet!"
+            "label": "Module Federation with rspack (experimental, nextgen)"
           },
           {
             "value": "native-federation-esbuild",
@@ -60,7 +60,7 @@
     },
     "nxBuilders": {
       "type": "boolean",
-      "description": "Use builders provided by Nx instead of ngx-build-plus? Defaults to true for Nx workspaces and false for CLI workspaces."
+      "description": "Use builders provided by Nx instead of @angular-builders/custom-webpack? Defaults to true for Nx workspaces and false for CLI workspaces."
     },
     "skip-confirmation": {
       "type": "boolean",

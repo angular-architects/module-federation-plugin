@@ -3,11 +3,9 @@
   "$schema": "node_modules/nx/schemas/project-schema.json",
   "targets": {
     "local-registry": {
-      "executor": "@nx/js:verdaccio",
+      "executor": "nx:run-commands",
       "options": {
-        "port": 4873,
-        "config": ".verdaccio/config.yml",
-        "storage": "tmp/local-registry/storage"
+        "command": "verdaccio --config .verdaccio/config.yml --listen 4873"
       }
     },
     "test": {

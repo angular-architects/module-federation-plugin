@@ -1,6 +1,6 @@
 import { loadRemoteModule } from '@angular-architects/native-federation';
 import { AuthService } from '@angular-architects/playground-lib';
-import { Component, Type } from '@angular/core';
+import { Component, inject, Type } from '@angular/core';
 
 @Component({
   selector: 'angular-architects-root',
@@ -12,8 +12,8 @@ export class AppComponent {
   title = 'playground';
   Cmp: Type<unknown>;
 
-  constructor(authService: AuthService) {
-    authService.userName = 'Jane Doe';
+  constructor() {
+    inject(AuthService).userName = 'Jane Doe';
   }
 
   async load() {

@@ -13,6 +13,7 @@
     },
     "build": {
       "executor": "@angular-architects/native-federation:build",
+      "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/playground",
         "index": "apps/playground/src/index.html",
@@ -56,11 +57,12 @@
           "sourceMap": true,
           "namedChunks": true
         }
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "serve": {
       "executor": "@angular-devkit/build-angular:dev-server",
+      "defaultConfiguration": "development",
+      "continuous": true,
       "configurations": {
         "production": {
           "buildTarget": "playground:build:production"
@@ -68,9 +70,7 @@
         "development": {
           "buildTarget": "playground:build:development"
         }
-      },
-      "defaultConfiguration": "development",
-      "continuous": true
+      }
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
@@ -80,13 +80,13 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
           "apps/playground/src/**/*.ts",
           "apps/playground/src/**/*.html"
         ]
-      },
-      "outputs": ["{options.outputFile}"]
+      }
     },
     "test": {
       "executor": "@nx/jest:jest",

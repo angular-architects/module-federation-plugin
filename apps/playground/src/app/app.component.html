@@ -4,6 +4,8 @@
   <button (click)="load()">Load</button>
 </div>
 
-<div *ngIf="Cmp">
-  <div *ngComponentOutlet="Cmp"></div>
-</div>
+@if (Cmp) {
+  <div>
+    <div *ngComponentOutlet="Cmp"></div>
+  </div>
+}
