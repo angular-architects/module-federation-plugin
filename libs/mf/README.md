@@ -22,9 +22,7 @@ Module Federation allows loading separately compiled and deployed code (like mic
 
 ## Supporting Several Technologies
 
-✅ Supports webpack, rspack (experimental, nextgen), esbuild
-
-✅ Supports Module Federation and Native Federation
+✅ Supports webpack and rspack (experimental, nextgen)
 
 ✅ Supports the Angular CLI and Nx
 
@@ -61,13 +59,13 @@ We are going to provide at least one major per Angular major to keep track with 
 
 Beginning with Angular 13, we had to add some changes to adjust to the Angular CLI. Please see the next section for this.
 
-## webpack, rspack, and esbuild
+## webpack and rspack
 
-Since version 19, the plugin's ng-add schematic asks whether you want to use the traditional Webpack-based builder, the (currently experimental, fast, next-generation) rspack builder, or esbuild (fast, Angular CLI's new default).
+The plugin's ng-add schematic asks whether you want to use the traditional Webpack-based builder or the (currently experimental, fast, next-generation) rspack builder. Both are supported via Module Federation.
 
-The first two are supported via Module Federation. For the rspack integration, we build on `@nx/angular-rspack` — originally Colum Ferry's awesome community project (`@ng-rsbuild/plugin-angular` / `@ng-rspack/build`), now maintained by the Nx team. So, all credit for making rspack work with Angular goes to Colum and the Nx team.
+For the rspack integration, we build on `@nx/angular-rspack` — originally Colum Ferry's awesome community project (`@ng-rsbuild/plugin-angular` / `@ng-rspack/build`), now maintained by the Nx team. So, all credit for making rspack work with Angular goes to Colum and the Nx team.
 
-The esbuild integration is technically a wrapper around the Angular CLI's new default builder, the ApplicationBuilder. It is powered by Native Federation, our bundler-agnostic implementation based on web standards like ECMAScript modules and Import Maps.
+Looking for the esbuild/ApplicationBuilder route? That is Native Federation, which now lives in its own organization: [github.com/native-federation](https://github.com/native-federation).
 
 ## Update
 

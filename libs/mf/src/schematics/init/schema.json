@@ -35,8 +35,7 @@
       "type": "string",
       "enum": [
         "module-federation-webpack",
-        "module-federation-rsbuild-experimental",
-        "native-federation-esbuild"
+        "module-federation-rsbuild-experimental"
       ],
       "x-aliases": ["s"],
       "x-prompt": {
@@ -50,10 +49,6 @@
           {
             "value": "module-federation-rsbuild-experimental",
             "label": "Module Federation with rspack (experimental, nextgen)"
-          },
-          {
-            "value": "native-federation-esbuild",
-            "label": "Native Federation with esbuild (bundler-agnostic)"
           }
         ]
       }

@@ -1,32 +1,20 @@
 # @angular-architects/module-federation
 
-- [Readme for Module Federation](./libs/mf/README.md)
-- [Readme for Native Federation](./libs/native-federation/README.md)
-
-> [!WARNING]
-> **Native federation has moved!**
+> [!IMPORTANT]
+> **Native Federation has moved to its own organization: [github.com/native-federation](https://github.com/native-federation).**
 >
-> This is our older deprecated v3 version. Starting Angular 22, we're moving to a new repository. For upgrading from v3 to v4, please have a look at our [new repository](https://github.com/native-federation/angular-adapter).
+> This repository now only hosts the Module Federation packages. If you are looking for Native
+> Federation, or want to upgrade from v3 to v4, head to
+> [native-federation/angular-adapter](https://github.com/native-federation/angular-adapter).
+>
+> The deprecated Native Federation v3 sources for Angular 21 remain available on the
+> [`21.x.x`](https://github.com/angular-architects/module-federation-plugin/tree/21.x.x) backport
+> branch.
+
+- [Readme for Module Federation](./libs/mf/README.md)
+- [Migration guides](./migration-guide.md)
 
 ## Local Development
-
-<details>
-<summary>Playground App</summary>
-
-You can test directly the libraries by using the playground application:
-
-1. Start the `host` application:
-   ```shell
-   npx nx run playground:serve
-   ```
-2. Start the `remote` application:
-   ```shell
-   npx nx run mfe1:serve --port 3001
-   ```
-
-By using that approach you can test your modifications on the libraries.
-
-</details>
 
 <details>
 <summary>Test Library on external repository</summary>
@@ -39,24 +27,18 @@ If you want to test the modifications directly on your application, you can foll
    ```
 2. Then you can publish the libraries by using:
 
-- For Module federation:
-  ```shell
-  npm run publish-local:mf
-  ```
-- For Native federation:
+   ```shell
+   npm run publish-local
+   ```
 
-  ```shell
-  npm run publish-local:nf
-  ```
-
-  This will first `build` the libraries and `publish` them to [http://localhost:4873](http://localhost:4873)
+   This will first `build` the libraries and `publish` them to [http://localhost:4873](http://localhost:4873)
 
 3. Then just re-run the `install` on the other repo with you favorite package manager.
 
 By default, the version from the `package.json` will be used. However, you can provide the version for a specific library by using:
 
 ```shell
-npx nx run native-federation:publish-local -- --ver=17.0.8
+npx nx run mf:publish-local -- --ver=22.0.1
 ```
 
 </details>
@@ -65,20 +47,16 @@ npx nx run native-federation:publish-local -- --ver=17.0.8
 
 Follow these steps to publish all libraries on `npm`:
 
-- For Module federation:
-  ```shell
-  npm run publish:mf
-  ```
-- For Native federation:
-  ```shell
-  npm run publish:nf
-  ```
-  This will first `build` the libraries and `publish` them to `npm registry`.
+```shell
+npm run publish
+```
 
-By default, the version from the `package.json` will be used and the tag will be `next`. However, you can provide the version and the tag for a specific library by using:
+This will first `build` the libraries and `publish` them to `npm registry`.
+
+By default, the version from the `package.json` will be used and the tag will be `latest`. However, you can provide the version and the tag for a specific library by using:
 
 ```shell
-npx nx run native-federation:publish -- --ver=17.0.8 --tag=latest
+npx nx run mf:publish -- --ver=22.0.1 --tag=latest
 ```
 
 </details>
