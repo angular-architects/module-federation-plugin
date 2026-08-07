@@ -40,6 +40,7 @@
     "uuid": "^11.1.1",
     "@hono/node-server": "^2.0.5"
   },
+  "packageManager": "npm",
   "precommit": "format:write",
   "private": true,
   "dependencies": {

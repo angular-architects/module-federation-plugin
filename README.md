@@ -1,5 +1,12 @@
 # @angular-architects/module-federation
 
+> [!NOTE]
+> **v22.0.0-next.1 (Angular 22) is out and we are looking for feedback.**
+>
+> Please try it on a real project and tell us what breaks, what feels off, and what you would
+> like to see improved before `22.0.0` goes stable:
+> [call for feedback, bug reports and improvements (#1124)](https://github.com/angular-architects/module-federation-plugin/issues/1124).
+
 > [!IMPORTANT]
 > **Native Federation has moved to its own organization: [github.com/native-federation](https://github.com/native-federation).**
 >

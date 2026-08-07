@@ -13,11 +13,6 @@
         "packageJson": "libs/mf/package.json",
         "main": "libs/mf/src/index.ts",
         "assets": [
-          {
-            "input": "./packages/mf/tutorial",
-            "glob": "**/*",
-            "output": "tutorial"
-          },
           "libs/mf/*.md",
           "libs/mf/LICENSE",
           {
@@ -27,7 +22,17 @@
           },
           {
             "input": "./libs/mf/src",
-            "glob": "**/*.!(ts)",
+            "glob": "**/schema.json",
+            "output": "./src"
+          },
+          {
+            "input": "./libs/mf/src",
+            "glob": "**/files/**/*",
+            "output": "./src"
+          },
+          {
+            "input": "./libs/mf/src",
+            "glob": "**/*.d.ts",
             "output": "./src"
           },
           {
