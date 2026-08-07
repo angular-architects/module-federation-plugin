@@ -56,6 +56,7 @@ We are going to provide at least one major per Angular major to keep track with 
 - Angular 19: @angular-architects/module-federation: ^19.0.0
 - Angular 20: @angular-architects/module-federation: ^20.0.0
 - Angular 21: @angular-architects/module-federation: ^21.2.0
+- Angular 22: @angular-architects/module-federation: ^22.0.0
 
 Beginning with Angular 13, we had to add some changes to adjust to the Angular CLI. Please see the next section for this.
 

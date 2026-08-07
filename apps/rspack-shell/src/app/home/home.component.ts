@@ -10,9 +10,10 @@ import { Component } from '@angular/core';
       <code>AuthService</code> instance.
     </p>
     <p>
-      This is the same demo as <code>apps/shell</code>, built with rspack instead
-      of webpack. Watch the network tab: <code>remoteEntry.js</code> is fetched
-      as an ES module via <code>import()</code>, not injected as a script tag.
+      This is the same demo as <code>apps/shell</code>, built with rspack
+      instead of webpack. Watch the network tab: <code>remoteEntry.js</code> is
+      fetched as an ES module via <code>import()</code>, not injected as a
+      script tag.
     </p>
   `,
 })
