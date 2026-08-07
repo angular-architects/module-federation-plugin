@@ -76,11 +76,6 @@ These exist only because the demo lives inside the plugin's own repository:
   rebuilds `mf-runtime`, and ng-packagr recreates `dist/libs/mf-runtime`, which
   would yank the module out from under a dev-server already watching it. Using
   sources also means editing a library live-reloads the demo.
-- `shell/tsconfig.app.json` sets `strict: false`. `libs/mf-runtime` is itself
-  compiled with `strict: false` and violates `strictNullChecks` and
-  `noImplicitAny`, and a strict program cannot consume those sources. Only the
-  app build is relaxed; the specs still type-check strictly. `mfe1` and `mfe2`
-  don't import the runtime, so they stay fully strict.
 
 Everything else is what `ng g @angular-architects/module-federation:init-webpack`
 generates for an Nx workspace: the `@nx/angular:webpack-browser` and

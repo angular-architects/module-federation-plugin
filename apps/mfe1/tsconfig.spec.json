@@ -2,7 +2,12 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "module": "commonjs",
+    // `@angular/core/testing` is reachable only through the package's `exports`
+    // map, which the inherited `moduleResolution: node` cannot read. Bundler
+    // resolution can, and it requires `module` to be es2015 or later —
+    // jest-preset-angular emits CommonJS regardless.
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "types": ["jest", "node"]
   },
   "files": ["src/test-setup.ts"],

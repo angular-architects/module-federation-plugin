@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@angular-architects/module-federation": ["mf-runtime/src/index.ts"],
+      "tslib": ["tslib/src/index.ts"],
+      "@angular/router/upgrade": ["router-upgrade/src/index.ts"],
+      "my-lib": ["my-lib/src/index.ts"],
+      "opt-out-lib": ["opt-out-lib/src/index.ts"]
+    }
+  }
+}
