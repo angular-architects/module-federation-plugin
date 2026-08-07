@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import baseConfig from '../../eslint.config.mjs';
 import baseConfig1 from '../../eslint.base.config.mjs';
 import nx from '@nx/eslint-plugin';
-import jsoncEslintParser from 'jsonc-eslint-parser';
+import * as jsoncEslintParser from 'jsonc-eslint-parser';
 
 export default [
   ...baseConfig,
