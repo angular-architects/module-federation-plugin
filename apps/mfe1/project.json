@@ -4,29 +4,43 @@
   "projectType": "application",
   "sourceRoot": "apps/mfe1/src",
   "prefix": "angular-architects",
-  "tags": [],
+  "tags": ["scope:demo"],
   "targets": {
     "build": {
-      "executor": "@angular-architects/native-federation:build",
+      "executor": "@nx/angular:webpack-browser",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
+      "dependsOn": [
+        {
+          "projects": ["mf"],
+          "target": "build"
+        }
+      ],
       "options": {
+        "customWebpackConfig": {
+          "path": "apps/mfe1/webpack.config.js"
+        },
         "outputPath": "dist/apps/mfe1",
         "index": "apps/mfe1/src/index.html",
         "main": "apps/mfe1/src/main.ts",
         "polyfills": "apps/mfe1/src/polyfills.ts",
         "tsConfig": "apps/mfe1/tsconfig.app.json",
-        "assets": ["apps/mfe1/src/favicon.ico", "apps/mfe1/src/assets"],
+        "assets": [],
         "styles": ["apps/mfe1/src/styles.css"],
-        "scripts": []
+        "scripts": [],
+        "commonChunk": false,
+        "extractLicenses": false
       },
       "configurations": {
         "production": {
+          "customWebpackConfig": {
+            "path": "apps/mfe1/webpack.prod.config.js"
+          },
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "500kb",
-              "maximumError": "1mb"
+              "maximumWarning": "1mb",
+              "maximumError": "2mb"
             },
             {
               "type": "anyComponentStyle",
@@ -34,28 +48,26 @@
               "maximumError": "4kb"
             }
           ],
-          "fileReplacements": [
-            {
-              "replace": "apps/mfe1/src/environments/environment.ts",
-              "with": "apps/mfe1/src/environments/environment.prod.ts"
-            }
-          ],
           "outputHashing": "all"
         },
         "development": {
-          "buildOptimizer": false,
           "optimization": false,
-          "vendorChunk": true,
-          "extractLicenses": false,
           "sourceMap": true,
           "namedChunks": true
         }
       }
     },
     "serve": {
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "executor": "@nx/angular:dev-server",
       "defaultConfiguration": "development",
       "continuous": true,
+      "options": {
+        "port": 4201,
+        "publicHost": "http://localhost:4201",
+        "headers": {
+          "Access-Control-Allow-Origin": "*"
+        }
+      },
       "configurations": {
         "production": {
           "buildTarget": "mfe1:build:production"
@@ -63,13 +75,13 @@
         "development": {
           "buildTarget": "mfe1:build:development"
         }
-      }
-    },
-    "extract-i18n": {
-      "executor": "@angular-devkit/build-angular:extract-i18n",
-      "options": {
-        "buildTarget": "mfe1:build"
-      }
+      },
+      "dependsOn": [
+        {
+          "projects": ["mf"],
+          "target": "build"
+        }
+      ]
     },
     "lint": {
       "executor": "@nx/eslint:lint",

@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'angular-architects-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
-  standalone: false,
+  imports: [RouterOutlet],
+  template: `
+    <h1>mfe2 — standalone</h1>
+    <router-outlet />
+  `,
 })
-export class AppComponent {
-  title = 'mfe2';
-}
+export class AppComponent {}

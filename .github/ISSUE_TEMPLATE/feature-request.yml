@@ -7,7 +7,6 @@ body:
     attributes:
       label: For which library do you have a feature request?
       options:
-        - native-federation
         - module-federation
         - other
       multiple: true

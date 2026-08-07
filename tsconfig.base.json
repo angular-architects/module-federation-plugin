@@ -31,26 +31,8 @@
       "@angular-architects/module-federation/rsbuild": [
         "libs/mf/rsbuild/src/index.ts"
       ],
-      "@angular-architects/native-federation": [
-        "libs/native-federation/src/index.ts"
-      ],
       "@angular-architects/playground-lib": [
         "libs/playground-lib/src/index.ts"
-      ],
-      "@softarc/native-federation": [
-        "libs/native-federation-core/src/index.ts"
-      ],
-      "@softarc/native-federation-esbuild": [
-        "libs/native-federation-esbuild/src/index.ts"
-      ],
-      "@softarc/native-federation-node": [
-        "libs/native-federation-node/src/index.ts"
-      ],
-      "@softarc/native-federation-runtime": [
-        "libs/native-federation-runtime/src/index.ts"
-      ],
-      "@softarc/native-federation/build": [
-        "libs/native-federation-core/build.ts"
       ],
       "mf-rsbuild": ["mf-rsbuild/src/index.ts"]
     }

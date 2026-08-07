@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "types": [],
+    // In-repo demo only. The inherited `paths` resolve
+    // @angular-architects/module-federation to libs/mf-runtime/src, which is
+    // itself compiled with `strict: false` (see libs/mf-runtime/tsconfig.json)
+    // and violates both strictNullChecks and noImplicitAny. A strict program
+    // cannot consume those sources, so this build matches the library. Only
+    // tsconfig.app.json is relaxed — the specs still type-check strictly.
+    "strict": false
+  },
+  "files": ["src/main.ts", "src/polyfills.ts"],
+  "include": ["src/**/*.d.ts"],
+  "exclude": ["**/*.test.ts", "**/*.spec.ts", "jest.config.ts"]
+}

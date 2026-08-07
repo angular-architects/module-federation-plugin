@@ -240,7 +240,7 @@ export default function config(options: MfSchematicSchema): Rule {
         `\nWARNING: This package uses the traditional webpack-based Module Federation implementation and not the fast new esbuild-based ApplicationBuilder.`,
       );
       console.warn(
-        `\nFor new projects, consider Native Federation as an alternative: https://shorturl.at/0ZQ0j`,
+        `\nFor new projects, consider Native Federation as an alternative: https://github.com/native-federation`,
       );
       console.warn(
         `\nHowever, if you want to add a new host or remote to an existing Module Federation-based system, this package is what you are looking for.`,

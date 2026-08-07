@@ -1,5 +1,3 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 import baseConfig from '../../eslint.config.mjs';
 import nx from '@nx/eslint-plugin';
 
