@@ -1,8 +1,15 @@
+import * as path from 'path';
 import type { Configuration } from '@rspack/core';
 import { Shared } from '@rspack/core/dist/sharing/SharePlugin';
 import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 import { applySkipList, normalizeSkipList, SkipList } from '../utils/skip-list';
-import { findRootTsConfigJson, SharedMappings } from '../webpack';
+import {
+  DEFAULT_SECONDARIES_SKIP_LIST,
+  DEFAULT_SKIP_LIST,
+  findRootTsConfigJson,
+  SharedMappings,
+} from '../webpack';
+import type { SharedLib } from './shared-mappings-loader';
 
 export type FederationOptions = {
   name?: string;
@@ -13,6 +20,12 @@ export type FederationOptions = {
 
 export type FederationConfig = {
   options: FederationOptions;
+
+  // Monorepo libs to share, by their `paths` key in the root tsconfig. When
+  // omitted, every non-wildcard `paths` entry that survives the skip list is
+  // shared.
+  sharedMappings?: string[];
+
   skip?: SkipList;
 };
 
@@ -35,11 +48,18 @@ export function applyFederation(
   rspackConfig: Configuration,
   federationConfig: FederationConfig,
 ): Configuration {
-  const { skip, ...mfConfig } = federationConfig;
-  const normalizedSkip = normalizeSkipList(skip);
+  const { skip, sharedMappings, ...mfConfig } = federationConfig;
+  const normalizedSkip = normalizeSkipList([
+    ...DEFAULT_SKIP_LIST,
+    ...DEFAULT_SECONDARIES_SKIP_LIST,
+    ...(skip ?? []),
+  ]);
 
   const mappings = new SharedMappings();
-  mappings.register(findRootTsConfigJson());
+  mappings.register(
+    findRootTsConfigJson(),
+    sharedMappings?.filter((key) => !normalizedSkip.some((f) => f(key))),
+  );
 
   const shared = (mfConfig.options.shared ?? {}) as Shared;
   const sharedWithLibs: Shared = {
@@ -83,9 +103,9 @@ export function applyFederation(
     },
   };
 
+  applySharedMappingsLoader(rspackConfig, mappings);
+
   rspackConfig.plugins ??= [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  rspackConfig.plugins.push(mappings.getPlugin() as any);
   rspackConfig.plugins.push(
     new ModuleFederationPlugin({
       name: mfConfig.options.name || 'host',
@@ -121,6 +141,40 @@ export function applyFederation(
   };
 
   return rspackConfig;
+}
+
+//
+// See shared-mappings-loader.ts for why the mappings are applied by a loader
+// here rather than by `SharedMappings.getPlugin()` — which is a *webpack*
+// `NormalModuleReplacementPlugin` and cannot drive rspack's consume-shared
+// modules even once it is swapped for rspack's own.
+//
+function applySharedMappingsLoader(
+  rspackConfig: Configuration,
+  mappings: SharedMappings,
+): void {
+  const libs: SharedLib[] = Object.entries(mappings.getAliases()).map(
+    ([key, libPath]) => ({ key, libFolder: path.dirname(libPath) }),
+  );
+
+  if (libs.length === 0) {
+    return;
+  }
+
+  rspackConfig.module ??= {};
+  rspackConfig.module.rules ??= [];
+  rspackConfig.module.rules.push({
+    test: /\.[cm]?[jt]sx?$/,
+    exclude: /node_modules/,
+    // A post loader runs last, so it sees what Angular's transform emitted.
+    enforce: 'post',
+    use: [
+      {
+        loader: require.resolve('./shared-mappings-loader'),
+        options: { libs },
+      },
+    ],
+  });
 }
 
 function isServerConfig(config: Configuration): boolean {

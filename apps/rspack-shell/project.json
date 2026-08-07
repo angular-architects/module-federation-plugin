@@ -1,0 +1,51 @@
+{
+  "name": "rspack-shell",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/rspack-shell/src",
+  "prefix": "angular-architects",
+  "tags": ["scope:demo"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/rspack-shell"],
+      "dependsOn": [
+        {
+          "projects": ["mf"],
+          "target": "build"
+        }
+      ],
+      "options": {
+        "command": "rspack build",
+        "cwd": "apps/rspack-shell"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "dependsOn": [
+        {
+          "projects": ["mf"],
+          "target": "build"
+        },
+        {
+          "projects": ["rspack-mfe1"],
+          "target": "serve"
+        }
+      ],
+      "options": {
+        "command": "rspack serve",
+        "cwd": "apps/rspack-shell"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": [
+          "apps/rspack-shell/**/*.ts",
+          "apps/rspack-shell/**/*.html"
+        ]
+      }
+    }
+  }
+}

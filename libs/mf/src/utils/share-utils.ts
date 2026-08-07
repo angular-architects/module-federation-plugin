@@ -11,6 +11,13 @@ export const DEFAULT_SKIP_LIST = [
   '@softarc/native-federation',
   '@angular-architects/module-federation',
   '@angular-architects/module-federation-runtime',
+  // The rspack/enhanced container bundles its own runtime into every entry
+  // point. Sharing it makes it a consume-shared module, so the runtime would
+  // have to be running already in order to load itself.
+  '@module-federation/enhanced',
+  '@module-federation/runtime',
+  '@module-federation/runtime-core',
+  '@module-federation/sdk',
   'tslib',
   'zone.js',
 ];
@@ -18,6 +25,9 @@ export const DEFAULT_SKIP_LIST = [
 export const DEFAULT_SECONDARIES_SKIP_LIST = [
   '@angular/router/upgrade',
   '@angular/common/upgrade',
+  // Imported statically by main.ts, before any share scope exists.
+  '@angular-architects/module-federation/runtime',
+  '@angular-architects/module-federation-runtime/enhanced',
 ];
 
 type VersionMap = Record<string, string>;

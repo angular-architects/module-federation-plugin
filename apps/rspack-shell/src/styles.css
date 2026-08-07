@@ -1,0 +1,8 @@
+body {
+  font-family: system-ui, sans-serif;
+  margin: 1rem;
+}
+
+nav a {
+  margin-right: 1rem;
+}

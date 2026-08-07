@@ -199,14 +199,16 @@ function makeMainAsync(main: string, options: MfSchematicSchema): Rule {
     if (options.type === 'dynamic-host') {
       newMainContent = `import { initFederation } from '@angular-architects/module-federation/runtime';
 
-initFederation('mf.manifest.json');
-
 //
 // [HINT] Use this function to load remotes (e.g. in the routing config):
 // import { loadRemoteModule } from '@angular-architects/module-federation/runtime';
 //
 
-import('./bootstrap');
+// initFederation fetches the manifest, so nothing may import a shared library
+// until it resolves — hence the dynamic import of ./bootstrap.
+initFederation('mf.manifest.json')
+  .then(() => import('./bootstrap'))
+  .catch(err => console.error(err));
 
 `;
     } else {

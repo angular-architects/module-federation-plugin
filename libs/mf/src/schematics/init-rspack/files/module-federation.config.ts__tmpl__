@@ -18,6 +18,12 @@ export default withFederation({
     },
 
   },
+
+  // Monorepo libs to share, by their `paths` key in the root tsconfig.
+  // Omit this to share every non-wildcard `paths` entry.
+  //
+  // sharedMappings: ['@my-workspace/my-lib'],
+
   skip: [
     // Add the names of packages, entrypoints
     // and libs you don't want to share here
