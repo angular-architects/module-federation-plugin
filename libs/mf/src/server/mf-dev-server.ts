@@ -16,9 +16,9 @@ function startCmd(name: string, cmd: string): void {
 }
 
 // tslint:disable-next-line: no-shadowed-variable
-function startApps(apps: ProjectInfo[]): void {
+function startApps(apps: ProjectInfo[], open: boolean): void {
   for (const app of apps) {
-    const cmd = `ng serve ${app.name} -o`;
+    const cmd = `ng serve ${app.name} --open ${open}`;
     print('DEVSVR', padding, app.name + ' ' + (app.port || '4200'));
     startCmd(app.name, cmd);
   }
@@ -30,6 +30,15 @@ if (!isWorkspace()) {
 }
 
 const [, , ...filter] = argv;
+
+let open = true;
+const dontOpenIndex = filter.indexOf("--open=false")
+
+if(dontOpenIndex >= 0) {
+  open = false;
+  filter.splice(dontOpenIndex, 1);
+}
+
 const startAll = filter.length === 0;
 
 const projects = readProjectInfos();
@@ -41,4 +50,4 @@ const apps = projects.filter(
 );
 padding = apps.reduce((acc, p) => Math.max(acc, p.name.length), 0);
 padding = Math.max(6, padding);
-startApps(apps);
+startApps(apps, open);
