@@ -195,7 +195,7 @@ function makeMainAsync(main: string, options: MfSchematicSchema): Rule {
     const mainContent = tree.read(main);
     tree.create(bootstrapName, mainContent);
 
-    let newMainContent = '';
+    let newMainContent: string;
     if (options.type === 'dynamic-host') {
       newMainContent = `import { initFederation } from '@angular-architects/module-federation/runtime';
 

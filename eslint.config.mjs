@@ -1,6 +1,6 @@
 import globals from 'globals';
 import baseConfig from './eslint.base.config.mjs';
-import jsoncEslintParser from 'jsonc-eslint-parser';
+import * as jsoncEslintParser from 'jsonc-eslint-parser';
 
 export default [
   ...baseConfig,

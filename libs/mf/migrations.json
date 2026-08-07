@@ -1,0 +1,10 @@
+{
+  "$schema": "../../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "migrate-to-custom-webpack": {
+      "version": "22.0.0",
+      "description": "Replaces the ngx-build-plus builders with @angular-builders/custom-webpack.",
+      "factory": "./src/schematics/migrate-to-custom-webpack/schematic"
+    }
+  }
+}

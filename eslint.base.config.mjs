@@ -1,6 +1,6 @@
 import globals from 'globals';
 import nx from '@nx/eslint-plugin';
-import jsoncEslintParser from 'jsonc-eslint-parser';
+import * as jsoncEslintParser from 'jsonc-eslint-parser';
 
 export default [
   ...nx.configs['flat/base'],
