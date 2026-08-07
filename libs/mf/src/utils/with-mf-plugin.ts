@@ -10,7 +10,7 @@ import { ModifyEntryPlugin } from './modify-entry-plugin';
 import ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 
 export function withModuleFederationPlugin(config: unknown) {
-  const sharedMappings = config['sharedMappings'];
+  let sharedMappings = config['sharedMappings'];
   delete config['sharedMappings'];
 
   const skip = [
@@ -22,7 +22,7 @@ export function withModuleFederationPlugin(config: unknown) {
   delete config['skip'];
 
   if (sharedMappings) {
-    sharedMappings.filter((m) => !skip.includes(m));
+    sharedMappings = sharedMappings.filter((m) => !skip.includes(m));
   }
 
   const mappings = new SharedMappings();
