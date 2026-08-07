@@ -42,7 +42,9 @@ Thumbs.db
 # Nx
 .nx/cache
 .nx
-migrations.json
+# Only the migrations.json `nx migrate` writes at the root — a bare pattern would
+# also swallow libs/mf/migrations.json, which is the published ng-update collection.
+/migrations.json
 
 # Angular
 .angular
