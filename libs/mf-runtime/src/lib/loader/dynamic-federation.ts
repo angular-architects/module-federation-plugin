@@ -63,8 +63,7 @@ async function initRemote(container: Container, key: string) {
 }
 
 export type LoadRemoteEntryOptions =
-  | LoadRemoteEntryScriptOptions
-  | LoadRemoteEntryEsmOptions;
+  LoadRemoteEntryScriptOptions | LoadRemoteEntryEsmOptions;
 
 export type LoadRemoteEntryScriptOptions = {
   type?: 'script';
@@ -92,6 +91,9 @@ export async function loadRemoteEntry(
 ): Promise<void> {
   if (typeof remoteEntryOrOptions === 'string') {
     const remoteEntry = remoteEntryOrOptions;
+    if (!remoteName) {
+      throw new Error(`No remoteName passed for remote entry "${remoteEntry}"`);
+    }
     return await loadRemoteScriptEntry(remoteEntry, remoteName, nonce);
   } else if (remoteEntryOrOptions.type === 'script') {
     const options = remoteEntryOrOptions;
@@ -139,7 +141,9 @@ async function loadRemoteScriptEntry(
     script.onerror = reject;
 
     script.onload = () => {
-      const container = window[remoteName] as Container;
+      const container = (window as unknown as Record<string, unknown>)[
+        remoteName
+      ] as Container;
       initRemote(container, remoteName);
       containerMap[remoteName] = container;
       resolve();
@@ -174,6 +178,93 @@ export type LoadRemoteModuleManifestOptions = {
   exposedModule: string;
 };
 
+// `LoadRemoteModuleOptions` after the manifest lookup and the legacy defaulting
+// have been applied, so `type` is always one of the two loadable variants.
+type ResolvedRemoteModuleOptions =
+  | {
+      type: 'script';
+      remoteEntry?: string;
+      remoteName: string;
+      exposedModule: string;
+      nonce?: string;
+    }
+  | { type: 'module'; remoteEntry: string; exposedModule: string };
+
+function resolveManifestEntry(
+  remoteName: string,
+  exposedModule: string,
+): ResolvedRemoteModuleOptions {
+  const manifestEntry = config[remoteName];
+
+  if (!manifestEntry) {
+    throw new Error('Manifest does not contain ' + remoteName);
+  }
+
+  // The manifest is fetched at runtime and parseConfig does not validate it, so
+  // `type` is only nominally 'module' | 'script'.
+  const type: string = manifestEntry.type;
+
+  if (type === 'script') {
+    return {
+      type: 'script',
+      remoteEntry: manifestEntry.remoteEntry,
+      remoteName,
+      exposedModule,
+    };
+  }
+
+  if (type === 'module') {
+    return {
+      type: 'module',
+      remoteEntry: manifestEntry.remoteEntry,
+      exposedModule,
+    };
+  }
+
+  throw new Error(
+    `Unsupported type "${type}" for remote "${remoteName}" - expected "module" or "script"`,
+  );
+}
+
+function resolveOptions(
+  optionsOrRemoteName: LoadRemoteModuleOptions | string,
+  exposedModule?: string,
+): ResolvedRemoteModuleOptions {
+  if (typeof optionsOrRemoteName === 'string') {
+    if (!exposedModule) {
+      throw new Error(
+        `No exposedModule passed for remote "${optionsOrRemoteName}"`,
+      );
+    }
+    return resolveManifestEntry(optionsOrRemoteName, exposedModule);
+  }
+
+  const options = optionsOrRemoteName;
+
+  if (options.type === 'module') {
+    return options;
+  }
+
+  if (options.type === 'manifest') {
+    return resolveManifestEntry(options.remoteName, options.exposedModule);
+  }
+
+  // To support legacy API (< ng 13): a missing type means manifest whenever one
+  // is loaded, and script otherwise.
+  if (!options.type && Object.keys(config).length > 0) {
+    return resolveManifestEntry(options.remoteName, options.exposedModule);
+  }
+
+  const type: string = options.type ?? 'script';
+  if (type !== 'script') {
+    throw new Error(
+      `Unsupported type "${type}" for remote "${options.remoteName}" - expected "module" or "script"`,
+    );
+  }
+
+  return { ...options, type: 'script' };
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function loadRemoteModule<T = any>(
   remoteName: string,
@@ -186,62 +277,23 @@ export async function loadRemoteModule<T = any>(
   optionsOrRemoteName: LoadRemoteModuleOptions | string,
   exposedModule?: string,
 ): Promise<T> {
-  let loadRemoteEntryOptions: LoadRemoteEntryOptions;
-  let key: string;
-  let remoteEntry: string;
-  let options: LoadRemoteModuleOptions;
+  const options = resolveOptions(optionsOrRemoteName, exposedModule);
 
-  if (typeof optionsOrRemoteName === 'string') {
-    options = {
-      type: 'manifest',
-      remoteName: optionsOrRemoteName,
-      exposedModule: exposedModule,
-    };
-  } else {
-    options = optionsOrRemoteName;
-  }
+  const key =
+    options.type === 'script' ? options.remoteName : options.remoteEntry;
 
-  // To support legacy API (< ng 13)
-  if (!options.type) {
-    const hasManifest = Object.keys(config).length > 0;
-    options.type = hasManifest ? 'manifest' : 'script';
-  }
-
-  if (options.type === 'manifest') {
-    const manifestEntry = config[options.remoteName];
-    if (!manifestEntry) {
-      throw new Error('Manifest does not contain ' + options.remoteName);
-    }
-    options = {
-      type: manifestEntry.type,
-      exposedModule: options.exposedModule,
-      remoteEntry: manifestEntry.remoteEntry,
-      remoteName:
-        manifestEntry.type === 'script' ? options.remoteName : undefined,
-    };
-    remoteEntry = manifestEntry.remoteEntry;
-  } else {
-    remoteEntry = options.remoteEntry;
-  }
-
-  if (options.type === 'script') {
-    loadRemoteEntryOptions = {
-      type: 'script',
-      remoteEntry: options.remoteEntry,
-      remoteName: options.remoteName,
-      nonce: options.nonce,
-    };
-    key = options.remoteName;
-  } else if (options.type === 'module') {
-    loadRemoteEntryOptions = {
-      type: 'module',
-      remoteEntry: options.remoteEntry,
-    };
-    key = options.remoteEntry;
-  }
-
+  const remoteEntry = options.remoteEntry;
   if (remoteEntry) {
-    await loadRemoteEntry(loadRemoteEntryOptions);
+    await loadRemoteEntry(
+      options.type === 'script'
+        ? {
+            type: 'script',
+            remoteEntry,
+            remoteName: options.remoteName,
+            nonce: options.nonce,
+          }
+        : { type: 'module', remoteEntry },
+    );
   }
 
   return await lookupExposedModule<T>(key, options.exposedModule);
