@@ -26,13 +26,13 @@ export function connectRouter(router: Router, useHash = false): void {
     url = `${location.pathname.substring(1)}${location.search}`;
     router.navigateByUrl(url);
     window.addEventListener('popstate', () => {
-      router.navigateByUrl(url);
+      router.navigateByUrl(`${location.pathname.substring(1)}${location.search}`);
     });
   } else {
     url = `${location.hash.substring(1)}${location.search}`;
     router.navigateByUrl(url);
     window.addEventListener('hashchange', () => {
-      router.navigateByUrl(url);
+      router.navigateByUrl(`${location.pathname.substring(1)}${location.search}`);
     });
   }
 }
