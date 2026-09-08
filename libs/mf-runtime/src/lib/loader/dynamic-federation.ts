@@ -144,7 +144,11 @@ async function loadRemoteScriptEntry(
       const container = (window as unknown as Record<string, unknown>)[
         remoteName
       ] as Container;
-      await initRemote(container, remoteName);
+      try {
+        await initRemote(container, remoteName);
+      } catch (error) {
+        reject(error);
+      }
       containerMap[remoteName] = container;
       resolve();
     };
