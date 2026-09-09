@@ -17,6 +17,14 @@
         ]
       }
     },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "reportsDirectory": "../../coverage/libs/native-federation-core",
+        "configFile": "libs/native-federation-core/vitest.config.mts"
+      }
+    },
     "publish": {
       "dependsOn": ["build"],
       "executor": "nx:run-commands",
