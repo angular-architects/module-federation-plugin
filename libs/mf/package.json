@@ -1,6 +1,6 @@
 {
   "name": "@angular-architects/module-federation",
-  "version": "22.0.0-next.1",
+  "version": "22.0.0",
   "license": "MIT",
   "repository": {
     "type": "GitHub",

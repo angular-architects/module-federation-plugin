@@ -9,7 +9,7 @@ import {
 import chalk from 'chalk';
 
 // Executing publish script: node path/to/publish.mjs {project} {registry} {version} {tag}
-// Default "tag" to "next" so we won't publish the "latest" tag by accident.
+// Defaults to the "latest" dist-tag; pass "next" explicitly for pre-releases.
 const [, , nameArgv, targetRegistry, versionArgv, tagArgv = 'latest'] =
   process.argv;
 

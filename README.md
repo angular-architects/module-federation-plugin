@@ -1,10 +1,10 @@
 # @angular-architects/module-federation
 
 > [!NOTE]
-> **v22.0.0-next.1 (Angular 22) is out and we are looking for feedback.**
+> **v22.0.0 (Angular 22) is out.**
 >
-> Please try it on a real project and tell us what breaks, what feels off, and what you would
-> like to see improved before `22.0.0` goes stable:
+> Thanks to everyone who tried the release candidate and reported back. Found something that
+> still breaks or feels off? Let us know:
 > [call for feedback, bug reports and improvements (#1124)](https://github.com/angular-architects/module-federation-plugin/issues/1124).
 
 > [!IMPORTANT]
