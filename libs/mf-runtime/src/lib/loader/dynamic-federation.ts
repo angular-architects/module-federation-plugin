@@ -3,8 +3,8 @@ type Scope = unknown;
 type Factory = () => any;
 
 type Container = {
-  init(shareScope: Scope): void;
-  get(module: string): Factory;
+  init(shareScope: Scope): void | Promise<void>;
+  get(module: string): Factory | Promise<Factory>;
 };
 
 let config: Manifest = {};
@@ -113,8 +113,8 @@ async function loadRemoteModuleEntry(remoteEntry: string): Promise<void> {
     return Promise.resolve();
   }
   return await import(/* webpackIgnore:true */ remoteEntry).then(
-    (container) => {
-      initRemote(container, remoteEntry);
+    async (container) => {
+      await initRemote(container, remoteEntry);
       containerMap[remoteEntry] = container;
     },
   );
@@ -140,11 +140,15 @@ async function loadRemoteScriptEntry(
 
     script.onerror = reject;
 
-    script.onload = () => {
+    script.onload = async () => {
       const container = (window as unknown as Record<string, unknown>)[
         remoteName
       ] as Container;
-      initRemote(container, remoteName);
+      try {
+        await initRemote(container, remoteName);
+      } catch (error) {
+        reject(error);
+      }
       containerMap[remoteName] = container;
       resolve();
     };
