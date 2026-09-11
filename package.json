@@ -111,6 +111,7 @@
     "typescript": "~6.0.0",
     "typescript-eslint": "^8.58.0",
     "verdaccio": "^6.2.1",
+    "webpack-merge": "^5.10.0",
     "word-wrap": "^1.2.5"
   },
   "nx": {
