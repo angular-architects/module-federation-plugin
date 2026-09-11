@@ -55,6 +55,10 @@ export function updateScriptTags(
     ...nfOptions.esmsInitOptions,
   };
 
+  // A module-shim main tag makes es-module-shims force shim mode back on, so
+  // an explicit shimMode: false must emit a real module script.
+  const mainType = esmsOptions.shimMode === false ? 'module' : 'module-shim';
+
   const htmlFragment = `
 <script type="esms-options">${JSON.stringify(esmsOptions)}</script>
 `;
@@ -65,7 +69,7 @@ export function updateScriptTags(
   );
   indexContent = indexContent.replace(
     /<script\s+src="([^"]*main[^"]*)"[^>]*><\/script>/,
-    '<script type="module-shim" src="$1"></script>',
+    `<script type="${mainType}" src="$1"></script>`,
   );
 
   indexContent = indexContent.replace(/(<body.*?>)/, `$1\n\t\t${htmlFragment}`);
