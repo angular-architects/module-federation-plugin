@@ -104,7 +104,7 @@ export function createAngularBuildAdapter(
         (f) => f.endsWith('.js') || f.endsWith('.mjs'),
       );
       for (const file of scriptFiles) {
-        link(file, dev);
+        await link(file, dev);
       }
     }
 
@@ -147,7 +147,8 @@ export function createAngularBuildAdapter(
 
     // Nothing left to link: the compiler plugin already processed partial
     // declarations. Returning early ships esbuild's source map untouched.
-    if (!/\u0275\u0275ngDeclare/.test(code)) {
+    // Both spellings: esbuild's default charset 'ascii' escapes the ɵɵ it emits.
+    if (!/(\u0275\u0275|\\u0275\\u0275)ngDeclare/.test(code)) {
       return;
     }
 
