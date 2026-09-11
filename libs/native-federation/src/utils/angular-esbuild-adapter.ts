@@ -145,6 +145,12 @@ export function createAngularBuildAdapter(
   async function link(outfile: string, dev: boolean) {
     const code = fs.readFileSync(outfile, 'utf-8');
 
+    // Nothing left to link: the compiler plugin already processed partial
+    // declarations. Returning early ships esbuild's source map untouched.
+    if (!/\u0275\u0275ngDeclare/.test(code)) {
+      return;
+    }
+
     try {
       const linkerEsm = await loadEsmModule<{ default: PluginItem }>(
         '@angular/compiler-cli/linker/babel',
@@ -295,7 +301,11 @@ async function runEsbuild(
     external,
     logLevel,
     bundle: true,
-    sourcemap: sourcemapOptions.scripts,
+    sourcemap: sourcemapOptions.scripts
+      ? sourcemapOptions.hidden
+        ? 'external'
+        : true
+      : false,
     minify: !dev,
     supported: {
       'async-await': false,
