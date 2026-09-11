@@ -63,8 +63,7 @@ async function initRemote(container: Container, key: string) {
 }
 
 export type LoadRemoteEntryOptions =
-  | LoadRemoteEntryScriptOptions
-  | LoadRemoteEntryEsmOptions;
+  LoadRemoteEntryScriptOptions | LoadRemoteEntryEsmOptions;
 
 export type LoadRemoteEntryScriptOptions = {
   type?: 'script';
