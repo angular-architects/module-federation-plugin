@@ -29,14 +29,6 @@ export function resolveSpecifier(importMap, specifier, parentURL) {
       if (scopeImportsMatch) {
         return scopeImportsMatch;
       }
-    } else {
-      const topLevelImportsMatch = resolveImportsMatch(
-        normalizedSpecifier,
-        importMap.imports,
-      );
-      if (topLevelImportsMatch) {
-        return topLevelImportsMatch;
-      }
     }
   }
 
