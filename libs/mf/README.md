@@ -12,7 +12,7 @@ We are standing on the shoulders of giants. Big thanks to the following people w
 - [Dmitriy Shekhovtsov](https://twitter.com/valorkin), Angular GDE
 - [Michael Egger-Zikes](https://twitter.com/MikeZks), Angular Architects
 
-## Prequisites
+## Prerequisites
 
 - Angular CLI 12 or higher
 
