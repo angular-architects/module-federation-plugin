@@ -196,8 +196,24 @@ RouterModule.forRoot([
 
 ## Directly Loading a Web Component via Module Federation
 
-The `WebComponentWrapper` can also be used as a traditional component:
+The `WebComponentWrapper` can also be used as a traditional component, as it is a part of `ModuleFederationToolsModule`:
 
+```typescript
+// angular-component.module.ts
+import { ModuleFederationToolsModule } from "@angular-architects/module-federation-tools";
+
+
+@NgModule({
+  declarations: [ ... ],
+  exports: [ ... ],
+  imports: [
+    ...
+    ModuleFederationToolsModule,
+  ],
+})
+export class AngularComponentModule {}
+```
+In the template:
 ```html
 <mft-wc-wrapper [options]="item"></mft-wc-wrapper>
 ```
@@ -229,6 +245,16 @@ events = {
 <mft-wc-wrapper [options]="item" [props]="props" [events]="events"></mft-wc-wrapper>
 ```
 
+Remember that in order to use props we need to access html web compnent durnig render and extract them. (React example)
+
+```typescript
+class MfElement extends HTMLElement {
+  connectedCallback() {
+    const props = this["props"];
+    ReactDOM.render(<App {...props} />, this);
+  }
+}
+```
 ## Some Additional Details
 
 > In a multi version micro frontend strategy, it is important to load the zone.js bundle to the window object only once. Also, one need to make sure that only one instance of the ngZone is used by all the micro frontends.
