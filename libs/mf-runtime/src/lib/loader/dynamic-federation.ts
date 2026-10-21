@@ -104,7 +104,7 @@ export async function loadRemoteEntry(
     );
   } else if (remoteEntryOrOptions.type === 'module') {
     const options = remoteEntryOrOptions;
-    await loadRemoteModuleEntry(options.remoteEntry);
+    return await loadRemoteModuleEntry(options.remoteEntry);
   }
 }
 
