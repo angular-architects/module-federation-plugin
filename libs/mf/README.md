@@ -290,17 +290,17 @@ shared: share({
 })
 ```
 
-The added options are `requireVersion: 'auto'` and `includeSecondaries`.
+The added options are `requiredVersion: 'auto'` and `includeSecondaries`.
 
-#### requireVersion: 'auto'
+#### requiredVersion: 'auto'
 
-If you set `requireVersion` to `'auto'`, the helper takes the version defined in your `package.json`.
+If you set `requiredVersion` to `'auto'`, the helper takes the version defined in your `package.json`.
 
 This helps to solve issues with not (fully) met peer dependencies and secondary entry points (see Pitfalls section below).
 
 By default, it takes the `package.json` that is closest to the caller (normally the `webpack.config.js`). However, you can pass the path to an other `package.json` using the second optional parameter. Also, you need to define the shared libray within the node dependencies in your `package.json`.
 
-Instead of setting requireVersion to auto time and again, you can also skip this option and call `setInferVersion(true)` before:
+Instead of setting requiredVersion to auto time and again, you can also skip this option and call `setInferVersion(true)` before:
 
 ```typescript
 setInferVersion(true);
@@ -485,20 +485,20 @@ shared: {
     "@angular/common": {
         singleton: true,
         strictVersion: true,
-        requireVersion: '12.0.0'
+        requiredVersion: '12.0.0'
     },
     [...]
 },
 ```
 
-You can also use our `share` helper that infers the version number from your `package.json` when setting `requireVersion` to `'auto'`:
+You can also use our `share` helper that infers the version number from your `package.json` when setting `requiredVersion` to `'auto'`:
 
 ```typescript
 shared: share({
     "@angular/common": {
         singleton: true,
         strictVersion: true,
-        requireVersion: 'auto'
+        requiredVersion: 'auto'
     },
     [...]
 })
